@@ -1,0 +1,3505 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"i2c.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_ppulI2CIntMap:
+  23 0000 00000240 		.word	1073872896
+  24 0004 18000000 		.word	24
+  25 0008 00100240 		.word	1073876992
+  26 000c 35000000 		.word	53
+  27 0010 00200240 		.word	1073881088
+  28 0014 54000000 		.word	84
+  29 0018 00300240 		.word	1073885184
+  30 001c 55000000 		.word	85
+  31 0020 00000C40 		.word	1074528256
+  32 0024 7D000000 		.word	125
+  33 0028 00100C40 		.word	1074532352
+  34 002c 7E000000 		.word	126
+  35              		.section	.text.I2CIntNumberGet,"ax",%progbits
+  36              		.align	2
+  37              		.thumb
+  38              		.thumb_func
+  40              	I2CIntNumberGet:
+  41              	.LFB0:
+  42              		.file 1 "C:/StellarisWare/driverlib/i2c.c"
+   1:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\i2c.c **** //
+   3:C:/StellarisWare/driverlib\i2c.c **** // i2c.c - Driver for Inter-IC (I2C) bus block.
+   4:C:/StellarisWare/driverlib\i2c.c **** //
+   5:C:/StellarisWare/driverlib\i2c.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\i2c.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\i2c.c **** // 
+   8:C:/StellarisWare/driverlib\i2c.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\i2c.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\i2c.c **** //   are met:
+  11:C:/StellarisWare/driverlib\i2c.c **** // 
+  12:C:/StellarisWare/driverlib\i2c.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\i2c.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\i2c.c **** // 
+  15:C:/StellarisWare/driverlib\i2c.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\i2c.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\i2c.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\i2c.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\i2c.c **** // 
+  20:C:/StellarisWare/driverlib\i2c.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\i2c.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\i2c.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\i2c.c **** // 
+  24:C:/StellarisWare/driverlib\i2c.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\i2c.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\i2c.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\i2c.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\i2c.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\i2c.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\i2c.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\i2c.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\i2c.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\i2c.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\i2c.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\i2c.c **** // 
+  36:C:/StellarisWare/driverlib\i2c.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\i2c.c **** //
+  38:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\i2c.c **** 
+  40:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\i2c.c **** //
+  42:C:/StellarisWare/driverlib\i2c.c **** //! \addtogroup i2c_api
+  43:C:/StellarisWare/driverlib\i2c.c **** //! @{
+  44:C:/StellarisWare/driverlib\i2c.c **** //
+  45:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\i2c.c **** 
+  47:C:/StellarisWare/driverlib\i2c.c **** #include "inc/hw_i2c.h"
+  48:C:/StellarisWare/driverlib\i2c.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\i2c.c **** #include "inc/hw_memmap.h"
+  50:C:/StellarisWare/driverlib\i2c.c **** #include "inc/hw_sysctl.h"
+  51:C:/StellarisWare/driverlib\i2c.c **** #include "inc/hw_types.h"
+  52:C:/StellarisWare/driverlib\i2c.c **** #include "driverlib/debug.h"
+  53:C:/StellarisWare/driverlib\i2c.c **** #include "driverlib/i2c.h"
+  54:C:/StellarisWare/driverlib\i2c.c **** #include "driverlib/interrupt.h"
+  55:C:/StellarisWare/driverlib\i2c.c **** 
+  56:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  57:C:/StellarisWare/driverlib\i2c.c **** //
+  58:C:/StellarisWare/driverlib\i2c.c **** // A mapping of I2C base address to interupt number.
+  59:C:/StellarisWare/driverlib\i2c.c **** //
+  60:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  61:C:/StellarisWare/driverlib\i2c.c **** static const unsigned long g_ppulI2CIntMap[][2] =
+  62:C:/StellarisWare/driverlib\i2c.c **** {
+  63:C:/StellarisWare/driverlib\i2c.c ****     { I2C0_MASTER_BASE, INT_I2C0 },
+  64:C:/StellarisWare/driverlib\i2c.c ****     { I2C1_MASTER_BASE, INT_I2C1 },
+  65:C:/StellarisWare/driverlib\i2c.c ****     { I2C2_MASTER_BASE, INT_I2C2 },
+  66:C:/StellarisWare/driverlib\i2c.c ****     { I2C3_MASTER_BASE, INT_I2C3 },
+  67:C:/StellarisWare/driverlib\i2c.c ****     { I2C4_MASTER_BASE, INT_I2C4 },
+  68:C:/StellarisWare/driverlib\i2c.c ****     { I2C5_MASTER_BASE, INT_I2C5 },
+  69:C:/StellarisWare/driverlib\i2c.c **** };
+  70:C:/StellarisWare/driverlib\i2c.c **** 
+  71:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  72:C:/StellarisWare/driverlib\i2c.c **** //
+  73:C:/StellarisWare/driverlib\i2c.c **** //! \internal
+  74:C:/StellarisWare/driverlib\i2c.c **** //! Checks a I2C master base address.
+  75:C:/StellarisWare/driverlib\i2c.c **** //!
+  76:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+  77:C:/StellarisWare/driverlib\i2c.c **** //!
+  78:C:/StellarisWare/driverlib\i2c.c **** //! This function determines if a I2C master module base address is valid.
+  79:C:/StellarisWare/driverlib\i2c.c **** //!
+  80:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns \b true if the base address is valid and \b false
+  81:C:/StellarisWare/driverlib\i2c.c **** //! otherwise.
+  82:C:/StellarisWare/driverlib\i2c.c **** //
+  83:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  84:C:/StellarisWare/driverlib\i2c.c **** #ifdef DEBUG
+  85:C:/StellarisWare/driverlib\i2c.c **** static tBoolean
+  86:C:/StellarisWare/driverlib\i2c.c **** I2CMasterBaseValid(unsigned long ulBase)
+  87:C:/StellarisWare/driverlib\i2c.c **** {
+  88:C:/StellarisWare/driverlib\i2c.c ****     return((ulBase == I2C0_MASTER_BASE) || (ulBase == I2C1_MASTER_BASE) ||
+  89:C:/StellarisWare/driverlib\i2c.c ****            (ulBase == I2C2_MASTER_BASE) || (ulBase == I2C3_MASTER_BASE) ||
+  90:C:/StellarisWare/driverlib\i2c.c ****            (ulBase == I2C4_MASTER_BASE) || (ulBase == I2C5_MASTER_BASE));
+  91:C:/StellarisWare/driverlib\i2c.c **** }
+  92:C:/StellarisWare/driverlib\i2c.c **** #endif
+  93:C:/StellarisWare/driverlib\i2c.c **** 
+  94:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+  95:C:/StellarisWare/driverlib\i2c.c **** //
+  96:C:/StellarisWare/driverlib\i2c.c **** //! \internal
+  97:C:/StellarisWare/driverlib\i2c.c **** //! Checks a I2C slave base address.
+  98:C:/StellarisWare/driverlib\i2c.c **** //!
+  99:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 100:C:/StellarisWare/driverlib\i2c.c **** //!
+ 101:C:/StellarisWare/driverlib\i2c.c **** //! This function determines if a I2C slave module base address is valid.
+ 102:C:/StellarisWare/driverlib\i2c.c **** //!
+ 103:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns \b true if the base address is valid and \b false
+ 104:C:/StellarisWare/driverlib\i2c.c **** //! otherwise.
+ 105:C:/StellarisWare/driverlib\i2c.c **** //
+ 106:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 107:C:/StellarisWare/driverlib\i2c.c **** #ifdef DEBUG
+ 108:C:/StellarisWare/driverlib\i2c.c **** static tBoolean
+ 109:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveBaseValid(unsigned long ulBase)
+ 110:C:/StellarisWare/driverlib\i2c.c **** {
+ 111:C:/StellarisWare/driverlib\i2c.c ****     return((ulBase == I2C0_SLAVE_BASE) || (ulBase == I2C1_SLAVE_BASE) ||
+ 112:C:/StellarisWare/driverlib\i2c.c ****            (ulBase == I2C2_SLAVE_BASE) || (ulBase == I2C3_SLAVE_BASE) ||
+ 113:C:/StellarisWare/driverlib\i2c.c ****            (ulBase == I2C4_SLAVE_BASE) || (ulBase == I2C5_SLAVE_BASE));
+ 114:C:/StellarisWare/driverlib\i2c.c **** }
+ 115:C:/StellarisWare/driverlib\i2c.c **** #endif
+ 116:C:/StellarisWare/driverlib\i2c.c **** 
+ 117:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 118:C:/StellarisWare/driverlib\i2c.c **** //
+ 119:C:/StellarisWare/driverlib\i2c.c **** //! \internal
+ 120:C:/StellarisWare/driverlib\i2c.c **** //! Gets the I2C interrupt number.
+ 121:C:/StellarisWare/driverlib\i2c.c **** //!
+ 122:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 123:C:/StellarisWare/driverlib\i2c.c **** //!
+ 124:C:/StellarisWare/driverlib\i2c.c **** //! Given a I2C base address, this function returns the corresponding
+ 125:C:/StellarisWare/driverlib\i2c.c **** //! interrupt number.
+ 126:C:/StellarisWare/driverlib\i2c.c **** //!
+ 127:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns an I2C interrupt number, or -1 if \e ulBase is invalid.
+ 128:C:/StellarisWare/driverlib\i2c.c **** //
+ 129:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 130:C:/StellarisWare/driverlib\i2c.c **** static long
+ 131:C:/StellarisWare/driverlib\i2c.c **** I2CIntNumberGet(unsigned long ulBase)
+ 132:C:/StellarisWare/driverlib\i2c.c **** {
+  43              		.loc 1 132 0
+  44              		.cfi_startproc
+  45              		@ args = 0, pretend = 0, frame = 16
+  46              		@ frame_needed = 1, uses_anonymous_args = 0
+  47              		@ link register save eliminated.
+  48 0000 80B4     		push	{r7}
+  49              	.LCFI0:
+  50              		.cfi_def_cfa_offset 4
+  51              		.cfi_offset 7, -4
+  52 0002 85B0     		sub	sp, sp, #20
+  53              	.LCFI1:
+  54              		.cfi_def_cfa_offset 24
+  55 0004 00AF     		add	r7, sp, #0
+  56              	.LCFI2:
+  57              		.cfi_def_cfa_register 7
+  58 0006 7860     		str	r0, [r7, #4]
+ 133:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulIdx;
+ 134:C:/StellarisWare/driverlib\i2c.c **** 
+ 135:C:/StellarisWare/driverlib\i2c.c ****     //
+ 136:C:/StellarisWare/driverlib\i2c.c ****     // Loop through the table that maps I2C base addresses to interrupt
+ 137:C:/StellarisWare/driverlib\i2c.c ****     // numbers.
+ 138:C:/StellarisWare/driverlib\i2c.c ****     //
+ 139:C:/StellarisWare/driverlib\i2c.c ****     for(ulIdx = 0; ulIdx < (sizeof(g_ppulI2CIntMap) /
+  59              		.loc 1 139 0
+  60 0008 4FF00003 		mov	r3, #0
+  61 000c FB60     		str	r3, [r7, #12]
+  62 000e 17E0     		b	.L2
+  63              	.L5:
+ 140:C:/StellarisWare/driverlib\i2c.c ****                             sizeof(g_ppulI2CIntMap[0])); ulIdx++)
+ 141:C:/StellarisWare/driverlib\i2c.c ****     {
+ 142:C:/StellarisWare/driverlib\i2c.c ****         //
+ 143:C:/StellarisWare/driverlib\i2c.c ****         // See if this base address matches.
+ 144:C:/StellarisWare/driverlib\i2c.c ****         //
+ 145:C:/StellarisWare/driverlib\i2c.c ****         if(g_ppulI2CIntMap[ulIdx][0] == ulBase)
+  64              		.loc 1 145 0
+  65 0010 40F20003 		movw	r3, #:lower16:g_ppulI2CIntMap
+  66 0014 C0F20003 		movt	r3, #:upper16:g_ppulI2CIntMap
+  67 0018 FA68     		ldr	r2, [r7, #12]
+  68 001a 53F83220 		ldr	r2, [r3, r2, lsl #3]
+  69 001e 7B68     		ldr	r3, [r7, #4]
+  70 0020 9A42     		cmp	r2, r3
+  71 0022 09D1     		bne	.L3
+ 146:C:/StellarisWare/driverlib\i2c.c ****         {
+ 147:C:/StellarisWare/driverlib\i2c.c ****             //
+ 148:C:/StellarisWare/driverlib\i2c.c ****             // Return the corresponding interrupt number.
+ 149:C:/StellarisWare/driverlib\i2c.c ****             //
+ 150:C:/StellarisWare/driverlib\i2c.c ****             return(g_ppulI2CIntMap[ulIdx][1]);
+  72              		.loc 1 150 0
+  73 0024 40F20002 		movw	r2, #:lower16:g_ppulI2CIntMap
+  74 0028 C0F20002 		movt	r2, #:upper16:g_ppulI2CIntMap
+  75 002c FB68     		ldr	r3, [r7, #12]
+  76 002e 4FEAC303 		lsl	r3, r3, #3
+  77 0032 D318     		adds	r3, r2, r3
+  78 0034 5B68     		ldr	r3, [r3, #4]
+  79 0036 08E0     		b	.L4
+  80              	.L3:
+ 140:C:/StellarisWare/driverlib\i2c.c ****                             sizeof(g_ppulI2CIntMap[0])); ulIdx++)
+  81              		.loc 1 140 0
+  82 0038 FB68     		ldr	r3, [r7, #12]
+  83 003a 03F10103 		add	r3, r3, #1
+  84 003e FB60     		str	r3, [r7, #12]
+  85              	.L2:
+ 139:C:/StellarisWare/driverlib\i2c.c ****     for(ulIdx = 0; ulIdx < (sizeof(g_ppulI2CIntMap) /
+  86              		.loc 1 139 0 discriminator 1
+  87 0040 FB68     		ldr	r3, [r7, #12]
+  88 0042 052B     		cmp	r3, #5
+  89 0044 E4D9     		bls	.L5
+ 151:C:/StellarisWare/driverlib\i2c.c ****         }
+ 152:C:/StellarisWare/driverlib\i2c.c ****     }
+ 153:C:/StellarisWare/driverlib\i2c.c **** 
+ 154:C:/StellarisWare/driverlib\i2c.c ****     //
+ 155:C:/StellarisWare/driverlib\i2c.c ****     // The base address could not be found, so return an error.
+ 156:C:/StellarisWare/driverlib\i2c.c ****     //
+ 157:C:/StellarisWare/driverlib\i2c.c ****     return(-1);
+  90              		.loc 1 157 0
+  91 0046 4FF0FF33 		mov	r3, #-1
+  92              	.L4:
+ 158:C:/StellarisWare/driverlib\i2c.c **** }
+  93              		.loc 1 158 0
+  94 004a 1846     		mov	r0, r3
+  95 004c 07F11407 		add	r7, r7, #20
+  96 0050 BD46     		mov	sp, r7
+  97 0052 80BC     		pop	{r7}
+  98 0054 7047     		bx	lr
+  99              		.cfi_endproc
+ 100              	.LFE0:
+ 102 0056 00BF     		.section	.text.I2CMasterInitExpClk,"ax",%progbits
+ 103              		.align	2
+ 104              		.global	I2CMasterInitExpClk
+ 105              		.thumb
+ 106              		.thumb_func
+ 108              	I2CMasterInitExpClk:
+ 109              	.LFB1:
+ 159:C:/StellarisWare/driverlib\i2c.c **** 
+ 160:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 161:C:/StellarisWare/driverlib\i2c.c **** //
+ 162:C:/StellarisWare/driverlib\i2c.c **** //! Initializes the I2C Master block.
+ 163:C:/StellarisWare/driverlib\i2c.c **** //!
+ 164:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 165:C:/StellarisWare/driverlib\i2c.c **** //! \param ulI2CClk is the rate of the clock supplied to the I2C module.
+ 166:C:/StellarisWare/driverlib\i2c.c **** //! \param bFast set up for fast data transfers.
+ 167:C:/StellarisWare/driverlib\i2c.c **** //!
+ 168:C:/StellarisWare/driverlib\i2c.c **** //! This function initializes operation of the I2C Master block by configuring
+ 169:C:/StellarisWare/driverlib\i2c.c **** //! the bus speed for the master and enabling the I2C Master block.
+ 170:C:/StellarisWare/driverlib\i2c.c **** //!
+ 171:C:/StellarisWare/driverlib\i2c.c **** //! If the parameter \e bFast is \b true, then the master block is set up to
+ 172:C:/StellarisWare/driverlib\i2c.c **** //! transfer data at 400 kbps; otherwise, it is set up to transfer data at
+ 173:C:/StellarisWare/driverlib\i2c.c **** //! 100 kbps.  If Fast Mode Plus (1 Mbps) is desired, software should manually
+ 174:C:/StellarisWare/driverlib\i2c.c **** //! write the I2CMTPR after calling this function.  For High Speed (3.3 Mbps)
+ 175:C:/StellarisWare/driverlib\i2c.c **** //! mode, a specific command is used to switch to the faster clocks after the
+ 176:C:/StellarisWare/driverlib\i2c.c **** //! initial communication with the slave is done at either 100 kbps or 400 kbps.
+ 177:C:/StellarisWare/driverlib\i2c.c **** //!
+ 178:C:/StellarisWare/driverlib\i2c.c **** //! The peripheral clock is the same as the processor clock.  This value is
+ 179:C:/StellarisWare/driverlib\i2c.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard coded if it is
+ 180:C:/StellarisWare/driverlib\i2c.c **** //! constant and known (to save the code/execution overhead of a call to
+ 181:C:/StellarisWare/driverlib\i2c.c **** //! SysCtlClockGet()).
+ 182:C:/StellarisWare/driverlib\i2c.c **** //!
+ 183:C:/StellarisWare/driverlib\i2c.c **** //! This function replaces the original I2CMasterInit() API and performs the
+ 184:C:/StellarisWare/driverlib\i2c.c **** //! same actions.  A macro is provided in <tt>i2c.h</tt> to map the original
+ 185:C:/StellarisWare/driverlib\i2c.c **** //! API to this API.
+ 186:C:/StellarisWare/driverlib\i2c.c **** //!
+ 187:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 188:C:/StellarisWare/driverlib\i2c.c **** //
+ 189:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 190:C:/StellarisWare/driverlib\i2c.c **** void
+ 191:C:/StellarisWare/driverlib\i2c.c **** I2CMasterInitExpClk(unsigned long ulBase, unsigned long ulI2CClk,
+ 192:C:/StellarisWare/driverlib\i2c.c ****                     tBoolean bFast)
+ 193:C:/StellarisWare/driverlib\i2c.c **** {
+ 110              		.loc 1 193 0
+ 111              		.cfi_startproc
+ 112              		@ args = 0, pretend = 0, frame = 24
+ 113              		@ frame_needed = 1, uses_anonymous_args = 0
+ 114 0000 80B5     		push	{r7, lr}
+ 115              	.LCFI3:
+ 116              		.cfi_def_cfa_offset 8
+ 117              		.cfi_offset 14, -4
+ 118              		.cfi_offset 7, -8
+ 119 0002 86B0     		sub	sp, sp, #24
+ 120              	.LCFI4:
+ 121              		.cfi_def_cfa_offset 32
+ 122 0004 00AF     		add	r7, sp, #0
+ 123              	.LCFI5:
+ 124              		.cfi_def_cfa_register 7
+ 125 0006 F860     		str	r0, [r7, #12]
+ 126 0008 B960     		str	r1, [r7, #8]
+ 127 000a 1346     		mov	r3, r2
+ 128 000c FB71     		strb	r3, [r7, #7]
+ 194:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulSCLFreq;
+ 195:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulTPR;
+ 196:C:/StellarisWare/driverlib\i2c.c **** 
+ 197:C:/StellarisWare/driverlib\i2c.c ****     //
+ 198:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 199:C:/StellarisWare/driverlib\i2c.c ****     //
+ 200:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 201:C:/StellarisWare/driverlib\i2c.c **** 
+ 202:C:/StellarisWare/driverlib\i2c.c ****     //
+ 203:C:/StellarisWare/driverlib\i2c.c ****     // Must enable the device before doing anything else.
+ 204:C:/StellarisWare/driverlib\i2c.c ****     //
+ 205:C:/StellarisWare/driverlib\i2c.c ****     I2CMasterEnable(ulBase);
+ 129              		.loc 1 205 0
+ 130 000e F868     		ldr	r0, [r7, #12]
+ 131 0010 FFF7FEFF 		bl	I2CMasterEnable
+ 206:C:/StellarisWare/driverlib\i2c.c **** 
+ 207:C:/StellarisWare/driverlib\i2c.c ****     //
+ 208:C:/StellarisWare/driverlib\i2c.c ****     // Get the desired SCL speed.
+ 209:C:/StellarisWare/driverlib\i2c.c ****     //
+ 210:C:/StellarisWare/driverlib\i2c.c ****     if(bFast == true)
+ 132              		.loc 1 210 0
+ 133 0014 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 134 0016 012B     		cmp	r3, #1
+ 135 0018 05D1     		bne	.L7
+ 211:C:/StellarisWare/driverlib\i2c.c ****     {
+ 212:C:/StellarisWare/driverlib\i2c.c ****         ulSCLFreq = 400000;
+ 136              		.loc 1 212 0
+ 137 001a 4FF4D453 		mov	r3, #6784
+ 138 001e C0F20603 		movt	r3, 6
+ 139 0022 7B61     		str	r3, [r7, #20]
+ 140 0024 04E0     		b	.L8
+ 141              	.L7:
+ 213:C:/StellarisWare/driverlib\i2c.c ****     }
+ 214:C:/StellarisWare/driverlib\i2c.c ****     else
+ 215:C:/StellarisWare/driverlib\i2c.c ****     {
+ 216:C:/StellarisWare/driverlib\i2c.c ****         ulSCLFreq = 100000;
+ 142              		.loc 1 216 0
+ 143 0026 48F2A063 		movw	r3, #34464
+ 144 002a C0F20103 		movt	r3, 1
+ 145 002e 7B61     		str	r3, [r7, #20]
+ 146              	.L8:
+ 217:C:/StellarisWare/driverlib\i2c.c ****     }
+ 218:C:/StellarisWare/driverlib\i2c.c **** 
+ 219:C:/StellarisWare/driverlib\i2c.c ****     //
+ 220:C:/StellarisWare/driverlib\i2c.c ****     // Compute the clock divider that achieves the fastest speed less than or
+ 221:C:/StellarisWare/driverlib\i2c.c ****     // equal to the desired speed.  The numerator is biased to favor a larger
+ 222:C:/StellarisWare/driverlib\i2c.c ****     // clock divider so that the resulting clock is always less than or equal
+ 223:C:/StellarisWare/driverlib\i2c.c ****     // to the desired clock, never greater.
+ 224:C:/StellarisWare/driverlib\i2c.c ****     //
+ 225:C:/StellarisWare/driverlib\i2c.c ****     ulTPR = ((ulI2CClk + (2 * 10 * ulSCLFreq) - 1) / (2 * 10 * ulSCLFreq)) - 1;
+ 147              		.loc 1 225 0
+ 148 0030 7A69     		ldr	r2, [r7, #20]
+ 149 0032 1346     		mov	r3, r2
+ 150 0034 4FEA8303 		lsl	r3, r3, #2
+ 151 0038 9B18     		adds	r3, r3, r2
+ 152 003a 4FEA8303 		lsl	r3, r3, #2
+ 153 003e 1A46     		mov	r2, r3
+ 154 0040 BB68     		ldr	r3, [r7, #8]
+ 155 0042 D318     		adds	r3, r2, r3
+ 156 0044 03F1FF31 		add	r1, r3, #-1
+ 157 0048 7A69     		ldr	r2, [r7, #20]
+ 158 004a 1346     		mov	r3, r2
+ 159 004c 4FEA8303 		lsl	r3, r3, #2
+ 160 0050 9B18     		adds	r3, r3, r2
+ 161 0052 4FEA8303 		lsl	r3, r3, #2
+ 162 0056 B1FBF3F3 		udiv	r3, r1, r3
+ 163 005a 03F1FF33 		add	r3, r3, #-1
+ 164 005e 3B61     		str	r3, [r7, #16]
+ 226:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MTPR) = ulTPR;
+ 165              		.loc 1 226 0
+ 166 0060 FB68     		ldr	r3, [r7, #12]
+ 167 0062 03F10C03 		add	r3, r3, #12
+ 168 0066 3A69     		ldr	r2, [r7, #16]
+ 169 0068 1A60     		str	r2, [r3, #0]
+ 227:C:/StellarisWare/driverlib\i2c.c **** 
+ 228:C:/StellarisWare/driverlib\i2c.c ****     //
+ 229:C:/StellarisWare/driverlib\i2c.c ****     // Check to see if this I2C peripheral is High-Speed enabled.  If yes, also
+ 230:C:/StellarisWare/driverlib\i2c.c ****     // choose the fastest speed that is less than or equal to 3.4Mbps.
+ 231:C:/StellarisWare/driverlib\i2c.c ****     //
+ 232:C:/StellarisWare/driverlib\i2c.c ****     if(HWREG(ulBase + I2C_O_PP) & I2C_PP_HS)
+ 170              		.loc 1 232 0
+ 171 006a FB68     		ldr	r3, [r7, #12]
+ 172 006c 03F57C63 		add	r3, r3, #4032
+ 173 0070 1B68     		ldr	r3, [r3, #0]
+ 174 0072 03F00103 		and	r3, r3, #1
+ 175 0076 DBB2     		uxtb	r3, r3
+ 176 0078 002B     		cmp	r3, #0
+ 177 007a 17D0     		beq	.L6
+ 233:C:/StellarisWare/driverlib\i2c.c ****     {
+ 234:C:/StellarisWare/driverlib\i2c.c ****         ulTPR = ((ulI2CClk + (2 * 3 * 3400000) - 1) /
+ 178              		.loc 1 234 0
+ 179 007c BA68     		ldr	r2, [r7, #8]
+ 180 007e 44F27F73 		movw	r3, #18303
+ 181 0082 C0F23713 		movt	r3, 311
+ 182 0086 D318     		adds	r3, r2, r3
+ 183 0088 4DF27D02 		movw	r2, #53373
+ 184 008c C6F64412 		movt	r2, 26948
+ 185 0090 A2FB0313 		umull	r1, r3, r2, r3
+ 186 0094 4FEAD353 		lsr	r3, r3, #23
+ 187 0098 03F1FF33 		add	r3, r3, #-1
+ 188 009c 3B61     		str	r3, [r7, #16]
+ 235:C:/StellarisWare/driverlib\i2c.c ****                 (2 * 3 * 3400000)) - 1;
+ 236:C:/StellarisWare/driverlib\i2c.c ****         HWREG(ulBase + I2C_O_MTPR) = I2C_MTPR_HS | ulTPR;
+ 189              		.loc 1 236 0
+ 190 009e FB68     		ldr	r3, [r7, #12]
+ 191 00a0 03F10C03 		add	r3, r3, #12
+ 192 00a4 3A69     		ldr	r2, [r7, #16]
+ 193 00a6 42F08002 		orr	r2, r2, #128
+ 194 00aa 1A60     		str	r2, [r3, #0]
+ 195              	.L6:
+ 237:C:/StellarisWare/driverlib\i2c.c ****     }
+ 238:C:/StellarisWare/driverlib\i2c.c **** }
+ 196              		.loc 1 238 0
+ 197 00ac 07F11807 		add	r7, r7, #24
+ 198 00b0 BD46     		mov	sp, r7
+ 199 00b2 80BD     		pop	{r7, pc}
+ 200              		.cfi_endproc
+ 201              	.LFE1:
+ 203              		.section	.text.I2CSlaveInit,"ax",%progbits
+ 204              		.align	2
+ 205              		.global	I2CSlaveInit
+ 206              		.thumb
+ 207              		.thumb_func
+ 209              	I2CSlaveInit:
+ 210              	.LFB2:
+ 239:C:/StellarisWare/driverlib\i2c.c **** 
+ 240:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 241:C:/StellarisWare/driverlib\i2c.c **** //
+ 242:C:/StellarisWare/driverlib\i2c.c **** //! Initializes the I2C Slave block.
+ 243:C:/StellarisWare/driverlib\i2c.c **** //!
+ 244:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 245:C:/StellarisWare/driverlib\i2c.c **** //! \param ucSlaveAddr 7-bit slave address
+ 246:C:/StellarisWare/driverlib\i2c.c **** //!
+ 247:C:/StellarisWare/driverlib\i2c.c **** //! This function initializes operation of the I2C Slave block by configuring
+ 248:C:/StellarisWare/driverlib\i2c.c **** //! the slave address and enabling the I2C Slave block.
+ 249:C:/StellarisWare/driverlib\i2c.c **** //!
+ 250:C:/StellarisWare/driverlib\i2c.c **** //! The parameter \e ucSlaveAddr is the value that is compared against the
+ 251:C:/StellarisWare/driverlib\i2c.c **** //! slave address sent by an I2C master.
+ 252:C:/StellarisWare/driverlib\i2c.c **** //!
+ 253:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 254:C:/StellarisWare/driverlib\i2c.c **** //
+ 255:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 256:C:/StellarisWare/driverlib\i2c.c **** void
+ 257:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveInit(unsigned long ulBase, unsigned char ucSlaveAddr)
+ 258:C:/StellarisWare/driverlib\i2c.c **** {
+ 211              		.loc 1 258 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 8
+ 214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 215 0000 80B5     		push	{r7, lr}
+ 216              	.LCFI6:
+ 217              		.cfi_def_cfa_offset 8
+ 218              		.cfi_offset 14, -4
+ 219              		.cfi_offset 7, -8
+ 220 0002 82B0     		sub	sp, sp, #8
+ 221              	.LCFI7:
+ 222              		.cfi_def_cfa_offset 16
+ 223 0004 00AF     		add	r7, sp, #0
+ 224              	.LCFI8:
+ 225              		.cfi_def_cfa_register 7
+ 226 0006 7860     		str	r0, [r7, #4]
+ 227 0008 0B46     		mov	r3, r1
+ 228 000a FB70     		strb	r3, [r7, #3]
+ 259:C:/StellarisWare/driverlib\i2c.c ****     //
+ 260:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 261:C:/StellarisWare/driverlib\i2c.c ****     //
+ 262:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 263:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(!(ucSlaveAddr & 0x80));
+ 264:C:/StellarisWare/driverlib\i2c.c **** 
+ 265:C:/StellarisWare/driverlib\i2c.c ****     //
+ 266:C:/StellarisWare/driverlib\i2c.c ****     // Must enable the device before doing anything else.
+ 267:C:/StellarisWare/driverlib\i2c.c ****     //
+ 268:C:/StellarisWare/driverlib\i2c.c ****     I2CSlaveEnable(ulBase);
+ 229              		.loc 1 268 0
+ 230 000c 7868     		ldr	r0, [r7, #4]
+ 231 000e FFF7FEFF 		bl	I2CSlaveEnable
+ 269:C:/StellarisWare/driverlib\i2c.c **** 
+ 270:C:/StellarisWare/driverlib\i2c.c ****     //
+ 271:C:/StellarisWare/driverlib\i2c.c ****     // Set up the slave address.
+ 272:C:/StellarisWare/driverlib\i2c.c ****     //
+ 273:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SOAR) = ucSlaveAddr;
+ 232              		.loc 1 273 0
+ 233 0012 7B68     		ldr	r3, [r7, #4]
+ 234 0014 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 235 0016 1A60     		str	r2, [r3, #0]
+ 274:C:/StellarisWare/driverlib\i2c.c **** }
+ 236              		.loc 1 274 0
+ 237 0018 07F10807 		add	r7, r7, #8
+ 238 001c BD46     		mov	sp, r7
+ 239 001e 80BD     		pop	{r7, pc}
+ 240              		.cfi_endproc
+ 241              	.LFE2:
+ 243              		.section	.text.I2CSlaveAddressSet,"ax",%progbits
+ 244              		.align	2
+ 245              		.global	I2CSlaveAddressSet
+ 246              		.thumb
+ 247              		.thumb_func
+ 249              	I2CSlaveAddressSet:
+ 250              	.LFB3:
+ 275:C:/StellarisWare/driverlib\i2c.c **** 
+ 276:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 277:C:/StellarisWare/driverlib\i2c.c **** //
+ 278:C:/StellarisWare/driverlib\i2c.c **** //! Sets the I2C slave address.
+ 279:C:/StellarisWare/driverlib\i2c.c **** //!
+ 280:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 281:C:/StellarisWare/driverlib\i2c.c **** //! \param ucAddrNum determines which slave address is set.
+ 282:C:/StellarisWare/driverlib\i2c.c **** //! \param ucSlaveAddr is the 7-bit slave address
+ 283:C:/StellarisWare/driverlib\i2c.c **** //!
+ 284:C:/StellarisWare/driverlib\i2c.c **** //! This function writes the specified slave address.  The \e ulAddrNum field
+ 285:C:/StellarisWare/driverlib\i2c.c **** //! dictates which slave address is configured.  For example, a value of 0
+ 286:C:/StellarisWare/driverlib\i2c.c **** //! configures the primary address and a value of 1 configures the secondary.
+ 287:C:/StellarisWare/driverlib\i2c.c **** //!
+ 288:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support a secondary address. Please consult
+ 289:C:/StellarisWare/driverlib\i2c.c **** //! the device data sheet to know if this feature is supported.
+ 290:C:/StellarisWare/driverlib\i2c.c **** //!
+ 291:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 292:C:/StellarisWare/driverlib\i2c.c **** //
+ 293:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 294:C:/StellarisWare/driverlib\i2c.c **** void
+ 295:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveAddressSet(unsigned long ulBase, unsigned char ucAddrNum,
+ 296:C:/StellarisWare/driverlib\i2c.c ****                    unsigned char ucSlaveAddr)
+ 297:C:/StellarisWare/driverlib\i2c.c **** {
+ 251              		.loc 1 297 0
+ 252              		.cfi_startproc
+ 253              		@ args = 0, pretend = 0, frame = 8
+ 254              		@ frame_needed = 1, uses_anonymous_args = 0
+ 255              		@ link register save eliminated.
+ 256 0000 80B4     		push	{r7}
+ 257              	.LCFI9:
+ 258              		.cfi_def_cfa_offset 4
+ 259              		.cfi_offset 7, -4
+ 260 0002 83B0     		sub	sp, sp, #12
+ 261              	.LCFI10:
+ 262              		.cfi_def_cfa_offset 16
+ 263 0004 00AF     		add	r7, sp, #0
+ 264              	.LCFI11:
+ 265              		.cfi_def_cfa_register 7
+ 266 0006 7860     		str	r0, [r7, #4]
+ 267 0008 1346     		mov	r3, r2
+ 268 000a 0A46     		mov	r2, r1
+ 269 000c FA70     		strb	r2, [r7, #3]
+ 270 000e BB70     		strb	r3, [r7, #2]
+ 298:C:/StellarisWare/driverlib\i2c.c ****     //
+ 299:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 300:C:/StellarisWare/driverlib\i2c.c ****     //
+ 301:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 302:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(!(ucAddrNum > 1));
+ 303:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(!(ucSlaveAddr & 0x80));
+ 304:C:/StellarisWare/driverlib\i2c.c **** 
+ 305:C:/StellarisWare/driverlib\i2c.c ****     //
+ 306:C:/StellarisWare/driverlib\i2c.c ****     // Determine which slave address is being set.
+ 307:C:/StellarisWare/driverlib\i2c.c ****     //
+ 308:C:/StellarisWare/driverlib\i2c.c ****     switch(ucAddrNum)
+ 271              		.loc 1 308 0
+ 272 0010 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 273 0012 002B     		cmp	r3, #0
+ 274 0014 02D0     		beq	.L13
+ 275 0016 012B     		cmp	r3, #1
+ 276 0018 04D0     		beq	.L14
+ 277 001a 0CE0     		b	.L11
+ 278              	.L13:
+ 309:C:/StellarisWare/driverlib\i2c.c ****     {
+ 310:C:/StellarisWare/driverlib\i2c.c ****         //
+ 311:C:/StellarisWare/driverlib\i2c.c ****         // Set up the primary slave address.
+ 312:C:/StellarisWare/driverlib\i2c.c ****         //
+ 313:C:/StellarisWare/driverlib\i2c.c ****         case 0:
+ 314:C:/StellarisWare/driverlib\i2c.c ****         {
+ 315:C:/StellarisWare/driverlib\i2c.c ****             HWREG(ulBase + I2C_O_SOAR) = ucSlaveAddr;
+ 279              		.loc 1 315 0
+ 280 001c 7B68     		ldr	r3, [r7, #4]
+ 281 001e BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 282 0020 1A60     		str	r2, [r3, #0]
+ 316:C:/StellarisWare/driverlib\i2c.c ****             break;
+ 283              		.loc 1 316 0
+ 284 0022 08E0     		b	.L11
+ 285              	.L14:
+ 317:C:/StellarisWare/driverlib\i2c.c ****         }
+ 318:C:/StellarisWare/driverlib\i2c.c **** 
+ 319:C:/StellarisWare/driverlib\i2c.c ****         //
+ 320:C:/StellarisWare/driverlib\i2c.c ****         // Set up and enable the secondary slave address.
+ 321:C:/StellarisWare/driverlib\i2c.c ****         //
+ 322:C:/StellarisWare/driverlib\i2c.c ****         case 1:
+ 323:C:/StellarisWare/driverlib\i2c.c ****         {
+ 324:C:/StellarisWare/driverlib\i2c.c ****             HWREG(ulBase + I2C_O_SOAR2) = I2C_SOAR2_OAR2EN | ucSlaveAddr;
+ 286              		.loc 1 324 0
+ 287 0024 7B68     		ldr	r3, [r7, #4]
+ 288 0026 03F11C03 		add	r3, r3, #28
+ 289 002a BA78     		ldrb	r2, [r7, #2]
+ 290 002c 62F07F02 		orn	r2, r2, #127
+ 291 0030 D2B2     		uxtb	r2, r2
+ 292 0032 1A60     		str	r2, [r3, #0]
+ 325:C:/StellarisWare/driverlib\i2c.c ****             break;
+ 293              		.loc 1 325 0
+ 294 0034 00BF     		nop
+ 295              	.L11:
+ 326:C:/StellarisWare/driverlib\i2c.c ****         }
+ 327:C:/StellarisWare/driverlib\i2c.c ****     }
+ 328:C:/StellarisWare/driverlib\i2c.c **** }
+ 296              		.loc 1 328 0
+ 297 0036 07F10C07 		add	r7, r7, #12
+ 298 003a BD46     		mov	sp, r7
+ 299 003c 80BC     		pop	{r7}
+ 300 003e 7047     		bx	lr
+ 301              		.cfi_endproc
+ 302              	.LFE3:
+ 304              		.section	.text.I2CMasterEnable,"ax",%progbits
+ 305              		.align	2
+ 306              		.global	I2CMasterEnable
+ 307              		.thumb
+ 308              		.thumb_func
+ 310              	I2CMasterEnable:
+ 311              	.LFB4:
+ 329:C:/StellarisWare/driverlib\i2c.c **** 
+ 330:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 331:C:/StellarisWare/driverlib\i2c.c **** //
+ 332:C:/StellarisWare/driverlib\i2c.c **** //! Enables the I2C Master block.
+ 333:C:/StellarisWare/driverlib\i2c.c **** //!
+ 334:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 335:C:/StellarisWare/driverlib\i2c.c **** //!
+ 336:C:/StellarisWare/driverlib\i2c.c **** //! This function enables operation of the I2C Master block.
+ 337:C:/StellarisWare/driverlib\i2c.c **** //!
+ 338:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 339:C:/StellarisWare/driverlib\i2c.c **** //
+ 340:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 341:C:/StellarisWare/driverlib\i2c.c **** void
+ 342:C:/StellarisWare/driverlib\i2c.c **** I2CMasterEnable(unsigned long ulBase)
+ 343:C:/StellarisWare/driverlib\i2c.c **** {
+ 312              		.loc 1 343 0
+ 313              		.cfi_startproc
+ 314              		@ args = 0, pretend = 0, frame = 8
+ 315              		@ frame_needed = 1, uses_anonymous_args = 0
+ 316              		@ link register save eliminated.
+ 317 0000 80B4     		push	{r7}
+ 318              	.LCFI12:
+ 319              		.cfi_def_cfa_offset 4
+ 320              		.cfi_offset 7, -4
+ 321 0002 83B0     		sub	sp, sp, #12
+ 322              	.LCFI13:
+ 323              		.cfi_def_cfa_offset 16
+ 324 0004 00AF     		add	r7, sp, #0
+ 325              	.LCFI14:
+ 326              		.cfi_def_cfa_register 7
+ 327 0006 7860     		str	r0, [r7, #4]
+ 344:C:/StellarisWare/driverlib\i2c.c ****     //
+ 345:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 346:C:/StellarisWare/driverlib\i2c.c ****     //
+ 347:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 348:C:/StellarisWare/driverlib\i2c.c **** 
+ 349:C:/StellarisWare/driverlib\i2c.c ****     //
+ 350:C:/StellarisWare/driverlib\i2c.c ****     // Enable the master block.
+ 351:C:/StellarisWare/driverlib\i2c.c ****     //
+ 352:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MCR) |= I2C_MCR_MFE;
+ 328              		.loc 1 352 0
+ 329 0008 7B68     		ldr	r3, [r7, #4]
+ 330 000a 03F12003 		add	r3, r3, #32
+ 331 000e 7A68     		ldr	r2, [r7, #4]
+ 332 0010 02F12002 		add	r2, r2, #32
+ 333 0014 1268     		ldr	r2, [r2, #0]
+ 334 0016 42F01002 		orr	r2, r2, #16
+ 335 001a 1A60     		str	r2, [r3, #0]
+ 353:C:/StellarisWare/driverlib\i2c.c **** }
+ 336              		.loc 1 353 0
+ 337 001c 07F10C07 		add	r7, r7, #12
+ 338 0020 BD46     		mov	sp, r7
+ 339 0022 80BC     		pop	{r7}
+ 340 0024 7047     		bx	lr
+ 341              		.cfi_endproc
+ 342              	.LFE4:
+ 344 0026 00BF     		.section	.text.I2CSlaveEnable,"ax",%progbits
+ 345              		.align	2
+ 346              		.global	I2CSlaveEnable
+ 347              		.thumb
+ 348              		.thumb_func
+ 350              	I2CSlaveEnable:
+ 351              	.LFB5:
+ 354:C:/StellarisWare/driverlib\i2c.c **** 
+ 355:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 356:C:/StellarisWare/driverlib\i2c.c **** //
+ 357:C:/StellarisWare/driverlib\i2c.c **** //! Enables the I2C Slave block.
+ 358:C:/StellarisWare/driverlib\i2c.c **** //!
+ 359:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 360:C:/StellarisWare/driverlib\i2c.c **** //!
+ 361:C:/StellarisWare/driverlib\i2c.c **** //! This fucntion enables operation of the I2C Slave block.
+ 362:C:/StellarisWare/driverlib\i2c.c **** //!
+ 363:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 364:C:/StellarisWare/driverlib\i2c.c **** //
+ 365:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 366:C:/StellarisWare/driverlib\i2c.c **** void
+ 367:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveEnable(unsigned long ulBase)
+ 368:C:/StellarisWare/driverlib\i2c.c **** {
+ 352              		.loc 1 368 0
+ 353              		.cfi_startproc
+ 354              		@ args = 0, pretend = 0, frame = 8
+ 355              		@ frame_needed = 1, uses_anonymous_args = 0
+ 356              		@ link register save eliminated.
+ 357 0000 80B4     		push	{r7}
+ 358              	.LCFI15:
+ 359              		.cfi_def_cfa_offset 4
+ 360              		.cfi_offset 7, -4
+ 361 0002 83B0     		sub	sp, sp, #12
+ 362              	.LCFI16:
+ 363              		.cfi_def_cfa_offset 16
+ 364 0004 00AF     		add	r7, sp, #0
+ 365              	.LCFI17:
+ 366              		.cfi_def_cfa_register 7
+ 367 0006 7860     		str	r0, [r7, #4]
+ 369:C:/StellarisWare/driverlib\i2c.c ****     //
+ 370:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 371:C:/StellarisWare/driverlib\i2c.c ****     //
+ 372:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 373:C:/StellarisWare/driverlib\i2c.c **** 
+ 374:C:/StellarisWare/driverlib\i2c.c ****     //
+ 375:C:/StellarisWare/driverlib\i2c.c ****     // Enable the clock to the slave block.
+ 376:C:/StellarisWare/driverlib\i2c.c ****     //
+ 377:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase - I2C0_SLAVE_BASE + I2C0_MASTER_BASE + I2C_O_MCR) |=
+ 368              		.loc 1 377 0
+ 369 0008 7B68     		ldr	r3, [r7, #4]
+ 370 000a A3F5FC63 		sub	r3, r3, #2016
+ 371 000e 7A68     		ldr	r2, [r7, #4]
+ 372 0010 A2F5FC62 		sub	r2, r2, #2016
+ 373 0014 1268     		ldr	r2, [r2, #0]
+ 374 0016 42F02002 		orr	r2, r2, #32
+ 375 001a 1A60     		str	r2, [r3, #0]
+ 378:C:/StellarisWare/driverlib\i2c.c ****         I2C_MCR_SFE;
+ 379:C:/StellarisWare/driverlib\i2c.c **** 
+ 380:C:/StellarisWare/driverlib\i2c.c ****     //
+ 381:C:/StellarisWare/driverlib\i2c.c ****     // Enable the slave.
+ 382:C:/StellarisWare/driverlib\i2c.c ****     //
+ 383:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SCSR) = I2C_SCSR_DA;
+ 376              		.loc 1 383 0
+ 377 001c 7B68     		ldr	r3, [r7, #4]
+ 378 001e 03F10403 		add	r3, r3, #4
+ 379 0022 4FF00102 		mov	r2, #1
+ 380 0026 1A60     		str	r2, [r3, #0]
+ 384:C:/StellarisWare/driverlib\i2c.c **** }
+ 381              		.loc 1 384 0
+ 382 0028 07F10C07 		add	r7, r7, #12
+ 383 002c BD46     		mov	sp, r7
+ 384 002e 80BC     		pop	{r7}
+ 385 0030 7047     		bx	lr
+ 386              		.cfi_endproc
+ 387              	.LFE5:
+ 389 0032 00BF     		.section	.text.I2CMasterDisable,"ax",%progbits
+ 390              		.align	2
+ 391              		.global	I2CMasterDisable
+ 392              		.thumb
+ 393              		.thumb_func
+ 395              	I2CMasterDisable:
+ 396              	.LFB6:
+ 385:C:/StellarisWare/driverlib\i2c.c **** 
+ 386:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 387:C:/StellarisWare/driverlib\i2c.c **** //
+ 388:C:/StellarisWare/driverlib\i2c.c **** //! Disables the I2C master block.
+ 389:C:/StellarisWare/driverlib\i2c.c **** //!
+ 390:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 391:C:/StellarisWare/driverlib\i2c.c **** //!
+ 392:C:/StellarisWare/driverlib\i2c.c **** //! This function disables operation of the I2C master block.
+ 393:C:/StellarisWare/driverlib\i2c.c **** //!
+ 394:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 395:C:/StellarisWare/driverlib\i2c.c **** //
+ 396:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 397:C:/StellarisWare/driverlib\i2c.c **** void
+ 398:C:/StellarisWare/driverlib\i2c.c **** I2CMasterDisable(unsigned long ulBase)
+ 399:C:/StellarisWare/driverlib\i2c.c **** {
+ 397              		.loc 1 399 0
+ 398              		.cfi_startproc
+ 399              		@ args = 0, pretend = 0, frame = 8
+ 400              		@ frame_needed = 1, uses_anonymous_args = 0
+ 401              		@ link register save eliminated.
+ 402 0000 80B4     		push	{r7}
+ 403              	.LCFI18:
+ 404              		.cfi_def_cfa_offset 4
+ 405              		.cfi_offset 7, -4
+ 406 0002 83B0     		sub	sp, sp, #12
+ 407              	.LCFI19:
+ 408              		.cfi_def_cfa_offset 16
+ 409 0004 00AF     		add	r7, sp, #0
+ 410              	.LCFI20:
+ 411              		.cfi_def_cfa_register 7
+ 412 0006 7860     		str	r0, [r7, #4]
+ 400:C:/StellarisWare/driverlib\i2c.c ****     //
+ 401:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 402:C:/StellarisWare/driverlib\i2c.c ****     //
+ 403:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 404:C:/StellarisWare/driverlib\i2c.c **** 
+ 405:C:/StellarisWare/driverlib\i2c.c ****     //
+ 406:C:/StellarisWare/driverlib\i2c.c ****     // Disable the master block.
+ 407:C:/StellarisWare/driverlib\i2c.c ****     //
+ 408:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MCR) &= ~(I2C_MCR_MFE);
+ 413              		.loc 1 408 0
+ 414 0008 7B68     		ldr	r3, [r7, #4]
+ 415 000a 03F12003 		add	r3, r3, #32
+ 416 000e 7A68     		ldr	r2, [r7, #4]
+ 417 0010 02F12002 		add	r2, r2, #32
+ 418 0014 1268     		ldr	r2, [r2, #0]
+ 419 0016 22F01002 		bic	r2, r2, #16
+ 420 001a 1A60     		str	r2, [r3, #0]
+ 409:C:/StellarisWare/driverlib\i2c.c **** }
+ 421              		.loc 1 409 0
+ 422 001c 07F10C07 		add	r7, r7, #12
+ 423 0020 BD46     		mov	sp, r7
+ 424 0022 80BC     		pop	{r7}
+ 425 0024 7047     		bx	lr
+ 426              		.cfi_endproc
+ 427              	.LFE6:
+ 429 0026 00BF     		.section	.text.I2CSlaveDisable,"ax",%progbits
+ 430              		.align	2
+ 431              		.global	I2CSlaveDisable
+ 432              		.thumb
+ 433              		.thumb_func
+ 435              	I2CSlaveDisable:
+ 436              	.LFB7:
+ 410:C:/StellarisWare/driverlib\i2c.c **** 
+ 411:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 412:C:/StellarisWare/driverlib\i2c.c **** //
+ 413:C:/StellarisWare/driverlib\i2c.c **** //! Disables the I2C slave block.
+ 414:C:/StellarisWare/driverlib\i2c.c **** //!
+ 415:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 416:C:/StellarisWare/driverlib\i2c.c **** //!
+ 417:C:/StellarisWare/driverlib\i2c.c **** //! This function disables operation of the I2C slave block.
+ 418:C:/StellarisWare/driverlib\i2c.c **** //!
+ 419:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 420:C:/StellarisWare/driverlib\i2c.c **** //
+ 421:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 422:C:/StellarisWare/driverlib\i2c.c **** void
+ 423:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveDisable(unsigned long ulBase)
+ 424:C:/StellarisWare/driverlib\i2c.c **** {
+ 437              		.loc 1 424 0
+ 438              		.cfi_startproc
+ 439              		@ args = 0, pretend = 0, frame = 8
+ 440              		@ frame_needed = 1, uses_anonymous_args = 0
+ 441              		@ link register save eliminated.
+ 442 0000 80B4     		push	{r7}
+ 443              	.LCFI21:
+ 444              		.cfi_def_cfa_offset 4
+ 445              		.cfi_offset 7, -4
+ 446 0002 83B0     		sub	sp, sp, #12
+ 447              	.LCFI22:
+ 448              		.cfi_def_cfa_offset 16
+ 449 0004 00AF     		add	r7, sp, #0
+ 450              	.LCFI23:
+ 451              		.cfi_def_cfa_register 7
+ 452 0006 7860     		str	r0, [r7, #4]
+ 425:C:/StellarisWare/driverlib\i2c.c ****     //
+ 426:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 427:C:/StellarisWare/driverlib\i2c.c ****     //
+ 428:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 429:C:/StellarisWare/driverlib\i2c.c **** 
+ 430:C:/StellarisWare/driverlib\i2c.c ****     //
+ 431:C:/StellarisWare/driverlib\i2c.c ****     // Disable the slave.
+ 432:C:/StellarisWare/driverlib\i2c.c ****     //
+ 433:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SCSR) = 0;
+ 453              		.loc 1 433 0
+ 454 0008 7B68     		ldr	r3, [r7, #4]
+ 455 000a 03F10403 		add	r3, r3, #4
+ 456 000e 4FF00002 		mov	r2, #0
+ 457 0012 1A60     		str	r2, [r3, #0]
+ 434:C:/StellarisWare/driverlib\i2c.c **** 
+ 435:C:/StellarisWare/driverlib\i2c.c ****     //
+ 436:C:/StellarisWare/driverlib\i2c.c ****     // Disable the clock to the slave block.
+ 437:C:/StellarisWare/driverlib\i2c.c ****     //
+ 438:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase - I2C0_SLAVE_BASE + I2C0_MASTER_BASE + I2C_O_MCR) &=
+ 458              		.loc 1 438 0
+ 459 0014 7B68     		ldr	r3, [r7, #4]
+ 460 0016 A3F5FC63 		sub	r3, r3, #2016
+ 461 001a 7A68     		ldr	r2, [r7, #4]
+ 462 001c A2F5FC62 		sub	r2, r2, #2016
+ 463 0020 1268     		ldr	r2, [r2, #0]
+ 464 0022 22F02002 		bic	r2, r2, #32
+ 465 0026 1A60     		str	r2, [r3, #0]
+ 439:C:/StellarisWare/driverlib\i2c.c ****         ~(I2C_MCR_SFE);
+ 440:C:/StellarisWare/driverlib\i2c.c **** }
+ 466              		.loc 1 440 0
+ 467 0028 07F10C07 		add	r7, r7, #12
+ 468 002c BD46     		mov	sp, r7
+ 469 002e 80BC     		pop	{r7}
+ 470 0030 7047     		bx	lr
+ 471              		.cfi_endproc
+ 472              	.LFE7:
+ 474 0032 00BF     		.section	.text.I2CIntRegister,"ax",%progbits
+ 475              		.align	2
+ 476              		.global	I2CIntRegister
+ 477              		.thumb
+ 478              		.thumb_func
+ 480              	I2CIntRegister:
+ 481              	.LFB8:
+ 441:C:/StellarisWare/driverlib\i2c.c **** 
+ 442:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 443:C:/StellarisWare/driverlib\i2c.c **** //
+ 444:C:/StellarisWare/driverlib\i2c.c **** //! Registers an interrupt handler for the I2C module.
+ 445:C:/StellarisWare/driverlib\i2c.c **** //!
+ 446:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 447:C:/StellarisWare/driverlib\i2c.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 448:C:/StellarisWare/driverlib\i2c.c **** //! I2C interrupt occurs.
+ 449:C:/StellarisWare/driverlib\i2c.c **** //!
+ 450:C:/StellarisWare/driverlib\i2c.c **** //! This function sets the handler to be called when an I2C interrupt occurs.
+ 451:C:/StellarisWare/driverlib\i2c.c **** //! This function enables the global interrupt in the interrupt controller;
+ 452:C:/StellarisWare/driverlib\i2c.c **** //! specific I2C interrupts must be enabled via I2CMasterIntEnable() and
+ 453:C:/StellarisWare/driverlib\i2c.c **** //! I2CSlaveIntEnable().  If necessary, it is the interrupt handler's
+ 454:C:/StellarisWare/driverlib\i2c.c **** //! responsibility to clear the interrupt source via I2CMasterIntClear() and
+ 455:C:/StellarisWare/driverlib\i2c.c **** //! I2CSlaveIntClear().
+ 456:C:/StellarisWare/driverlib\i2c.c **** //!
+ 457:C:/StellarisWare/driverlib\i2c.c **** //! \sa IntRegister() for important information about registering interrupt
+ 458:C:/StellarisWare/driverlib\i2c.c **** //! handlers.
+ 459:C:/StellarisWare/driverlib\i2c.c **** //!
+ 460:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 461:C:/StellarisWare/driverlib\i2c.c **** //
+ 462:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 463:C:/StellarisWare/driverlib\i2c.c **** void
+ 464:C:/StellarisWare/driverlib\i2c.c **** I2CIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 465:C:/StellarisWare/driverlib\i2c.c **** {
+ 482              		.loc 1 465 0
+ 483              		.cfi_startproc
+ 484              		@ args = 0, pretend = 0, frame = 16
+ 485              		@ frame_needed = 1, uses_anonymous_args = 0
+ 486 0000 80B5     		push	{r7, lr}
+ 487              	.LCFI24:
+ 488              		.cfi_def_cfa_offset 8
+ 489              		.cfi_offset 14, -4
+ 490              		.cfi_offset 7, -8
+ 491 0002 84B0     		sub	sp, sp, #16
+ 492              	.LCFI25:
+ 493              		.cfi_def_cfa_offset 24
+ 494 0004 00AF     		add	r7, sp, #0
+ 495              	.LCFI26:
+ 496              		.cfi_def_cfa_register 7
+ 497 0006 7860     		str	r0, [r7, #4]
+ 498 0008 3960     		str	r1, [r7, #0]
+ 466:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulInt;
+ 467:C:/StellarisWare/driverlib\i2c.c **** 
+ 468:C:/StellarisWare/driverlib\i2c.c ****     //
+ 469:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 470:C:/StellarisWare/driverlib\i2c.c ****     //
+ 471:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 472:C:/StellarisWare/driverlib\i2c.c **** 
+ 473:C:/StellarisWare/driverlib\i2c.c ****     //
+ 474:C:/StellarisWare/driverlib\i2c.c ****     // Determine the interrupt number based on the I2C port.
+ 475:C:/StellarisWare/driverlib\i2c.c ****     //
+ 476:C:/StellarisWare/driverlib\i2c.c ****     ulInt = I2CIntNumberGet(ulBase);
+ 499              		.loc 1 476 0
+ 500 000a 7868     		ldr	r0, [r7, #4]
+ 501 000c FFF7FEFF 		bl	I2CIntNumberGet
+ 502 0010 0346     		mov	r3, r0
+ 503 0012 FB60     		str	r3, [r7, #12]
+ 477:C:/StellarisWare/driverlib\i2c.c **** 
+ 478:C:/StellarisWare/driverlib\i2c.c ****     //
+ 479:C:/StellarisWare/driverlib\i2c.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 480:C:/StellarisWare/driverlib\i2c.c ****     //
+ 481:C:/StellarisWare/driverlib\i2c.c ****     IntRegister(ulInt, pfnHandler);
+ 504              		.loc 1 481 0
+ 505 0014 F868     		ldr	r0, [r7, #12]
+ 506 0016 3968     		ldr	r1, [r7, #0]
+ 507 0018 FFF7FEFF 		bl	IntRegister
+ 482:C:/StellarisWare/driverlib\i2c.c **** 
+ 483:C:/StellarisWare/driverlib\i2c.c ****     //
+ 484:C:/StellarisWare/driverlib\i2c.c ****     // Enable the I2C interrupt.
+ 485:C:/StellarisWare/driverlib\i2c.c ****     //
+ 486:C:/StellarisWare/driverlib\i2c.c ****     IntEnable(ulInt);
+ 508              		.loc 1 486 0
+ 509 001c F868     		ldr	r0, [r7, #12]
+ 510 001e FFF7FEFF 		bl	IntEnable
+ 487:C:/StellarisWare/driverlib\i2c.c **** }
+ 511              		.loc 1 487 0
+ 512 0022 07F11007 		add	r7, r7, #16
+ 513 0026 BD46     		mov	sp, r7
+ 514 0028 80BD     		pop	{r7, pc}
+ 515              		.cfi_endproc
+ 516              	.LFE8:
+ 518 002a 00BF     		.section	.text.I2CIntUnregister,"ax",%progbits
+ 519              		.align	2
+ 520              		.global	I2CIntUnregister
+ 521              		.thumb
+ 522              		.thumb_func
+ 524              	I2CIntUnregister:
+ 525              	.LFB9:
+ 488:C:/StellarisWare/driverlib\i2c.c **** 
+ 489:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 490:C:/StellarisWare/driverlib\i2c.c **** //
+ 491:C:/StellarisWare/driverlib\i2c.c **** //! Unregisters an interrupt handler for the I2C module.
+ 492:C:/StellarisWare/driverlib\i2c.c **** //!
+ 493:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 494:C:/StellarisWare/driverlib\i2c.c **** //!
+ 495:C:/StellarisWare/driverlib\i2c.c **** //! This function clears the handler to be called when an I2C interrupt
+ 496:C:/StellarisWare/driverlib\i2c.c **** //! occurs.  This function also masks off the interrupt in the interrupt r
+ 497:C:/StellarisWare/driverlib\i2c.c **** //! controlle so that the interrupt handler no longer is called.
+ 498:C:/StellarisWare/driverlib\i2c.c **** //!
+ 499:C:/StellarisWare/driverlib\i2c.c **** //! \sa IntRegister() for important information about registering interrupt
+ 500:C:/StellarisWare/driverlib\i2c.c **** //! handlers.
+ 501:C:/StellarisWare/driverlib\i2c.c **** //!
+ 502:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 503:C:/StellarisWare/driverlib\i2c.c **** //
+ 504:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 505:C:/StellarisWare/driverlib\i2c.c **** void
+ 506:C:/StellarisWare/driverlib\i2c.c **** I2CIntUnregister(unsigned long ulBase)
+ 507:C:/StellarisWare/driverlib\i2c.c **** {
+ 526              		.loc 1 507 0
+ 527              		.cfi_startproc
+ 528              		@ args = 0, pretend = 0, frame = 16
+ 529              		@ frame_needed = 1, uses_anonymous_args = 0
+ 530 0000 80B5     		push	{r7, lr}
+ 531              	.LCFI27:
+ 532              		.cfi_def_cfa_offset 8
+ 533              		.cfi_offset 14, -4
+ 534              		.cfi_offset 7, -8
+ 535 0002 84B0     		sub	sp, sp, #16
+ 536              	.LCFI28:
+ 537              		.cfi_def_cfa_offset 24
+ 538 0004 00AF     		add	r7, sp, #0
+ 539              	.LCFI29:
+ 540              		.cfi_def_cfa_register 7
+ 541 0006 7860     		str	r0, [r7, #4]
+ 508:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulInt;
+ 509:C:/StellarisWare/driverlib\i2c.c **** 
+ 510:C:/StellarisWare/driverlib\i2c.c ****     //
+ 511:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 512:C:/StellarisWare/driverlib\i2c.c ****     //
+ 513:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 514:C:/StellarisWare/driverlib\i2c.c **** 
+ 515:C:/StellarisWare/driverlib\i2c.c ****     //
+ 516:C:/StellarisWare/driverlib\i2c.c ****     // Determine the interrupt number based on the I2C port.
+ 517:C:/StellarisWare/driverlib\i2c.c ****     //
+ 518:C:/StellarisWare/driverlib\i2c.c ****     ulInt = I2CIntNumberGet(ulBase);
+ 542              		.loc 1 518 0
+ 543 0008 7868     		ldr	r0, [r7, #4]
+ 544 000a FFF7FEFF 		bl	I2CIntNumberGet
+ 545 000e 0346     		mov	r3, r0
+ 546 0010 FB60     		str	r3, [r7, #12]
+ 519:C:/StellarisWare/driverlib\i2c.c **** 
+ 520:C:/StellarisWare/driverlib\i2c.c ****     //
+ 521:C:/StellarisWare/driverlib\i2c.c ****     // Disable the interrupt.
+ 522:C:/StellarisWare/driverlib\i2c.c ****     //
+ 523:C:/StellarisWare/driverlib\i2c.c ****     IntDisable(ulInt);
+ 547              		.loc 1 523 0
+ 548 0012 F868     		ldr	r0, [r7, #12]
+ 549 0014 FFF7FEFF 		bl	IntDisable
+ 524:C:/StellarisWare/driverlib\i2c.c **** 
+ 525:C:/StellarisWare/driverlib\i2c.c ****     //
+ 526:C:/StellarisWare/driverlib\i2c.c ****     // Unregister the interrupt handler.
+ 527:C:/StellarisWare/driverlib\i2c.c ****     //
+ 528:C:/StellarisWare/driverlib\i2c.c ****     IntUnregister(ulInt);
+ 550              		.loc 1 528 0
+ 551 0018 F868     		ldr	r0, [r7, #12]
+ 552 001a FFF7FEFF 		bl	IntUnregister
+ 529:C:/StellarisWare/driverlib\i2c.c **** }
+ 553              		.loc 1 529 0
+ 554 001e 07F11007 		add	r7, r7, #16
+ 555 0022 BD46     		mov	sp, r7
+ 556 0024 80BD     		pop	{r7, pc}
+ 557              		.cfi_endproc
+ 558              	.LFE9:
+ 560 0026 00BF     		.section	.text.I2CMasterIntEnable,"ax",%progbits
+ 561              		.align	2
+ 562              		.global	I2CMasterIntEnable
+ 563              		.thumb
+ 564              		.thumb_func
+ 566              	I2CMasterIntEnable:
+ 567              	.LFB10:
+ 530:C:/StellarisWare/driverlib\i2c.c **** 
+ 531:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 532:C:/StellarisWare/driverlib\i2c.c **** //
+ 533:C:/StellarisWare/driverlib\i2c.c **** //! Enables the I2C Master interrupt.
+ 534:C:/StellarisWare/driverlib\i2c.c **** //!
+ 535:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 536:C:/StellarisWare/driverlib\i2c.c **** //!
+ 537:C:/StellarisWare/driverlib\i2c.c **** //! This function enables the I2C Master interrupt source.
+ 538:C:/StellarisWare/driverlib\i2c.c **** //!
+ 539:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 540:C:/StellarisWare/driverlib\i2c.c **** //
+ 541:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 542:C:/StellarisWare/driverlib\i2c.c **** void
+ 543:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntEnable(unsigned long ulBase)
+ 544:C:/StellarisWare/driverlib\i2c.c **** {
+ 568              		.loc 1 544 0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 8
+ 571              		@ frame_needed = 1, uses_anonymous_args = 0
+ 572              		@ link register save eliminated.
+ 573 0000 80B4     		push	{r7}
+ 574              	.LCFI30:
+ 575              		.cfi_def_cfa_offset 4
+ 576              		.cfi_offset 7, -4
+ 577 0002 83B0     		sub	sp, sp, #12
+ 578              	.LCFI31:
+ 579              		.cfi_def_cfa_offset 16
+ 580 0004 00AF     		add	r7, sp, #0
+ 581              	.LCFI32:
+ 582              		.cfi_def_cfa_register 7
+ 583 0006 7860     		str	r0, [r7, #4]
+ 545:C:/StellarisWare/driverlib\i2c.c ****     //
+ 546:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 547:C:/StellarisWare/driverlib\i2c.c ****     //
+ 548:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 549:C:/StellarisWare/driverlib\i2c.c **** 
+ 550:C:/StellarisWare/driverlib\i2c.c ****     //
+ 551:C:/StellarisWare/driverlib\i2c.c ****     // Enable the master interrupt.
+ 552:C:/StellarisWare/driverlib\i2c.c ****     //
+ 553:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MIMR) = 1;
+ 584              		.loc 1 553 0
+ 585 0008 7B68     		ldr	r3, [r7, #4]
+ 586 000a 03F11003 		add	r3, r3, #16
+ 587 000e 4FF00102 		mov	r2, #1
+ 588 0012 1A60     		str	r2, [r3, #0]
+ 554:C:/StellarisWare/driverlib\i2c.c **** }
+ 589              		.loc 1 554 0
+ 590 0014 07F10C07 		add	r7, r7, #12
+ 591 0018 BD46     		mov	sp, r7
+ 592 001a 80BC     		pop	{r7}
+ 593 001c 7047     		bx	lr
+ 594              		.cfi_endproc
+ 595              	.LFE10:
+ 597 001e 00BF     		.section	.text.I2CMasterIntEnableEx,"ax",%progbits
+ 598              		.align	2
+ 599              		.global	I2CMasterIntEnableEx
+ 600              		.thumb
+ 601              		.thumb_func
+ 603              	I2CMasterIntEnableEx:
+ 604              	.LFB11:
+ 555:C:/StellarisWare/driverlib\i2c.c **** 
+ 556:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 557:C:/StellarisWare/driverlib\i2c.c **** //
+ 558:C:/StellarisWare/driverlib\i2c.c **** //! Enables individual I2C Master interrupt sources.
+ 559:C:/StellarisWare/driverlib\i2c.c **** //!
+ 560:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 561:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be enabled.
+ 562:C:/StellarisWare/driverlib\i2c.c **** //!
+ 563:C:/StellarisWare/driverlib\i2c.c **** //! This function enables the indicated I2C Master interrupt sources.  Only the
+ 564:C:/StellarisWare/driverlib\i2c.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 565:C:/StellarisWare/driverlib\i2c.c **** //! disabled sources have no effect on the processor.
+ 566:C:/StellarisWare/driverlib\i2c.c **** //!
+ 567:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+ 568:C:/StellarisWare/driverlib\i2c.c **** //!
+ 569:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_INT_TIMEOUT - Clock Timeout interrupt
+ 570:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_INT_DATA - Data interrupt
+ 571:C:/StellarisWare/driverlib\i2c.c **** //!
+ 572:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support all of the listed interrupt sources.
+ 573:C:/StellarisWare/driverlib\i2c.c **** //! Please consult the device data sheet to know if this feature is
+ 574:C:/StellarisWare/driverlib\i2c.c **** //! supported.
+ 575:C:/StellarisWare/driverlib\i2c.c **** //!
+ 576:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 577:C:/StellarisWare/driverlib\i2c.c **** //
+ 578:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 579:C:/StellarisWare/driverlib\i2c.c **** void
+ 580:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntEnableEx(unsigned long ulBase, unsigned long ulIntFlags)
+ 581:C:/StellarisWare/driverlib\i2c.c **** {
+ 605              		.loc 1 581 0
+ 606              		.cfi_startproc
+ 607              		@ args = 0, pretend = 0, frame = 8
+ 608              		@ frame_needed = 1, uses_anonymous_args = 0
+ 609              		@ link register save eliminated.
+ 610 0000 80B4     		push	{r7}
+ 611              	.LCFI33:
+ 612              		.cfi_def_cfa_offset 4
+ 613              		.cfi_offset 7, -4
+ 614 0002 83B0     		sub	sp, sp, #12
+ 615              	.LCFI34:
+ 616              		.cfi_def_cfa_offset 16
+ 617 0004 00AF     		add	r7, sp, #0
+ 618              	.LCFI35:
+ 619              		.cfi_def_cfa_register 7
+ 620 0006 7860     		str	r0, [r7, #4]
+ 621 0008 3960     		str	r1, [r7, #0]
+ 582:C:/StellarisWare/driverlib\i2c.c ****     //
+ 583:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 584:C:/StellarisWare/driverlib\i2c.c ****     //
+ 585:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 586:C:/StellarisWare/driverlib\i2c.c **** 
+ 587:C:/StellarisWare/driverlib\i2c.c ****     //
+ 588:C:/StellarisWare/driverlib\i2c.c ****     // Enable the master interrupt.
+ 589:C:/StellarisWare/driverlib\i2c.c ****     //
+ 590:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MIMR) |= ulIntFlags;
+ 622              		.loc 1 590 0
+ 623 000a 7B68     		ldr	r3, [r7, #4]
+ 624 000c 03F11003 		add	r3, r3, #16
+ 625 0010 7A68     		ldr	r2, [r7, #4]
+ 626 0012 02F11002 		add	r2, r2, #16
+ 627 0016 1168     		ldr	r1, [r2, #0]
+ 628 0018 3A68     		ldr	r2, [r7, #0]
+ 629 001a 0A43     		orrs	r2, r2, r1
+ 630 001c 1A60     		str	r2, [r3, #0]
+ 591:C:/StellarisWare/driverlib\i2c.c **** }
+ 631              		.loc 1 591 0
+ 632 001e 07F10C07 		add	r7, r7, #12
+ 633 0022 BD46     		mov	sp, r7
+ 634 0024 80BC     		pop	{r7}
+ 635 0026 7047     		bx	lr
+ 636              		.cfi_endproc
+ 637              	.LFE11:
+ 639              		.section	.text.I2CSlaveIntEnable,"ax",%progbits
+ 640              		.align	2
+ 641              		.global	I2CSlaveIntEnable
+ 642              		.thumb
+ 643              		.thumb_func
+ 645              	I2CSlaveIntEnable:
+ 646              	.LFB12:
+ 592:C:/StellarisWare/driverlib\i2c.c **** 
+ 593:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 594:C:/StellarisWare/driverlib\i2c.c **** //
+ 595:C:/StellarisWare/driverlib\i2c.c **** //! Enables the I2C Slave interrupt.
+ 596:C:/StellarisWare/driverlib\i2c.c **** //!
+ 597:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 598:C:/StellarisWare/driverlib\i2c.c **** //!
+ 599:C:/StellarisWare/driverlib\i2c.c **** //! This function enables the I2C Slave interrupt source.
+ 600:C:/StellarisWare/driverlib\i2c.c **** //!
+ 601:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 602:C:/StellarisWare/driverlib\i2c.c **** //
+ 603:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 604:C:/StellarisWare/driverlib\i2c.c **** void
+ 605:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntEnable(unsigned long ulBase)
+ 606:C:/StellarisWare/driverlib\i2c.c **** {
+ 647              		.loc 1 606 0
+ 648              		.cfi_startproc
+ 649              		@ args = 0, pretend = 0, frame = 8
+ 650              		@ frame_needed = 1, uses_anonymous_args = 0
+ 651              		@ link register save eliminated.
+ 652 0000 80B4     		push	{r7}
+ 653              	.LCFI36:
+ 654              		.cfi_def_cfa_offset 4
+ 655              		.cfi_offset 7, -4
+ 656 0002 83B0     		sub	sp, sp, #12
+ 657              	.LCFI37:
+ 658              		.cfi_def_cfa_offset 16
+ 659 0004 00AF     		add	r7, sp, #0
+ 660              	.LCFI38:
+ 661              		.cfi_def_cfa_register 7
+ 662 0006 7860     		str	r0, [r7, #4]
+ 607:C:/StellarisWare/driverlib\i2c.c ****     //
+ 608:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 609:C:/StellarisWare/driverlib\i2c.c ****     //
+ 610:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 611:C:/StellarisWare/driverlib\i2c.c **** 
+ 612:C:/StellarisWare/driverlib\i2c.c ****     //
+ 613:C:/StellarisWare/driverlib\i2c.c ****     // Enable the slave interrupt.
+ 614:C:/StellarisWare/driverlib\i2c.c ****     //
+ 615:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SIMR) |= I2C_SLAVE_INT_DATA;
+ 663              		.loc 1 615 0
+ 664 0008 7B68     		ldr	r3, [r7, #4]
+ 665 000a 03F10C03 		add	r3, r3, #12
+ 666 000e 7A68     		ldr	r2, [r7, #4]
+ 667 0010 02F10C02 		add	r2, r2, #12
+ 668 0014 1268     		ldr	r2, [r2, #0]
+ 669 0016 42F00102 		orr	r2, r2, #1
+ 670 001a 1A60     		str	r2, [r3, #0]
+ 616:C:/StellarisWare/driverlib\i2c.c **** }
+ 671              		.loc 1 616 0
+ 672 001c 07F10C07 		add	r7, r7, #12
+ 673 0020 BD46     		mov	sp, r7
+ 674 0022 80BC     		pop	{r7}
+ 675 0024 7047     		bx	lr
+ 676              		.cfi_endproc
+ 677              	.LFE12:
+ 679 0026 00BF     		.section	.text.I2CSlaveIntEnableEx,"ax",%progbits
+ 680              		.align	2
+ 681              		.global	I2CSlaveIntEnableEx
+ 682              		.thumb
+ 683              		.thumb_func
+ 685              	I2CSlaveIntEnableEx:
+ 686              	.LFB13:
+ 617:C:/StellarisWare/driverlib\i2c.c **** 
+ 618:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 619:C:/StellarisWare/driverlib\i2c.c **** //
+ 620:C:/StellarisWare/driverlib\i2c.c **** //! Enables individual I2C Slave interrupt sources.
+ 621:C:/StellarisWare/driverlib\i2c.c **** //!
+ 622:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 623:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be enabled.
+ 624:C:/StellarisWare/driverlib\i2c.c **** //!
+ 625:C:/StellarisWare/driverlib\i2c.c **** //! This function enables the indicated I2C Slave interrupt sources.  Only the
+ 626:C:/StellarisWare/driverlib\i2c.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 627:C:/StellarisWare/driverlib\i2c.c **** //! disabled sources have no effect on the processor.
+ 628:C:/StellarisWare/driverlib\i2c.c **** //!
+ 629:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+ 630:C:/StellarisWare/driverlib\i2c.c **** //!
+ 631:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_INT_STOP - Stop condition detected interrupt
+ 632:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_INT_START - Start condition detected interrupt
+ 633:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_INT_DATA - Data interrupt
+ 634:C:/StellarisWare/driverlib\i2c.c **** //!
+ 635:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support the all of the listed interrupts.
+ 636:C:/StellarisWare/driverlib\i2c.c **** //! Please consult the device data sheet to know if these features are
+ 637:C:/StellarisWare/driverlib\i2c.c **** //! supported.
+ 638:C:/StellarisWare/driverlib\i2c.c **** //!
+ 639:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 640:C:/StellarisWare/driverlib\i2c.c **** //
+ 641:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 642:C:/StellarisWare/driverlib\i2c.c **** void
+ 643:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntEnableEx(unsigned long ulBase, unsigned long ulIntFlags)
+ 644:C:/StellarisWare/driverlib\i2c.c **** {
+ 687              		.loc 1 644 0
+ 688              		.cfi_startproc
+ 689              		@ args = 0, pretend = 0, frame = 8
+ 690              		@ frame_needed = 1, uses_anonymous_args = 0
+ 691              		@ link register save eliminated.
+ 692 0000 80B4     		push	{r7}
+ 693              	.LCFI39:
+ 694              		.cfi_def_cfa_offset 4
+ 695              		.cfi_offset 7, -4
+ 696 0002 83B0     		sub	sp, sp, #12
+ 697              	.LCFI40:
+ 698              		.cfi_def_cfa_offset 16
+ 699 0004 00AF     		add	r7, sp, #0
+ 700              	.LCFI41:
+ 701              		.cfi_def_cfa_register 7
+ 702 0006 7860     		str	r0, [r7, #4]
+ 703 0008 3960     		str	r1, [r7, #0]
+ 645:C:/StellarisWare/driverlib\i2c.c ****     //
+ 646:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 647:C:/StellarisWare/driverlib\i2c.c ****     //
+ 648:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 649:C:/StellarisWare/driverlib\i2c.c **** 
+ 650:C:/StellarisWare/driverlib\i2c.c ****     //
+ 651:C:/StellarisWare/driverlib\i2c.c ****     // Enable the slave interrupt.
+ 652:C:/StellarisWare/driverlib\i2c.c ****     //
+ 653:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SIMR) |= ulIntFlags;
+ 704              		.loc 1 653 0
+ 705 000a 7B68     		ldr	r3, [r7, #4]
+ 706 000c 03F10C03 		add	r3, r3, #12
+ 707 0010 7A68     		ldr	r2, [r7, #4]
+ 708 0012 02F10C02 		add	r2, r2, #12
+ 709 0016 1168     		ldr	r1, [r2, #0]
+ 710 0018 3A68     		ldr	r2, [r7, #0]
+ 711 001a 0A43     		orrs	r2, r2, r1
+ 712 001c 1A60     		str	r2, [r3, #0]
+ 654:C:/StellarisWare/driverlib\i2c.c **** }
+ 713              		.loc 1 654 0
+ 714 001e 07F10C07 		add	r7, r7, #12
+ 715 0022 BD46     		mov	sp, r7
+ 716 0024 80BC     		pop	{r7}
+ 717 0026 7047     		bx	lr
+ 718              		.cfi_endproc
+ 719              	.LFE13:
+ 721              		.section	.text.I2CMasterIntDisable,"ax",%progbits
+ 722              		.align	2
+ 723              		.global	I2CMasterIntDisable
+ 724              		.thumb
+ 725              		.thumb_func
+ 727              	I2CMasterIntDisable:
+ 728              	.LFB14:
+ 655:C:/StellarisWare/driverlib\i2c.c **** 
+ 656:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 657:C:/StellarisWare/driverlib\i2c.c **** //
+ 658:C:/StellarisWare/driverlib\i2c.c **** //! Disables the I2C Master interrupt.
+ 659:C:/StellarisWare/driverlib\i2c.c **** //!
+ 660:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 661:C:/StellarisWare/driverlib\i2c.c **** //!
+ 662:C:/StellarisWare/driverlib\i2c.c **** //! This function disables the I2C Master interrupt source.
+ 663:C:/StellarisWare/driverlib\i2c.c **** //!
+ 664:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 665:C:/StellarisWare/driverlib\i2c.c **** //
+ 666:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 667:C:/StellarisWare/driverlib\i2c.c **** void
+ 668:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntDisable(unsigned long ulBase)
+ 669:C:/StellarisWare/driverlib\i2c.c **** {
+ 729              		.loc 1 669 0
+ 730              		.cfi_startproc
+ 731              		@ args = 0, pretend = 0, frame = 8
+ 732              		@ frame_needed = 1, uses_anonymous_args = 0
+ 733              		@ link register save eliminated.
+ 734 0000 80B4     		push	{r7}
+ 735              	.LCFI42:
+ 736              		.cfi_def_cfa_offset 4
+ 737              		.cfi_offset 7, -4
+ 738 0002 83B0     		sub	sp, sp, #12
+ 739              	.LCFI43:
+ 740              		.cfi_def_cfa_offset 16
+ 741 0004 00AF     		add	r7, sp, #0
+ 742              	.LCFI44:
+ 743              		.cfi_def_cfa_register 7
+ 744 0006 7860     		str	r0, [r7, #4]
+ 670:C:/StellarisWare/driverlib\i2c.c ****     //
+ 671:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 672:C:/StellarisWare/driverlib\i2c.c ****     //
+ 673:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 674:C:/StellarisWare/driverlib\i2c.c **** 
+ 675:C:/StellarisWare/driverlib\i2c.c ****     //
+ 676:C:/StellarisWare/driverlib\i2c.c ****     // Disable the master interrupt.
+ 677:C:/StellarisWare/driverlib\i2c.c ****     //
+ 678:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MIMR) = 0;
+ 745              		.loc 1 678 0
+ 746 0008 7B68     		ldr	r3, [r7, #4]
+ 747 000a 03F11003 		add	r3, r3, #16
+ 748 000e 4FF00002 		mov	r2, #0
+ 749 0012 1A60     		str	r2, [r3, #0]
+ 679:C:/StellarisWare/driverlib\i2c.c **** }
+ 750              		.loc 1 679 0
+ 751 0014 07F10C07 		add	r7, r7, #12
+ 752 0018 BD46     		mov	sp, r7
+ 753 001a 80BC     		pop	{r7}
+ 754 001c 7047     		bx	lr
+ 755              		.cfi_endproc
+ 756              	.LFE14:
+ 758 001e 00BF     		.section	.text.I2CMasterIntDisableEx,"ax",%progbits
+ 759              		.align	2
+ 760              		.global	I2CMasterIntDisableEx
+ 761              		.thumb
+ 762              		.thumb_func
+ 764              	I2CMasterIntDisableEx:
+ 765              	.LFB15:
+ 680:C:/StellarisWare/driverlib\i2c.c **** 
+ 681:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 682:C:/StellarisWare/driverlib\i2c.c **** //
+ 683:C:/StellarisWare/driverlib\i2c.c **** //! Disables individual I2C Master interrupt sources.
+ 684:C:/StellarisWare/driverlib\i2c.c **** //!
+ 685:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 686:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be disabled.
+ 687:C:/StellarisWare/driverlib\i2c.c **** //!
+ 688:C:/StellarisWare/driverlib\i2c.c **** //! This function disables the indicated I2C Master interrupt sources.  Only
+ 689:C:/StellarisWare/driverlib\i2c.c **** //! the sources that are enabled can be reflected to the processor interrupt;
+ 690:C:/StellarisWare/driverlib\i2c.c **** //! disabled sources have no effect on the processor.
+ 691:C:/StellarisWare/driverlib\i2c.c **** //!
+ 692:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+ 693:C:/StellarisWare/driverlib\i2c.c **** //! parameter to I2CMasterIntEnableEx().
+ 694:C:/StellarisWare/driverlib\i2c.c **** //!
+ 695:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 696:C:/StellarisWare/driverlib\i2c.c **** //
+ 697:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 698:C:/StellarisWare/driverlib\i2c.c **** void
+ 699:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntDisableEx(unsigned long ulBase, unsigned long ulIntFlags)
+ 700:C:/StellarisWare/driverlib\i2c.c **** {
+ 766              		.loc 1 700 0
+ 767              		.cfi_startproc
+ 768              		@ args = 0, pretend = 0, frame = 8
+ 769              		@ frame_needed = 1, uses_anonymous_args = 0
+ 770              		@ link register save eliminated.
+ 771 0000 80B4     		push	{r7}
+ 772              	.LCFI45:
+ 773              		.cfi_def_cfa_offset 4
+ 774              		.cfi_offset 7, -4
+ 775 0002 83B0     		sub	sp, sp, #12
+ 776              	.LCFI46:
+ 777              		.cfi_def_cfa_offset 16
+ 778 0004 00AF     		add	r7, sp, #0
+ 779              	.LCFI47:
+ 780              		.cfi_def_cfa_register 7
+ 781 0006 7860     		str	r0, [r7, #4]
+ 782 0008 3960     		str	r1, [r7, #0]
+ 701:C:/StellarisWare/driverlib\i2c.c ****     //
+ 702:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 703:C:/StellarisWare/driverlib\i2c.c ****     //
+ 704:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 705:C:/StellarisWare/driverlib\i2c.c **** 
+ 706:C:/StellarisWare/driverlib\i2c.c ****     //
+ 707:C:/StellarisWare/driverlib\i2c.c ****     // Disable the master interrupt.
+ 708:C:/StellarisWare/driverlib\i2c.c ****     //
+ 709:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MIMR) &= ~ulIntFlags;
+ 783              		.loc 1 709 0
+ 784 000a 7B68     		ldr	r3, [r7, #4]
+ 785 000c 03F11003 		add	r3, r3, #16
+ 786 0010 7A68     		ldr	r2, [r7, #4]
+ 787 0012 02F11002 		add	r2, r2, #16
+ 788 0016 1168     		ldr	r1, [r2, #0]
+ 789 0018 3A68     		ldr	r2, [r7, #0]
+ 790 001a 6FEA0202 		mvn	r2, r2
+ 791 001e 0A40     		ands	r2, r2, r1
+ 792 0020 1A60     		str	r2, [r3, #0]
+ 710:C:/StellarisWare/driverlib\i2c.c **** }
+ 793              		.loc 1 710 0
+ 794 0022 07F10C07 		add	r7, r7, #12
+ 795 0026 BD46     		mov	sp, r7
+ 796 0028 80BC     		pop	{r7}
+ 797 002a 7047     		bx	lr
+ 798              		.cfi_endproc
+ 799              	.LFE15:
+ 801              		.section	.text.I2CSlaveIntDisable,"ax",%progbits
+ 802              		.align	2
+ 803              		.global	I2CSlaveIntDisable
+ 804              		.thumb
+ 805              		.thumb_func
+ 807              	I2CSlaveIntDisable:
+ 808              	.LFB16:
+ 711:C:/StellarisWare/driverlib\i2c.c **** 
+ 712:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 713:C:/StellarisWare/driverlib\i2c.c **** //
+ 714:C:/StellarisWare/driverlib\i2c.c **** //! Disables the I2C Slave interrupt.
+ 715:C:/StellarisWare/driverlib\i2c.c **** //!
+ 716:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 717:C:/StellarisWare/driverlib\i2c.c **** //!
+ 718:C:/StellarisWare/driverlib\i2c.c **** //! This function disables the I2C Slave interrupt source.
+ 719:C:/StellarisWare/driverlib\i2c.c **** //!
+ 720:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 721:C:/StellarisWare/driverlib\i2c.c **** //
+ 722:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 723:C:/StellarisWare/driverlib\i2c.c **** void
+ 724:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntDisable(unsigned long ulBase)
+ 725:C:/StellarisWare/driverlib\i2c.c **** {
+ 809              		.loc 1 725 0
+ 810              		.cfi_startproc
+ 811              		@ args = 0, pretend = 0, frame = 8
+ 812              		@ frame_needed = 1, uses_anonymous_args = 0
+ 813              		@ link register save eliminated.
+ 814 0000 80B4     		push	{r7}
+ 815              	.LCFI48:
+ 816              		.cfi_def_cfa_offset 4
+ 817              		.cfi_offset 7, -4
+ 818 0002 83B0     		sub	sp, sp, #12
+ 819              	.LCFI49:
+ 820              		.cfi_def_cfa_offset 16
+ 821 0004 00AF     		add	r7, sp, #0
+ 822              	.LCFI50:
+ 823              		.cfi_def_cfa_register 7
+ 824 0006 7860     		str	r0, [r7, #4]
+ 726:C:/StellarisWare/driverlib\i2c.c ****     //
+ 727:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 728:C:/StellarisWare/driverlib\i2c.c ****     //
+ 729:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 730:C:/StellarisWare/driverlib\i2c.c **** 
+ 731:C:/StellarisWare/driverlib\i2c.c ****     //
+ 732:C:/StellarisWare/driverlib\i2c.c ****     // Disable the slave interrupt.
+ 733:C:/StellarisWare/driverlib\i2c.c ****     //
+ 734:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SIMR) &= ~I2C_SLAVE_INT_DATA;
+ 825              		.loc 1 734 0
+ 826 0008 7B68     		ldr	r3, [r7, #4]
+ 827 000a 03F10C03 		add	r3, r3, #12
+ 828 000e 7A68     		ldr	r2, [r7, #4]
+ 829 0010 02F10C02 		add	r2, r2, #12
+ 830 0014 1268     		ldr	r2, [r2, #0]
+ 831 0016 22F00102 		bic	r2, r2, #1
+ 832 001a 1A60     		str	r2, [r3, #0]
+ 735:C:/StellarisWare/driverlib\i2c.c **** }
+ 833              		.loc 1 735 0
+ 834 001c 07F10C07 		add	r7, r7, #12
+ 835 0020 BD46     		mov	sp, r7
+ 836 0022 80BC     		pop	{r7}
+ 837 0024 7047     		bx	lr
+ 838              		.cfi_endproc
+ 839              	.LFE16:
+ 841 0026 00BF     		.section	.text.I2CSlaveIntDisableEx,"ax",%progbits
+ 842              		.align	2
+ 843              		.global	I2CSlaveIntDisableEx
+ 844              		.thumb
+ 845              		.thumb_func
+ 847              	I2CSlaveIntDisableEx:
+ 848              	.LFB17:
+ 736:C:/StellarisWare/driverlib\i2c.c **** 
+ 737:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 738:C:/StellarisWare/driverlib\i2c.c **** //
+ 739:C:/StellarisWare/driverlib\i2c.c **** //! Disables individual I2C Slave interrupt sources.
+ 740:C:/StellarisWare/driverlib\i2c.c **** //!
+ 741:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 742:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be disabled.
+ 743:C:/StellarisWare/driverlib\i2c.c **** //!
+ 744:C:/StellarisWare/driverlib\i2c.c **** //! This function disables the indicated I2C Slave interrupt sources.  Only
+ 745:C:/StellarisWare/driverlib\i2c.c **** //! the sources that are enabled can be reflected to the processor interrupt;
+ 746:C:/StellarisWare/driverlib\i2c.c **** //! disabled sources have no effect on the processor.
+ 747:C:/StellarisWare/driverlib\i2c.c **** //!
+ 748:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+ 749:C:/StellarisWare/driverlib\i2c.c **** //! parameter to I2CSlaveIntEnableEx().
+ 750:C:/StellarisWare/driverlib\i2c.c **** //!
+ 751:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 752:C:/StellarisWare/driverlib\i2c.c **** //
+ 753:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 754:C:/StellarisWare/driverlib\i2c.c **** void
+ 755:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntDisableEx(unsigned long ulBase, unsigned long ulIntFlags)
+ 756:C:/StellarisWare/driverlib\i2c.c **** {
+ 849              		.loc 1 756 0
+ 850              		.cfi_startproc
+ 851              		@ args = 0, pretend = 0, frame = 8
+ 852              		@ frame_needed = 1, uses_anonymous_args = 0
+ 853              		@ link register save eliminated.
+ 854 0000 80B4     		push	{r7}
+ 855              	.LCFI51:
+ 856              		.cfi_def_cfa_offset 4
+ 857              		.cfi_offset 7, -4
+ 858 0002 83B0     		sub	sp, sp, #12
+ 859              	.LCFI52:
+ 860              		.cfi_def_cfa_offset 16
+ 861 0004 00AF     		add	r7, sp, #0
+ 862              	.LCFI53:
+ 863              		.cfi_def_cfa_register 7
+ 864 0006 7860     		str	r0, [r7, #4]
+ 865 0008 3960     		str	r1, [r7, #0]
+ 757:C:/StellarisWare/driverlib\i2c.c ****     //
+ 758:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 759:C:/StellarisWare/driverlib\i2c.c ****     //
+ 760:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 761:C:/StellarisWare/driverlib\i2c.c **** 
+ 762:C:/StellarisWare/driverlib\i2c.c ****     //
+ 763:C:/StellarisWare/driverlib\i2c.c ****     // Disable the slave interrupt.
+ 764:C:/StellarisWare/driverlib\i2c.c ****     //
+ 765:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SIMR) &= ~ulIntFlags;
+ 866              		.loc 1 765 0
+ 867 000a 7B68     		ldr	r3, [r7, #4]
+ 868 000c 03F10C03 		add	r3, r3, #12
+ 869 0010 7A68     		ldr	r2, [r7, #4]
+ 870 0012 02F10C02 		add	r2, r2, #12
+ 871 0016 1168     		ldr	r1, [r2, #0]
+ 872 0018 3A68     		ldr	r2, [r7, #0]
+ 873 001a 6FEA0202 		mvn	r2, r2
+ 874 001e 0A40     		ands	r2, r2, r1
+ 875 0020 1A60     		str	r2, [r3, #0]
+ 766:C:/StellarisWare/driverlib\i2c.c **** }
+ 876              		.loc 1 766 0
+ 877 0022 07F10C07 		add	r7, r7, #12
+ 878 0026 BD46     		mov	sp, r7
+ 879 0028 80BC     		pop	{r7}
+ 880 002a 7047     		bx	lr
+ 881              		.cfi_endproc
+ 882              	.LFE17:
+ 884              		.section	.text.I2CMasterIntStatus,"ax",%progbits
+ 885              		.align	2
+ 886              		.global	I2CMasterIntStatus
+ 887              		.thumb
+ 888              		.thumb_func
+ 890              	I2CMasterIntStatus:
+ 891              	.LFB18:
+ 767:C:/StellarisWare/driverlib\i2c.c **** 
+ 768:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 769:C:/StellarisWare/driverlib\i2c.c **** //
+ 770:C:/StellarisWare/driverlib\i2c.c **** //! Gets the current I2C Master interrupt status.
+ 771:C:/StellarisWare/driverlib\i2c.c **** //!
+ 772:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 773:C:/StellarisWare/driverlib\i2c.c **** //! \param bMasked is false if the raw interrupt status is requested and
+ 774:C:/StellarisWare/driverlib\i2c.c **** //! true if the masked interrupt status is requested.
+ 775:C:/StellarisWare/driverlib\i2c.c **** //!
+ 776:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the interrupt status for the I2C Master module.
+ 777:C:/StellarisWare/driverlib\i2c.c **** //! Either the raw interrupt status or the status of interrupts that are allowed to
+ 778:C:/StellarisWare/driverlib\i2c.c **** //! reflect to the processor can be returned.
+ 779:C:/StellarisWare/driverlib\i2c.c **** //!
+ 780:C:/StellarisWare/driverlib\i2c.c **** //! \return The current interrupt status, returned as \b true if active
+ 781:C:/StellarisWare/driverlib\i2c.c **** //! or \b false if not active.
+ 782:C:/StellarisWare/driverlib\i2c.c **** //
+ 783:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 784:C:/StellarisWare/driverlib\i2c.c **** tBoolean
+ 785:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 786:C:/StellarisWare/driverlib\i2c.c **** {
+ 892              		.loc 1 786 0
+ 893              		.cfi_startproc
+ 894              		@ args = 0, pretend = 0, frame = 8
+ 895              		@ frame_needed = 1, uses_anonymous_args = 0
+ 896              		@ link register save eliminated.
+ 897 0000 80B4     		push	{r7}
+ 898              	.LCFI54:
+ 899              		.cfi_def_cfa_offset 4
+ 900              		.cfi_offset 7, -4
+ 901 0002 83B0     		sub	sp, sp, #12
+ 902              	.LCFI55:
+ 903              		.cfi_def_cfa_offset 16
+ 904 0004 00AF     		add	r7, sp, #0
+ 905              	.LCFI56:
+ 906              		.cfi_def_cfa_register 7
+ 907 0006 7860     		str	r0, [r7, #4]
+ 908 0008 0B46     		mov	r3, r1
+ 909 000a FB70     		strb	r3, [r7, #3]
+ 787:C:/StellarisWare/driverlib\i2c.c ****     //
+ 788:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 789:C:/StellarisWare/driverlib\i2c.c ****     //
+ 790:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 791:C:/StellarisWare/driverlib\i2c.c **** 
+ 792:C:/StellarisWare/driverlib\i2c.c ****     //
+ 793:C:/StellarisWare/driverlib\i2c.c ****     // Return either the interrupt status or the raw interrupt status as
+ 794:C:/StellarisWare/driverlib\i2c.c ****     // requested.
+ 795:C:/StellarisWare/driverlib\i2c.c ****     //
+ 796:C:/StellarisWare/driverlib\i2c.c ****     if(bMasked)
+ 910              		.loc 1 796 0
+ 911 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 912 000e 002B     		cmp	r3, #0
+ 913 0010 09D0     		beq	.L30
+ 797:C:/StellarisWare/driverlib\i2c.c ****     {
+ 798:C:/StellarisWare/driverlib\i2c.c ****         return((HWREG(ulBase + I2C_O_MMIS)) ? true : false);
+ 914              		.loc 1 798 0
+ 915 0012 7B68     		ldr	r3, [r7, #4]
+ 916 0014 03F11803 		add	r3, r3, #24
+ 917 0018 1B68     		ldr	r3, [r3, #0]
+ 918 001a 002B     		cmp	r3, #0
+ 919 001c 0CBF     		ite	eq
+ 920 001e 0023     		moveq	r3, #0
+ 921 0020 0123     		movne	r3, #1
+ 922 0022 DBB2     		uxtb	r3, r3
+ 923 0024 08E0     		b	.L31
+ 924              	.L30:
+ 799:C:/StellarisWare/driverlib\i2c.c ****     }
+ 800:C:/StellarisWare/driverlib\i2c.c ****     else
+ 801:C:/StellarisWare/driverlib\i2c.c ****     {
+ 802:C:/StellarisWare/driverlib\i2c.c ****         return((HWREG(ulBase + I2C_O_MRIS)) ? true : false);
+ 925              		.loc 1 802 0
+ 926 0026 7B68     		ldr	r3, [r7, #4]
+ 927 0028 03F11403 		add	r3, r3, #20
+ 928 002c 1B68     		ldr	r3, [r3, #0]
+ 929 002e 002B     		cmp	r3, #0
+ 930 0030 0CBF     		ite	eq
+ 931 0032 0023     		moveq	r3, #0
+ 932 0034 0123     		movne	r3, #1
+ 933 0036 DBB2     		uxtb	r3, r3
+ 934              	.L31:
+ 803:C:/StellarisWare/driverlib\i2c.c ****     }
+ 804:C:/StellarisWare/driverlib\i2c.c **** }
+ 935              		.loc 1 804 0
+ 936 0038 1846     		mov	r0, r3
+ 937 003a 07F10C07 		add	r7, r7, #12
+ 938 003e BD46     		mov	sp, r7
+ 939 0040 80BC     		pop	{r7}
+ 940 0042 7047     		bx	lr
+ 941              		.cfi_endproc
+ 942              	.LFE18:
+ 944              		.section	.text.I2CMasterIntStatusEx,"ax",%progbits
+ 945              		.align	2
+ 946              		.global	I2CMasterIntStatusEx
+ 947              		.thumb
+ 948              		.thumb_func
+ 950              	I2CMasterIntStatusEx:
+ 951              	.LFB19:
+ 805:C:/StellarisWare/driverlib\i2c.c **** 
+ 806:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 807:C:/StellarisWare/driverlib\i2c.c **** //
+ 808:C:/StellarisWare/driverlib\i2c.c **** //! Gets the current I2C Master interrupt status.
+ 809:C:/StellarisWare/driverlib\i2c.c **** //!
+ 810:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 811:C:/StellarisWare/driverlib\i2c.c **** //! \param bMasked is false if the raw interrupt status is requested and
+ 812:C:/StellarisWare/driverlib\i2c.c **** //! true if the masked interrupt status is requested.
+ 813:C:/StellarisWare/driverlib\i2c.c **** //!
+ 814:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the interrupt status for the I2C Master module.
+ 815:C:/StellarisWare/driverlib\i2c.c **** //! Either the raw interrupt status or the status of interrupts that are
+ 816:C:/StellarisWare/driverlib\i2c.c **** //! allowed to reflect to the processor can be returned.
+ 817:C:/StellarisWare/driverlib\i2c.c **** //!
+ 818:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the current interrupt status, enumerated as a bit field of
+ 819:C:/StellarisWare/driverlib\i2c.c **** //! values described in I2CMasterIntEnableEx().
+ 820:C:/StellarisWare/driverlib\i2c.c **** //
+ 821:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 822:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+ 823:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntStatusEx(unsigned long ulBase, tBoolean bMasked)
+ 824:C:/StellarisWare/driverlib\i2c.c **** {
+ 952              		.loc 1 824 0
+ 953              		.cfi_startproc
+ 954              		@ args = 0, pretend = 0, frame = 8
+ 955              		@ frame_needed = 1, uses_anonymous_args = 0
+ 956              		@ link register save eliminated.
+ 957 0000 80B4     		push	{r7}
+ 958              	.LCFI57:
+ 959              		.cfi_def_cfa_offset 4
+ 960              		.cfi_offset 7, -4
+ 961 0002 83B0     		sub	sp, sp, #12
+ 962              	.LCFI58:
+ 963              		.cfi_def_cfa_offset 16
+ 964 0004 00AF     		add	r7, sp, #0
+ 965              	.LCFI59:
+ 966              		.cfi_def_cfa_register 7
+ 967 0006 7860     		str	r0, [r7, #4]
+ 968 0008 0B46     		mov	r3, r1
+ 969 000a FB70     		strb	r3, [r7, #3]
+ 825:C:/StellarisWare/driverlib\i2c.c ****     //
+ 826:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 827:C:/StellarisWare/driverlib\i2c.c ****     //
+ 828:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 829:C:/StellarisWare/driverlib\i2c.c **** 
+ 830:C:/StellarisWare/driverlib\i2c.c ****     //
+ 831:C:/StellarisWare/driverlib\i2c.c ****     // Return either the interrupt status or the raw interrupt status as
+ 832:C:/StellarisWare/driverlib\i2c.c ****     // requested.
+ 833:C:/StellarisWare/driverlib\i2c.c ****     //
+ 834:C:/StellarisWare/driverlib\i2c.c ****     if(bMasked)
+ 970              		.loc 1 834 0
+ 971 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 972 000e 002B     		cmp	r3, #0
+ 973 0010 04D0     		beq	.L33
+ 835:C:/StellarisWare/driverlib\i2c.c ****     {
+ 836:C:/StellarisWare/driverlib\i2c.c ****         return(HWREG(ulBase + I2C_O_MMIS));
+ 974              		.loc 1 836 0
+ 975 0012 7B68     		ldr	r3, [r7, #4]
+ 976 0014 03F11803 		add	r3, r3, #24
+ 977 0018 1B68     		ldr	r3, [r3, #0]
+ 978 001a 03E0     		b	.L34
+ 979              	.L33:
+ 837:C:/StellarisWare/driverlib\i2c.c ****     }
+ 838:C:/StellarisWare/driverlib\i2c.c ****     else
+ 839:C:/StellarisWare/driverlib\i2c.c ****     {
+ 840:C:/StellarisWare/driverlib\i2c.c ****         return(HWREG(ulBase + I2C_O_MRIS));
+ 980              		.loc 1 840 0
+ 981 001c 7B68     		ldr	r3, [r7, #4]
+ 982 001e 03F11403 		add	r3, r3, #20
+ 983 0022 1B68     		ldr	r3, [r3, #0]
+ 984              	.L34:
+ 841:C:/StellarisWare/driverlib\i2c.c ****     }
+ 842:C:/StellarisWare/driverlib\i2c.c **** }
+ 985              		.loc 1 842 0
+ 986 0024 1846     		mov	r0, r3
+ 987 0026 07F10C07 		add	r7, r7, #12
+ 988 002a BD46     		mov	sp, r7
+ 989 002c 80BC     		pop	{r7}
+ 990 002e 7047     		bx	lr
+ 991              		.cfi_endproc
+ 992              	.LFE19:
+ 994              		.section	.text.I2CSlaveIntStatus,"ax",%progbits
+ 995              		.align	2
+ 996              		.global	I2CSlaveIntStatus
+ 997              		.thumb
+ 998              		.thumb_func
+ 1000              	I2CSlaveIntStatus:
+ 1001              	.LFB20:
+ 843:C:/StellarisWare/driverlib\i2c.c **** 
+ 844:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 845:C:/StellarisWare/driverlib\i2c.c **** //
+ 846:C:/StellarisWare/driverlib\i2c.c **** //! Gets the current I2C Slave interrupt status.
+ 847:C:/StellarisWare/driverlib\i2c.c **** //!
+ 848:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 849:C:/StellarisWare/driverlib\i2c.c **** //! \param bMasked is false if the raw interrupt status is requested and
+ 850:C:/StellarisWare/driverlib\i2c.c **** //! true if the masked interrupt status is requested.
+ 851:C:/StellarisWare/driverlib\i2c.c **** //!
+ 852:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the interrupt status for the I2C Slave module.
+ 853:C:/StellarisWare/driverlib\i2c.c **** //! Either the raw interrupt status or the status of interrupts that are
+ 854:C:/StellarisWare/driverlib\i2c.c **** //! allowed to reflect to the processor can be returned.
+ 855:C:/StellarisWare/driverlib\i2c.c **** //!
+ 856:C:/StellarisWare/driverlib\i2c.c **** //! \return The current interrupt status, returned as \b true if active
+ 857:C:/StellarisWare/driverlib\i2c.c **** //! or \b false if not active.
+ 858:C:/StellarisWare/driverlib\i2c.c **** //
+ 859:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 860:C:/StellarisWare/driverlib\i2c.c **** tBoolean
+ 861:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 862:C:/StellarisWare/driverlib\i2c.c **** {
+ 1002              		.loc 1 862 0
+ 1003              		.cfi_startproc
+ 1004              		@ args = 0, pretend = 0, frame = 8
+ 1005              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1006              		@ link register save eliminated.
+ 1007 0000 80B4     		push	{r7}
+ 1008              	.LCFI60:
+ 1009              		.cfi_def_cfa_offset 4
+ 1010              		.cfi_offset 7, -4
+ 1011 0002 83B0     		sub	sp, sp, #12
+ 1012              	.LCFI61:
+ 1013              		.cfi_def_cfa_offset 16
+ 1014 0004 00AF     		add	r7, sp, #0
+ 1015              	.LCFI62:
+ 1016              		.cfi_def_cfa_register 7
+ 1017 0006 7860     		str	r0, [r7, #4]
+ 1018 0008 0B46     		mov	r3, r1
+ 1019 000a FB70     		strb	r3, [r7, #3]
+ 863:C:/StellarisWare/driverlib\i2c.c ****     //
+ 864:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 865:C:/StellarisWare/driverlib\i2c.c ****     //
+ 866:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 867:C:/StellarisWare/driverlib\i2c.c **** 
+ 868:C:/StellarisWare/driverlib\i2c.c ****     //
+ 869:C:/StellarisWare/driverlib\i2c.c ****     // Return either the interrupt status or the raw interrupt status as
+ 870:C:/StellarisWare/driverlib\i2c.c ****     // requested.
+ 871:C:/StellarisWare/driverlib\i2c.c ****     //
+ 872:C:/StellarisWare/driverlib\i2c.c ****     if(bMasked)
+ 1020              		.loc 1 872 0
+ 1021 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1022 000e 002B     		cmp	r3, #0
+ 1023 0010 09D0     		beq	.L36
+ 873:C:/StellarisWare/driverlib\i2c.c ****     {
+ 874:C:/StellarisWare/driverlib\i2c.c ****         return((HWREG(ulBase + I2C_O_SMIS)) ? true : false);
+ 1024              		.loc 1 874 0
+ 1025 0012 7B68     		ldr	r3, [r7, #4]
+ 1026 0014 03F11403 		add	r3, r3, #20
+ 1027 0018 1B68     		ldr	r3, [r3, #0]
+ 1028 001a 002B     		cmp	r3, #0
+ 1029 001c 0CBF     		ite	eq
+ 1030 001e 0023     		moveq	r3, #0
+ 1031 0020 0123     		movne	r3, #1
+ 1032 0022 DBB2     		uxtb	r3, r3
+ 1033 0024 08E0     		b	.L37
+ 1034              	.L36:
+ 875:C:/StellarisWare/driverlib\i2c.c ****     }
+ 876:C:/StellarisWare/driverlib\i2c.c ****     else
+ 877:C:/StellarisWare/driverlib\i2c.c ****     {
+ 878:C:/StellarisWare/driverlib\i2c.c ****         return((HWREG(ulBase + I2C_O_SRIS)) ? true : false);
+ 1035              		.loc 1 878 0
+ 1036 0026 7B68     		ldr	r3, [r7, #4]
+ 1037 0028 03F11003 		add	r3, r3, #16
+ 1038 002c 1B68     		ldr	r3, [r3, #0]
+ 1039 002e 002B     		cmp	r3, #0
+ 1040 0030 0CBF     		ite	eq
+ 1041 0032 0023     		moveq	r3, #0
+ 1042 0034 0123     		movne	r3, #1
+ 1043 0036 DBB2     		uxtb	r3, r3
+ 1044              	.L37:
+ 879:C:/StellarisWare/driverlib\i2c.c ****     }
+ 880:C:/StellarisWare/driverlib\i2c.c **** }
+ 1045              		.loc 1 880 0
+ 1046 0038 1846     		mov	r0, r3
+ 1047 003a 07F10C07 		add	r7, r7, #12
+ 1048 003e BD46     		mov	sp, r7
+ 1049 0040 80BC     		pop	{r7}
+ 1050 0042 7047     		bx	lr
+ 1051              		.cfi_endproc
+ 1052              	.LFE20:
+ 1054              		.section	.text.I2CSlaveIntStatusEx,"ax",%progbits
+ 1055              		.align	2
+ 1056              		.global	I2CSlaveIntStatusEx
+ 1057              		.thumb
+ 1058              		.thumb_func
+ 1060              	I2CSlaveIntStatusEx:
+ 1061              	.LFB21:
+ 881:C:/StellarisWare/driverlib\i2c.c **** 
+ 882:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 883:C:/StellarisWare/driverlib\i2c.c **** //
+ 884:C:/StellarisWare/driverlib\i2c.c **** //! Gets the current I2C Slave interrupt status.
+ 885:C:/StellarisWare/driverlib\i2c.c **** //!
+ 886:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+ 887:C:/StellarisWare/driverlib\i2c.c **** //! \param bMasked is false if the raw interrupt status is requested and
+ 888:C:/StellarisWare/driverlib\i2c.c **** //! true if the masked interrupt status is requested.
+ 889:C:/StellarisWare/driverlib\i2c.c **** //!
+ 890:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the interrupt status for the I2C Slave module.
+ 891:C:/StellarisWare/driverlib\i2c.c **** //! Either the raw interrupt status or the status of interrupts that are
+ 892:C:/StellarisWare/driverlib\i2c.c **** //! allowed to reflect to the processor can be returned.
+ 893:C:/StellarisWare/driverlib\i2c.c **** //!
+ 894:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the current interrupt status, enumerated as a bit field of
+ 895:C:/StellarisWare/driverlib\i2c.c **** //! values described in I2CSlaveIntEnableEx().
+ 896:C:/StellarisWare/driverlib\i2c.c **** //
+ 897:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 898:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+ 899:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntStatusEx(unsigned long ulBase, tBoolean bMasked)
+ 900:C:/StellarisWare/driverlib\i2c.c **** {
+ 1062              		.loc 1 900 0
+ 1063              		.cfi_startproc
+ 1064              		@ args = 0, pretend = 0, frame = 16
+ 1065              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1066              		@ link register save eliminated.
+ 1067 0000 80B4     		push	{r7}
+ 1068              	.LCFI63:
+ 1069              		.cfi_def_cfa_offset 4
+ 1070              		.cfi_offset 7, -4
+ 1071 0002 85B0     		sub	sp, sp, #20
+ 1072              	.LCFI64:
+ 1073              		.cfi_def_cfa_offset 24
+ 1074 0004 00AF     		add	r7, sp, #0
+ 1075              	.LCFI65:
+ 1076              		.cfi_def_cfa_register 7
+ 1077 0006 7860     		str	r0, [r7, #4]
+ 1078 0008 0B46     		mov	r3, r1
+ 1079 000a FB70     		strb	r3, [r7, #3]
+ 901:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulValue;
+ 902:C:/StellarisWare/driverlib\i2c.c **** 
+ 903:C:/StellarisWare/driverlib\i2c.c ****     //
+ 904:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 905:C:/StellarisWare/driverlib\i2c.c ****     //
+ 906:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+ 907:C:/StellarisWare/driverlib\i2c.c **** 
+ 908:C:/StellarisWare/driverlib\i2c.c ****     //
+ 909:C:/StellarisWare/driverlib\i2c.c ****     // Return either the interrupt status or the raw interrupt status as
+ 910:C:/StellarisWare/driverlib\i2c.c ****     // requested.
+ 911:C:/StellarisWare/driverlib\i2c.c ****     //
+ 912:C:/StellarisWare/driverlib\i2c.c ****     if(bMasked)
+ 1080              		.loc 1 912 0
+ 1081 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1082 000e 002B     		cmp	r3, #0
+ 1083 0010 2BD0     		beq	.L39
+ 913:C:/StellarisWare/driverlib\i2c.c ****     {
+ 914:C:/StellarisWare/driverlib\i2c.c ****         //
+ 915:C:/StellarisWare/driverlib\i2c.c ****         // Workaround for I2C slave masked interrupt status register errata
+ 916:C:/StellarisWare/driverlib\i2c.c ****         // (7.1) for Dustdevil Rev A0 devices.
+ 917:C:/StellarisWare/driverlib\i2c.c ****         //
+ 918:C:/StellarisWare/driverlib\i2c.c ****         if(CLASS_IS_DUSTDEVIL && REVISION_IS_A0)
+ 1084              		.loc 1 918 0
+ 1085 0012 4FF46043 		mov	r3, #57344
+ 1086 0016 C4F20F03 		movt	r3, 16399
+ 1087 001a 1A68     		ldr	r2, [r3, #0]
+ 1088 001c 4FF00003 		mov	r3, #0
+ 1089 0020 C7F2FF03 		movt	r3, 28927
+ 1090 0024 1340     		ands	r3, r3, r2
+ 1091 0026 4FF00002 		mov	r2, #0
+ 1092 002a C1F20302 		movt	r2, 4099
+ 1093 002e 9342     		cmp	r3, r2
+ 1094 0030 16D1     		bne	.L40
+ 1095              		.loc 1 918 0 is_stmt 0 discriminator 1
+ 1096 0032 4FF46043 		mov	r3, #57344
+ 1097 0036 C4F20F03 		movt	r3, 16399
+ 1098 003a 1B68     		ldr	r3, [r3, #0]
+ 1099 003c 4FEA0343 		lsl	r3, r3, #16
+ 1100 0040 4FEA1343 		lsr	r3, r3, #16
+ 1101 0044 002B     		cmp	r3, #0
+ 1102 0046 0BD1     		bne	.L40
+ 919:C:/StellarisWare/driverlib\i2c.c ****         {
+ 920:C:/StellarisWare/driverlib\i2c.c ****             ulValue = HWREG(ulBase + I2C_O_SRIS);
+ 1103              		.loc 1 920 0 is_stmt 1
+ 1104 0048 7B68     		ldr	r3, [r7, #4]
+ 1105 004a 03F11003 		add	r3, r3, #16
+ 1106 004e 1B68     		ldr	r3, [r3, #0]
+ 1107 0050 FB60     		str	r3, [r7, #12]
+ 921:C:/StellarisWare/driverlib\i2c.c ****             return(ulValue & HWREG(ulBase + I2C_O_SIMR));
+ 1108              		.loc 1 921 0
+ 1109 0052 7B68     		ldr	r3, [r7, #4]
+ 1110 0054 03F10C03 		add	r3, r3, #12
+ 1111 0058 1A68     		ldr	r2, [r3, #0]
+ 1112 005a FB68     		ldr	r3, [r7, #12]
+ 1113 005c 1340     		ands	r3, r3, r2
+ 1114 005e 08E0     		b	.L41
+ 1115              	.L40:
+ 922:C:/StellarisWare/driverlib\i2c.c ****         }
+ 923:C:/StellarisWare/driverlib\i2c.c ****         else
+ 924:C:/StellarisWare/driverlib\i2c.c ****         {
+ 925:C:/StellarisWare/driverlib\i2c.c ****             return(HWREG(ulBase + I2C_O_SMIS));
+ 1116              		.loc 1 925 0
+ 1117 0060 7B68     		ldr	r3, [r7, #4]
+ 1118 0062 03F11403 		add	r3, r3, #20
+ 1119 0066 1B68     		ldr	r3, [r3, #0]
+ 1120 0068 03E0     		b	.L41
+ 1121              	.L39:
+ 926:C:/StellarisWare/driverlib\i2c.c ****         }
+ 927:C:/StellarisWare/driverlib\i2c.c ****     }
+ 928:C:/StellarisWare/driverlib\i2c.c ****     else
+ 929:C:/StellarisWare/driverlib\i2c.c ****     {
+ 930:C:/StellarisWare/driverlib\i2c.c ****         return(HWREG(ulBase + I2C_O_SRIS));
+ 1122              		.loc 1 930 0
+ 1123 006a 7B68     		ldr	r3, [r7, #4]
+ 1124 006c 03F11003 		add	r3, r3, #16
+ 1125 0070 1B68     		ldr	r3, [r3, #0]
+ 1126              	.L41:
+ 931:C:/StellarisWare/driverlib\i2c.c ****     }
+ 932:C:/StellarisWare/driverlib\i2c.c **** }
+ 1127              		.loc 1 932 0
+ 1128 0072 1846     		mov	r0, r3
+ 1129 0074 07F11407 		add	r7, r7, #20
+ 1130 0078 BD46     		mov	sp, r7
+ 1131 007a 80BC     		pop	{r7}
+ 1132 007c 7047     		bx	lr
+ 1133              		.cfi_endproc
+ 1134              	.LFE21:
+ 1136 007e 00BF     		.section	.text.I2CMasterIntClear,"ax",%progbits
+ 1137              		.align	2
+ 1138              		.global	I2CMasterIntClear
+ 1139              		.thumb
+ 1140              		.thumb_func
+ 1142              	I2CMasterIntClear:
+ 1143              	.LFB22:
+ 933:C:/StellarisWare/driverlib\i2c.c **** 
+ 934:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 935:C:/StellarisWare/driverlib\i2c.c **** //
+ 936:C:/StellarisWare/driverlib\i2c.c **** //! Clears I2C Master interrupt sources.
+ 937:C:/StellarisWare/driverlib\i2c.c **** //!
+ 938:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 939:C:/StellarisWare/driverlib\i2c.c **** //!
+ 940:C:/StellarisWare/driverlib\i2c.c **** //! The I2C Master interrupt source is cleared, so that it no longer asserts.
+ 941:C:/StellarisWare/driverlib\i2c.c **** //! This function must be called in the interrupt handler to keep the interrupt
+ 942:C:/StellarisWare/driverlib\i2c.c **** //! from being triggered again immediately upon exit.
+ 943:C:/StellarisWare/driverlib\i2c.c **** //!
+ 944:C:/StellarisWare/driverlib\i2c.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 945:C:/StellarisWare/driverlib\i2c.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 946:C:/StellarisWare/driverlib\i2c.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 947:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 948:C:/StellarisWare/driverlib\i2c.c **** //! returning from the interrupt handler before the interrupt source is
+ 949:C:/StellarisWare/driverlib\i2c.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 950:C:/StellarisWare/driverlib\i2c.c **** //! being immediately reentered (because the interrupt controller still sees
+ 951:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt source asserted).
+ 952:C:/StellarisWare/driverlib\i2c.c **** //!
+ 953:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+ 954:C:/StellarisWare/driverlib\i2c.c **** //
+ 955:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 956:C:/StellarisWare/driverlib\i2c.c **** void
+ 957:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntClear(unsigned long ulBase)
+ 958:C:/StellarisWare/driverlib\i2c.c **** {
+ 1144              		.loc 1 958 0
+ 1145              		.cfi_startproc
+ 1146              		@ args = 0, pretend = 0, frame = 8
+ 1147              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1148              		@ link register save eliminated.
+ 1149 0000 80B4     		push	{r7}
+ 1150              	.LCFI66:
+ 1151              		.cfi_def_cfa_offset 4
+ 1152              		.cfi_offset 7, -4
+ 1153 0002 83B0     		sub	sp, sp, #12
+ 1154              	.LCFI67:
+ 1155              		.cfi_def_cfa_offset 16
+ 1156 0004 00AF     		add	r7, sp, #0
+ 1157              	.LCFI68:
+ 1158              		.cfi_def_cfa_register 7
+ 1159 0006 7860     		str	r0, [r7, #4]
+ 959:C:/StellarisWare/driverlib\i2c.c ****     //
+ 960:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+ 961:C:/StellarisWare/driverlib\i2c.c ****     //
+ 962:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+ 963:C:/StellarisWare/driverlib\i2c.c **** 
+ 964:C:/StellarisWare/driverlib\i2c.c ****     //
+ 965:C:/StellarisWare/driverlib\i2c.c ****     // Clear the I2C master interrupt source.
+ 966:C:/StellarisWare/driverlib\i2c.c ****     //
+ 967:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MICR) = I2C_MICR_IC;
+ 1160              		.loc 1 967 0
+ 1161 0008 7B68     		ldr	r3, [r7, #4]
+ 1162 000a 03F11C03 		add	r3, r3, #28
+ 1163 000e 4FF00102 		mov	r2, #1
+ 1164 0012 1A60     		str	r2, [r3, #0]
+ 968:C:/StellarisWare/driverlib\i2c.c **** 
+ 969:C:/StellarisWare/driverlib\i2c.c ****     //
+ 970:C:/StellarisWare/driverlib\i2c.c ****     // Workaround for I2C master interrupt clear errata for rev B Stellaris
+ 971:C:/StellarisWare/driverlib\i2c.c ****     // devices.  For later devices, this write is ignored and therefore
+ 972:C:/StellarisWare/driverlib\i2c.c ****     // harmless (other than the slight performance hit).
+ 973:C:/StellarisWare/driverlib\i2c.c ****     //
+ 974:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MMIS) = I2C_MICR_IC;
+ 1165              		.loc 1 974 0
+ 1166 0014 7B68     		ldr	r3, [r7, #4]
+ 1167 0016 03F11803 		add	r3, r3, #24
+ 1168 001a 4FF00102 		mov	r2, #1
+ 1169 001e 1A60     		str	r2, [r3, #0]
+ 975:C:/StellarisWare/driverlib\i2c.c **** }
+ 1170              		.loc 1 975 0
+ 1171 0020 07F10C07 		add	r7, r7, #12
+ 1172 0024 BD46     		mov	sp, r7
+ 1173 0026 80BC     		pop	{r7}
+ 1174 0028 7047     		bx	lr
+ 1175              		.cfi_endproc
+ 1176              	.LFE22:
+ 1178 002a 00BF     		.section	.text.I2CMasterIntClearEx,"ax",%progbits
+ 1179              		.align	2
+ 1180              		.global	I2CMasterIntClearEx
+ 1181              		.thumb
+ 1182              		.thumb_func
+ 1184              	I2CMasterIntClearEx:
+ 1185              	.LFB23:
+ 976:C:/StellarisWare/driverlib\i2c.c **** 
+ 977:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+ 978:C:/StellarisWare/driverlib\i2c.c **** //
+ 979:C:/StellarisWare/driverlib\i2c.c **** //! Clears I2C Master interrupt sources.
+ 980:C:/StellarisWare/driverlib\i2c.c **** //!
+ 981:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+ 982:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 983:C:/StellarisWare/driverlib\i2c.c **** //!
+ 984:C:/StellarisWare/driverlib\i2c.c **** //! The specified I2C Master interrupt sources are cleared, so that they no
+ 985:C:/StellarisWare/driverlib\i2c.c **** //! longer assert.  This function must be called in the interrupt handler to
+ 986:C:/StellarisWare/driverlib\i2c.c **** //! keep the interrupt from being triggered again immediately upon exit.
+ 987:C:/StellarisWare/driverlib\i2c.c **** //!
+ 988:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+ 989:C:/StellarisWare/driverlib\i2c.c **** //! parameter to I2CMasterIntEnableEx().
+ 990:C:/StellarisWare/driverlib\i2c.c **** //!
+ 991:C:/StellarisWare/driverlib\i2c.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 992:C:/StellarisWare/driverlib\i2c.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 993:C:/StellarisWare/driverlib\i2c.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 994:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 995:C:/StellarisWare/driverlib\i2c.c **** //! returning from the interrupt handler before the interrupt source is
+ 996:C:/StellarisWare/driverlib\i2c.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 997:C:/StellarisWare/driverlib\i2c.c **** //! being immediately reentered (because the interrupt controller still sees
+ 998:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt source asserted).
+ 999:C:/StellarisWare/driverlib\i2c.c **** //!
+1000:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1001:C:/StellarisWare/driverlib\i2c.c **** //
+1002:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1003:C:/StellarisWare/driverlib\i2c.c **** void
+1004:C:/StellarisWare/driverlib\i2c.c **** I2CMasterIntClearEx(unsigned long ulBase, unsigned long ulIntFlags)
+1005:C:/StellarisWare/driverlib\i2c.c **** {
+ 1186              		.loc 1 1005 0
+ 1187              		.cfi_startproc
+ 1188              		@ args = 0, pretend = 0, frame = 8
+ 1189              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1190              		@ link register save eliminated.
+ 1191 0000 80B4     		push	{r7}
+ 1192              	.LCFI69:
+ 1193              		.cfi_def_cfa_offset 4
+ 1194              		.cfi_offset 7, -4
+ 1195 0002 83B0     		sub	sp, sp, #12
+ 1196              	.LCFI70:
+ 1197              		.cfi_def_cfa_offset 16
+ 1198 0004 00AF     		add	r7, sp, #0
+ 1199              	.LCFI71:
+ 1200              		.cfi_def_cfa_register 7
+ 1201 0006 7860     		str	r0, [r7, #4]
+ 1202 0008 3960     		str	r1, [r7, #0]
+1006:C:/StellarisWare/driverlib\i2c.c ****     //
+1007:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1008:C:/StellarisWare/driverlib\i2c.c ****     //
+1009:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1010:C:/StellarisWare/driverlib\i2c.c **** 
+1011:C:/StellarisWare/driverlib\i2c.c ****     //
+1012:C:/StellarisWare/driverlib\i2c.c ****     // Clear the I2C master interrupt source.
+1013:C:/StellarisWare/driverlib\i2c.c ****     //
+1014:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MICR) = ulIntFlags;
+ 1203              		.loc 1 1014 0
+ 1204 000a 7B68     		ldr	r3, [r7, #4]
+ 1205 000c 03F11C03 		add	r3, r3, #28
+ 1206 0010 3A68     		ldr	r2, [r7, #0]
+ 1207 0012 1A60     		str	r2, [r3, #0]
+1015:C:/StellarisWare/driverlib\i2c.c **** }
+ 1208              		.loc 1 1015 0
+ 1209 0014 07F10C07 		add	r7, r7, #12
+ 1210 0018 BD46     		mov	sp, r7
+ 1211 001a 80BC     		pop	{r7}
+ 1212 001c 7047     		bx	lr
+ 1213              		.cfi_endproc
+ 1214              	.LFE23:
+ 1216 001e 00BF     		.section	.text.I2CSlaveIntClear,"ax",%progbits
+ 1217              		.align	2
+ 1218              		.global	I2CSlaveIntClear
+ 1219              		.thumb
+ 1220              		.thumb_func
+ 1222              	I2CSlaveIntClear:
+ 1223              	.LFB24:
+1016:C:/StellarisWare/driverlib\i2c.c **** 
+1017:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1018:C:/StellarisWare/driverlib\i2c.c **** //
+1019:C:/StellarisWare/driverlib\i2c.c **** //! Clears I2C Slave interrupt sources.
+1020:C:/StellarisWare/driverlib\i2c.c **** //!
+1021:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1022:C:/StellarisWare/driverlib\i2c.c **** //!
+1023:C:/StellarisWare/driverlib\i2c.c **** //! The I2C Slave interrupt source is cleared, so that it no longer asserts.
+1024:C:/StellarisWare/driverlib\i2c.c **** //! This function must be called in the interrupt handler to keep the interrupt
+1025:C:/StellarisWare/driverlib\i2c.c **** //! from being triggered again immediately upon exit.
+1026:C:/StellarisWare/driverlib\i2c.c **** //!
+1027:C:/StellarisWare/driverlib\i2c.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1028:C:/StellarisWare/driverlib\i2c.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1029:C:/StellarisWare/driverlib\i2c.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1030:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1031:C:/StellarisWare/driverlib\i2c.c **** //! returning from the interrupt handler before the interrupt source is
+1032:C:/StellarisWare/driverlib\i2c.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1033:C:/StellarisWare/driverlib\i2c.c **** //! being immediately reentered (because the interrupt controller still sees
+1034:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt source asserted).
+1035:C:/StellarisWare/driverlib\i2c.c **** //!
+1036:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1037:C:/StellarisWare/driverlib\i2c.c **** //
+1038:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1039:C:/StellarisWare/driverlib\i2c.c **** void
+1040:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntClear(unsigned long ulBase)
+1041:C:/StellarisWare/driverlib\i2c.c **** {
+ 1224              		.loc 1 1041 0
+ 1225              		.cfi_startproc
+ 1226              		@ args = 0, pretend = 0, frame = 8
+ 1227              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1228              		@ link register save eliminated.
+ 1229 0000 80B4     		push	{r7}
+ 1230              	.LCFI72:
+ 1231              		.cfi_def_cfa_offset 4
+ 1232              		.cfi_offset 7, -4
+ 1233 0002 83B0     		sub	sp, sp, #12
+ 1234              	.LCFI73:
+ 1235              		.cfi_def_cfa_offset 16
+ 1236 0004 00AF     		add	r7, sp, #0
+ 1237              	.LCFI74:
+ 1238              		.cfi_def_cfa_register 7
+ 1239 0006 7860     		str	r0, [r7, #4]
+1042:C:/StellarisWare/driverlib\i2c.c ****     //
+1043:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1044:C:/StellarisWare/driverlib\i2c.c ****     //
+1045:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1046:C:/StellarisWare/driverlib\i2c.c **** 
+1047:C:/StellarisWare/driverlib\i2c.c ****     //
+1048:C:/StellarisWare/driverlib\i2c.c ****     // Clear the I2C slave interrupt source.
+1049:C:/StellarisWare/driverlib\i2c.c ****     //
+1050:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SICR) = I2C_SICR_DATAIC;
+ 1240              		.loc 1 1050 0
+ 1241 0008 7B68     		ldr	r3, [r7, #4]
+ 1242 000a 03F11803 		add	r3, r3, #24
+ 1243 000e 4FF00102 		mov	r2, #1
+ 1244 0012 1A60     		str	r2, [r3, #0]
+1051:C:/StellarisWare/driverlib\i2c.c **** }
+ 1245              		.loc 1 1051 0
+ 1246 0014 07F10C07 		add	r7, r7, #12
+ 1247 0018 BD46     		mov	sp, r7
+ 1248 001a 80BC     		pop	{r7}
+ 1249 001c 7047     		bx	lr
+ 1250              		.cfi_endproc
+ 1251              	.LFE24:
+ 1253 001e 00BF     		.section	.text.I2CSlaveIntClearEx,"ax",%progbits
+ 1254              		.align	2
+ 1255              		.global	I2CSlaveIntClearEx
+ 1256              		.thumb
+ 1257              		.thumb_func
+ 1259              	I2CSlaveIntClearEx:
+ 1260              	.LFB25:
+1052:C:/StellarisWare/driverlib\i2c.c **** 
+1053:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1054:C:/StellarisWare/driverlib\i2c.c **** //
+1055:C:/StellarisWare/driverlib\i2c.c **** //! Clears I2C Slave interrupt sources.
+1056:C:/StellarisWare/driverlib\i2c.c **** //!
+1057:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1058:C:/StellarisWare/driverlib\i2c.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+1059:C:/StellarisWare/driverlib\i2c.c **** //!
+1060:C:/StellarisWare/driverlib\i2c.c **** //! The specified I2C Slave interrupt sources are cleared, so that they no
+1061:C:/StellarisWare/driverlib\i2c.c **** //! longer assert.  This function must be called in the interrupt handler to
+1062:C:/StellarisWare/driverlib\i2c.c **** //! keep the interrupt from being triggered again immediately upon exit.
+1063:C:/StellarisWare/driverlib\i2c.c **** //!
+1064:C:/StellarisWare/driverlib\i2c.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+1065:C:/StellarisWare/driverlib\i2c.c **** //! parameter to I2CSlaveIntEnableEx().
+1066:C:/StellarisWare/driverlib\i2c.c **** //!
+1067:C:/StellarisWare/driverlib\i2c.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1068:C:/StellarisWare/driverlib\i2c.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1069:C:/StellarisWare/driverlib\i2c.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1070:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1071:C:/StellarisWare/driverlib\i2c.c **** //! returning from the interrupt handler before the interrupt source is
+1072:C:/StellarisWare/driverlib\i2c.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1073:C:/StellarisWare/driverlib\i2c.c **** //! being immediately reentered (because the interrupt controller still sees
+1074:C:/StellarisWare/driverlib\i2c.c **** //! the interrupt source asserted).
+1075:C:/StellarisWare/driverlib\i2c.c **** //!
+1076:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1077:C:/StellarisWare/driverlib\i2c.c **** //
+1078:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1079:C:/StellarisWare/driverlib\i2c.c **** void
+1080:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveIntClearEx(unsigned long ulBase, unsigned long ulIntFlags)
+1081:C:/StellarisWare/driverlib\i2c.c **** {
+ 1261              		.loc 1 1081 0
+ 1262              		.cfi_startproc
+ 1263              		@ args = 0, pretend = 0, frame = 8
+ 1264              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1265              		@ link register save eliminated.
+ 1266 0000 80B4     		push	{r7}
+ 1267              	.LCFI75:
+ 1268              		.cfi_def_cfa_offset 4
+ 1269              		.cfi_offset 7, -4
+ 1270 0002 83B0     		sub	sp, sp, #12
+ 1271              	.LCFI76:
+ 1272              		.cfi_def_cfa_offset 16
+ 1273 0004 00AF     		add	r7, sp, #0
+ 1274              	.LCFI77:
+ 1275              		.cfi_def_cfa_register 7
+ 1276 0006 7860     		str	r0, [r7, #4]
+ 1277 0008 3960     		str	r1, [r7, #0]
+1082:C:/StellarisWare/driverlib\i2c.c ****     //
+1083:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1084:C:/StellarisWare/driverlib\i2c.c ****     //
+1085:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1086:C:/StellarisWare/driverlib\i2c.c **** 
+1087:C:/StellarisWare/driverlib\i2c.c ****     //
+1088:C:/StellarisWare/driverlib\i2c.c ****     // Clear the I2C slave interrupt source.
+1089:C:/StellarisWare/driverlib\i2c.c ****     //
+1090:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SICR) = ulIntFlags;
+ 1278              		.loc 1 1090 0
+ 1279 000a 7B68     		ldr	r3, [r7, #4]
+ 1280 000c 03F11803 		add	r3, r3, #24
+ 1281 0010 3A68     		ldr	r2, [r7, #0]
+ 1282 0012 1A60     		str	r2, [r3, #0]
+1091:C:/StellarisWare/driverlib\i2c.c **** }
+ 1283              		.loc 1 1091 0
+ 1284 0014 07F10C07 		add	r7, r7, #12
+ 1285 0018 BD46     		mov	sp, r7
+ 1286 001a 80BC     		pop	{r7}
+ 1287 001c 7047     		bx	lr
+ 1288              		.cfi_endproc
+ 1289              	.LFE25:
+ 1291 001e 00BF     		.section	.text.I2CMasterSlaveAddrSet,"ax",%progbits
+ 1292              		.align	2
+ 1293              		.global	I2CMasterSlaveAddrSet
+ 1294              		.thumb
+ 1295              		.thumb_func
+ 1297              	I2CMasterSlaveAddrSet:
+ 1298              	.LFB26:
+1092:C:/StellarisWare/driverlib\i2c.c **** 
+1093:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1094:C:/StellarisWare/driverlib\i2c.c **** //
+1095:C:/StellarisWare/driverlib\i2c.c **** //! Sets the address that the I2C Master places on the bus.
+1096:C:/StellarisWare/driverlib\i2c.c **** //!
+1097:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1098:C:/StellarisWare/driverlib\i2c.c **** //! \param ucSlaveAddr 7-bit slave address
+1099:C:/StellarisWare/driverlib\i2c.c **** //! \param bReceive flag indicating the type of communication with the slave
+1100:C:/StellarisWare/driverlib\i2c.c **** //!
+1101:C:/StellarisWare/driverlib\i2c.c **** //! This function configures the address that the I2C Master places on the
+1102:C:/StellarisWare/driverlib\i2c.c **** //! bus when initiating a transaction.  When the \e bReceive parameter is set
+1103:C:/StellarisWare/driverlib\i2c.c **** //! to \b true, the address indicates that the I2C Master is initiating a
+1104:C:/StellarisWare/driverlib\i2c.c **** //! read from the slave; otherwise the address indicates that the I2C
+1105:C:/StellarisWare/driverlib\i2c.c **** //! Master is initiating a write to the slave.
+1106:C:/StellarisWare/driverlib\i2c.c **** //!
+1107:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1108:C:/StellarisWare/driverlib\i2c.c **** //
+1109:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1110:C:/StellarisWare/driverlib\i2c.c **** void
+1111:C:/StellarisWare/driverlib\i2c.c **** I2CMasterSlaveAddrSet(unsigned long ulBase, unsigned char ucSlaveAddr,
+1112:C:/StellarisWare/driverlib\i2c.c ****                       tBoolean bReceive)
+1113:C:/StellarisWare/driverlib\i2c.c **** {
+ 1299              		.loc 1 1113 0
+ 1300              		.cfi_startproc
+ 1301              		@ args = 0, pretend = 0, frame = 8
+ 1302              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1303              		@ link register save eliminated.
+ 1304 0000 80B4     		push	{r7}
+ 1305              	.LCFI78:
+ 1306              		.cfi_def_cfa_offset 4
+ 1307              		.cfi_offset 7, -4
+ 1308 0002 83B0     		sub	sp, sp, #12
+ 1309              	.LCFI79:
+ 1310              		.cfi_def_cfa_offset 16
+ 1311 0004 00AF     		add	r7, sp, #0
+ 1312              	.LCFI80:
+ 1313              		.cfi_def_cfa_register 7
+ 1314 0006 7860     		str	r0, [r7, #4]
+ 1315 0008 1346     		mov	r3, r2
+ 1316 000a 0A46     		mov	r2, r1
+ 1317 000c FA70     		strb	r2, [r7, #3]
+ 1318 000e BB70     		strb	r3, [r7, #2]
+1114:C:/StellarisWare/driverlib\i2c.c ****     //
+1115:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1116:C:/StellarisWare/driverlib\i2c.c ****     //
+1117:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1118:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(!(ucSlaveAddr & 0x80));
+1119:C:/StellarisWare/driverlib\i2c.c **** 
+1120:C:/StellarisWare/driverlib\i2c.c ****     //
+1121:C:/StellarisWare/driverlib\i2c.c ****     // Set the address of the slave with which the master will communicate.
+1122:C:/StellarisWare/driverlib\i2c.c ****     //
+1123:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MSA) = (ucSlaveAddr << 1) | bReceive;
+ 1319              		.loc 1 1123 0
+ 1320 0010 7B68     		ldr	r3, [r7, #4]
+ 1321 0012 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1322 0014 4FEA4201 		lsl	r1, r2, #1
+ 1323 0018 BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 1324 001a 0A43     		orrs	r2, r2, r1
+ 1325 001c 1A60     		str	r2, [r3, #0]
+1124:C:/StellarisWare/driverlib\i2c.c **** }
+ 1326              		.loc 1 1124 0
+ 1327 001e 07F10C07 		add	r7, r7, #12
+ 1328 0022 BD46     		mov	sp, r7
+ 1329 0024 80BC     		pop	{r7}
+ 1330 0026 7047     		bx	lr
+ 1331              		.cfi_endproc
+ 1332              	.LFE26:
+ 1334              		.section	.text.I2CMasterLineStateGet,"ax",%progbits
+ 1335              		.align	2
+ 1336              		.global	I2CMasterLineStateGet
+ 1337              		.thumb
+ 1338              		.thumb_func
+ 1340              	I2CMasterLineStateGet:
+ 1341              	.LFB27:
+1125:C:/StellarisWare/driverlib\i2c.c **** 
+1126:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1127:C:/StellarisWare/driverlib\i2c.c **** //
+1128:C:/StellarisWare/driverlib\i2c.c **** //! Reads the state of the SDA and SCL pins.
+1129:C:/StellarisWare/driverlib\i2c.c **** //!
+1130:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1131:C:/StellarisWare/driverlib\i2c.c **** //!
+1132:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the state of the I2C bus by providing the real time
+1133:C:/StellarisWare/driverlib\i2c.c **** //! values of the SDA and SCL pins.
+1134:C:/StellarisWare/driverlib\i2c.c **** //!
+1135:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support this function. Please consult the
+1136:C:/StellarisWare/driverlib\i2c.c **** //! device data sheet to know if this feature is supported.
+1137:C:/StellarisWare/driverlib\i2c.c **** //!
+1138:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the state of the bus with SDA in bit position 1 and SCL in
+1139:C:/StellarisWare/driverlib\i2c.c **** //! bit position 0.
+1140:C:/StellarisWare/driverlib\i2c.c **** //
+1141:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1142:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+1143:C:/StellarisWare/driverlib\i2c.c **** I2CMasterLineStateGet(unsigned long ulBase)
+1144:C:/StellarisWare/driverlib\i2c.c **** {
+ 1342              		.loc 1 1144 0
+ 1343              		.cfi_startproc
+ 1344              		@ args = 0, pretend = 0, frame = 8
+ 1345              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1346              		@ link register save eliminated.
+ 1347 0000 80B4     		push	{r7}
+ 1348              	.LCFI81:
+ 1349              		.cfi_def_cfa_offset 4
+ 1350              		.cfi_offset 7, -4
+ 1351 0002 83B0     		sub	sp, sp, #12
+ 1352              	.LCFI82:
+ 1353              		.cfi_def_cfa_offset 16
+ 1354 0004 00AF     		add	r7, sp, #0
+ 1355              	.LCFI83:
+ 1356              		.cfi_def_cfa_register 7
+ 1357 0006 7860     		str	r0, [r7, #4]
+1145:C:/StellarisWare/driverlib\i2c.c ****     //
+1146:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1147:C:/StellarisWare/driverlib\i2c.c ****     //
+1148:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1149:C:/StellarisWare/driverlib\i2c.c **** 
+1150:C:/StellarisWare/driverlib\i2c.c ****     //
+1151:C:/StellarisWare/driverlib\i2c.c ****     // Return the line state.
+1152:C:/StellarisWare/driverlib\i2c.c ****     //
+1153:C:/StellarisWare/driverlib\i2c.c ****     return(HWREG(ulBase + I2C_O_MBMON));
+ 1358              		.loc 1 1153 0
+ 1359 0008 7B68     		ldr	r3, [r7, #4]
+ 1360 000a 03F12C03 		add	r3, r3, #44
+ 1361 000e 1B68     		ldr	r3, [r3, #0]
+1154:C:/StellarisWare/driverlib\i2c.c **** }
+ 1362              		.loc 1 1154 0
+ 1363 0010 1846     		mov	r0, r3
+ 1364 0012 07F10C07 		add	r7, r7, #12
+ 1365 0016 BD46     		mov	sp, r7
+ 1366 0018 80BC     		pop	{r7}
+ 1367 001a 7047     		bx	lr
+ 1368              		.cfi_endproc
+ 1369              	.LFE27:
+ 1371              		.section	.text.I2CMasterBusy,"ax",%progbits
+ 1372              		.align	2
+ 1373              		.global	I2CMasterBusy
+ 1374              		.thumb
+ 1375              		.thumb_func
+ 1377              	I2CMasterBusy:
+ 1378              	.LFB28:
+1155:C:/StellarisWare/driverlib\i2c.c **** 
+1156:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1157:C:/StellarisWare/driverlib\i2c.c **** //
+1158:C:/StellarisWare/driverlib\i2c.c **** //! Indicates whether or not the I2C Master is busy.
+1159:C:/StellarisWare/driverlib\i2c.c **** //!
+1160:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1161:C:/StellarisWare/driverlib\i2c.c **** //!
+1162:C:/StellarisWare/driverlib\i2c.c **** //! This function returns an indication of whether or not the I2C Master is
+1163:C:/StellarisWare/driverlib\i2c.c **** //! busy transmitting or receiving data.
+1164:C:/StellarisWare/driverlib\i2c.c **** //!
+1165:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns \b true if the I2C Master is busy; otherwise, returns
+1166:C:/StellarisWare/driverlib\i2c.c **** //! \b false.
+1167:C:/StellarisWare/driverlib\i2c.c **** //
+1168:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1169:C:/StellarisWare/driverlib\i2c.c **** tBoolean
+1170:C:/StellarisWare/driverlib\i2c.c **** I2CMasterBusy(unsigned long ulBase)
+1171:C:/StellarisWare/driverlib\i2c.c **** {
+ 1379              		.loc 1 1171 0
+ 1380              		.cfi_startproc
+ 1381              		@ args = 0, pretend = 0, frame = 8
+ 1382              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1383              		@ link register save eliminated.
+ 1384 0000 80B4     		push	{r7}
+ 1385              	.LCFI84:
+ 1386              		.cfi_def_cfa_offset 4
+ 1387              		.cfi_offset 7, -4
+ 1388 0002 83B0     		sub	sp, sp, #12
+ 1389              	.LCFI85:
+ 1390              		.cfi_def_cfa_offset 16
+ 1391 0004 00AF     		add	r7, sp, #0
+ 1392              	.LCFI86:
+ 1393              		.cfi_def_cfa_register 7
+ 1394 0006 7860     		str	r0, [r7, #4]
+1172:C:/StellarisWare/driverlib\i2c.c ****     //
+1173:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1174:C:/StellarisWare/driverlib\i2c.c ****     //
+1175:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1176:C:/StellarisWare/driverlib\i2c.c **** 
+1177:C:/StellarisWare/driverlib\i2c.c ****     //
+1178:C:/StellarisWare/driverlib\i2c.c ****     // Return the busy status.
+1179:C:/StellarisWare/driverlib\i2c.c ****     //
+1180:C:/StellarisWare/driverlib\i2c.c ****     if(HWREG(ulBase + I2C_O_MCS) & I2C_MCS_BUSY)
+ 1395              		.loc 1 1180 0
+ 1396 0008 7B68     		ldr	r3, [r7, #4]
+ 1397 000a 03F10403 		add	r3, r3, #4
+ 1398 000e 1B68     		ldr	r3, [r3, #0]
+ 1399 0010 03F00103 		and	r3, r3, #1
+ 1400 0014 DBB2     		uxtb	r3, r3
+ 1401 0016 002B     		cmp	r3, #0
+ 1402 0018 02D0     		beq	.L49
+1181:C:/StellarisWare/driverlib\i2c.c ****     {
+1182:C:/StellarisWare/driverlib\i2c.c ****         return(true);
+ 1403              		.loc 1 1182 0
+ 1404 001a 4FF00103 		mov	r3, #1
+ 1405 001e 01E0     		b	.L50
+ 1406              	.L49:
+1183:C:/StellarisWare/driverlib\i2c.c ****     }
+1184:C:/StellarisWare/driverlib\i2c.c ****     else
+1185:C:/StellarisWare/driverlib\i2c.c ****     {
+1186:C:/StellarisWare/driverlib\i2c.c ****         return(false);
+ 1407              		.loc 1 1186 0
+ 1408 0020 4FF00003 		mov	r3, #0
+ 1409              	.L50:
+1187:C:/StellarisWare/driverlib\i2c.c ****     }
+1188:C:/StellarisWare/driverlib\i2c.c **** }
+ 1410              		.loc 1 1188 0
+ 1411 0024 1846     		mov	r0, r3
+ 1412 0026 07F10C07 		add	r7, r7, #12
+ 1413 002a BD46     		mov	sp, r7
+ 1414 002c 80BC     		pop	{r7}
+ 1415 002e 7047     		bx	lr
+ 1416              		.cfi_endproc
+ 1417              	.LFE28:
+ 1419              		.section	.text.I2CMasterBusBusy,"ax",%progbits
+ 1420              		.align	2
+ 1421              		.global	I2CMasterBusBusy
+ 1422              		.thumb
+ 1423              		.thumb_func
+ 1425              	I2CMasterBusBusy:
+ 1426              	.LFB29:
+1189:C:/StellarisWare/driverlib\i2c.c **** 
+1190:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1191:C:/StellarisWare/driverlib\i2c.c **** //
+1192:C:/StellarisWare/driverlib\i2c.c **** //! Indicates whether or not the I2C bus is busy.
+1193:C:/StellarisWare/driverlib\i2c.c **** //!
+1194:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1195:C:/StellarisWare/driverlib\i2c.c **** //!
+1196:C:/StellarisWare/driverlib\i2c.c **** //! This function returns an indication of whether or not the I2C bus is busy.
+1197:C:/StellarisWare/driverlib\i2c.c **** //! This function can be used in a multi-master environment to determine if
+1198:C:/StellarisWare/driverlib\i2c.c **** //! another master is currently using the bus.
+1199:C:/StellarisWare/driverlib\i2c.c **** //!
+1200:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns \b true if the I2C bus is busy; otherwise, returns
+1201:C:/StellarisWare/driverlib\i2c.c **** //! \b false.
+1202:C:/StellarisWare/driverlib\i2c.c **** //
+1203:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1204:C:/StellarisWare/driverlib\i2c.c **** tBoolean
+1205:C:/StellarisWare/driverlib\i2c.c **** I2CMasterBusBusy(unsigned long ulBase)
+1206:C:/StellarisWare/driverlib\i2c.c **** {
+ 1427              		.loc 1 1206 0
+ 1428              		.cfi_startproc
+ 1429              		@ args = 0, pretend = 0, frame = 8
+ 1430              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1431              		@ link register save eliminated.
+ 1432 0000 80B4     		push	{r7}
+ 1433              	.LCFI87:
+ 1434              		.cfi_def_cfa_offset 4
+ 1435              		.cfi_offset 7, -4
+ 1436 0002 83B0     		sub	sp, sp, #12
+ 1437              	.LCFI88:
+ 1438              		.cfi_def_cfa_offset 16
+ 1439 0004 00AF     		add	r7, sp, #0
+ 1440              	.LCFI89:
+ 1441              		.cfi_def_cfa_register 7
+ 1442 0006 7860     		str	r0, [r7, #4]
+1207:C:/StellarisWare/driverlib\i2c.c ****     //
+1208:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1209:C:/StellarisWare/driverlib\i2c.c ****     //
+1210:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1211:C:/StellarisWare/driverlib\i2c.c **** 
+1212:C:/StellarisWare/driverlib\i2c.c ****     //
+1213:C:/StellarisWare/driverlib\i2c.c ****     // Return the bus busy status.
+1214:C:/StellarisWare/driverlib\i2c.c ****     //
+1215:C:/StellarisWare/driverlib\i2c.c ****     if(HWREG(ulBase + I2C_O_MCS) & I2C_MCS_BUSBSY)
+ 1443              		.loc 1 1215 0
+ 1444 0008 7B68     		ldr	r3, [r7, #4]
+ 1445 000a 03F10403 		add	r3, r3, #4
+ 1446 000e 1B68     		ldr	r3, [r3, #0]
+ 1447 0010 03F04003 		and	r3, r3, #64
+ 1448 0014 002B     		cmp	r3, #0
+ 1449 0016 02D0     		beq	.L52
+1216:C:/StellarisWare/driverlib\i2c.c ****     {
+1217:C:/StellarisWare/driverlib\i2c.c ****         return(true);
+ 1450              		.loc 1 1217 0
+ 1451 0018 4FF00103 		mov	r3, #1
+ 1452 001c 01E0     		b	.L53
+ 1453              	.L52:
+1218:C:/StellarisWare/driverlib\i2c.c ****     }
+1219:C:/StellarisWare/driverlib\i2c.c ****     else
+1220:C:/StellarisWare/driverlib\i2c.c ****     {
+1221:C:/StellarisWare/driverlib\i2c.c ****         return(false);
+ 1454              		.loc 1 1221 0
+ 1455 001e 4FF00003 		mov	r3, #0
+ 1456              	.L53:
+1222:C:/StellarisWare/driverlib\i2c.c ****     }
+1223:C:/StellarisWare/driverlib\i2c.c **** }
+ 1457              		.loc 1 1223 0
+ 1458 0022 1846     		mov	r0, r3
+ 1459 0024 07F10C07 		add	r7, r7, #12
+ 1460 0028 BD46     		mov	sp, r7
+ 1461 002a 80BC     		pop	{r7}
+ 1462 002c 7047     		bx	lr
+ 1463              		.cfi_endproc
+ 1464              	.LFE29:
+ 1466 002e 00BF     		.section	.text.I2CMasterControl,"ax",%progbits
+ 1467              		.align	2
+ 1468              		.global	I2CMasterControl
+ 1469              		.thumb
+ 1470              		.thumb_func
+ 1472              	I2CMasterControl:
+ 1473              	.LFB30:
+1224:C:/StellarisWare/driverlib\i2c.c **** 
+1225:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1226:C:/StellarisWare/driverlib\i2c.c **** //
+1227:C:/StellarisWare/driverlib\i2c.c **** //! Controls the state of the I2C Master module.
+1228:C:/StellarisWare/driverlib\i2c.c **** //!
+1229:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1230:C:/StellarisWare/driverlib\i2c.c **** //! \param ulCmd command to be issued to the I2C Master module.
+1231:C:/StellarisWare/driverlib\i2c.c **** //!
+1232:C:/StellarisWare/driverlib\i2c.c **** //! This function is used to control the state of the Master module send and
+1233:C:/StellarisWare/driverlib\i2c.c **** //! receive operations.  The \e ucCmd parameter can be one of the following
+1234:C:/StellarisWare/driverlib\i2c.c **** //! values:
+1235:C:/StellarisWare/driverlib\i2c.c **** //!
+1236:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_SINGLE_SEND
+1237:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_SINGLE_RECEIVE
+1238:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_SEND_START
+1239:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_SEND_CONT
+1240:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_SEND_FINISH
+1241:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_SEND_ERROR_STOP
+1242:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_RECEIVE_START
+1243:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_RECEIVE_CONT
+1244:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_RECEIVE_FINISH
+1245:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_BURST_RECEIVE_ERROR_STOP
+1246:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_QUICK_COMMAND
+1247:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_MASTER_CMD_HS_MASTER_CODE_SEND
+1248:C:/StellarisWare/driverlib\i2c.c **** //!
+1249:C:/StellarisWare/driverlib\i2c.c **** //! Not all Stellaris devices have a I2C FIFO and do not support the FIFO
+1250:C:/StellarisWare/driverlib\i2c.c **** //! commands.  Please reference your specific device's datasheet to determine if
+1251:C:/StellarisWare/driverlib\i2c.c **** //! your device supports this feature.
+1252:C:/StellarisWare/driverlib\i2c.c **** //!
+1253:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1254:C:/StellarisWare/driverlib\i2c.c **** //
+1255:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1256:C:/StellarisWare/driverlib\i2c.c **** void
+1257:C:/StellarisWare/driverlib\i2c.c **** I2CMasterControl(unsigned long ulBase, unsigned long ulCmd)
+1258:C:/StellarisWare/driverlib\i2c.c **** {
+ 1474              		.loc 1 1258 0
+ 1475              		.cfi_startproc
+ 1476              		@ args = 0, pretend = 0, frame = 8
+ 1477              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1478              		@ link register save eliminated.
+ 1479 0000 80B4     		push	{r7}
+ 1480              	.LCFI90:
+ 1481              		.cfi_def_cfa_offset 4
+ 1482              		.cfi_offset 7, -4
+ 1483 0002 83B0     		sub	sp, sp, #12
+ 1484              	.LCFI91:
+ 1485              		.cfi_def_cfa_offset 16
+ 1486 0004 00AF     		add	r7, sp, #0
+ 1487              	.LCFI92:
+ 1488              		.cfi_def_cfa_register 7
+ 1489 0006 7860     		str	r0, [r7, #4]
+ 1490 0008 3960     		str	r1, [r7, #0]
+1259:C:/StellarisWare/driverlib\i2c.c ****     //
+1260:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1261:C:/StellarisWare/driverlib\i2c.c ****     //
+1262:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1263:C:/StellarisWare/driverlib\i2c.c ****     ASSERT((ulCmd == I2C_MASTER_CMD_SINGLE_SEND) ||
+1264:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_SINGLE_RECEIVE) ||
+1265:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_SEND_START) ||
+1266:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_SEND_CONT) ||
+1267:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_SEND_FINISH) ||
+1268:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_SEND_ERROR_STOP) ||
+1269:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_RECEIVE_START) ||
+1270:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_RECEIVE_CONT) ||
+1271:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_RECEIVE_FINISH) ||
+1272:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_BURST_RECEIVE_ERROR_STOP) ||
+1273:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_QUICK_COMMAND) ||
+1274:C:/StellarisWare/driverlib\i2c.c ****            (ulCmd == I2C_MASTER_CMD_HS_MASTER_CODE_SEND));
+1275:C:/StellarisWare/driverlib\i2c.c **** 
+1276:C:/StellarisWare/driverlib\i2c.c ****     //
+1277:C:/StellarisWare/driverlib\i2c.c ****     // Send the command.
+1278:C:/StellarisWare/driverlib\i2c.c ****     //
+1279:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MCS) = ulCmd;
+ 1491              		.loc 1 1279 0
+ 1492 000a 7B68     		ldr	r3, [r7, #4]
+ 1493 000c 03F10403 		add	r3, r3, #4
+ 1494 0010 3A68     		ldr	r2, [r7, #0]
+ 1495 0012 1A60     		str	r2, [r3, #0]
+1280:C:/StellarisWare/driverlib\i2c.c **** }
+ 1496              		.loc 1 1280 0
+ 1497 0014 07F10C07 		add	r7, r7, #12
+ 1498 0018 BD46     		mov	sp, r7
+ 1499 001a 80BC     		pop	{r7}
+ 1500 001c 7047     		bx	lr
+ 1501              		.cfi_endproc
+ 1502              	.LFE30:
+ 1504 001e 00BF     		.section	.text.I2CMasterErr,"ax",%progbits
+ 1505              		.align	2
+ 1506              		.global	I2CMasterErr
+ 1507              		.thumb
+ 1508              		.thumb_func
+ 1510              	I2CMasterErr:
+ 1511              	.LFB31:
+1281:C:/StellarisWare/driverlib\i2c.c **** 
+1282:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1283:C:/StellarisWare/driverlib\i2c.c **** //
+1284:C:/StellarisWare/driverlib\i2c.c **** //! Gets the error status of the I2C Master module.
+1285:C:/StellarisWare/driverlib\i2c.c **** //!
+1286:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1287:C:/StellarisWare/driverlib\i2c.c **** //!
+1288:C:/StellarisWare/driverlib\i2c.c **** //! This function is used to obtain the error status of the Master module send
+1289:C:/StellarisWare/driverlib\i2c.c **** //! and receive operations.
+1290:C:/StellarisWare/driverlib\i2c.c **** //!
+1291:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the error status, as one of \b I2C_MASTER_ERR_NONE,
+1292:C:/StellarisWare/driverlib\i2c.c **** //! \b I2C_MASTER_ERR_ADDR_ACK, \b I2C_MASTER_ERR_DATA_ACK, or
+1293:C:/StellarisWare/driverlib\i2c.c **** //! \b I2C_MASTER_ERR_ARB_LOST.
+1294:C:/StellarisWare/driverlib\i2c.c **** //
+1295:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1296:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+1297:C:/StellarisWare/driverlib\i2c.c **** I2CMasterErr(unsigned long ulBase)
+1298:C:/StellarisWare/driverlib\i2c.c **** {
+ 1512              		.loc 1 1298 0
+ 1513              		.cfi_startproc
+ 1514              		@ args = 0, pretend = 0, frame = 16
+ 1515              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1516              		@ link register save eliminated.
+ 1517 0000 80B4     		push	{r7}
+ 1518              	.LCFI93:
+ 1519              		.cfi_def_cfa_offset 4
+ 1520              		.cfi_offset 7, -4
+ 1521 0002 85B0     		sub	sp, sp, #20
+ 1522              	.LCFI94:
+ 1523              		.cfi_def_cfa_offset 24
+ 1524 0004 00AF     		add	r7, sp, #0
+ 1525              	.LCFI95:
+ 1526              		.cfi_def_cfa_register 7
+ 1527 0006 7860     		str	r0, [r7, #4]
+1299:C:/StellarisWare/driverlib\i2c.c ****     unsigned long ulErr;
+1300:C:/StellarisWare/driverlib\i2c.c **** 
+1301:C:/StellarisWare/driverlib\i2c.c ****     //
+1302:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1303:C:/StellarisWare/driverlib\i2c.c ****     //
+1304:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1305:C:/StellarisWare/driverlib\i2c.c **** 
+1306:C:/StellarisWare/driverlib\i2c.c ****     //
+1307:C:/StellarisWare/driverlib\i2c.c ****     // Get the raw error state
+1308:C:/StellarisWare/driverlib\i2c.c ****     //
+1309:C:/StellarisWare/driverlib\i2c.c ****     ulErr = HWREG(ulBase + I2C_O_MCS);
+ 1528              		.loc 1 1309 0
+ 1529 0008 7B68     		ldr	r3, [r7, #4]
+ 1530 000a 03F10403 		add	r3, r3, #4
+ 1531 000e 1B68     		ldr	r3, [r3, #0]
+ 1532 0010 FB60     		str	r3, [r7, #12]
+1310:C:/StellarisWare/driverlib\i2c.c **** 
+1311:C:/StellarisWare/driverlib\i2c.c ****     //
+1312:C:/StellarisWare/driverlib\i2c.c ****     // If the I2C master is busy, then all the other bit are invalid, and
+1313:C:/StellarisWare/driverlib\i2c.c ****     // don't have an error to report.
+1314:C:/StellarisWare/driverlib\i2c.c ****     //
+1315:C:/StellarisWare/driverlib\i2c.c ****     if(ulErr & I2C_MCS_BUSY)
+ 1533              		.loc 1 1315 0
+ 1534 0012 FB68     		ldr	r3, [r7, #12]
+ 1535 0014 03F00103 		and	r3, r3, #1
+ 1536 0018 DBB2     		uxtb	r3, r3
+ 1537 001a 002B     		cmp	r3, #0
+ 1538 001c 02D0     		beq	.L56
+1316:C:/StellarisWare/driverlib\i2c.c ****     {
+1317:C:/StellarisWare/driverlib\i2c.c ****         return(I2C_MASTER_ERR_NONE);
+ 1539              		.loc 1 1317 0
+ 1540 001e 4FF00003 		mov	r3, #0
+ 1541 0022 0AE0     		b	.L57
+ 1542              	.L56:
+1318:C:/StellarisWare/driverlib\i2c.c ****     }
+1319:C:/StellarisWare/driverlib\i2c.c **** 
+1320:C:/StellarisWare/driverlib\i2c.c ****     //
+1321:C:/StellarisWare/driverlib\i2c.c ****     // Check for errors.
+1322:C:/StellarisWare/driverlib\i2c.c ****     //
+1323:C:/StellarisWare/driverlib\i2c.c ****     if(ulErr & (I2C_MCS_ERROR | I2C_MCS_ARBLST))
+ 1543              		.loc 1 1323 0
+ 1544 0024 FB68     		ldr	r3, [r7, #12]
+ 1545 0026 03F01203 		and	r3, r3, #18
+ 1546 002a 002B     		cmp	r3, #0
+ 1547 002c 03D0     		beq	.L58
+1324:C:/StellarisWare/driverlib\i2c.c ****     {
+1325:C:/StellarisWare/driverlib\i2c.c ****         return(ulErr & (I2C_MCS_ARBLST | I2C_MCS_DATACK | I2C_MCS_ADRACK));
+ 1548              		.loc 1 1325 0
+ 1549 002e FB68     		ldr	r3, [r7, #12]
+ 1550 0030 03F01C03 		and	r3, r3, #28
+ 1551 0034 01E0     		b	.L57
+ 1552              	.L58:
+1326:C:/StellarisWare/driverlib\i2c.c ****     }
+1327:C:/StellarisWare/driverlib\i2c.c ****     else
+1328:C:/StellarisWare/driverlib\i2c.c ****     {
+1329:C:/StellarisWare/driverlib\i2c.c ****         return(I2C_MASTER_ERR_NONE);
+ 1553              		.loc 1 1329 0
+ 1554 0036 4FF00003 		mov	r3, #0
+ 1555              	.L57:
+1330:C:/StellarisWare/driverlib\i2c.c ****     }
+1331:C:/StellarisWare/driverlib\i2c.c **** }
+ 1556              		.loc 1 1331 0
+ 1557 003a 1846     		mov	r0, r3
+ 1558 003c 07F11407 		add	r7, r7, #20
+ 1559 0040 BD46     		mov	sp, r7
+ 1560 0042 80BC     		pop	{r7}
+ 1561 0044 7047     		bx	lr
+ 1562              		.cfi_endproc
+ 1563              	.LFE31:
+ 1565 0046 00BF     		.section	.text.I2CMasterDataPut,"ax",%progbits
+ 1566              		.align	2
+ 1567              		.global	I2CMasterDataPut
+ 1568              		.thumb
+ 1569              		.thumb_func
+ 1571              	I2CMasterDataPut:
+ 1572              	.LFB32:
+1332:C:/StellarisWare/driverlib\i2c.c **** 
+1333:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1334:C:/StellarisWare/driverlib\i2c.c **** //
+1335:C:/StellarisWare/driverlib\i2c.c **** //! Transmits a byte from the I2C Master.
+1336:C:/StellarisWare/driverlib\i2c.c **** //!
+1337:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1338:C:/StellarisWare/driverlib\i2c.c **** //! \param ucData data to be transmitted from the I2C Master.
+1339:C:/StellarisWare/driverlib\i2c.c **** //!
+1340:C:/StellarisWare/driverlib\i2c.c **** //! This function places the supplied data into I2C Master Data Register.
+1341:C:/StellarisWare/driverlib\i2c.c **** //!
+1342:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1343:C:/StellarisWare/driverlib\i2c.c **** //
+1344:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1345:C:/StellarisWare/driverlib\i2c.c **** void
+1346:C:/StellarisWare/driverlib\i2c.c **** I2CMasterDataPut(unsigned long ulBase, unsigned char ucData)
+1347:C:/StellarisWare/driverlib\i2c.c **** {
+ 1573              		.loc 1 1347 0
+ 1574              		.cfi_startproc
+ 1575              		@ args = 0, pretend = 0, frame = 8
+ 1576              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1577              		@ link register save eliminated.
+ 1578 0000 80B4     		push	{r7}
+ 1579              	.LCFI96:
+ 1580              		.cfi_def_cfa_offset 4
+ 1581              		.cfi_offset 7, -4
+ 1582 0002 83B0     		sub	sp, sp, #12
+ 1583              	.LCFI97:
+ 1584              		.cfi_def_cfa_offset 16
+ 1585 0004 00AF     		add	r7, sp, #0
+ 1586              	.LCFI98:
+ 1587              		.cfi_def_cfa_register 7
+ 1588 0006 7860     		str	r0, [r7, #4]
+ 1589 0008 0B46     		mov	r3, r1
+ 1590 000a FB70     		strb	r3, [r7, #3]
+1348:C:/StellarisWare/driverlib\i2c.c ****     //
+1349:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1350:C:/StellarisWare/driverlib\i2c.c ****     //
+1351:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1352:C:/StellarisWare/driverlib\i2c.c **** 
+1353:C:/StellarisWare/driverlib\i2c.c ****     //
+1354:C:/StellarisWare/driverlib\i2c.c ****     // Write the byte.
+1355:C:/StellarisWare/driverlib\i2c.c ****     //
+1356:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MDR) = ucData;
+ 1591              		.loc 1 1356 0
+ 1592 000c 7B68     		ldr	r3, [r7, #4]
+ 1593 000e 03F10803 		add	r3, r3, #8
+ 1594 0012 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1595 0014 1A60     		str	r2, [r3, #0]
+1357:C:/StellarisWare/driverlib\i2c.c **** }
+ 1596              		.loc 1 1357 0
+ 1597 0016 07F10C07 		add	r7, r7, #12
+ 1598 001a BD46     		mov	sp, r7
+ 1599 001c 80BC     		pop	{r7}
+ 1600 001e 7047     		bx	lr
+ 1601              		.cfi_endproc
+ 1602              	.LFE32:
+ 1604              		.section	.text.I2CMasterDataGet,"ax",%progbits
+ 1605              		.align	2
+ 1606              		.global	I2CMasterDataGet
+ 1607              		.thumb
+ 1608              		.thumb_func
+ 1610              	I2CMasterDataGet:
+ 1611              	.LFB33:
+1358:C:/StellarisWare/driverlib\i2c.c **** 
+1359:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1360:C:/StellarisWare/driverlib\i2c.c **** //
+1361:C:/StellarisWare/driverlib\i2c.c **** //! Receives a byte that has been sent to the I2C Master.
+1362:C:/StellarisWare/driverlib\i2c.c **** //!
+1363:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1364:C:/StellarisWare/driverlib\i2c.c **** //!
+1365:C:/StellarisWare/driverlib\i2c.c **** //! This function reads a byte of data from the I2C Master Data Register.
+1366:C:/StellarisWare/driverlib\i2c.c **** //!
+1367:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the byte received from by the I2C Master, cast as an
+1368:C:/StellarisWare/driverlib\i2c.c **** //! unsigned long.
+1369:C:/StellarisWare/driverlib\i2c.c **** //
+1370:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1371:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+1372:C:/StellarisWare/driverlib\i2c.c **** I2CMasterDataGet(unsigned long ulBase)
+1373:C:/StellarisWare/driverlib\i2c.c **** {
+ 1612              		.loc 1 1373 0
+ 1613              		.cfi_startproc
+ 1614              		@ args = 0, pretend = 0, frame = 8
+ 1615              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1616              		@ link register save eliminated.
+ 1617 0000 80B4     		push	{r7}
+ 1618              	.LCFI99:
+ 1619              		.cfi_def_cfa_offset 4
+ 1620              		.cfi_offset 7, -4
+ 1621 0002 83B0     		sub	sp, sp, #12
+ 1622              	.LCFI100:
+ 1623              		.cfi_def_cfa_offset 16
+ 1624 0004 00AF     		add	r7, sp, #0
+ 1625              	.LCFI101:
+ 1626              		.cfi_def_cfa_register 7
+ 1627 0006 7860     		str	r0, [r7, #4]
+1374:C:/StellarisWare/driverlib\i2c.c ****     //
+1375:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1376:C:/StellarisWare/driverlib\i2c.c ****     //
+1377:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1378:C:/StellarisWare/driverlib\i2c.c **** 
+1379:C:/StellarisWare/driverlib\i2c.c ****     //
+1380:C:/StellarisWare/driverlib\i2c.c ****     // Read a byte.
+1381:C:/StellarisWare/driverlib\i2c.c ****     //
+1382:C:/StellarisWare/driverlib\i2c.c ****     return(HWREG(ulBase + I2C_O_MDR));
+ 1628              		.loc 1 1382 0
+ 1629 0008 7B68     		ldr	r3, [r7, #4]
+ 1630 000a 03F10803 		add	r3, r3, #8
+ 1631 000e 1B68     		ldr	r3, [r3, #0]
+1383:C:/StellarisWare/driverlib\i2c.c **** }
+ 1632              		.loc 1 1383 0
+ 1633 0010 1846     		mov	r0, r3
+ 1634 0012 07F10C07 		add	r7, r7, #12
+ 1635 0016 BD46     		mov	sp, r7
+ 1636 0018 80BC     		pop	{r7}
+ 1637 001a 7047     		bx	lr
+ 1638              		.cfi_endproc
+ 1639              	.LFE33:
+ 1641              		.section	.text.I2CMasterTimeoutSet,"ax",%progbits
+ 1642              		.align	2
+ 1643              		.global	I2CMasterTimeoutSet
+ 1644              		.thumb
+ 1645              		.thumb_func
+ 1647              	I2CMasterTimeoutSet:
+ 1648              	.LFB34:
+1384:C:/StellarisWare/driverlib\i2c.c **** 
+1385:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1386:C:/StellarisWare/driverlib\i2c.c **** //
+1387:C:/StellarisWare/driverlib\i2c.c **** //! Sets the Master clock timeout value.
+1388:C:/StellarisWare/driverlib\i2c.c **** //!
+1389:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Master module.
+1390:C:/StellarisWare/driverlib\i2c.c **** //! \param ulValue is the number of I2C clocks before the timeout is asserted.
+1391:C:/StellarisWare/driverlib\i2c.c **** //!
+1392:C:/StellarisWare/driverlib\i2c.c **** //! This function enables and configures the clock low timeout feature in the
+1393:C:/StellarisWare/driverlib\i2c.c **** //! I2C peripheral.  This feature is implemented as a 12-bit counter, with the
+1394:C:/StellarisWare/driverlib\i2c.c **** //! upper 8-bits being programmable.  For example, to program a timeout of 20ms
+1395:C:/StellarisWare/driverlib\i2c.c **** //! with a 100kHz SCL frequency, \e ulValue would be 0x7d.
+1396:C:/StellarisWare/driverlib\i2c.c **** //!
+1397:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support this function. Please consult the
+1398:C:/StellarisWare/driverlib\i2c.c **** //! device data sheet to know if this feature is supported.
+1399:C:/StellarisWare/driverlib\i2c.c **** //!
+1400:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1401:C:/StellarisWare/driverlib\i2c.c **** //
+1402:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1403:C:/StellarisWare/driverlib\i2c.c **** void
+1404:C:/StellarisWare/driverlib\i2c.c **** I2CMasterTimeoutSet(unsigned long ulBase, unsigned long ulValue)
+1405:C:/StellarisWare/driverlib\i2c.c **** {
+ 1649              		.loc 1 1405 0
+ 1650              		.cfi_startproc
+ 1651              		@ args = 0, pretend = 0, frame = 8
+ 1652              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1653              		@ link register save eliminated.
+ 1654 0000 80B4     		push	{r7}
+ 1655              	.LCFI102:
+ 1656              		.cfi_def_cfa_offset 4
+ 1657              		.cfi_offset 7, -4
+ 1658 0002 83B0     		sub	sp, sp, #12
+ 1659              	.LCFI103:
+ 1660              		.cfi_def_cfa_offset 16
+ 1661 0004 00AF     		add	r7, sp, #0
+ 1662              	.LCFI104:
+ 1663              		.cfi_def_cfa_register 7
+ 1664 0006 7860     		str	r0, [r7, #4]
+ 1665 0008 3960     		str	r1, [r7, #0]
+1406:C:/StellarisWare/driverlib\i2c.c ****     //
+1407:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1408:C:/StellarisWare/driverlib\i2c.c ****     //
+1409:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CMasterBaseValid(ulBase));
+1410:C:/StellarisWare/driverlib\i2c.c **** 
+1411:C:/StellarisWare/driverlib\i2c.c ****     //
+1412:C:/StellarisWare/driverlib\i2c.c ****     // Write the timeout value.
+1413:C:/StellarisWare/driverlib\i2c.c ****     //
+1414:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_MCLKOCNT) = ulValue;
+ 1666              		.loc 1 1414 0
+ 1667 000a 7B68     		ldr	r3, [r7, #4]
+ 1668 000c 03F12403 		add	r3, r3, #36
+ 1669 0010 3A68     		ldr	r2, [r7, #0]
+ 1670 0012 1A60     		str	r2, [r3, #0]
+1415:C:/StellarisWare/driverlib\i2c.c **** }
+ 1671              		.loc 1 1415 0
+ 1672 0014 07F10C07 		add	r7, r7, #12
+ 1673 0018 BD46     		mov	sp, r7
+ 1674 001a 80BC     		pop	{r7}
+ 1675 001c 7047     		bx	lr
+ 1676              		.cfi_endproc
+ 1677              	.LFE34:
+ 1679 001e 00BF     		.section	.text.I2CSlaveACKOverride,"ax",%progbits
+ 1680              		.align	2
+ 1681              		.global	I2CSlaveACKOverride
+ 1682              		.thumb
+ 1683              		.thumb_func
+ 1685              	I2CSlaveACKOverride:
+ 1686              	.LFB35:
+1416:C:/StellarisWare/driverlib\i2c.c **** 
+1417:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1418:C:/StellarisWare/driverlib\i2c.c **** //
+1419:C:/StellarisWare/driverlib\i2c.c **** //! Configures ACK override behavior of the I2C Slave.
+1420:C:/StellarisWare/driverlib\i2c.c **** //!
+1421:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1422:C:/StellarisWare/driverlib\i2c.c **** //! \param bEnable enables or disables ACK override.
+1423:C:/StellarisWare/driverlib\i2c.c **** //!
+1424:C:/StellarisWare/driverlib\i2c.c **** //! This function enables or disables ACK override, allowing the user
+1425:C:/StellarisWare/driverlib\i2c.c **** //! application to drive the value on SDA during the ACK cycle.
+1426:C:/StellarisWare/driverlib\i2c.c **** //!
+1427:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support this function. Please consult the
+1428:C:/StellarisWare/driverlib\i2c.c **** //! device data sheet to know if this feature is supported.
+1429:C:/StellarisWare/driverlib\i2c.c **** //!
+1430:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1431:C:/StellarisWare/driverlib\i2c.c **** //
+1432:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1433:C:/StellarisWare/driverlib\i2c.c **** void
+1434:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveACKOverride(unsigned long ulBase, tBoolean bEnable)
+1435:C:/StellarisWare/driverlib\i2c.c **** {
+ 1687              		.loc 1 1435 0
+ 1688              		.cfi_startproc
+ 1689              		@ args = 0, pretend = 0, frame = 8
+ 1690              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1691              		@ link register save eliminated.
+ 1692 0000 80B4     		push	{r7}
+ 1693              	.LCFI105:
+ 1694              		.cfi_def_cfa_offset 4
+ 1695              		.cfi_offset 7, -4
+ 1696 0002 83B0     		sub	sp, sp, #12
+ 1697              	.LCFI106:
+ 1698              		.cfi_def_cfa_offset 16
+ 1699 0004 00AF     		add	r7, sp, #0
+ 1700              	.LCFI107:
+ 1701              		.cfi_def_cfa_register 7
+ 1702 0006 7860     		str	r0, [r7, #4]
+ 1703 0008 0B46     		mov	r3, r1
+ 1704 000a FB70     		strb	r3, [r7, #3]
+1436:C:/StellarisWare/driverlib\i2c.c ****     //
+1437:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1438:C:/StellarisWare/driverlib\i2c.c ****     //
+1439:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1440:C:/StellarisWare/driverlib\i2c.c **** 
+1441:C:/StellarisWare/driverlib\i2c.c ****     //
+1442:C:/StellarisWare/driverlib\i2c.c ****     // Enable or disable based on bEnable.
+1443:C:/StellarisWare/driverlib\i2c.c ****     //
+1444:C:/StellarisWare/driverlib\i2c.c ****     if(bEnable)
+ 1705              		.loc 1 1444 0
+ 1706 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1707 000e 002B     		cmp	r3, #0
+ 1708 0010 0AD0     		beq	.L63
+1445:C:/StellarisWare/driverlib\i2c.c ****     {
+1446:C:/StellarisWare/driverlib\i2c.c ****         HWREG(ulBase + I2C_O_SACKCTL) |= I2C_SACKCTL_ACKOEN;
+ 1709              		.loc 1 1446 0
+ 1710 0012 7B68     		ldr	r3, [r7, #4]
+ 1711 0014 03F12003 		add	r3, r3, #32
+ 1712 0018 7A68     		ldr	r2, [r7, #4]
+ 1713 001a 02F12002 		add	r2, r2, #32
+ 1714 001e 1268     		ldr	r2, [r2, #0]
+ 1715 0020 42F00102 		orr	r2, r2, #1
+ 1716 0024 1A60     		str	r2, [r3, #0]
+ 1717 0026 09E0     		b	.L62
+ 1718              	.L63:
+1447:C:/StellarisWare/driverlib\i2c.c ****     }
+1448:C:/StellarisWare/driverlib\i2c.c ****     else
+1449:C:/StellarisWare/driverlib\i2c.c ****     {
+1450:C:/StellarisWare/driverlib\i2c.c ****         HWREG(ulBase + I2C_O_SACKCTL) &= ~I2C_SACKCTL_ACKOEN;
+ 1719              		.loc 1 1450 0
+ 1720 0028 7B68     		ldr	r3, [r7, #4]
+ 1721 002a 03F12003 		add	r3, r3, #32
+ 1722 002e 7A68     		ldr	r2, [r7, #4]
+ 1723 0030 02F12002 		add	r2, r2, #32
+ 1724 0034 1268     		ldr	r2, [r2, #0]
+ 1725 0036 22F00102 		bic	r2, r2, #1
+ 1726 003a 1A60     		str	r2, [r3, #0]
+ 1727              	.L62:
+1451:C:/StellarisWare/driverlib\i2c.c ****     }
+1452:C:/StellarisWare/driverlib\i2c.c **** }
+ 1728              		.loc 1 1452 0
+ 1729 003c 07F10C07 		add	r7, r7, #12
+ 1730 0040 BD46     		mov	sp, r7
+ 1731 0042 80BC     		pop	{r7}
+ 1732 0044 7047     		bx	lr
+ 1733              		.cfi_endproc
+ 1734              	.LFE35:
+ 1736 0046 00BF     		.section	.text.I2CSlaveACKValueSet,"ax",%progbits
+ 1737              		.align	2
+ 1738              		.global	I2CSlaveACKValueSet
+ 1739              		.thumb
+ 1740              		.thumb_func
+ 1742              	I2CSlaveACKValueSet:
+ 1743              	.LFB36:
+1453:C:/StellarisWare/driverlib\i2c.c **** 
+1454:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1455:C:/StellarisWare/driverlib\i2c.c **** //
+1456:C:/StellarisWare/driverlib\i2c.c **** //! Writes the ACK value.
+1457:C:/StellarisWare/driverlib\i2c.c **** //!
+1458:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1459:C:/StellarisWare/driverlib\i2c.c **** //! \param bACK chooses whether to ACK (true) or NACK (false) the transfer.
+1460:C:/StellarisWare/driverlib\i2c.c **** //!
+1461:C:/StellarisWare/driverlib\i2c.c **** //! This function puts the desired ACK value on SDA during the ACK cycle.  The
+1462:C:/StellarisWare/driverlib\i2c.c **** //! value written is only valid when ACK override is enabled using
+1463:C:/StellarisWare/driverlib\i2c.c **** //! I2CSlaveACKOverride().
+1464:C:/StellarisWare/driverlib\i2c.c **** //!
+1465:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1466:C:/StellarisWare/driverlib\i2c.c **** //
+1467:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1468:C:/StellarisWare/driverlib\i2c.c **** void
+1469:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveACKValueSet(unsigned long ulBase, tBoolean bACK)
+1470:C:/StellarisWare/driverlib\i2c.c **** {
+ 1744              		.loc 1 1470 0
+ 1745              		.cfi_startproc
+ 1746              		@ args = 0, pretend = 0, frame = 8
+ 1747              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1748              		@ link register save eliminated.
+ 1749 0000 80B4     		push	{r7}
+ 1750              	.LCFI108:
+ 1751              		.cfi_def_cfa_offset 4
+ 1752              		.cfi_offset 7, -4
+ 1753 0002 83B0     		sub	sp, sp, #12
+ 1754              	.LCFI109:
+ 1755              		.cfi_def_cfa_offset 16
+ 1756 0004 00AF     		add	r7, sp, #0
+ 1757              	.LCFI110:
+ 1758              		.cfi_def_cfa_register 7
+ 1759 0006 7860     		str	r0, [r7, #4]
+ 1760 0008 0B46     		mov	r3, r1
+ 1761 000a FB70     		strb	r3, [r7, #3]
+1471:C:/StellarisWare/driverlib\i2c.c ****     //
+1472:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1473:C:/StellarisWare/driverlib\i2c.c ****     //
+1474:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1475:C:/StellarisWare/driverlib\i2c.c **** 
+1476:C:/StellarisWare/driverlib\i2c.c ****     //
+1477:C:/StellarisWare/driverlib\i2c.c ****     // ACK or NACK based on the value of bACK.
+1478:C:/StellarisWare/driverlib\i2c.c ****     //
+1479:C:/StellarisWare/driverlib\i2c.c ****     if(bACK)
+ 1762              		.loc 1 1479 0
+ 1763 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1764 000e 002B     		cmp	r3, #0
+ 1765 0010 0AD0     		beq	.L66
+1480:C:/StellarisWare/driverlib\i2c.c ****     {
+1481:C:/StellarisWare/driverlib\i2c.c ****         HWREG(ulBase + I2C_O_SACKCTL) &= ~I2C_SACKCTL_ACKOVAL;
+ 1766              		.loc 1 1481 0
+ 1767 0012 7B68     		ldr	r3, [r7, #4]
+ 1768 0014 03F12003 		add	r3, r3, #32
+ 1769 0018 7A68     		ldr	r2, [r7, #4]
+ 1770 001a 02F12002 		add	r2, r2, #32
+ 1771 001e 1268     		ldr	r2, [r2, #0]
+ 1772 0020 22F00202 		bic	r2, r2, #2
+ 1773 0024 1A60     		str	r2, [r3, #0]
+ 1774 0026 09E0     		b	.L65
+ 1775              	.L66:
+1482:C:/StellarisWare/driverlib\i2c.c ****     }
+1483:C:/StellarisWare/driverlib\i2c.c ****     else
+1484:C:/StellarisWare/driverlib\i2c.c ****     {
+1485:C:/StellarisWare/driverlib\i2c.c ****         HWREG(ulBase + I2C_O_SACKCTL) |= I2C_SACKCTL_ACKOVAL;
+ 1776              		.loc 1 1485 0
+ 1777 0028 7B68     		ldr	r3, [r7, #4]
+ 1778 002a 03F12003 		add	r3, r3, #32
+ 1779 002e 7A68     		ldr	r2, [r7, #4]
+ 1780 0030 02F12002 		add	r2, r2, #32
+ 1781 0034 1268     		ldr	r2, [r2, #0]
+ 1782 0036 42F00202 		orr	r2, r2, #2
+ 1783 003a 1A60     		str	r2, [r3, #0]
+ 1784              	.L65:
+1486:C:/StellarisWare/driverlib\i2c.c ****     }
+1487:C:/StellarisWare/driverlib\i2c.c **** }
+ 1785              		.loc 1 1487 0
+ 1786 003c 07F10C07 		add	r7, r7, #12
+ 1787 0040 BD46     		mov	sp, r7
+ 1788 0042 80BC     		pop	{r7}
+ 1789 0044 7047     		bx	lr
+ 1790              		.cfi_endproc
+ 1791              	.LFE36:
+ 1793 0046 00BF     		.section	.text.I2CSlaveStatus,"ax",%progbits
+ 1794              		.align	2
+ 1795              		.global	I2CSlaveStatus
+ 1796              		.thumb
+ 1797              		.thumb_func
+ 1799              	I2CSlaveStatus:
+ 1800              	.LFB37:
+1488:C:/StellarisWare/driverlib\i2c.c **** 
+1489:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1490:C:/StellarisWare/driverlib\i2c.c **** //
+1491:C:/StellarisWare/driverlib\i2c.c **** //! Gets the I2C Slave module status
+1492:C:/StellarisWare/driverlib\i2c.c **** //!
+1493:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1494:C:/StellarisWare/driverlib\i2c.c **** //!
+1495:C:/StellarisWare/driverlib\i2c.c **** //! This function returns the action requested from a master, if any.
+1496:C:/StellarisWare/driverlib\i2c.c **** //! Possible values are:
+1497:C:/StellarisWare/driverlib\i2c.c **** //!
+1498:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_NONE
+1499:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_RREQ
+1500:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_TREQ
+1501:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_RREQ_FBR
+1502:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_OWN2SEL
+1503:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_QCMD
+1504:C:/StellarisWare/driverlib\i2c.c **** //! - \b I2C_SLAVE_ACT_QCMD_DATA
+1505:C:/StellarisWare/driverlib\i2c.c **** //!
+1506:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns \b I2C_SLAVE_ACT_NONE to indicate that no action has been
+1507:C:/StellarisWare/driverlib\i2c.c **** //! requested of the I2C Slave module, \b I2C_SLAVE_ACT_RREQ to indicate that
+1508:C:/StellarisWare/driverlib\i2c.c **** //! an I2C master has sent data to the I2C Slave module, \b I2C_SLAVE_ACT_TREQ
+1509:C:/StellarisWare/driverlib\i2c.c **** //! to indicate that an I2C master has requested that the I2C Slave module send
+1510:C:/StellarisWare/driverlib\i2c.c **** //! data, \b I2C_SLAVE_ACT_RREQ_FBR to indicate that an I2C master has sent
+1511:C:/StellarisWare/driverlib\i2c.c **** //! data to the I2C slave and the first byte following the slave's own address
+1512:C:/StellarisWare/driverlib\i2c.c **** //! has been received, \b I2C_SLAVE_ACT_OWN2SEL to indicate that the second I2C
+1513:C:/StellarisWare/driverlib\i2c.c **** //! slave address was matched, \b I2C_SLAVE_ACT_QCMD to indicate that a quick
+1514:C:/StellarisWare/driverlib\i2c.c **** //! command was received, and \b I2C_SLAVE_ACT_QCMD_DATA to indicate that the
+1515:C:/StellarisWare/driverlib\i2c.c **** //! data bit was set when the quick command was received.
+1516:C:/StellarisWare/driverlib\i2c.c **** //!
+1517:C:/StellarisWare/driverlib\i2c.c **** //! \note Not all Stellaris devices support the second I2C slave's own address
+1518:C:/StellarisWare/driverlib\i2c.c **** //! or the quick command function.  Please consult the device data sheet to
+1519:C:/StellarisWare/driverlib\i2c.c **** //! know if these features are supported.
+1520:C:/StellarisWare/driverlib\i2c.c **** //
+1521:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1522:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+1523:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveStatus(unsigned long ulBase)
+1524:C:/StellarisWare/driverlib\i2c.c **** {
+ 1801              		.loc 1 1524 0
+ 1802              		.cfi_startproc
+ 1803              		@ args = 0, pretend = 0, frame = 8
+ 1804              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1805              		@ link register save eliminated.
+ 1806 0000 80B4     		push	{r7}
+ 1807              	.LCFI111:
+ 1808              		.cfi_def_cfa_offset 4
+ 1809              		.cfi_offset 7, -4
+ 1810 0002 83B0     		sub	sp, sp, #12
+ 1811              	.LCFI112:
+ 1812              		.cfi_def_cfa_offset 16
+ 1813 0004 00AF     		add	r7, sp, #0
+ 1814              	.LCFI113:
+ 1815              		.cfi_def_cfa_register 7
+ 1816 0006 7860     		str	r0, [r7, #4]
+1525:C:/StellarisWare/driverlib\i2c.c ****     //
+1526:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1527:C:/StellarisWare/driverlib\i2c.c ****     //
+1528:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1529:C:/StellarisWare/driverlib\i2c.c **** 
+1530:C:/StellarisWare/driverlib\i2c.c ****     //
+1531:C:/StellarisWare/driverlib\i2c.c ****     // Return the slave status.
+1532:C:/StellarisWare/driverlib\i2c.c ****     //
+1533:C:/StellarisWare/driverlib\i2c.c ****     return(HWREG(ulBase + I2C_O_SCSR));
+ 1817              		.loc 1 1533 0
+ 1818 0008 7B68     		ldr	r3, [r7, #4]
+ 1819 000a 03F10403 		add	r3, r3, #4
+ 1820 000e 1B68     		ldr	r3, [r3, #0]
+1534:C:/StellarisWare/driverlib\i2c.c **** }
+ 1821              		.loc 1 1534 0
+ 1822 0010 1846     		mov	r0, r3
+ 1823 0012 07F10C07 		add	r7, r7, #12
+ 1824 0016 BD46     		mov	sp, r7
+ 1825 0018 80BC     		pop	{r7}
+ 1826 001a 7047     		bx	lr
+ 1827              		.cfi_endproc
+ 1828              	.LFE37:
+ 1830              		.section	.text.I2CSlaveDataPut,"ax",%progbits
+ 1831              		.align	2
+ 1832              		.global	I2CSlaveDataPut
+ 1833              		.thumb
+ 1834              		.thumb_func
+ 1836              	I2CSlaveDataPut:
+ 1837              	.LFB38:
+1535:C:/StellarisWare/driverlib\i2c.c **** 
+1536:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1537:C:/StellarisWare/driverlib\i2c.c **** //
+1538:C:/StellarisWare/driverlib\i2c.c **** //! Transmits a byte from the I2C Slave.
+1539:C:/StellarisWare/driverlib\i2c.c **** //!
+1540:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1541:C:/StellarisWare/driverlib\i2c.c **** //! \param ucData is the data to be transmitted from the I2C Slave
+1542:C:/StellarisWare/driverlib\i2c.c **** //!
+1543:C:/StellarisWare/driverlib\i2c.c **** //! This function places the supplied data into I2C Slave Data Register.
+1544:C:/StellarisWare/driverlib\i2c.c **** //!
+1545:C:/StellarisWare/driverlib\i2c.c **** //! \return None.
+1546:C:/StellarisWare/driverlib\i2c.c **** //
+1547:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1548:C:/StellarisWare/driverlib\i2c.c **** void
+1549:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveDataPut(unsigned long ulBase, unsigned char ucData)
+1550:C:/StellarisWare/driverlib\i2c.c **** {
+ 1838              		.loc 1 1550 0
+ 1839              		.cfi_startproc
+ 1840              		@ args = 0, pretend = 0, frame = 8
+ 1841              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1842              		@ link register save eliminated.
+ 1843 0000 80B4     		push	{r7}
+ 1844              	.LCFI114:
+ 1845              		.cfi_def_cfa_offset 4
+ 1846              		.cfi_offset 7, -4
+ 1847 0002 83B0     		sub	sp, sp, #12
+ 1848              	.LCFI115:
+ 1849              		.cfi_def_cfa_offset 16
+ 1850 0004 00AF     		add	r7, sp, #0
+ 1851              	.LCFI116:
+ 1852              		.cfi_def_cfa_register 7
+ 1853 0006 7860     		str	r0, [r7, #4]
+ 1854 0008 0B46     		mov	r3, r1
+ 1855 000a FB70     		strb	r3, [r7, #3]
+1551:C:/StellarisWare/driverlib\i2c.c ****     //
+1552:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1553:C:/StellarisWare/driverlib\i2c.c ****     //
+1554:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1555:C:/StellarisWare/driverlib\i2c.c **** 
+1556:C:/StellarisWare/driverlib\i2c.c ****     //
+1557:C:/StellarisWare/driverlib\i2c.c ****     // Write the byte.
+1558:C:/StellarisWare/driverlib\i2c.c ****     //
+1559:C:/StellarisWare/driverlib\i2c.c ****     HWREG(ulBase + I2C_O_SDR) = ucData;
+ 1856              		.loc 1 1559 0
+ 1857 000c 7B68     		ldr	r3, [r7, #4]
+ 1858 000e 03F10803 		add	r3, r3, #8
+ 1859 0012 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1860 0014 1A60     		str	r2, [r3, #0]
+1560:C:/StellarisWare/driverlib\i2c.c **** }
+ 1861              		.loc 1 1560 0
+ 1862 0016 07F10C07 		add	r7, r7, #12
+ 1863 001a BD46     		mov	sp, r7
+ 1864 001c 80BC     		pop	{r7}
+ 1865 001e 7047     		bx	lr
+ 1866              		.cfi_endproc
+ 1867              	.LFE38:
+ 1869              		.section	.text.I2CSlaveDataGet,"ax",%progbits
+ 1870              		.align	2
+ 1871              		.global	I2CSlaveDataGet
+ 1872              		.thumb
+ 1873              		.thumb_func
+ 1875              	I2CSlaveDataGet:
+ 1876              	.LFB39:
+1561:C:/StellarisWare/driverlib\i2c.c **** 
+1562:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1563:C:/StellarisWare/driverlib\i2c.c **** //
+1564:C:/StellarisWare/driverlib\i2c.c **** //! Receives a byte that has been sent to the I2C Slave.
+1565:C:/StellarisWare/driverlib\i2c.c **** //!
+1566:C:/StellarisWare/driverlib\i2c.c **** //! \param ulBase is the base address of the I2C Slave module.
+1567:C:/StellarisWare/driverlib\i2c.c **** //!
+1568:C:/StellarisWare/driverlib\i2c.c **** //! This function reads a byte of data from the I2C Slave Data Register.
+1569:C:/StellarisWare/driverlib\i2c.c **** //!
+1570:C:/StellarisWare/driverlib\i2c.c **** //! \return Returns the byte received from by the I2C Slave, cast as an
+1571:C:/StellarisWare/driverlib\i2c.c **** //! unsigned long.
+1572:C:/StellarisWare/driverlib\i2c.c **** //
+1573:C:/StellarisWare/driverlib\i2c.c **** //*****************************************************************************
+1574:C:/StellarisWare/driverlib\i2c.c **** unsigned long
+1575:C:/StellarisWare/driverlib\i2c.c **** I2CSlaveDataGet(unsigned long ulBase)
+1576:C:/StellarisWare/driverlib\i2c.c **** {
+ 1877              		.loc 1 1576 0
+ 1878              		.cfi_startproc
+ 1879              		@ args = 0, pretend = 0, frame = 8
+ 1880              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1881              		@ link register save eliminated.
+ 1882 0000 80B4     		push	{r7}
+ 1883              	.LCFI117:
+ 1884              		.cfi_def_cfa_offset 4
+ 1885              		.cfi_offset 7, -4
+ 1886 0002 83B0     		sub	sp, sp, #12
+ 1887              	.LCFI118:
+ 1888              		.cfi_def_cfa_offset 16
+ 1889 0004 00AF     		add	r7, sp, #0
+ 1890              	.LCFI119:
+ 1891              		.cfi_def_cfa_register 7
+ 1892 0006 7860     		str	r0, [r7, #4]
+1577:C:/StellarisWare/driverlib\i2c.c ****     //
+1578:C:/StellarisWare/driverlib\i2c.c ****     // Check the arguments.
+1579:C:/StellarisWare/driverlib\i2c.c ****     //
+1580:C:/StellarisWare/driverlib\i2c.c ****     ASSERT(I2CSlaveBaseValid(ulBase));
+1581:C:/StellarisWare/driverlib\i2c.c **** 
+1582:C:/StellarisWare/driverlib\i2c.c ****     //
+1583:C:/StellarisWare/driverlib\i2c.c ****     // Read a byte.
+1584:C:/StellarisWare/driverlib\i2c.c ****     //
+1585:C:/StellarisWare/driverlib\i2c.c ****     return(HWREG(ulBase + I2C_O_SDR));
+ 1893              		.loc 1 1585 0
+ 1894 0008 7B68     		ldr	r3, [r7, #4]
+ 1895 000a 03F10803 		add	r3, r3, #8
+ 1896 000e 1B68     		ldr	r3, [r3, #0]
+1586:C:/StellarisWare/driverlib\i2c.c **** }
+ 1897              		.loc 1 1586 0
+ 1898 0010 1846     		mov	r0, r3
+ 1899 0012 07F10C07 		add	r7, r7, #12
+ 1900 0016 BD46     		mov	sp, r7
+ 1901 0018 80BC     		pop	{r7}
+ 1902 001a 7047     		bx	lr
+ 1903              		.cfi_endproc
+ 1904              	.LFE39:
+ 1906              		.text
+ 1907              	.Letext0:
+ 1908              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 i2c.c
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:19     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:22     .rodata:00000000 g_ppulI2CIntMap
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:36     .text.I2CIntNumberGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:40     .text.I2CIntNumberGet:00000000 I2CIntNumberGet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:103    .text.I2CMasterInitExpClk:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:108    .text.I2CMasterInitExpClk:00000000 I2CMasterInitExpClk
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:310    .text.I2CMasterEnable:00000000 I2CMasterEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:204    .text.I2CSlaveInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:209    .text.I2CSlaveInit:00000000 I2CSlaveInit
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:350    .text.I2CSlaveEnable:00000000 I2CSlaveEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:244    .text.I2CSlaveAddressSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:249    .text.I2CSlaveAddressSet:00000000 I2CSlaveAddressSet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:305    .text.I2CMasterEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:345    .text.I2CSlaveEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:390    .text.I2CMasterDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:395    .text.I2CMasterDisable:00000000 I2CMasterDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:430    .text.I2CSlaveDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:435    .text.I2CSlaveDisable:00000000 I2CSlaveDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:475    .text.I2CIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:480    .text.I2CIntRegister:00000000 I2CIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:519    .text.I2CIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:524    .text.I2CIntUnregister:00000000 I2CIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:561    .text.I2CMasterIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:566    .text.I2CMasterIntEnable:00000000 I2CMasterIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:598    .text.I2CMasterIntEnableEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:603    .text.I2CMasterIntEnableEx:00000000 I2CMasterIntEnableEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:640    .text.I2CSlaveIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:645    .text.I2CSlaveIntEnable:00000000 I2CSlaveIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:680    .text.I2CSlaveIntEnableEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:685    .text.I2CSlaveIntEnableEx:00000000 I2CSlaveIntEnableEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:722    .text.I2CMasterIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:727    .text.I2CMasterIntDisable:00000000 I2CMasterIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:759    .text.I2CMasterIntDisableEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:764    .text.I2CMasterIntDisableEx:00000000 I2CMasterIntDisableEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:802    .text.I2CSlaveIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:807    .text.I2CSlaveIntDisable:00000000 I2CSlaveIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:842    .text.I2CSlaveIntDisableEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:847    .text.I2CSlaveIntDisableEx:00000000 I2CSlaveIntDisableEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:885    .text.I2CMasterIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:890    .text.I2CMasterIntStatus:00000000 I2CMasterIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:945    .text.I2CMasterIntStatusEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:950    .text.I2CMasterIntStatusEx:00000000 I2CMasterIntStatusEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:995    .text.I2CSlaveIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1000   .text.I2CSlaveIntStatus:00000000 I2CSlaveIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1055   .text.I2CSlaveIntStatusEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1060   .text.I2CSlaveIntStatusEx:00000000 I2CSlaveIntStatusEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1137   .text.I2CMasterIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1142   .text.I2CMasterIntClear:00000000 I2CMasterIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1179   .text.I2CMasterIntClearEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1184   .text.I2CMasterIntClearEx:00000000 I2CMasterIntClearEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1217   .text.I2CSlaveIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1222   .text.I2CSlaveIntClear:00000000 I2CSlaveIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1254   .text.I2CSlaveIntClearEx:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1259   .text.I2CSlaveIntClearEx:00000000 I2CSlaveIntClearEx
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1292   .text.I2CMasterSlaveAddrSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1297   .text.I2CMasterSlaveAddrSet:00000000 I2CMasterSlaveAddrSet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1335   .text.I2CMasterLineStateGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1340   .text.I2CMasterLineStateGet:00000000 I2CMasterLineStateGet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1372   .text.I2CMasterBusy:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1377   .text.I2CMasterBusy:00000000 I2CMasterBusy
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1420   .text.I2CMasterBusBusy:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1425   .text.I2CMasterBusBusy:00000000 I2CMasterBusBusy
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1467   .text.I2CMasterControl:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1472   .text.I2CMasterControl:00000000 I2CMasterControl
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1505   .text.I2CMasterErr:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1510   .text.I2CMasterErr:00000000 I2CMasterErr
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1566   .text.I2CMasterDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1571   .text.I2CMasterDataPut:00000000 I2CMasterDataPut
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1605   .text.I2CMasterDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1610   .text.I2CMasterDataGet:00000000 I2CMasterDataGet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1642   .text.I2CMasterTimeoutSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1647   .text.I2CMasterTimeoutSet:00000000 I2CMasterTimeoutSet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1680   .text.I2CSlaveACKOverride:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1685   .text.I2CSlaveACKOverride:00000000 I2CSlaveACKOverride
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1737   .text.I2CSlaveACKValueSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1742   .text.I2CSlaveACKValueSet:00000000 I2CSlaveACKValueSet
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1794   .text.I2CSlaveStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1799   .text.I2CSlaveStatus:00000000 I2CSlaveStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1831   .text.I2CSlaveDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1836   .text.I2CSlaveDataPut:00000000 I2CSlaveDataPut
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1870   .text.I2CSlaveDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccjjcyCk.s:1875   .text.I2CSlaveDataGet:00000000 I2CSlaveDataGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

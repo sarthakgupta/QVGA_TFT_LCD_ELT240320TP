@@ -1,0 +1,590 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"cpu.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.CPUcpsid,"ax",%progbits
+  19              		.align	2
+  20              		.global	CPUcpsid
+  21              		.thumb
+  22              		.thumb_func
+  24              	CPUcpsid:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/cpu.c"
+   1:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\cpu.c **** //
+   3:C:/StellarisWare/driverlib\cpu.c **** // cpu.c - Instruction wrappers for special CPU instructions needed by the
+   4:C:/StellarisWare/driverlib\cpu.c **** //         drivers.
+   5:C:/StellarisWare/driverlib\cpu.c **** //
+   6:C:/StellarisWare/driverlib\cpu.c **** // Copyright (c) 2006-2012 Texas Instruments Incorporated.  All rights reserved.
+   7:C:/StellarisWare/driverlib\cpu.c **** // Software License Agreement
+   8:C:/StellarisWare/driverlib\cpu.c **** // 
+   9:C:/StellarisWare/driverlib\cpu.c **** //   Redistribution and use in source and binary forms, with or without
+  10:C:/StellarisWare/driverlib\cpu.c **** //   modification, are permitted provided that the following conditions
+  11:C:/StellarisWare/driverlib\cpu.c **** //   are met:
+  12:C:/StellarisWare/driverlib\cpu.c **** // 
+  13:C:/StellarisWare/driverlib\cpu.c **** //   Redistributions of source code must retain the above copyright
+  14:C:/StellarisWare/driverlib\cpu.c **** //   notice, this list of conditions and the following disclaimer.
+  15:C:/StellarisWare/driverlib\cpu.c **** // 
+  16:C:/StellarisWare/driverlib\cpu.c **** //   Redistributions in binary form must reproduce the above copyright
+  17:C:/StellarisWare/driverlib\cpu.c **** //   notice, this list of conditions and the following disclaimer in the
+  18:C:/StellarisWare/driverlib\cpu.c **** //   documentation and/or other materials provided with the  
+  19:C:/StellarisWare/driverlib\cpu.c **** //   distribution.
+  20:C:/StellarisWare/driverlib\cpu.c **** // 
+  21:C:/StellarisWare/driverlib\cpu.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  22:C:/StellarisWare/driverlib\cpu.c **** //   its contributors may be used to endorse or promote products derived
+  23:C:/StellarisWare/driverlib\cpu.c **** //   from this software without specific prior written permission.
+  24:C:/StellarisWare/driverlib\cpu.c **** // 
+  25:C:/StellarisWare/driverlib\cpu.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  26:C:/StellarisWare/driverlib\cpu.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  27:C:/StellarisWare/driverlib\cpu.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  28:C:/StellarisWare/driverlib\cpu.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  29:C:/StellarisWare/driverlib\cpu.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  30:C:/StellarisWare/driverlib\cpu.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  31:C:/StellarisWare/driverlib\cpu.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  32:C:/StellarisWare/driverlib\cpu.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  33:C:/StellarisWare/driverlib\cpu.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  34:C:/StellarisWare/driverlib\cpu.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  35:C:/StellarisWare/driverlib\cpu.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  36:C:/StellarisWare/driverlib\cpu.c **** // 
+  37:C:/StellarisWare/driverlib\cpu.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  38:C:/StellarisWare/driverlib\cpu.c **** //
+  39:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+  40:C:/StellarisWare/driverlib\cpu.c **** 
+  41:C:/StellarisWare/driverlib\cpu.c **** #include "driverlib/cpu.h"
+  42:C:/StellarisWare/driverlib\cpu.c **** 
+  43:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+  44:C:/StellarisWare/driverlib\cpu.c **** //
+  45:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function for the CPSID instruction.  Returns the state of PRIMASK
+  46:C:/StellarisWare/driverlib\cpu.c **** // on entry.
+  47:C:/StellarisWare/driverlib\cpu.c **** //
+  48:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+  49:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+  50:C:/StellarisWare/driverlib\cpu.c **** unsigned long __attribute__((naked))
+  51:C:/StellarisWare/driverlib\cpu.c **** CPUcpsid(void)
+  52:C:/StellarisWare/driverlib\cpu.c **** {
+  27              		.loc 1 52 0
+  28              		.cfi_startproc
+  29              		@ Naked Function: prologue and epilogue provided by programmer.
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 1, uses_anonymous_args = 0
+  53:C:/StellarisWare/driverlib\cpu.c ****     unsigned long ulRet;
+  54:C:/StellarisWare/driverlib\cpu.c **** 
+  55:C:/StellarisWare/driverlib\cpu.c ****     //
+  56:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+  57:C:/StellarisWare/driverlib\cpu.c ****     //
+  58:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+  32              		.loc 1 58 0
+  33              	@ 58 "C:/StellarisWare/driverlib/cpu.c" 1
+  34 0000 EFF31080 		    mrs     r0, PRIMASK
+  35 0004 72B6     	    cpsid   i
+  36 0006 7047     	    bx      lr
+  37              	
+  38              	@ 0 "" 2
+  59:C:/StellarisWare/driverlib\cpu.c ****           "    cpsid   i\n"
+  60:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n"
+  61:C:/StellarisWare/driverlib\cpu.c ****           : "=r" (ulRet));
+  62:C:/StellarisWare/driverlib\cpu.c **** 
+  63:C:/StellarisWare/driverlib\cpu.c ****     //
+  64:C:/StellarisWare/driverlib\cpu.c ****     // The return is handled in the inline assembly, but the compiler will
+  65:C:/StellarisWare/driverlib\cpu.c ****     // still complain if there is not an explicit return here (despite the fact
+  66:C:/StellarisWare/driverlib\cpu.c ****     // that this does not result in any code being produced because of the
+  67:C:/StellarisWare/driverlib\cpu.c ****     // naked attribute).
+  68:C:/StellarisWare/driverlib\cpu.c ****     //
+  69:C:/StellarisWare/driverlib\cpu.c ****     return(ulRet);
+  39              		.loc 1 69 0
+  40              		.thumb
+  41 0008 2346     		mov	r3, r4
+  70:C:/StellarisWare/driverlib\cpu.c **** }
+  42              		.loc 1 70 0
+  43 000a 1846     		mov	r0, r3
+  44              		.cfi_endproc
+  45              	.LFE0:
+  47              		.section	.text.CPUprimask,"ax",%progbits
+  48              		.align	2
+  49              		.global	CPUprimask
+  50              		.thumb
+  51              		.thumb_func
+  53              	CPUprimask:
+  54              	.LFB1:
+  71:C:/StellarisWare/driverlib\cpu.c **** #endif
+  72:C:/StellarisWare/driverlib\cpu.c **** #if defined(ewarm)
+  73:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+  74:C:/StellarisWare/driverlib\cpu.c **** CPUcpsid(void)
+  75:C:/StellarisWare/driverlib\cpu.c **** {
+  76:C:/StellarisWare/driverlib\cpu.c ****     //
+  77:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+  78:C:/StellarisWare/driverlib\cpu.c ****     //
+  79:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+  80:C:/StellarisWare/driverlib\cpu.c ****           "    cpsid   i\n");
+  81:C:/StellarisWare/driverlib\cpu.c **** 
+  82:C:/StellarisWare/driverlib\cpu.c ****     //
+  83:C:/StellarisWare/driverlib\cpu.c ****     // "Warning[Pe940]: missing return statement at end of non-void function"
+  84:C:/StellarisWare/driverlib\cpu.c ****     // is suppressed here to avoid putting a "bx lr" in the inline assembly
+  85:C:/StellarisWare/driverlib\cpu.c ****     // above and a superfluous return statement here.
+  86:C:/StellarisWare/driverlib\cpu.c ****     //
+  87:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_suppress=Pe940
+  88:C:/StellarisWare/driverlib\cpu.c **** }
+  89:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_default=Pe940
+  90:C:/StellarisWare/driverlib\cpu.c **** #endif
+  91:C:/StellarisWare/driverlib\cpu.c **** #if defined(rvmdk) || defined(__ARMCC_VERSION)
+  92:C:/StellarisWare/driverlib\cpu.c **** __asm unsigned long
+  93:C:/StellarisWare/driverlib\cpu.c **** CPUcpsid(void)
+  94:C:/StellarisWare/driverlib\cpu.c **** {
+  95:C:/StellarisWare/driverlib\cpu.c ****     //
+  96:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+  97:C:/StellarisWare/driverlib\cpu.c ****     //
+  98:C:/StellarisWare/driverlib\cpu.c ****     mrs     r0, PRIMASK;
+  99:C:/StellarisWare/driverlib\cpu.c ****     cpsid   i;
+ 100:C:/StellarisWare/driverlib\cpu.c ****     bx      lr
+ 101:C:/StellarisWare/driverlib\cpu.c **** }
+ 102:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 103:C:/StellarisWare/driverlib\cpu.c **** #if defined(ccs)
+ 104:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+ 105:C:/StellarisWare/driverlib\cpu.c **** CPUcpsid(void)
+ 106:C:/StellarisWare/driverlib\cpu.c **** {
+ 107:C:/StellarisWare/driverlib\cpu.c ****     //
+ 108:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+ 109:C:/StellarisWare/driverlib\cpu.c ****     //
+ 110:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+ 111:C:/StellarisWare/driverlib\cpu.c ****           "    cpsid   i\n"
+ 112:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n");
+ 113:C:/StellarisWare/driverlib\cpu.c **** 
+ 114:C:/StellarisWare/driverlib\cpu.c ****     //
+ 115:C:/StellarisWare/driverlib\cpu.c ****     // The following keeps the compiler happy, because it wants to see a
+ 116:C:/StellarisWare/driverlib\cpu.c ****     // return value from this function.  It will generate code to return
+ 117:C:/StellarisWare/driverlib\cpu.c ****     // a zero.  However, the real return is the "bx lr" above, so the
+ 118:C:/StellarisWare/driverlib\cpu.c ****     // return(0) is never executed and the function returns with the value
+ 119:C:/StellarisWare/driverlib\cpu.c ****     // you expect in R0.
+ 120:C:/StellarisWare/driverlib\cpu.c ****     //
+ 121:C:/StellarisWare/driverlib\cpu.c ****     return(0);
+ 122:C:/StellarisWare/driverlib\cpu.c **** }
+ 123:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 124:C:/StellarisWare/driverlib\cpu.c **** 
+ 125:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 126:C:/StellarisWare/driverlib\cpu.c **** //
+ 127:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function returning the state of PRIMASK (indicating whether
+ 128:C:/StellarisWare/driverlib\cpu.c **** // interrupts are enabled or disabled).
+ 129:C:/StellarisWare/driverlib\cpu.c **** //
+ 130:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 131:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+ 132:C:/StellarisWare/driverlib\cpu.c **** unsigned long __attribute__((naked))
+ 133:C:/StellarisWare/driverlib\cpu.c **** CPUprimask(void)
+ 134:C:/StellarisWare/driverlib\cpu.c **** {
+  55              		.loc 1 134 0
+  56              		.cfi_startproc
+  57              		@ Naked Function: prologue and epilogue provided by programmer.
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 1, uses_anonymous_args = 0
+ 135:C:/StellarisWare/driverlib\cpu.c ****     unsigned long ulRet;
+ 136:C:/StellarisWare/driverlib\cpu.c **** 
+ 137:C:/StellarisWare/driverlib\cpu.c ****     //
+ 138:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+ 139:C:/StellarisWare/driverlib\cpu.c ****     //
+ 140:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+  60              		.loc 1 140 0
+  61              	@ 140 "C:/StellarisWare/driverlib/cpu.c" 1
+  62 0000 EFF31080 		    mrs     r0, PRIMASK
+  63 0004 7047     	    bx      lr
+  64              	
+  65              	@ 0 "" 2
+ 141:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n"
+ 142:C:/StellarisWare/driverlib\cpu.c ****           : "=r" (ulRet));
+ 143:C:/StellarisWare/driverlib\cpu.c **** 
+ 144:C:/StellarisWare/driverlib\cpu.c ****     //
+ 145:C:/StellarisWare/driverlib\cpu.c ****     // The return is handled in the inline assembly, but the compiler will
+ 146:C:/StellarisWare/driverlib\cpu.c ****     // still complain if there is not an explicit return here (despite the fact
+ 147:C:/StellarisWare/driverlib\cpu.c ****     // that this does not result in any code being produced because of the
+ 148:C:/StellarisWare/driverlib\cpu.c ****     // naked attribute).
+ 149:C:/StellarisWare/driverlib\cpu.c ****     //
+ 150:C:/StellarisWare/driverlib\cpu.c ****     return(ulRet);
+  66              		.loc 1 150 0
+  67              		.thumb
+  68 0006 2346     		mov	r3, r4
+ 151:C:/StellarisWare/driverlib\cpu.c **** }
+  69              		.loc 1 151 0
+  70 0008 1846     		mov	r0, r3
+  71              		.cfi_endproc
+  72              	.LFE1:
+  74 000a 00BF     		.section	.text.CPUcpsie,"ax",%progbits
+  75              		.align	2
+  76              		.global	CPUcpsie
+  77              		.thumb
+  78              		.thumb_func
+  80              	CPUcpsie:
+  81              	.LFB2:
+ 152:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 153:C:/StellarisWare/driverlib\cpu.c **** #if defined(ewarm)
+ 154:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+ 155:C:/StellarisWare/driverlib\cpu.c **** CPUprimask(void)
+ 156:C:/StellarisWare/driverlib\cpu.c **** {
+ 157:C:/StellarisWare/driverlib\cpu.c ****     //
+ 158:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+ 159:C:/StellarisWare/driverlib\cpu.c ****     //
+ 160:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n");
+ 161:C:/StellarisWare/driverlib\cpu.c **** 
+ 162:C:/StellarisWare/driverlib\cpu.c ****     //
+ 163:C:/StellarisWare/driverlib\cpu.c ****     // "Warning[Pe940]: missing return statement at end of non-void function"
+ 164:C:/StellarisWare/driverlib\cpu.c ****     // is suppressed here to avoid putting a "bx lr" in the inline assembly
+ 165:C:/StellarisWare/driverlib\cpu.c ****     // above and a superfluous return statement here.
+ 166:C:/StellarisWare/driverlib\cpu.c ****     //
+ 167:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_suppress=Pe940
+ 168:C:/StellarisWare/driverlib\cpu.c **** }
+ 169:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_default=Pe940
+ 170:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 171:C:/StellarisWare/driverlib\cpu.c **** #if defined(rvmdk) || defined(__ARMCC_VERSION)
+ 172:C:/StellarisWare/driverlib\cpu.c **** __asm unsigned long
+ 173:C:/StellarisWare/driverlib\cpu.c **** CPUprimask(void)
+ 174:C:/StellarisWare/driverlib\cpu.c **** {
+ 175:C:/StellarisWare/driverlib\cpu.c ****     //
+ 176:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+ 177:C:/StellarisWare/driverlib\cpu.c ****     //
+ 178:C:/StellarisWare/driverlib\cpu.c ****     mrs     r0, PRIMASK;
+ 179:C:/StellarisWare/driverlib\cpu.c ****     bx      lr
+ 180:C:/StellarisWare/driverlib\cpu.c **** }
+ 181:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 182:C:/StellarisWare/driverlib\cpu.c **** #if defined(ccs)
+ 183:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+ 184:C:/StellarisWare/driverlib\cpu.c **** CPUprimask(void)
+ 185:C:/StellarisWare/driverlib\cpu.c **** {
+ 186:C:/StellarisWare/driverlib\cpu.c ****     //
+ 187:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and disable interrupts.
+ 188:C:/StellarisWare/driverlib\cpu.c ****     //
+ 189:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+ 190:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n");
+ 191:C:/StellarisWare/driverlib\cpu.c **** 
+ 192:C:/StellarisWare/driverlib\cpu.c ****     //
+ 193:C:/StellarisWare/driverlib\cpu.c ****     // The following keeps the compiler happy, because it wants to see a
+ 194:C:/StellarisWare/driverlib\cpu.c ****     // return value from this function.  It will generate code to return
+ 195:C:/StellarisWare/driverlib\cpu.c ****     // a zero.  However, the real return is the "bx lr" above, so the
+ 196:C:/StellarisWare/driverlib\cpu.c ****     // return(0) is never executed and the function returns with the value
+ 197:C:/StellarisWare/driverlib\cpu.c ****     // you expect in R0.
+ 198:C:/StellarisWare/driverlib\cpu.c ****     //
+ 199:C:/StellarisWare/driverlib\cpu.c ****     return(0);
+ 200:C:/StellarisWare/driverlib\cpu.c **** }
+ 201:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 202:C:/StellarisWare/driverlib\cpu.c **** 
+ 203:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 204:C:/StellarisWare/driverlib\cpu.c **** //
+ 205:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function for the CPSIE instruction.  Returns the state of PRIMASK
+ 206:C:/StellarisWare/driverlib\cpu.c **** // on entry.
+ 207:C:/StellarisWare/driverlib\cpu.c **** //
+ 208:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 209:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+ 210:C:/StellarisWare/driverlib\cpu.c **** unsigned long __attribute__((naked))
+ 211:C:/StellarisWare/driverlib\cpu.c **** CPUcpsie(void)
+ 212:C:/StellarisWare/driverlib\cpu.c **** {
+  82              		.loc 1 212 0
+  83              		.cfi_startproc
+  84              		@ Naked Function: prologue and epilogue provided by programmer.
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 1, uses_anonymous_args = 0
+ 213:C:/StellarisWare/driverlib\cpu.c ****     unsigned long ulRet;
+ 214:C:/StellarisWare/driverlib\cpu.c **** 
+ 215:C:/StellarisWare/driverlib\cpu.c ****     //
+ 216:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and enable interrupts.
+ 217:C:/StellarisWare/driverlib\cpu.c ****     //
+ 218:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+  87              		.loc 1 218 0
+  88              	@ 218 "C:/StellarisWare/driverlib/cpu.c" 1
+  89 0000 EFF31080 		    mrs     r0, PRIMASK
+  90 0004 62B6     	    cpsie   i
+  91 0006 7047     	    bx      lr
+  92              	
+  93              	@ 0 "" 2
+ 219:C:/StellarisWare/driverlib\cpu.c ****           "    cpsie   i\n"
+ 220:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n"
+ 221:C:/StellarisWare/driverlib\cpu.c ****           : "=r" (ulRet));
+ 222:C:/StellarisWare/driverlib\cpu.c **** 
+ 223:C:/StellarisWare/driverlib\cpu.c ****     //
+ 224:C:/StellarisWare/driverlib\cpu.c ****     // The return is handled in the inline assembly, but the compiler will
+ 225:C:/StellarisWare/driverlib\cpu.c ****     // still complain if there is not an explicit return here (despite the fact
+ 226:C:/StellarisWare/driverlib\cpu.c ****     // that this does not result in any code being produced because of the
+ 227:C:/StellarisWare/driverlib\cpu.c ****     // naked attribute).
+ 228:C:/StellarisWare/driverlib\cpu.c ****     //
+ 229:C:/StellarisWare/driverlib\cpu.c ****     return(ulRet);
+  94              		.loc 1 229 0
+  95              		.thumb
+  96 0008 2346     		mov	r3, r4
+ 230:C:/StellarisWare/driverlib\cpu.c **** }
+  97              		.loc 1 230 0
+  98 000a 1846     		mov	r0, r3
+  99              		.cfi_endproc
+ 100              	.LFE2:
+ 102              		.section	.text.CPUwfi,"ax",%progbits
+ 103              		.align	2
+ 104              		.global	CPUwfi
+ 105              		.thumb
+ 106              		.thumb_func
+ 108              	CPUwfi:
+ 109              	.LFB3:
+ 231:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 232:C:/StellarisWare/driverlib\cpu.c **** #if defined(ewarm)
+ 233:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+ 234:C:/StellarisWare/driverlib\cpu.c **** CPUcpsie(void)
+ 235:C:/StellarisWare/driverlib\cpu.c **** {
+ 236:C:/StellarisWare/driverlib\cpu.c ****     //
+ 237:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and enable interrupts.
+ 238:C:/StellarisWare/driverlib\cpu.c ****     //
+ 239:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+ 240:C:/StellarisWare/driverlib\cpu.c ****           "    cpsie   i\n");
+ 241:C:/StellarisWare/driverlib\cpu.c **** 
+ 242:C:/StellarisWare/driverlib\cpu.c ****     //
+ 243:C:/StellarisWare/driverlib\cpu.c ****     // "Warning[Pe940]: missing return statement at end of non-void function"
+ 244:C:/StellarisWare/driverlib\cpu.c ****     // is suppressed here to avoid putting a "bx lr" in the inline assembly
+ 245:C:/StellarisWare/driverlib\cpu.c ****     // above and a superfluous return statement here.
+ 246:C:/StellarisWare/driverlib\cpu.c ****     //
+ 247:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_suppress=Pe940
+ 248:C:/StellarisWare/driverlib\cpu.c **** }
+ 249:C:/StellarisWare/driverlib\cpu.c **** #pragma diag_default=Pe940
+ 250:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 251:C:/StellarisWare/driverlib\cpu.c **** #if defined(rvmdk) || defined(__ARMCC_VERSION)
+ 252:C:/StellarisWare/driverlib\cpu.c **** __asm unsigned long
+ 253:C:/StellarisWare/driverlib\cpu.c **** CPUcpsie(void)
+ 254:C:/StellarisWare/driverlib\cpu.c **** {
+ 255:C:/StellarisWare/driverlib\cpu.c ****     //
+ 256:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and enable interrupts.
+ 257:C:/StellarisWare/driverlib\cpu.c ****     //
+ 258:C:/StellarisWare/driverlib\cpu.c ****     mrs     r0, PRIMASK;
+ 259:C:/StellarisWare/driverlib\cpu.c ****     cpsie   i;
+ 260:C:/StellarisWare/driverlib\cpu.c ****     bx      lr
+ 261:C:/StellarisWare/driverlib\cpu.c **** }
+ 262:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 263:C:/StellarisWare/driverlib\cpu.c **** #if defined(ccs)
+ 264:C:/StellarisWare/driverlib\cpu.c **** unsigned long
+ 265:C:/StellarisWare/driverlib\cpu.c **** CPUcpsie(void)
+ 266:C:/StellarisWare/driverlib\cpu.c **** {
+ 267:C:/StellarisWare/driverlib\cpu.c ****     //
+ 268:C:/StellarisWare/driverlib\cpu.c ****     // Read PRIMASK and enable interrupts.
+ 269:C:/StellarisWare/driverlib\cpu.c ****     //
+ 270:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, PRIMASK\n"
+ 271:C:/StellarisWare/driverlib\cpu.c ****           "    cpsie   i\n"
+ 272:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n");
+ 273:C:/StellarisWare/driverlib\cpu.c **** 
+ 274:C:/StellarisWare/driverlib\cpu.c ****     //
+ 275:C:/StellarisWare/driverlib\cpu.c ****     // The following keeps the compiler happy, because it wants to see a
+ 276:C:/StellarisWare/driverlib\cpu.c ****     // return value from this function.  It will generate code to return
+ 277:C:/StellarisWare/driverlib\cpu.c ****     // a zero.  However, the real return is the "bx lr" above, so the
+ 278:C:/StellarisWare/driverlib\cpu.c ****     // return(0) is never executed and the function returns with the value
+ 279:C:/StellarisWare/driverlib\cpu.c ****     // you expect in R0.
+ 280:C:/StellarisWare/driverlib\cpu.c ****     //
+ 281:C:/StellarisWare/driverlib\cpu.c ****     return(0);
+ 282:C:/StellarisWare/driverlib\cpu.c **** }
+ 283:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 284:C:/StellarisWare/driverlib\cpu.c **** 
+ 285:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 286:C:/StellarisWare/driverlib\cpu.c **** //
+ 287:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function for the WFI instruction.
+ 288:C:/StellarisWare/driverlib\cpu.c **** //
+ 289:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 290:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+ 291:C:/StellarisWare/driverlib\cpu.c **** void __attribute__((naked))
+ 292:C:/StellarisWare/driverlib\cpu.c **** CPUwfi(void)
+ 293:C:/StellarisWare/driverlib\cpu.c **** {
+ 110              		.loc 1 293 0
+ 111              		.cfi_startproc
+ 112              		@ Naked Function: prologue and epilogue provided by programmer.
+ 113              		@ args = 0, pretend = 0, frame = 0
+ 114              		@ frame_needed = 1, uses_anonymous_args = 0
+ 294:C:/StellarisWare/driverlib\cpu.c ****     //
+ 295:C:/StellarisWare/driverlib\cpu.c ****     // Wait for the next interrupt.
+ 296:C:/StellarisWare/driverlib\cpu.c ****     //
+ 297:C:/StellarisWare/driverlib\cpu.c ****     __asm("    wfi\n"
+ 115              		.loc 1 297 0
+ 116              	@ 297 "C:/StellarisWare/driverlib/cpu.c" 1
+ 117 0000 30BF     		    wfi
+ 118 0002 7047     	    bx      lr
+ 119              	
+ 120              	@ 0 "" 2
+ 298:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n");
+ 299:C:/StellarisWare/driverlib\cpu.c **** }
+ 121              		.loc 1 299 0
+ 122              		.thumb
+ 123              		.cfi_endproc
+ 124              	.LFE3:
+ 126              		.section	.text.CPUbasepriSet,"ax",%progbits
+ 127              		.align	2
+ 128              		.global	CPUbasepriSet
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	CPUbasepriSet:
+ 133              	.LFB4:
+ 300:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 301:C:/StellarisWare/driverlib\cpu.c **** #if defined(ewarm)
+ 302:C:/StellarisWare/driverlib\cpu.c **** void
+ 303:C:/StellarisWare/driverlib\cpu.c **** CPUwfi(void)
+ 304:C:/StellarisWare/driverlib\cpu.c **** {
+ 305:C:/StellarisWare/driverlib\cpu.c ****     //
+ 306:C:/StellarisWare/driverlib\cpu.c ****     // Wait for the next interrupt.
+ 307:C:/StellarisWare/driverlib\cpu.c ****     //
+ 308:C:/StellarisWare/driverlib\cpu.c ****     __asm("    wfi\n");
+ 309:C:/StellarisWare/driverlib\cpu.c **** }
+ 310:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 311:C:/StellarisWare/driverlib\cpu.c **** #if defined(rvmdk) || defined(__ARMCC_VERSION)
+ 312:C:/StellarisWare/driverlib\cpu.c **** __asm void
+ 313:C:/StellarisWare/driverlib\cpu.c **** CPUwfi(void)
+ 314:C:/StellarisWare/driverlib\cpu.c **** {
+ 315:C:/StellarisWare/driverlib\cpu.c ****     //
+ 316:C:/StellarisWare/driverlib\cpu.c ****     // Wait for the next interrupt.
+ 317:C:/StellarisWare/driverlib\cpu.c ****     //
+ 318:C:/StellarisWare/driverlib\cpu.c ****     wfi;
+ 319:C:/StellarisWare/driverlib\cpu.c ****     bx      lr
+ 320:C:/StellarisWare/driverlib\cpu.c **** }
+ 321:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 322:C:/StellarisWare/driverlib\cpu.c **** #if defined(ccs)
+ 323:C:/StellarisWare/driverlib\cpu.c **** void
+ 324:C:/StellarisWare/driverlib\cpu.c **** CPUwfi(void)
+ 325:C:/StellarisWare/driverlib\cpu.c **** {
+ 326:C:/StellarisWare/driverlib\cpu.c ****     //
+ 327:C:/StellarisWare/driverlib\cpu.c ****     // Wait for the next interrupt.
+ 328:C:/StellarisWare/driverlib\cpu.c ****     //
+ 329:C:/StellarisWare/driverlib\cpu.c ****     __asm("    wfi\n");
+ 330:C:/StellarisWare/driverlib\cpu.c **** }
+ 331:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 332:C:/StellarisWare/driverlib\cpu.c **** 
+ 333:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 334:C:/StellarisWare/driverlib\cpu.c **** //
+ 335:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function for writing the BASEPRI register.
+ 336:C:/StellarisWare/driverlib\cpu.c **** //
+ 337:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 338:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+ 339:C:/StellarisWare/driverlib\cpu.c **** void __attribute__((naked))
+ 340:C:/StellarisWare/driverlib\cpu.c **** CPUbasepriSet(unsigned long ulNewBasepri)
+ 341:C:/StellarisWare/driverlib\cpu.c **** {
+ 134              		.loc 1 341 0
+ 135              		.cfi_startproc
+ 136              		@ Naked Function: prologue and epilogue provided by programmer.
+ 137              		@ args = 0, pretend = 0, frame = 0
+ 138              		@ frame_needed = 1, uses_anonymous_args = 0
+ 342:C:/StellarisWare/driverlib\cpu.c **** 
+ 343:C:/StellarisWare/driverlib\cpu.c ****     //
+ 344:C:/StellarisWare/driverlib\cpu.c ****     // Set the BASEPRI register
+ 345:C:/StellarisWare/driverlib\cpu.c ****     //
+ 346:C:/StellarisWare/driverlib\cpu.c ****     __asm("    msr     BASEPRI, r0\n"
+ 139              		.loc 1 346 0
+ 140              	@ 346 "C:/StellarisWare/driverlib/cpu.c" 1
+ 141 0000 80F31188 		    msr     BASEPRI, r0
+ 142 0004 7047     	    bx      lr
+ 143              	
+ 144              	@ 0 "" 2
+ 347:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n");
+ 348:C:/StellarisWare/driverlib\cpu.c **** }
+ 145              		.loc 1 348 0
+ 146              		.thumb
+ 147              		.cfi_endproc
+ 148              	.LFE4:
+ 150 0006 00BF     		.section	.text.CPUbasepriGet,"ax",%progbits
+ 151              		.align	2
+ 152              		.global	CPUbasepriGet
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	CPUbasepriGet:
+ 157              	.LFB5:
+ 349:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 350:C:/StellarisWare/driverlib\cpu.c **** #if defined(ewarm)
+ 351:C:/StellarisWare/driverlib\cpu.c **** void
+ 352:C:/StellarisWare/driverlib\cpu.c **** CPUbasepriSet(unsigned long ulNewBasepri)
+ 353:C:/StellarisWare/driverlib\cpu.c **** {
+ 354:C:/StellarisWare/driverlib\cpu.c ****     //
+ 355:C:/StellarisWare/driverlib\cpu.c ****     // Set the BASEPRI register
+ 356:C:/StellarisWare/driverlib\cpu.c ****     //
+ 357:C:/StellarisWare/driverlib\cpu.c ****     __asm("    msr     BASEPRI, r0\n");
+ 358:C:/StellarisWare/driverlib\cpu.c **** }
+ 359:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 360:C:/StellarisWare/driverlib\cpu.c **** #if defined(rvmdk) || defined(__ARMCC_VERSION)
+ 361:C:/StellarisWare/driverlib\cpu.c **** __asm void
+ 362:C:/StellarisWare/driverlib\cpu.c **** CPUbasepriSet(unsigned long ulNewBasepri)
+ 363:C:/StellarisWare/driverlib\cpu.c **** {
+ 364:C:/StellarisWare/driverlib\cpu.c ****     //
+ 365:C:/StellarisWare/driverlib\cpu.c ****     // Set the BASEPRI register
+ 366:C:/StellarisWare/driverlib\cpu.c ****     //
+ 367:C:/StellarisWare/driverlib\cpu.c ****     msr     BASEPRI, r0;
+ 368:C:/StellarisWare/driverlib\cpu.c ****     bx      lr
+ 369:C:/StellarisWare/driverlib\cpu.c **** }
+ 370:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 371:C:/StellarisWare/driverlib\cpu.c **** #if defined(ccs)
+ 372:C:/StellarisWare/driverlib\cpu.c **** void
+ 373:C:/StellarisWare/driverlib\cpu.c **** CPUbasepriSet(unsigned long ulNewBasepri)
+ 374:C:/StellarisWare/driverlib\cpu.c **** {
+ 375:C:/StellarisWare/driverlib\cpu.c ****     //
+ 376:C:/StellarisWare/driverlib\cpu.c ****     // Set the BASEPRI register
+ 377:C:/StellarisWare/driverlib\cpu.c ****     //
+ 378:C:/StellarisWare/driverlib\cpu.c ****     __asm("    msr     BASEPRI, r0\n");
+ 379:C:/StellarisWare/driverlib\cpu.c **** }
+ 380:C:/StellarisWare/driverlib\cpu.c **** #endif
+ 381:C:/StellarisWare/driverlib\cpu.c **** 
+ 382:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 383:C:/StellarisWare/driverlib\cpu.c **** //
+ 384:C:/StellarisWare/driverlib\cpu.c **** // Wrapper function for reading the BASEPRI register.
+ 385:C:/StellarisWare/driverlib\cpu.c **** //
+ 386:C:/StellarisWare/driverlib\cpu.c **** //*****************************************************************************
+ 387:C:/StellarisWare/driverlib\cpu.c **** #if defined(codered) || defined(gcc) || defined(sourcerygxx)
+ 388:C:/StellarisWare/driverlib\cpu.c **** unsigned long __attribute__((naked))
+ 389:C:/StellarisWare/driverlib\cpu.c **** CPUbasepriGet(void)
+ 390:C:/StellarisWare/driverlib\cpu.c **** {
+ 158              		.loc 1 390 0
+ 159              		.cfi_startproc
+ 160              		@ Naked Function: prologue and epilogue provided by programmer.
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 1, uses_anonymous_args = 0
+ 391:C:/StellarisWare/driverlib\cpu.c ****     unsigned long ulRet;
+ 392:C:/StellarisWare/driverlib\cpu.c **** 
+ 393:C:/StellarisWare/driverlib\cpu.c ****     //
+ 394:C:/StellarisWare/driverlib\cpu.c ****     // Read BASEPRI
+ 395:C:/StellarisWare/driverlib\cpu.c ****     //
+ 396:C:/StellarisWare/driverlib\cpu.c ****     __asm("    mrs     r0, BASEPRI\n"
+ 163              		.loc 1 396 0
+ 164              	@ 396 "C:/StellarisWare/driverlib/cpu.c" 1
+ 165 0000 EFF31180 		    mrs     r0, BASEPRI
+ 166 0004 7047     	    bx      lr
+ 167              	
+ 168              	@ 0 "" 2
+ 397:C:/StellarisWare/driverlib\cpu.c ****           "    bx      lr\n"
+ 398:C:/StellarisWare/driverlib\cpu.c ****           : "=r" (ulRet));
+ 399:C:/StellarisWare/driverlib\cpu.c **** 
+ 400:C:/StellarisWare/driverlib\cpu.c ****     //
+ 401:C:/StellarisWare/driverlib\cpu.c ****     // The return is handled in the inline assembly, but the compiler will
+ 402:C:/StellarisWare/driverlib\cpu.c ****     // still complain if there is not an explicit return here (despite the fact
+ 403:C:/StellarisWare/driverlib\cpu.c ****     // that this does not result in any code being produced because of the
+ 404:C:/StellarisWare/driverlib\cpu.c ****     // naked attribute).
+ 405:C:/StellarisWare/driverlib\cpu.c ****     //
+ 406:C:/StellarisWare/driverlib\cpu.c ****     return(ulRet);
+ 169              		.loc 1 406 0
+ 170              		.thumb
+ 171 0006 2346     		mov	r3, r4
+ 407:C:/StellarisWare/driverlib\cpu.c **** }
+ 172              		.loc 1 407 0
+ 173 0008 1846     		mov	r0, r3
+ 174              		.cfi_endproc
+ 175              	.LFE5:
+ 177 000a 00BF     		.text
+ 178              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 cpu.c
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:19     .text.CPUcpsid:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:24     .text.CPUcpsid:00000000 CPUcpsid
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:48     .text.CPUprimask:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:53     .text.CPUprimask:00000000 CPUprimask
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:75     .text.CPUcpsie:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:80     .text.CPUcpsie:00000000 CPUcpsie
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:103    .text.CPUwfi:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:108    .text.CPUwfi:00000000 CPUwfi
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:127    .text.CPUbasepriSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:132    .text.CPUbasepriSet:00000000 CPUbasepriSet
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:151    .text.CPUbasepriGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccWYIIhO.s:156    .text.CPUbasepriGet:00000000 CPUbasepriGet
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,2349 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"uartstdio.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	g_ulBase:
+  21 0000 00000000 		.space	4
+  22              		.section	.rodata
+  23              		.align	2
+  24              	.LC0:
+  25 0000 30313233 		.ascii	"0123456789abcdef\000"
+  25      34353637 
+  25      38396162 
+  25      63646566 
+  25      00
+  26 0011 000000   		.align	2
+  29              	g_pcHex:
+  30 0014 00000000 		.word	.LC0
+  31              		.align	2
+  34              	g_ulUARTBase:
+  35 0018 00C00040 		.word	1073790976
+  36 001c 00D00040 		.word	1073795072
+  37 0020 00E00040 		.word	1073799168
+  38              		.align	2
+  41              	g_ulUARTPeriph:
+  42 0024 01000010 		.word	268435457
+  43 0028 02000010 		.word	268435458
+  44 002c 04000010 		.word	268435460
+  45              		.section	.text.UARTStdioInit,"ax",%progbits
+  46              		.align	2
+  47              		.global	UARTStdioInit
+  48              		.thumb
+  49              		.thumb_func
+  51              	UARTStdioInit:
+  52              	.LFB0:
+  53              		.file 1 "C:/StellarisWare/utils/uartstdio.c"
+   1:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\uartstdio.c **** //
+   3:C:/StellarisWare/utils\uartstdio.c **** // uartstdio.c - Utility driver to provide simple UART console functions.
+   4:C:/StellarisWare/utils\uartstdio.c **** //
+   5:C:/StellarisWare/utils\uartstdio.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\uartstdio.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\uartstdio.c **** // 
+   8:C:/StellarisWare/utils\uartstdio.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\uartstdio.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\uartstdio.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\uartstdio.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\uartstdio.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\uartstdio.c **** // 
+  14:C:/StellarisWare/utils\uartstdio.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\uartstdio.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\uartstdio.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\uartstdio.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\uartstdio.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\uartstdio.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\uartstdio.c **** // 
+  21:C:/StellarisWare/utils\uartstdio.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\uartstdio.c **** //
+  23:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\uartstdio.c **** 
+  25:C:/StellarisWare/utils\uartstdio.c **** #include <stdarg.h>
+  26:C:/StellarisWare/utils\uartstdio.c **** #include "inc/hw_ints.h"
+  27:C:/StellarisWare/utils\uartstdio.c **** #include "inc/hw_memmap.h"
+  28:C:/StellarisWare/utils\uartstdio.c **** #include "inc/hw_types.h"
+  29:C:/StellarisWare/utils\uartstdio.c **** #include "inc/hw_uart.h"
+  30:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/debug.h"
+  31:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/interrupt.h"
+  32:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/rom.h"
+  33:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/rom_map.h"
+  34:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/sysctl.h"
+  35:C:/StellarisWare/utils\uartstdio.c **** #include "driverlib/uart.h"
+  36:C:/StellarisWare/utils\uartstdio.c **** #include "utils/uartstdio.h"
+  37:C:/StellarisWare/utils\uartstdio.c **** 
+  38:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  39:C:/StellarisWare/utils\uartstdio.c **** //
+  40:C:/StellarisWare/utils\uartstdio.c **** //! \addtogroup uartstdio_api
+  41:C:/StellarisWare/utils\uartstdio.c **** //! @{
+  42:C:/StellarisWare/utils\uartstdio.c **** //
+  43:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  44:C:/StellarisWare/utils\uartstdio.c **** 
+  45:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  46:C:/StellarisWare/utils\uartstdio.c **** //
+  47:C:/StellarisWare/utils\uartstdio.c **** // If buffered mode is defined, set aside RX and TX buffers and read/write
+  48:C:/StellarisWare/utils\uartstdio.c **** // pointers to control them.
+  49:C:/StellarisWare/utils\uartstdio.c **** //
+  50:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  51:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+  52:C:/StellarisWare/utils\uartstdio.c **** 
+  53:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  54:C:/StellarisWare/utils\uartstdio.c **** //
+  55:C:/StellarisWare/utils\uartstdio.c **** // This global controls whether or not we are echoing characters back to the
+  56:C:/StellarisWare/utils\uartstdio.c **** // transmitter.  By default, echo is enabled but if using this module as a
+  57:C:/StellarisWare/utils\uartstdio.c **** // convenient method of implementing a buffered serial interface over which
+  58:C:/StellarisWare/utils\uartstdio.c **** // you will be running an application protocol, you are likely to want to
+  59:C:/StellarisWare/utils\uartstdio.c **** // disable echo by calling UARTEchoSet(false).
+  60:C:/StellarisWare/utils\uartstdio.c **** //
+  61:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  62:C:/StellarisWare/utils\uartstdio.c **** static tBoolean g_bDisableEcho;
+  63:C:/StellarisWare/utils\uartstdio.c **** 
+  64:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  65:C:/StellarisWare/utils\uartstdio.c **** //
+  66:C:/StellarisWare/utils\uartstdio.c **** // Output ring buffer.  Buffer is full if g_ulUARTTxReadIndex is one ahead of
+  67:C:/StellarisWare/utils\uartstdio.c **** // g_ulUARTTxWriteIndex.  Buffer is empty if the two indices are the same.
+  68:C:/StellarisWare/utils\uartstdio.c **** //
+  69:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  70:C:/StellarisWare/utils\uartstdio.c **** static unsigned char g_pcUARTTxBuffer[UART_TX_BUFFER_SIZE];
+  71:C:/StellarisWare/utils\uartstdio.c **** static volatile unsigned long g_ulUARTTxWriteIndex = 0;
+  72:C:/StellarisWare/utils\uartstdio.c **** static volatile unsigned long g_ulUARTTxReadIndex = 0;
+  73:C:/StellarisWare/utils\uartstdio.c **** 
+  74:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  75:C:/StellarisWare/utils\uartstdio.c **** //
+  76:C:/StellarisWare/utils\uartstdio.c **** // Input ring buffer.  Buffer is full if g_ulUARTTxReadIndex is one ahead of
+  77:C:/StellarisWare/utils\uartstdio.c **** // g_ulUARTTxWriteIndex.  Buffer is empty if the two indices are the same.
+  78:C:/StellarisWare/utils\uartstdio.c **** //
+  79:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  80:C:/StellarisWare/utils\uartstdio.c **** static unsigned char g_pcUARTRxBuffer[UART_RX_BUFFER_SIZE];
+  81:C:/StellarisWare/utils\uartstdio.c **** static volatile unsigned long g_ulUARTRxWriteIndex = 0;
+  82:C:/StellarisWare/utils\uartstdio.c **** static volatile unsigned long g_ulUARTRxReadIndex = 0;
+  83:C:/StellarisWare/utils\uartstdio.c **** 
+  84:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  85:C:/StellarisWare/utils\uartstdio.c **** //
+  86:C:/StellarisWare/utils\uartstdio.c **** // Macros to determine number of free and used bytes in the transmit buffer.
+  87:C:/StellarisWare/utils\uartstdio.c **** //
+  88:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+  89:C:/StellarisWare/utils\uartstdio.c **** #define TX_BUFFER_USED          (GetBufferCount(&g_ulUARTTxReadIndex,  \
+  90:C:/StellarisWare/utils\uartstdio.c ****                                                 &g_ulUARTTxWriteIndex, \
+  91:C:/StellarisWare/utils\uartstdio.c ****                                                 UART_TX_BUFFER_SIZE))
+  92:C:/StellarisWare/utils\uartstdio.c **** #define TX_BUFFER_FREE          (UART_TX_BUFFER_SIZE - TX_BUFFER_USED)
+  93:C:/StellarisWare/utils\uartstdio.c **** #define TX_BUFFER_EMPTY         (IsBufferEmpty(&g_ulUARTTxReadIndex,   \
+  94:C:/StellarisWare/utils\uartstdio.c ****                                                &g_ulUARTTxWriteIndex))
+  95:C:/StellarisWare/utils\uartstdio.c **** #define TX_BUFFER_FULL          (IsBufferFull(&g_ulUARTTxReadIndex,  \
+  96:C:/StellarisWare/utils\uartstdio.c ****                                               &g_ulUARTTxWriteIndex, \
+  97:C:/StellarisWare/utils\uartstdio.c ****                                               UART_TX_BUFFER_SIZE))
+  98:C:/StellarisWare/utils\uartstdio.c **** #define ADVANCE_TX_BUFFER_INDEX(Index) \
+  99:C:/StellarisWare/utils\uartstdio.c ****                                 (Index) = ((Index) + 1) % UART_TX_BUFFER_SIZE
+ 100:C:/StellarisWare/utils\uartstdio.c **** 
+ 101:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 102:C:/StellarisWare/utils\uartstdio.c **** //
+ 103:C:/StellarisWare/utils\uartstdio.c **** // Macros to determine number of free and used bytes in the receive buffer.
+ 104:C:/StellarisWare/utils\uartstdio.c **** //
+ 105:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 106:C:/StellarisWare/utils\uartstdio.c **** #define RX_BUFFER_USED          (GetBufferCount(&g_ulUARTRxReadIndex,  \
+ 107:C:/StellarisWare/utils\uartstdio.c ****                                                 &g_ulUARTRxWriteIndex, \
+ 108:C:/StellarisWare/utils\uartstdio.c ****                                                 UART_RX_BUFFER_SIZE))
+ 109:C:/StellarisWare/utils\uartstdio.c **** #define RX_BUFFER_FREE          (UART_RX_BUFFER_SIZE - RX_BUFFER_USED)
+ 110:C:/StellarisWare/utils\uartstdio.c **** #define RX_BUFFER_EMPTY         (IsBufferEmpty(&g_ulUARTRxReadIndex,   \
+ 111:C:/StellarisWare/utils\uartstdio.c ****                                                &g_ulUARTRxWriteIndex))
+ 112:C:/StellarisWare/utils\uartstdio.c **** #define RX_BUFFER_FULL          (IsBufferFull(&g_ulUARTRxReadIndex,  \
+ 113:C:/StellarisWare/utils\uartstdio.c ****                                               &g_ulUARTRxWriteIndex, \
+ 114:C:/StellarisWare/utils\uartstdio.c ****                                               UART_RX_BUFFER_SIZE))
+ 115:C:/StellarisWare/utils\uartstdio.c **** #define ADVANCE_RX_BUFFER_INDEX(Index) \
+ 116:C:/StellarisWare/utils\uartstdio.c ****                                 (Index) = ((Index) + 1) % UART_RX_BUFFER_SIZE
+ 117:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 118:C:/StellarisWare/utils\uartstdio.c **** 
+ 119:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 120:C:/StellarisWare/utils\uartstdio.c **** //
+ 121:C:/StellarisWare/utils\uartstdio.c **** // The base address of the chosen UART.
+ 122:C:/StellarisWare/utils\uartstdio.c **** //
+ 123:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 124:C:/StellarisWare/utils\uartstdio.c **** static unsigned long g_ulBase = 0;
+ 125:C:/StellarisWare/utils\uartstdio.c **** 
+ 126:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 127:C:/StellarisWare/utils\uartstdio.c **** //
+ 128:C:/StellarisWare/utils\uartstdio.c **** // A mapping from an integer between 0 and 15 to its ASCII character
+ 129:C:/StellarisWare/utils\uartstdio.c **** // equivalent.
+ 130:C:/StellarisWare/utils\uartstdio.c **** //
+ 131:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 132:C:/StellarisWare/utils\uartstdio.c **** static const char * const g_pcHex = "0123456789abcdef";
+ 133:C:/StellarisWare/utils\uartstdio.c **** 
+ 134:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 135:C:/StellarisWare/utils\uartstdio.c **** //
+ 136:C:/StellarisWare/utils\uartstdio.c **** // The list of possible base addresses for the console UART.
+ 137:C:/StellarisWare/utils\uartstdio.c **** //
+ 138:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 139:C:/StellarisWare/utils\uartstdio.c **** static const unsigned long g_ulUARTBase[3] =
+ 140:C:/StellarisWare/utils\uartstdio.c **** {
+ 141:C:/StellarisWare/utils\uartstdio.c ****     UART0_BASE, UART1_BASE, UART2_BASE
+ 142:C:/StellarisWare/utils\uartstdio.c **** };
+ 143:C:/StellarisWare/utils\uartstdio.c **** 
+ 144:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 145:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 146:C:/StellarisWare/utils\uartstdio.c **** //
+ 147:C:/StellarisWare/utils\uartstdio.c **** // The list of possible interrupts for the console UART.
+ 148:C:/StellarisWare/utils\uartstdio.c **** //
+ 149:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 150:C:/StellarisWare/utils\uartstdio.c **** static const unsigned long g_ulUARTInt[3] =
+ 151:C:/StellarisWare/utils\uartstdio.c **** {
+ 152:C:/StellarisWare/utils\uartstdio.c ****     INT_UART0, INT_UART1, INT_UART2
+ 153:C:/StellarisWare/utils\uartstdio.c **** };
+ 154:C:/StellarisWare/utils\uartstdio.c **** 
+ 155:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 156:C:/StellarisWare/utils\uartstdio.c **** //
+ 157:C:/StellarisWare/utils\uartstdio.c **** // The port number in use.
+ 158:C:/StellarisWare/utils\uartstdio.c **** //
+ 159:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 160:C:/StellarisWare/utils\uartstdio.c **** static unsigned long g_ulPortNum;
+ 161:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 162:C:/StellarisWare/utils\uartstdio.c **** 
+ 163:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 164:C:/StellarisWare/utils\uartstdio.c **** //
+ 165:C:/StellarisWare/utils\uartstdio.c **** // The list of UART peripherals.
+ 166:C:/StellarisWare/utils\uartstdio.c **** //
+ 167:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 168:C:/StellarisWare/utils\uartstdio.c **** static const unsigned long g_ulUARTPeriph[3] =
+ 169:C:/StellarisWare/utils\uartstdio.c **** {
+ 170:C:/StellarisWare/utils\uartstdio.c ****     SYSCTL_PERIPH_UART0, SYSCTL_PERIPH_UART1, SYSCTL_PERIPH_UART2
+ 171:C:/StellarisWare/utils\uartstdio.c **** };
+ 172:C:/StellarisWare/utils\uartstdio.c **** 
+ 173:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 174:C:/StellarisWare/utils\uartstdio.c **** //
+ 175:C:/StellarisWare/utils\uartstdio.c **** //! Determines whether the ring buffer whose pointers and size are provided
+ 176:C:/StellarisWare/utils\uartstdio.c **** //! is full or not.
+ 177:C:/StellarisWare/utils\uartstdio.c **** //!
+ 178:C:/StellarisWare/utils\uartstdio.c **** //! \param pulRead points to the read index for the buffer.
+ 179:C:/StellarisWare/utils\uartstdio.c **** //! \param pulWrite points to the write index for the buffer.
+ 180:C:/StellarisWare/utils\uartstdio.c **** //! \param ulSize is the size of the buffer in bytes.
+ 181:C:/StellarisWare/utils\uartstdio.c **** //!
+ 182:C:/StellarisWare/utils\uartstdio.c **** //! This function is used to determine whether or not a given ring buffer is
+ 183:C:/StellarisWare/utils\uartstdio.c **** //! full.  The structure of the code is specifically to ensure that we do not
+ 184:C:/StellarisWare/utils\uartstdio.c **** //! see warnings from the compiler related to the order of volatile accesses
+ 185:C:/StellarisWare/utils\uartstdio.c **** //! being undefined.
+ 186:C:/StellarisWare/utils\uartstdio.c **** //!
+ 187:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns \b true if the buffer is full or \b false otherwise.
+ 188:C:/StellarisWare/utils\uartstdio.c **** //
+ 189:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 190:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 191:C:/StellarisWare/utils\uartstdio.c **** static tBoolean
+ 192:C:/StellarisWare/utils\uartstdio.c **** IsBufferFull(volatile unsigned long *pulRead,
+ 193:C:/StellarisWare/utils\uartstdio.c ****              volatile unsigned long *pulWrite, unsigned long ulSize)
+ 194:C:/StellarisWare/utils\uartstdio.c **** {
+ 195:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulWrite;
+ 196:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulRead;
+ 197:C:/StellarisWare/utils\uartstdio.c **** 
+ 198:C:/StellarisWare/utils\uartstdio.c ****     ulWrite = *pulWrite;
+ 199:C:/StellarisWare/utils\uartstdio.c ****     ulRead = *pulRead;
+ 200:C:/StellarisWare/utils\uartstdio.c **** 
+ 201:C:/StellarisWare/utils\uartstdio.c ****     return((((ulWrite + 1) % ulSize) == ulRead) ? true : false);
+ 202:C:/StellarisWare/utils\uartstdio.c **** }
+ 203:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 204:C:/StellarisWare/utils\uartstdio.c **** 
+ 205:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 206:C:/StellarisWare/utils\uartstdio.c **** //
+ 207:C:/StellarisWare/utils\uartstdio.c **** //! Determines whether the ring buffer whose pointers and size are provided
+ 208:C:/StellarisWare/utils\uartstdio.c **** //! is empty or not.
+ 209:C:/StellarisWare/utils\uartstdio.c **** //!
+ 210:C:/StellarisWare/utils\uartstdio.c **** //! \param pulRead points to the read index for the buffer.
+ 211:C:/StellarisWare/utils\uartstdio.c **** //! \param pulWrite points to the write index for the buffer.
+ 212:C:/StellarisWare/utils\uartstdio.c **** //!
+ 213:C:/StellarisWare/utils\uartstdio.c **** //! This function is used to determine whether or not a given ring buffer is
+ 214:C:/StellarisWare/utils\uartstdio.c **** //! empty.  The structure of the code is specifically to ensure that we do not
+ 215:C:/StellarisWare/utils\uartstdio.c **** //! see warnings from the compiler related to the order of volatile accesses
+ 216:C:/StellarisWare/utils\uartstdio.c **** //! being undefined.
+ 217:C:/StellarisWare/utils\uartstdio.c **** //!
+ 218:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns \b true if the buffer is empty or \b false otherwise.
+ 219:C:/StellarisWare/utils\uartstdio.c **** //
+ 220:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 221:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 222:C:/StellarisWare/utils\uartstdio.c **** static tBoolean
+ 223:C:/StellarisWare/utils\uartstdio.c **** IsBufferEmpty(volatile unsigned long *pulRead,
+ 224:C:/StellarisWare/utils\uartstdio.c ****               volatile unsigned long *pulWrite)
+ 225:C:/StellarisWare/utils\uartstdio.c **** {
+ 226:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulWrite;
+ 227:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulRead;
+ 228:C:/StellarisWare/utils\uartstdio.c **** 
+ 229:C:/StellarisWare/utils\uartstdio.c ****     ulWrite = *pulWrite;
+ 230:C:/StellarisWare/utils\uartstdio.c ****     ulRead = *pulRead;
+ 231:C:/StellarisWare/utils\uartstdio.c **** 
+ 232:C:/StellarisWare/utils\uartstdio.c ****     return((ulWrite  == ulRead) ? true : false);
+ 233:C:/StellarisWare/utils\uartstdio.c **** }
+ 234:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 235:C:/StellarisWare/utils\uartstdio.c **** 
+ 236:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 237:C:/StellarisWare/utils\uartstdio.c **** //
+ 238:C:/StellarisWare/utils\uartstdio.c **** //! Determines the number of bytes of data contained in a ring buffer.
+ 239:C:/StellarisWare/utils\uartstdio.c **** //!
+ 240:C:/StellarisWare/utils\uartstdio.c **** //! \param pulRead points to the read index for the buffer.
+ 241:C:/StellarisWare/utils\uartstdio.c **** //! \param pulWrite points to the write index for the buffer.
+ 242:C:/StellarisWare/utils\uartstdio.c **** //! \param ulSize is the size of the buffer in bytes.
+ 243:C:/StellarisWare/utils\uartstdio.c **** //!
+ 244:C:/StellarisWare/utils\uartstdio.c **** //! This function is used to determine how many bytes of data a given ring
+ 245:C:/StellarisWare/utils\uartstdio.c **** //! buffer currently contains.  The structure of the code is specifically to
+ 246:C:/StellarisWare/utils\uartstdio.c **** //! ensure that we do not see warnings from the compiler related to the order
+ 247:C:/StellarisWare/utils\uartstdio.c **** //! of volatile accesses being undefined.
+ 248:C:/StellarisWare/utils\uartstdio.c **** //!
+ 249:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns the number of bytes of data currently in the buffer.
+ 250:C:/StellarisWare/utils\uartstdio.c **** //
+ 251:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 252:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 253:C:/StellarisWare/utils\uartstdio.c **** static unsigned long
+ 254:C:/StellarisWare/utils\uartstdio.c **** GetBufferCount(volatile unsigned long *pulRead,
+ 255:C:/StellarisWare/utils\uartstdio.c ****                volatile unsigned long *pulWrite, unsigned long ulSize)
+ 256:C:/StellarisWare/utils\uartstdio.c **** {
+ 257:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulWrite;
+ 258:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulRead;
+ 259:C:/StellarisWare/utils\uartstdio.c **** 
+ 260:C:/StellarisWare/utils\uartstdio.c ****     ulWrite = *pulWrite;
+ 261:C:/StellarisWare/utils\uartstdio.c ****     ulRead = *pulRead;
+ 262:C:/StellarisWare/utils\uartstdio.c **** 
+ 263:C:/StellarisWare/utils\uartstdio.c ****     return((ulWrite >= ulRead) ? (ulWrite - ulRead) :
+ 264:C:/StellarisWare/utils\uartstdio.c ****                                  (ulSize - (ulRead - ulWrite)));
+ 265:C:/StellarisWare/utils\uartstdio.c **** }
+ 266:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 267:C:/StellarisWare/utils\uartstdio.c **** 
+ 268:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 269:C:/StellarisWare/utils\uartstdio.c **** //
+ 270:C:/StellarisWare/utils\uartstdio.c **** // Take as many bytes from the transmit buffer as we have space for and move
+ 271:C:/StellarisWare/utils\uartstdio.c **** // them into the UART transmit FIFO.
+ 272:C:/StellarisWare/utils\uartstdio.c **** //
+ 273:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 274:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 275:C:/StellarisWare/utils\uartstdio.c **** static void
+ 276:C:/StellarisWare/utils\uartstdio.c **** UARTPrimeTransmit(unsigned long ulBase)
+ 277:C:/StellarisWare/utils\uartstdio.c **** {
+ 278:C:/StellarisWare/utils\uartstdio.c ****     //
+ 279:C:/StellarisWare/utils\uartstdio.c ****     // Do we have any data to transmit?
+ 280:C:/StellarisWare/utils\uartstdio.c ****     //
+ 281:C:/StellarisWare/utils\uartstdio.c ****     if(!TX_BUFFER_EMPTY)
+ 282:C:/StellarisWare/utils\uartstdio.c ****     {
+ 283:C:/StellarisWare/utils\uartstdio.c ****         //
+ 284:C:/StellarisWare/utils\uartstdio.c ****         // Disable the UART interrupt. If we don't do this there is a race
+ 285:C:/StellarisWare/utils\uartstdio.c ****         // condition which can cause the read index to be corrupted.
+ 286:C:/StellarisWare/utils\uartstdio.c ****         //
+ 287:C:/StellarisWare/utils\uartstdio.c ****         MAP_IntDisable(g_ulUARTInt[g_ulPortNum]);
+ 288:C:/StellarisWare/utils\uartstdio.c **** 
+ 289:C:/StellarisWare/utils\uartstdio.c ****         //
+ 290:C:/StellarisWare/utils\uartstdio.c ****         // Yes - take some characters out of the transmit buffer and feed
+ 291:C:/StellarisWare/utils\uartstdio.c ****         // them to the UART transmit FIFO.
+ 292:C:/StellarisWare/utils\uartstdio.c ****         //
+ 293:C:/StellarisWare/utils\uartstdio.c ****         while(MAP_UARTSpaceAvail(ulBase) && !TX_BUFFER_EMPTY)
+ 294:C:/StellarisWare/utils\uartstdio.c ****         {
+ 295:C:/StellarisWare/utils\uartstdio.c ****             MAP_UARTCharPutNonBlocking(ulBase,
+ 296:C:/StellarisWare/utils\uartstdio.c ****                                        g_pcUARTTxBuffer[g_ulUARTTxReadIndex]);
+ 297:C:/StellarisWare/utils\uartstdio.c ****             ADVANCE_TX_BUFFER_INDEX(g_ulUARTTxReadIndex);
+ 298:C:/StellarisWare/utils\uartstdio.c ****         }
+ 299:C:/StellarisWare/utils\uartstdio.c **** 
+ 300:C:/StellarisWare/utils\uartstdio.c ****         //
+ 301:C:/StellarisWare/utils\uartstdio.c ****         // Reenable the UART interrupt.
+ 302:C:/StellarisWare/utils\uartstdio.c ****         //
+ 303:C:/StellarisWare/utils\uartstdio.c ****         MAP_IntEnable(g_ulUARTInt[g_ulPortNum]);
+ 304:C:/StellarisWare/utils\uartstdio.c ****     }
+ 305:C:/StellarisWare/utils\uartstdio.c **** }
+ 306:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 307:C:/StellarisWare/utils\uartstdio.c **** 
+ 308:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 309:C:/StellarisWare/utils\uartstdio.c **** //
+ 310:C:/StellarisWare/utils\uartstdio.c **** //! Initializes the UART console.
+ 311:C:/StellarisWare/utils\uartstdio.c **** //!
+ 312:C:/StellarisWare/utils\uartstdio.c **** //! \param ulPortNum is the number of UART port to use for the serial console
+ 313:C:/StellarisWare/utils\uartstdio.c **** //! (0-2)
+ 314:C:/StellarisWare/utils\uartstdio.c **** //!
+ 315:C:/StellarisWare/utils\uartstdio.c **** //! This function will initialize the specified serial port to be used as a
+ 316:C:/StellarisWare/utils\uartstdio.c **** //! serial console.  The serial parameters will be set to 115200, 8-N-1.
+ 317:C:/StellarisWare/utils\uartstdio.c **** //! An application wishing to use a different baud rate may call
+ 318:C:/StellarisWare/utils\uartstdio.c **** //! UARTStdioInitExpClk() instead of this function.
+ 319:C:/StellarisWare/utils\uartstdio.c **** //!
+ 320:C:/StellarisWare/utils\uartstdio.c **** //! This function or UARTStdioInitExpClk() must be called prior to using any
+ 321:C:/StellarisWare/utils\uartstdio.c **** //! of the other UART console functions: UARTprintf() or UARTgets().  In order
+ 322:C:/StellarisWare/utils\uartstdio.c **** //! for this function to work correctly, SysCtlClockSet() must be called prior
+ 323:C:/StellarisWare/utils\uartstdio.c **** //! to calling this function.
+ 324:C:/StellarisWare/utils\uartstdio.c **** //!
+ 325:C:/StellarisWare/utils\uartstdio.c **** //! It is assumed that the caller has previously configured the relevant UART
+ 326:C:/StellarisWare/utils\uartstdio.c **** //! pins for operation as a UART rather than as GPIOs.
+ 327:C:/StellarisWare/utils\uartstdio.c **** //!
+ 328:C:/StellarisWare/utils\uartstdio.c **** //! \return None.
+ 329:C:/StellarisWare/utils\uartstdio.c **** //
+ 330:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 331:C:/StellarisWare/utils\uartstdio.c **** void
+ 332:C:/StellarisWare/utils\uartstdio.c **** UARTStdioInit(unsigned long ulPortNum)
+ 333:C:/StellarisWare/utils\uartstdio.c **** {
+  54              		.loc 1 333 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 8
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              	.LCFI0:
+  60              		.cfi_def_cfa_offset 8
+  61              		.cfi_offset 14, -4
+  62              		.cfi_offset 7, -8
+  63 0002 82B0     		sub	sp, sp, #8
+  64              	.LCFI1:
+  65              		.cfi_def_cfa_offset 16
+  66 0004 00AF     		add	r7, sp, #0
+  67              	.LCFI2:
+  68              		.cfi_def_cfa_register 7
+  69 0006 7860     		str	r0, [r7, #4]
+ 334:C:/StellarisWare/utils\uartstdio.c ****     //
+ 335:C:/StellarisWare/utils\uartstdio.c ****     // Pass this call on to the version of the function allowing the baud rate
+ 336:C:/StellarisWare/utils\uartstdio.c ****     // to be specified.
+ 337:C:/StellarisWare/utils\uartstdio.c ****     //
+ 338:C:/StellarisWare/utils\uartstdio.c ****     UARTStdioInitExpClk(ulPortNum, 115200);
+  70              		.loc 1 338 0
+  71 0008 7868     		ldr	r0, [r7, #4]
+  72 000a 4FF4E131 		mov	r1, #115200
+  73 000e FFF7FEFF 		bl	UARTStdioInitExpClk
+ 339:C:/StellarisWare/utils\uartstdio.c **** }
+  74              		.loc 1 339 0
+  75 0012 07F10807 		add	r7, r7, #8
+  76 0016 BD46     		mov	sp, r7
+  77 0018 80BD     		pop	{r7, pc}
+  78              		.cfi_endproc
+  79              	.LFE0:
+  81 001a 00BF     		.section	.text.UARTStdioInitExpClk,"ax",%progbits
+  82              		.align	2
+  83              		.global	UARTStdioInitExpClk
+  84              		.thumb
+  85              		.thumb_func
+  87              	UARTStdioInitExpClk:
+  88              	.LFB1:
+ 340:C:/StellarisWare/utils\uartstdio.c **** 
+ 341:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 342:C:/StellarisWare/utils\uartstdio.c **** //
+ 343:C:/StellarisWare/utils\uartstdio.c **** //! Initializes the UART console and allows the baud rate to be selected.
+ 344:C:/StellarisWare/utils\uartstdio.c **** //!
+ 345:C:/StellarisWare/utils\uartstdio.c **** //! \param ulPortNum is the number of UART port to use for the serial console
+ 346:C:/StellarisWare/utils\uartstdio.c **** //! (0-2)
+ 347:C:/StellarisWare/utils\uartstdio.c **** //! \param ulBaud is the bit rate that the UART is to be configured to use.
+ 348:C:/StellarisWare/utils\uartstdio.c **** //!
+ 349:C:/StellarisWare/utils\uartstdio.c **** //! This function will initialize the specified serial port to be used as a
+ 350:C:/StellarisWare/utils\uartstdio.c **** //! serial console.  The serial parameters will be set to 8-N-1 and the bit
+ 351:C:/StellarisWare/utils\uartstdio.c **** //! rate set according to the value of the \e ulBaud parameter.
+ 352:C:/StellarisWare/utils\uartstdio.c **** //!
+ 353:C:/StellarisWare/utils\uartstdio.c **** //! This function or UARTStdioInit() must be called prior to using any of the
+ 354:C:/StellarisWare/utils\uartstdio.c **** //! other UART console functions: UARTprintf() or UARTgets().  In order for
+ 355:C:/StellarisWare/utils\uartstdio.c **** //! this function to work correctly, SysCtlClockSet() must be called prior to
+ 356:C:/StellarisWare/utils\uartstdio.c **** //! calling this function.  An application wishing to use 115,200 baud may call
+ 357:C:/StellarisWare/utils\uartstdio.c **** //! UARTStdioInit() instead of this function but should not call both
+ 358:C:/StellarisWare/utils\uartstdio.c **** //! functions.
+ 359:C:/StellarisWare/utils\uartstdio.c **** //!
+ 360:C:/StellarisWare/utils\uartstdio.c **** //! It is assumed that the caller has previously configured the relevant UART
+ 361:C:/StellarisWare/utils\uartstdio.c **** //! pins for operation as a UART rather than as GPIOs.
+ 362:C:/StellarisWare/utils\uartstdio.c **** //!
+ 363:C:/StellarisWare/utils\uartstdio.c **** //! \return None.
+ 364:C:/StellarisWare/utils\uartstdio.c **** //
+ 365:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 366:C:/StellarisWare/utils\uartstdio.c **** void
+ 367:C:/StellarisWare/utils\uartstdio.c **** UARTStdioInitExpClk(unsigned long ulPortNum, unsigned long ulBaud)
+ 368:C:/StellarisWare/utils\uartstdio.c **** {
+  89              		.loc 1 368 0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 8
+  92              		@ frame_needed = 1, uses_anonymous_args = 0
+  93 0000 90B5     		push	{r4, r7, lr}
+  94              	.LCFI3:
+  95              		.cfi_def_cfa_offset 12
+  96              		.cfi_offset 14, -4
+  97              		.cfi_offset 7, -8
+  98              		.cfi_offset 4, -12
+  99 0002 83B0     		sub	sp, sp, #12
+ 100              	.LCFI4:
+ 101              		.cfi_def_cfa_offset 24
+ 102 0004 00AF     		add	r7, sp, #0
+ 103              	.LCFI5:
+ 104              		.cfi_def_cfa_register 7
+ 105 0006 7860     		str	r0, [r7, #4]
+ 106 0008 3960     		str	r1, [r7, #0]
+ 369:C:/StellarisWare/utils\uartstdio.c ****     //
+ 370:C:/StellarisWare/utils\uartstdio.c ****     // Check the arguments.
+ 371:C:/StellarisWare/utils\uartstdio.c ****     //
+ 372:C:/StellarisWare/utils\uartstdio.c ****     ASSERT((ulPortNum == 0) || (ulPortNum == 1) ||
+ 373:C:/StellarisWare/utils\uartstdio.c ****            (ulPortNum == 2));
+ 374:C:/StellarisWare/utils\uartstdio.c **** 
+ 375:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 376:C:/StellarisWare/utils\uartstdio.c ****     //
+ 377:C:/StellarisWare/utils\uartstdio.c ****     // In buffered mode, we only allow a single instance to be opened.
+ 378:C:/StellarisWare/utils\uartstdio.c ****     //
+ 379:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(g_ulBase == 0);
+ 380:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 381:C:/StellarisWare/utils\uartstdio.c **** 
+ 382:C:/StellarisWare/utils\uartstdio.c ****     //
+ 383:C:/StellarisWare/utils\uartstdio.c ****     // Check to make sure the UART peripheral is present.
+ 384:C:/StellarisWare/utils\uartstdio.c ****     //
+ 385:C:/StellarisWare/utils\uartstdio.c ****     if(!MAP_SysCtlPeripheralPresent(g_ulUARTPeriph[ulPortNum]))
+ 107              		.loc 1 385 0
+ 108 000a 40F20003 		movw	r3, #:lower16:g_ulUARTPeriph
+ 109 000e C0F20003 		movt	r3, #:upper16:g_ulUARTPeriph
+ 110 0012 7A68     		ldr	r2, [r7, #4]
+ 111 0014 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 112 0018 1846     		mov	r0, r3
+ 113 001a FFF7FEFF 		bl	SysCtlPeripheralPresent
+ 114 001e 0346     		mov	r3, r0
+ 115 0020 002B     		cmp	r3, #0
+ 116 0022 2DD0     		beq	.L5
+ 117              	.L3:
+ 386:C:/StellarisWare/utils\uartstdio.c ****     {
+ 387:C:/StellarisWare/utils\uartstdio.c ****         return;
+ 388:C:/StellarisWare/utils\uartstdio.c ****     }
+ 389:C:/StellarisWare/utils\uartstdio.c **** 
+ 390:C:/StellarisWare/utils\uartstdio.c ****     //
+ 391:C:/StellarisWare/utils\uartstdio.c ****     // Select the base address of the UART.
+ 392:C:/StellarisWare/utils\uartstdio.c ****     //
+ 393:C:/StellarisWare/utils\uartstdio.c ****     g_ulBase = g_ulUARTBase[ulPortNum];
+ 118              		.loc 1 393 0
+ 119 0024 40F20003 		movw	r3, #:lower16:g_ulUARTBase
+ 120 0028 C0F20003 		movt	r3, #:upper16:g_ulUARTBase
+ 121 002c 7A68     		ldr	r2, [r7, #4]
+ 122 002e 53F82220 		ldr	r2, [r3, r2, lsl #2]
+ 123 0032 40F20003 		movw	r3, #:lower16:g_ulBase
+ 124 0036 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 125 003a 1A60     		str	r2, [r3, #0]
+ 394:C:/StellarisWare/utils\uartstdio.c **** 
+ 395:C:/StellarisWare/utils\uartstdio.c ****     //
+ 396:C:/StellarisWare/utils\uartstdio.c ****     // Enable the UART peripheral for use.
+ 397:C:/StellarisWare/utils\uartstdio.c ****     //
+ 398:C:/StellarisWare/utils\uartstdio.c ****     MAP_SysCtlPeripheralEnable(g_ulUARTPeriph[ulPortNum]);
+ 126              		.loc 1 398 0
+ 127 003c 40F20003 		movw	r3, #:lower16:g_ulUARTPeriph
+ 128 0040 C0F20003 		movt	r3, #:upper16:g_ulUARTPeriph
+ 129 0044 7A68     		ldr	r2, [r7, #4]
+ 130 0046 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 131 004a 1846     		mov	r0, r3
+ 132 004c FFF7FEFF 		bl	SysCtlPeripheralEnable
+ 399:C:/StellarisWare/utils\uartstdio.c **** 
+ 400:C:/StellarisWare/utils\uartstdio.c ****     //
+ 401:C:/StellarisWare/utils\uartstdio.c ****     // Configure the UART for 115200, n, 8, 1
+ 402:C:/StellarisWare/utils\uartstdio.c ****     //
+ 403:C:/StellarisWare/utils\uartstdio.c ****     MAP_UARTConfigSetExpClk(g_ulBase, MAP_SysCtlClockGet(), ulBaud,
+ 133              		.loc 1 403 0
+ 134 0050 40F20003 		movw	r3, #:lower16:g_ulBase
+ 135 0054 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 136 0058 1C68     		ldr	r4, [r3, #0]
+ 137 005a FFF7FEFF 		bl	SysCtlClockGet
+ 138 005e 0346     		mov	r3, r0
+ 139 0060 2046     		mov	r0, r4
+ 140 0062 1946     		mov	r1, r3
+ 141 0064 3A68     		ldr	r2, [r7, #0]
+ 142 0066 4FF06003 		mov	r3, #96
+ 143 006a FFF7FEFF 		bl	UARTConfigSetExpClk
+ 404:C:/StellarisWare/utils\uartstdio.c ****                             (UART_CONFIG_PAR_NONE | UART_CONFIG_STOP_ONE |
+ 405:C:/StellarisWare/utils\uartstdio.c ****                              UART_CONFIG_WLEN_8));
+ 406:C:/StellarisWare/utils\uartstdio.c **** 
+ 407:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 408:C:/StellarisWare/utils\uartstdio.c ****     //
+ 409:C:/StellarisWare/utils\uartstdio.c ****     // Set the UART to interrupt whenever the TX FIFO is almost empty or
+ 410:C:/StellarisWare/utils\uartstdio.c ****     // when any character is received.
+ 411:C:/StellarisWare/utils\uartstdio.c ****     //
+ 412:C:/StellarisWare/utils\uartstdio.c ****     MAP_UARTFIFOLevelSet(g_ulBase, UART_FIFO_TX1_8, UART_FIFO_RX1_8);
+ 413:C:/StellarisWare/utils\uartstdio.c **** 
+ 414:C:/StellarisWare/utils\uartstdio.c ****     //
+ 415:C:/StellarisWare/utils\uartstdio.c ****     // Flush both the buffers.
+ 416:C:/StellarisWare/utils\uartstdio.c ****     //
+ 417:C:/StellarisWare/utils\uartstdio.c ****     UARTFlushRx();
+ 418:C:/StellarisWare/utils\uartstdio.c ****     UARTFlushTx(true);
+ 419:C:/StellarisWare/utils\uartstdio.c **** 
+ 420:C:/StellarisWare/utils\uartstdio.c ****     //
+ 421:C:/StellarisWare/utils\uartstdio.c ****     // Remember which interrupt we are dealing with.
+ 422:C:/StellarisWare/utils\uartstdio.c ****     //
+ 423:C:/StellarisWare/utils\uartstdio.c ****     g_ulPortNum = ulPortNum;
+ 424:C:/StellarisWare/utils\uartstdio.c **** 
+ 425:C:/StellarisWare/utils\uartstdio.c ****     //
+ 426:C:/StellarisWare/utils\uartstdio.c ****     // We are configured for buffered output so enable the master interrupt
+ 427:C:/StellarisWare/utils\uartstdio.c ****     // for this UART and the receive interrupts.  We don't actually enable the
+ 428:C:/StellarisWare/utils\uartstdio.c ****     // transmit interrupt in the UART itself until some data has been placed
+ 429:C:/StellarisWare/utils\uartstdio.c ****     // in the transmit buffer.
+ 430:C:/StellarisWare/utils\uartstdio.c ****     //
+ 431:C:/StellarisWare/utils\uartstdio.c ****     MAP_UARTIntDisable(g_ulBase, 0xFFFFFFFF);
+ 432:C:/StellarisWare/utils\uartstdio.c ****     MAP_UARTIntEnable(g_ulBase, UART_INT_RX | UART_INT_RT);
+ 433:C:/StellarisWare/utils\uartstdio.c ****     MAP_IntEnable(g_ulUARTInt[ulPortNum]);
+ 434:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 435:C:/StellarisWare/utils\uartstdio.c **** 
+ 436:C:/StellarisWare/utils\uartstdio.c ****     //
+ 437:C:/StellarisWare/utils\uartstdio.c ****     // Enable the UART operation.
+ 438:C:/StellarisWare/utils\uartstdio.c ****     //
+ 439:C:/StellarisWare/utils\uartstdio.c ****     MAP_UARTEnable(g_ulBase);
+ 144              		.loc 1 439 0
+ 145 006e 40F20003 		movw	r3, #:lower16:g_ulBase
+ 146 0072 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 147 0076 1B68     		ldr	r3, [r3, #0]
+ 148 0078 1846     		mov	r0, r3
+ 149 007a FFF7FEFF 		bl	UARTEnable
+ 150 007e 00E0     		b	.L2
+ 151              	.L5:
+ 387:C:/StellarisWare/utils\uartstdio.c ****         return;
+ 152              		.loc 1 387 0
+ 153 0080 00BF     		nop
+ 154              	.L2:
+ 440:C:/StellarisWare/utils\uartstdio.c **** }
+ 155              		.loc 1 440 0
+ 156 0082 07F10C07 		add	r7, r7, #12
+ 157 0086 BD46     		mov	sp, r7
+ 158 0088 90BD     		pop	{r4, r7, pc}
+ 159              		.cfi_endproc
+ 160              	.LFE1:
+ 162 008a 00BF     		.section	.text.UARTwrite,"ax",%progbits
+ 163              		.align	2
+ 164              		.global	UARTwrite
+ 165              		.thumb
+ 166              		.thumb_func
+ 168              	UARTwrite:
+ 169              	.LFB2:
+ 441:C:/StellarisWare/utils\uartstdio.c **** 
+ 442:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 443:C:/StellarisWare/utils\uartstdio.c **** //
+ 444:C:/StellarisWare/utils\uartstdio.c **** //! Writes a string of characters to the UART output.
+ 445:C:/StellarisWare/utils\uartstdio.c **** //!
+ 446:C:/StellarisWare/utils\uartstdio.c **** //! \param pcBuf points to a buffer containing the string to transmit.
+ 447:C:/StellarisWare/utils\uartstdio.c **** //! \param ulLen is the length of the string to transmit.
+ 448:C:/StellarisWare/utils\uartstdio.c **** //!
+ 449:C:/StellarisWare/utils\uartstdio.c **** //! This function will transmit the string to the UART output.  The number of
+ 450:C:/StellarisWare/utils\uartstdio.c **** //! characters transmitted is determined by the \e ulLen parameter.  This
+ 451:C:/StellarisWare/utils\uartstdio.c **** //! function does no interpretation or translation of any characters.  Since
+ 452:C:/StellarisWare/utils\uartstdio.c **** //! the output is sent to a UART, any LF (/n) characters encountered will be
+ 453:C:/StellarisWare/utils\uartstdio.c **** //! replaced with a CRLF pair.
+ 454:C:/StellarisWare/utils\uartstdio.c **** //!
+ 455:C:/StellarisWare/utils\uartstdio.c **** //! Besides using the \e ulLen parameter to stop transmitting the string, if a
+ 456:C:/StellarisWare/utils\uartstdio.c **** //! null character (0) is encountered, then no more characters will be
+ 457:C:/StellarisWare/utils\uartstdio.c **** //! transmitted and the function will return.
+ 458:C:/StellarisWare/utils\uartstdio.c **** //!
+ 459:C:/StellarisWare/utils\uartstdio.c **** //! In non-buffered mode, this function is blocking and will not return until
+ 460:C:/StellarisWare/utils\uartstdio.c **** //! all the characters have been written to the output FIFO.  In buffered mode,
+ 461:C:/StellarisWare/utils\uartstdio.c **** //! the characters are written to the UART transmit buffer and the call returns
+ 462:C:/StellarisWare/utils\uartstdio.c **** //! immediately.  If insufficient space remains in the transmit buffer,
+ 463:C:/StellarisWare/utils\uartstdio.c **** //! additional characters are discarded.
+ 464:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns the count of characters written.
+ 465:C:/StellarisWare/utils\uartstdio.c **** //
+ 466:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 467:C:/StellarisWare/utils\uartstdio.c **** int
+ 468:C:/StellarisWare/utils\uartstdio.c **** UARTwrite(const char *pcBuf, unsigned long ulLen)
+ 469:C:/StellarisWare/utils\uartstdio.c **** {
+ 170              		.loc 1 469 0
+ 171              		.cfi_startproc
+ 172              		@ args = 0, pretend = 0, frame = 16
+ 173              		@ frame_needed = 1, uses_anonymous_args = 0
+ 174 0000 80B5     		push	{r7, lr}
+ 175              	.LCFI6:
+ 176              		.cfi_def_cfa_offset 8
+ 177              		.cfi_offset 14, -4
+ 178              		.cfi_offset 7, -8
+ 179 0002 84B0     		sub	sp, sp, #16
+ 180              	.LCFI7:
+ 181              		.cfi_def_cfa_offset 24
+ 182 0004 00AF     		add	r7, sp, #0
+ 183              	.LCFI8:
+ 184              		.cfi_def_cfa_register 7
+ 185 0006 7860     		str	r0, [r7, #4]
+ 186 0008 3960     		str	r1, [r7, #0]
+ 470:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 471:C:/StellarisWare/utils\uartstdio.c ****     unsigned int uIdx;
+ 472:C:/StellarisWare/utils\uartstdio.c **** 
+ 473:C:/StellarisWare/utils\uartstdio.c ****     //
+ 474:C:/StellarisWare/utils\uartstdio.c ****     // Check for valid arguments.
+ 475:C:/StellarisWare/utils\uartstdio.c ****     //
+ 476:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(pcBuf != 0);
+ 477:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(g_ulBase != 0);
+ 478:C:/StellarisWare/utils\uartstdio.c **** 
+ 479:C:/StellarisWare/utils\uartstdio.c ****     //
+ 480:C:/StellarisWare/utils\uartstdio.c ****     // Send the characters
+ 481:C:/StellarisWare/utils\uartstdio.c ****     //
+ 482:C:/StellarisWare/utils\uartstdio.c ****     for(uIdx = 0; uIdx < ulLen; uIdx++)
+ 483:C:/StellarisWare/utils\uartstdio.c ****     {
+ 484:C:/StellarisWare/utils\uartstdio.c ****         //
+ 485:C:/StellarisWare/utils\uartstdio.c ****         // If the character to the UART is \n, then add a \r before it so that
+ 486:C:/StellarisWare/utils\uartstdio.c ****         // \n is translated to \n\r in the output.
+ 487:C:/StellarisWare/utils\uartstdio.c ****         //
+ 488:C:/StellarisWare/utils\uartstdio.c ****         if(pcBuf[uIdx] == '\n')
+ 489:C:/StellarisWare/utils\uartstdio.c ****         {
+ 490:C:/StellarisWare/utils\uartstdio.c ****             if(!TX_BUFFER_FULL)
+ 491:C:/StellarisWare/utils\uartstdio.c ****             {
+ 492:C:/StellarisWare/utils\uartstdio.c ****                 g_pcUARTTxBuffer[g_ulUARTTxWriteIndex] = '\r';
+ 493:C:/StellarisWare/utils\uartstdio.c ****                 ADVANCE_TX_BUFFER_INDEX(g_ulUARTTxWriteIndex);
+ 494:C:/StellarisWare/utils\uartstdio.c ****             }
+ 495:C:/StellarisWare/utils\uartstdio.c ****             else
+ 496:C:/StellarisWare/utils\uartstdio.c ****             {
+ 497:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 498:C:/StellarisWare/utils\uartstdio.c ****                 // Buffer is full - discard remaining characters and return.
+ 499:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 500:C:/StellarisWare/utils\uartstdio.c ****                 break;
+ 501:C:/StellarisWare/utils\uartstdio.c ****             }
+ 502:C:/StellarisWare/utils\uartstdio.c ****         }
+ 503:C:/StellarisWare/utils\uartstdio.c **** 
+ 504:C:/StellarisWare/utils\uartstdio.c ****         //
+ 505:C:/StellarisWare/utils\uartstdio.c ****         // Send the character to the UART output.
+ 506:C:/StellarisWare/utils\uartstdio.c ****         //
+ 507:C:/StellarisWare/utils\uartstdio.c ****         if(!TX_BUFFER_FULL)
+ 508:C:/StellarisWare/utils\uartstdio.c ****         {
+ 509:C:/StellarisWare/utils\uartstdio.c ****             g_pcUARTTxBuffer[g_ulUARTTxWriteIndex] = pcBuf[uIdx];
+ 510:C:/StellarisWare/utils\uartstdio.c ****             ADVANCE_TX_BUFFER_INDEX(g_ulUARTTxWriteIndex);
+ 511:C:/StellarisWare/utils\uartstdio.c ****         }
+ 512:C:/StellarisWare/utils\uartstdio.c ****         else
+ 513:C:/StellarisWare/utils\uartstdio.c ****         {
+ 514:C:/StellarisWare/utils\uartstdio.c ****             //
+ 515:C:/StellarisWare/utils\uartstdio.c ****             // Buffer is full - discard remaining characters and return.
+ 516:C:/StellarisWare/utils\uartstdio.c ****             //
+ 517:C:/StellarisWare/utils\uartstdio.c ****             break;
+ 518:C:/StellarisWare/utils\uartstdio.c ****         }
+ 519:C:/StellarisWare/utils\uartstdio.c ****     }
+ 520:C:/StellarisWare/utils\uartstdio.c **** 
+ 521:C:/StellarisWare/utils\uartstdio.c ****     //
+ 522:C:/StellarisWare/utils\uartstdio.c ****     // If we have anything in the buffer, make sure that the UART is set
+ 523:C:/StellarisWare/utils\uartstdio.c ****     // up to transmit it.
+ 524:C:/StellarisWare/utils\uartstdio.c ****     //
+ 525:C:/StellarisWare/utils\uartstdio.c ****     if(!TX_BUFFER_EMPTY)
+ 526:C:/StellarisWare/utils\uartstdio.c ****     {
+ 527:C:/StellarisWare/utils\uartstdio.c ****         UARTPrimeTransmit(g_ulBase);
+ 528:C:/StellarisWare/utils\uartstdio.c ****         MAP_UARTIntEnable(g_ulBase, UART_INT_TX);
+ 529:C:/StellarisWare/utils\uartstdio.c ****     }
+ 530:C:/StellarisWare/utils\uartstdio.c **** 
+ 531:C:/StellarisWare/utils\uartstdio.c ****     //
+ 532:C:/StellarisWare/utils\uartstdio.c ****     // Return the number of characters written.
+ 533:C:/StellarisWare/utils\uartstdio.c ****     //
+ 534:C:/StellarisWare/utils\uartstdio.c ****     return(uIdx);
+ 535:C:/StellarisWare/utils\uartstdio.c **** #else
+ 536:C:/StellarisWare/utils\uartstdio.c ****     unsigned int uIdx;
+ 537:C:/StellarisWare/utils\uartstdio.c **** 
+ 538:C:/StellarisWare/utils\uartstdio.c ****     //
+ 539:C:/StellarisWare/utils\uartstdio.c ****     // Check for valid UART base address, and valid arguments.
+ 540:C:/StellarisWare/utils\uartstdio.c ****     //
+ 541:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(g_ulBase != 0);
+ 542:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(pcBuf != 0);
+ 543:C:/StellarisWare/utils\uartstdio.c **** 
+ 544:C:/StellarisWare/utils\uartstdio.c ****     //
+ 545:C:/StellarisWare/utils\uartstdio.c ****     // Send the characters
+ 546:C:/StellarisWare/utils\uartstdio.c ****     //
+ 547:C:/StellarisWare/utils\uartstdio.c ****     for(uIdx = 0; uIdx < ulLen; uIdx++)
+ 187              		.loc 1 547 0
+ 188 000a 4FF00003 		mov	r3, #0
+ 189 000e FB60     		str	r3, [r7, #12]
+ 190 0010 20E0     		b	.L7
+ 191              	.L9:
+ 548:C:/StellarisWare/utils\uartstdio.c ****     {
+ 549:C:/StellarisWare/utils\uartstdio.c ****         //
+ 550:C:/StellarisWare/utils\uartstdio.c ****         // If the character to the UART is \n, then add a \r before it so that
+ 551:C:/StellarisWare/utils\uartstdio.c ****         // \n is translated to \n\r in the output.
+ 552:C:/StellarisWare/utils\uartstdio.c ****         //
+ 553:C:/StellarisWare/utils\uartstdio.c ****         if(pcBuf[uIdx] == '\n')
+ 192              		.loc 1 553 0
+ 193 0012 7A68     		ldr	r2, [r7, #4]
+ 194 0014 FB68     		ldr	r3, [r7, #12]
+ 195 0016 D318     		adds	r3, r2, r3
+ 196 0018 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 197 001a 0A2B     		cmp	r3, #10
+ 198 001c 09D1     		bne	.L8
+ 554:C:/StellarisWare/utils\uartstdio.c ****         {
+ 555:C:/StellarisWare/utils\uartstdio.c ****             MAP_UARTCharPut(g_ulBase, '\r');
+ 199              		.loc 1 555 0
+ 200 001e 40F20003 		movw	r3, #:lower16:g_ulBase
+ 201 0022 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 202 0026 1B68     		ldr	r3, [r3, #0]
+ 203 0028 1846     		mov	r0, r3
+ 204 002a 4FF00D01 		mov	r1, #13
+ 205 002e FFF7FEFF 		bl	UARTCharPut
+ 206              	.L8:
+ 556:C:/StellarisWare/utils\uartstdio.c ****         }
+ 557:C:/StellarisWare/utils\uartstdio.c **** 
+ 558:C:/StellarisWare/utils\uartstdio.c ****         //
+ 559:C:/StellarisWare/utils\uartstdio.c ****         // Send the character to the UART output.
+ 560:C:/StellarisWare/utils\uartstdio.c ****         //
+ 561:C:/StellarisWare/utils\uartstdio.c ****         MAP_UARTCharPut(g_ulBase, pcBuf[uIdx]);
+ 207              		.loc 1 561 0
+ 208 0032 40F20003 		movw	r3, #:lower16:g_ulBase
+ 209 0036 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 210 003a 1A68     		ldr	r2, [r3, #0]
+ 211 003c 7968     		ldr	r1, [r7, #4]
+ 212 003e FB68     		ldr	r3, [r7, #12]
+ 213 0040 CB18     		adds	r3, r1, r3
+ 214 0042 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 215 0044 1046     		mov	r0, r2
+ 216 0046 1946     		mov	r1, r3
+ 217 0048 FFF7FEFF 		bl	UARTCharPut
+ 547:C:/StellarisWare/utils\uartstdio.c ****     for(uIdx = 0; uIdx < ulLen; uIdx++)
+ 218              		.loc 1 547 0
+ 219 004c FB68     		ldr	r3, [r7, #12]
+ 220 004e 03F10103 		add	r3, r3, #1
+ 221 0052 FB60     		str	r3, [r7, #12]
+ 222              	.L7:
+ 547:C:/StellarisWare/utils\uartstdio.c ****     for(uIdx = 0; uIdx < ulLen; uIdx++)
+ 223              		.loc 1 547 0 is_stmt 0 discriminator 1
+ 224 0054 FA68     		ldr	r2, [r7, #12]
+ 225 0056 3B68     		ldr	r3, [r7, #0]
+ 226 0058 9A42     		cmp	r2, r3
+ 227 005a DAD3     		bcc	.L9
+ 562:C:/StellarisWare/utils\uartstdio.c ****     }
+ 563:C:/StellarisWare/utils\uartstdio.c **** 
+ 564:C:/StellarisWare/utils\uartstdio.c ****     //
+ 565:C:/StellarisWare/utils\uartstdio.c ****     // Return the number of characters written.
+ 566:C:/StellarisWare/utils\uartstdio.c ****     //
+ 567:C:/StellarisWare/utils\uartstdio.c ****     return(uIdx);
+ 228              		.loc 1 567 0 is_stmt 1
+ 229 005c FB68     		ldr	r3, [r7, #12]
+ 568:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 569:C:/StellarisWare/utils\uartstdio.c **** }
+ 230              		.loc 1 569 0
+ 231 005e 1846     		mov	r0, r3
+ 232 0060 07F11007 		add	r7, r7, #16
+ 233 0064 BD46     		mov	sp, r7
+ 234 0066 80BD     		pop	{r7, pc}
+ 235              		.cfi_endproc
+ 236              	.LFE2:
+ 238              		.section	.rodata
+ 239              		.align	2
+ 240              	.LC1:
+ 241 0030 08200800 		.ascii	"\010 \010\000"
+ 242              		.align	2
+ 243              	.LC2:
+ 244 0034 0D0A00   		.ascii	"\015\012\000"
+ 245              		.section	.text.UARTgets,"ax",%progbits
+ 246              		.align	2
+ 247              		.global	UARTgets
+ 248              		.thumb
+ 249              		.thumb_func
+ 251              	UARTgets:
+ 252              	.LFB3:
+ 570:C:/StellarisWare/utils\uartstdio.c **** 
+ 571:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 572:C:/StellarisWare/utils\uartstdio.c **** //
+ 573:C:/StellarisWare/utils\uartstdio.c **** //! A simple UART based get string function, with some line processing.
+ 574:C:/StellarisWare/utils\uartstdio.c **** //!
+ 575:C:/StellarisWare/utils\uartstdio.c **** //! \param pcBuf points to a buffer for the incoming string from the UART.
+ 576:C:/StellarisWare/utils\uartstdio.c **** //! \param ulLen is the length of the buffer for storage of the string,
+ 577:C:/StellarisWare/utils\uartstdio.c **** //! including the trailing 0.
+ 578:C:/StellarisWare/utils\uartstdio.c **** //!
+ 579:C:/StellarisWare/utils\uartstdio.c **** //! This function will receive a string from the UART input and store the
+ 580:C:/StellarisWare/utils\uartstdio.c **** //! characters in the buffer pointed to by \e pcBuf.  The characters will
+ 581:C:/StellarisWare/utils\uartstdio.c **** //! continue to be stored until a termination character is received.  The
+ 582:C:/StellarisWare/utils\uartstdio.c **** //! termination characters are CR, LF, or ESC.  A CRLF pair is treated as a
+ 583:C:/StellarisWare/utils\uartstdio.c **** //! single termination character.  The termination characters are not stored in
+ 584:C:/StellarisWare/utils\uartstdio.c **** //! the string.  The string will be terminated with a 0 and the function will
+ 585:C:/StellarisWare/utils\uartstdio.c **** //! return.
+ 586:C:/StellarisWare/utils\uartstdio.c **** //!
+ 587:C:/StellarisWare/utils\uartstdio.c **** //! In both buffered and unbuffered modes, this function will block until
+ 588:C:/StellarisWare/utils\uartstdio.c **** //! a termination character is received.  If non-blocking operation is required
+ 589:C:/StellarisWare/utils\uartstdio.c **** //! in buffered mode, a call to UARTPeek() may be made to determine whether
+ 590:C:/StellarisWare/utils\uartstdio.c **** //! a termination character already exists in the receive buffer prior to
+ 591:C:/StellarisWare/utils\uartstdio.c **** //! calling UARTgets().
+ 592:C:/StellarisWare/utils\uartstdio.c **** //!
+ 593:C:/StellarisWare/utils\uartstdio.c **** //! Since the string will be null terminated, the user must ensure that the
+ 594:C:/StellarisWare/utils\uartstdio.c **** //! buffer is sized to allow for the additional null character.
+ 595:C:/StellarisWare/utils\uartstdio.c **** //!
+ 596:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns the count of characters that were stored, not including
+ 597:C:/StellarisWare/utils\uartstdio.c **** //! the trailing 0.
+ 598:C:/StellarisWare/utils\uartstdio.c **** //
+ 599:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 600:C:/StellarisWare/utils\uartstdio.c **** int
+ 601:C:/StellarisWare/utils\uartstdio.c **** UARTgets(char *pcBuf, unsigned long ulLen)
+ 602:C:/StellarisWare/utils\uartstdio.c **** {
+ 253              		.loc 1 602 0
+ 254              		.cfi_startproc
+ 255              		@ args = 0, pretend = 0, frame = 16
+ 256              		@ frame_needed = 1, uses_anonymous_args = 0
+ 257 0000 80B5     		push	{r7, lr}
+ 258              	.LCFI9:
+ 259              		.cfi_def_cfa_offset 8
+ 260              		.cfi_offset 14, -4
+ 261              		.cfi_offset 7, -8
+ 262 0002 84B0     		sub	sp, sp, #16
+ 263              	.LCFI10:
+ 264              		.cfi_def_cfa_offset 24
+ 265 0004 00AF     		add	r7, sp, #0
+ 266              	.LCFI11:
+ 267              		.cfi_def_cfa_register 7
+ 268 0006 7860     		str	r0, [r7, #4]
+ 269 0008 3960     		str	r1, [r7, #0]
+ 603:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 604:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulCount = 0;
+ 605:C:/StellarisWare/utils\uartstdio.c ****     char cChar;
+ 606:C:/StellarisWare/utils\uartstdio.c **** 
+ 607:C:/StellarisWare/utils\uartstdio.c ****     //
+ 608:C:/StellarisWare/utils\uartstdio.c ****     // Check the arguments.
+ 609:C:/StellarisWare/utils\uartstdio.c ****     //
+ 610:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(pcBuf != 0);
+ 611:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(ulLen != 0);
+ 612:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(g_ulBase != 0);
+ 613:C:/StellarisWare/utils\uartstdio.c **** 
+ 614:C:/StellarisWare/utils\uartstdio.c ****     //
+ 615:C:/StellarisWare/utils\uartstdio.c ****     // Adjust the length back by 1 to leave space for the trailing
+ 616:C:/StellarisWare/utils\uartstdio.c ****     // null terminator.
+ 617:C:/StellarisWare/utils\uartstdio.c ****     //
+ 618:C:/StellarisWare/utils\uartstdio.c ****     ulLen--;
+ 619:C:/StellarisWare/utils\uartstdio.c **** 
+ 620:C:/StellarisWare/utils\uartstdio.c ****     //
+ 621:C:/StellarisWare/utils\uartstdio.c ****     // Process characters until a newline is received.
+ 622:C:/StellarisWare/utils\uartstdio.c ****     //
+ 623:C:/StellarisWare/utils\uartstdio.c ****     while(1)
+ 624:C:/StellarisWare/utils\uartstdio.c ****     {
+ 625:C:/StellarisWare/utils\uartstdio.c ****         //
+ 626:C:/StellarisWare/utils\uartstdio.c ****         // Read the next character from the receive buffer.
+ 627:C:/StellarisWare/utils\uartstdio.c ****         //
+ 628:C:/StellarisWare/utils\uartstdio.c ****         if(!RX_BUFFER_EMPTY)
+ 629:C:/StellarisWare/utils\uartstdio.c ****         {
+ 630:C:/StellarisWare/utils\uartstdio.c ****             cChar = g_pcUARTRxBuffer[g_ulUARTRxReadIndex];
+ 631:C:/StellarisWare/utils\uartstdio.c ****             ADVANCE_RX_BUFFER_INDEX(g_ulUARTRxReadIndex);
+ 632:C:/StellarisWare/utils\uartstdio.c **** 
+ 633:C:/StellarisWare/utils\uartstdio.c ****             //
+ 634:C:/StellarisWare/utils\uartstdio.c ****             // See if a newline or escape character was received.
+ 635:C:/StellarisWare/utils\uartstdio.c ****             //
+ 636:C:/StellarisWare/utils\uartstdio.c ****             if((cChar == '\r') || (cChar == '\n') || (cChar == 0x1b))
+ 637:C:/StellarisWare/utils\uartstdio.c ****             {
+ 638:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 639:C:/StellarisWare/utils\uartstdio.c ****                 // Stop processing the input and end the line.
+ 640:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 641:C:/StellarisWare/utils\uartstdio.c ****                 break;
+ 642:C:/StellarisWare/utils\uartstdio.c ****             }
+ 643:C:/StellarisWare/utils\uartstdio.c **** 
+ 644:C:/StellarisWare/utils\uartstdio.c ****             //
+ 645:C:/StellarisWare/utils\uartstdio.c ****             // Process the received character as long as we are not at the end
+ 646:C:/StellarisWare/utils\uartstdio.c ****             // of the buffer.  If the end of the buffer has been reached then
+ 647:C:/StellarisWare/utils\uartstdio.c ****             // all additional characters are ignored until a newline is
+ 648:C:/StellarisWare/utils\uartstdio.c ****             // received.
+ 649:C:/StellarisWare/utils\uartstdio.c ****             //
+ 650:C:/StellarisWare/utils\uartstdio.c ****             if(ulCount < ulLen)
+ 651:C:/StellarisWare/utils\uartstdio.c ****             {
+ 652:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 653:C:/StellarisWare/utils\uartstdio.c ****                 // Store the character in the caller supplied buffer.
+ 654:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 655:C:/StellarisWare/utils\uartstdio.c ****                 pcBuf[ulCount] = cChar;
+ 656:C:/StellarisWare/utils\uartstdio.c **** 
+ 657:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 658:C:/StellarisWare/utils\uartstdio.c ****                 // Increment the count of characters received.
+ 659:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 660:C:/StellarisWare/utils\uartstdio.c ****                 ulCount++;
+ 661:C:/StellarisWare/utils\uartstdio.c ****             }
+ 662:C:/StellarisWare/utils\uartstdio.c ****         }
+ 663:C:/StellarisWare/utils\uartstdio.c ****     }
+ 664:C:/StellarisWare/utils\uartstdio.c **** 
+ 665:C:/StellarisWare/utils\uartstdio.c ****     //
+ 666:C:/StellarisWare/utils\uartstdio.c ****     // Add a null termination to the string.
+ 667:C:/StellarisWare/utils\uartstdio.c ****     //
+ 668:C:/StellarisWare/utils\uartstdio.c ****     pcBuf[ulCount] = 0;
+ 669:C:/StellarisWare/utils\uartstdio.c **** 
+ 670:C:/StellarisWare/utils\uartstdio.c ****     //
+ 671:C:/StellarisWare/utils\uartstdio.c ****     // Return the count of chars in the buffer, not counting the trailing 0.
+ 672:C:/StellarisWare/utils\uartstdio.c ****     //
+ 673:C:/StellarisWare/utils\uartstdio.c ****     return(ulCount);
+ 674:C:/StellarisWare/utils\uartstdio.c **** #else
+ 675:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulCount = 0;
+ 270              		.loc 1 675 0
+ 271 000a 4FF00003 		mov	r3, #0
+ 272 000e FB60     		str	r3, [r7, #12]
+ 676:C:/StellarisWare/utils\uartstdio.c ****     char cChar;
+ 677:C:/StellarisWare/utils\uartstdio.c ****     static char bLastWasCR = 0;
+ 678:C:/StellarisWare/utils\uartstdio.c **** 
+ 679:C:/StellarisWare/utils\uartstdio.c ****     //
+ 680:C:/StellarisWare/utils\uartstdio.c ****     // Check the arguments.
+ 681:C:/StellarisWare/utils\uartstdio.c ****     //
+ 682:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(pcBuf != 0);
+ 683:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(ulLen != 0);
+ 684:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(g_ulBase != 0);
+ 685:C:/StellarisWare/utils\uartstdio.c **** 
+ 686:C:/StellarisWare/utils\uartstdio.c ****     //
+ 687:C:/StellarisWare/utils\uartstdio.c ****     // Adjust the length back by 1 to leave space for the trailing
+ 688:C:/StellarisWare/utils\uartstdio.c ****     // null terminator.
+ 689:C:/StellarisWare/utils\uartstdio.c ****     //
+ 690:C:/StellarisWare/utils\uartstdio.c ****     ulLen--;
+ 273              		.loc 1 690 0
+ 274 0010 3B68     		ldr	r3, [r7, #0]
+ 275 0012 03F1FF33 		add	r3, r3, #-1
+ 276 0016 3B60     		str	r3, [r7, #0]
+ 277 0018 00E0     		b	.L19
+ 278              	.L22:
+ 691:C:/StellarisWare/utils\uartstdio.c **** 
+ 692:C:/StellarisWare/utils\uartstdio.c ****     //
+ 693:C:/StellarisWare/utils\uartstdio.c ****     // Process characters until a newline is received.
+ 694:C:/StellarisWare/utils\uartstdio.c ****     //
+ 695:C:/StellarisWare/utils\uartstdio.c ****     while(1)
+ 696:C:/StellarisWare/utils\uartstdio.c ****     {
+ 697:C:/StellarisWare/utils\uartstdio.c ****         //
+ 698:C:/StellarisWare/utils\uartstdio.c ****         // Read the next character from the console.
+ 699:C:/StellarisWare/utils\uartstdio.c ****         //
+ 700:C:/StellarisWare/utils\uartstdio.c ****         cChar = MAP_UARTCharGet(g_ulBase);
+ 701:C:/StellarisWare/utils\uartstdio.c **** 
+ 702:C:/StellarisWare/utils\uartstdio.c ****         //
+ 703:C:/StellarisWare/utils\uartstdio.c ****         // See if the backspace key was pressed.
+ 704:C:/StellarisWare/utils\uartstdio.c ****         //
+ 705:C:/StellarisWare/utils\uartstdio.c ****         if(cChar == '\b')
+ 706:C:/StellarisWare/utils\uartstdio.c ****         {
+ 707:C:/StellarisWare/utils\uartstdio.c ****             //
+ 708:C:/StellarisWare/utils\uartstdio.c ****             // If there are any characters already in the buffer, then delete
+ 709:C:/StellarisWare/utils\uartstdio.c ****             // the last.
+ 710:C:/StellarisWare/utils\uartstdio.c ****             //
+ 711:C:/StellarisWare/utils\uartstdio.c ****             if(ulCount)
+ 712:C:/StellarisWare/utils\uartstdio.c ****             {
+ 713:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 714:C:/StellarisWare/utils\uartstdio.c ****                 // Rub out the previous character.
+ 715:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 716:C:/StellarisWare/utils\uartstdio.c ****                 UARTwrite("\b \b", 3);
+ 717:C:/StellarisWare/utils\uartstdio.c **** 
+ 718:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 719:C:/StellarisWare/utils\uartstdio.c ****                 // Decrement the number of characters in the buffer.
+ 720:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 721:C:/StellarisWare/utils\uartstdio.c ****                 ulCount--;
+ 722:C:/StellarisWare/utils\uartstdio.c ****             }
+ 723:C:/StellarisWare/utils\uartstdio.c **** 
+ 724:C:/StellarisWare/utils\uartstdio.c ****             //
+ 725:C:/StellarisWare/utils\uartstdio.c ****             // Skip ahead to read the next character.
+ 726:C:/StellarisWare/utils\uartstdio.c ****             //
+ 727:C:/StellarisWare/utils\uartstdio.c ****             continue;
+ 728:C:/StellarisWare/utils\uartstdio.c ****         }
+ 729:C:/StellarisWare/utils\uartstdio.c **** 
+ 730:C:/StellarisWare/utils\uartstdio.c ****         //
+ 731:C:/StellarisWare/utils\uartstdio.c ****         // If this character is LF and last was CR, then just gobble up the
+ 732:C:/StellarisWare/utils\uartstdio.c ****         // character because the EOL processing was taken care of with the CR.
+ 733:C:/StellarisWare/utils\uartstdio.c ****         //
+ 734:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\n') && bLastWasCR)
+ 735:C:/StellarisWare/utils\uartstdio.c ****         {
+ 736:C:/StellarisWare/utils\uartstdio.c ****             bLastWasCR = 0;
+ 737:C:/StellarisWare/utils\uartstdio.c ****             continue;
+ 738:C:/StellarisWare/utils\uartstdio.c ****         }
+ 739:C:/StellarisWare/utils\uartstdio.c **** 
+ 740:C:/StellarisWare/utils\uartstdio.c ****         //
+ 741:C:/StellarisWare/utils\uartstdio.c ****         // See if a newline or escape character was received.
+ 742:C:/StellarisWare/utils\uartstdio.c ****         //
+ 743:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\r') || (cChar == '\n') || (cChar == 0x1b))
+ 744:C:/StellarisWare/utils\uartstdio.c ****         {
+ 745:C:/StellarisWare/utils\uartstdio.c ****             //
+ 746:C:/StellarisWare/utils\uartstdio.c ****             // If the character is a CR, then it may be followed by a LF which
+ 747:C:/StellarisWare/utils\uartstdio.c ****             // should be paired with the CR.  So remember that a CR was
+ 748:C:/StellarisWare/utils\uartstdio.c ****             // received.
+ 749:C:/StellarisWare/utils\uartstdio.c ****             //
+ 750:C:/StellarisWare/utils\uartstdio.c ****             if(cChar == '\r')
+ 751:C:/StellarisWare/utils\uartstdio.c ****             {
+ 752:C:/StellarisWare/utils\uartstdio.c ****                 bLastWasCR = 1;
+ 753:C:/StellarisWare/utils\uartstdio.c ****             }
+ 754:C:/StellarisWare/utils\uartstdio.c **** 
+ 755:C:/StellarisWare/utils\uartstdio.c ****             //
+ 756:C:/StellarisWare/utils\uartstdio.c ****             // Stop processing the input and end the line.
+ 757:C:/StellarisWare/utils\uartstdio.c ****             //
+ 758:C:/StellarisWare/utils\uartstdio.c ****             break;
+ 759:C:/StellarisWare/utils\uartstdio.c ****         }
+ 760:C:/StellarisWare/utils\uartstdio.c **** 
+ 761:C:/StellarisWare/utils\uartstdio.c ****         //
+ 762:C:/StellarisWare/utils\uartstdio.c ****         // Process the received character as long as we are not at the end of
+ 763:C:/StellarisWare/utils\uartstdio.c ****         // the buffer.  If the end of the buffer has been reached then all
+ 764:C:/StellarisWare/utils\uartstdio.c ****         // additional characters are ignored until a newline is received.
+ 765:C:/StellarisWare/utils\uartstdio.c ****         //
+ 766:C:/StellarisWare/utils\uartstdio.c ****         if(ulCount < ulLen)
+ 767:C:/StellarisWare/utils\uartstdio.c ****         {
+ 768:C:/StellarisWare/utils\uartstdio.c ****             //
+ 769:C:/StellarisWare/utils\uartstdio.c ****             // Store the character in the caller supplied buffer.
+ 770:C:/StellarisWare/utils\uartstdio.c ****             //
+ 771:C:/StellarisWare/utils\uartstdio.c ****             pcBuf[ulCount] = cChar;
+ 772:C:/StellarisWare/utils\uartstdio.c **** 
+ 773:C:/StellarisWare/utils\uartstdio.c ****             //
+ 774:C:/StellarisWare/utils\uartstdio.c ****             // Increment the count of characters received.
+ 775:C:/StellarisWare/utils\uartstdio.c ****             //
+ 776:C:/StellarisWare/utils\uartstdio.c ****             ulCount++;
+ 777:C:/StellarisWare/utils\uartstdio.c **** 
+ 778:C:/StellarisWare/utils\uartstdio.c ****             //
+ 779:C:/StellarisWare/utils\uartstdio.c ****             // Reflect the character back to the user.
+ 780:C:/StellarisWare/utils\uartstdio.c ****             //
+ 781:C:/StellarisWare/utils\uartstdio.c ****             MAP_UARTCharPut(g_ulBase, cChar);
+ 782:C:/StellarisWare/utils\uartstdio.c ****         }
+ 783:C:/StellarisWare/utils\uartstdio.c ****     }
+ 279              		.loc 1 783 0
+ 280 001a 00BF     		nop
+ 281              	.L19:
+ 700:C:/StellarisWare/utils\uartstdio.c ****         cChar = MAP_UARTCharGet(g_ulBase);
+ 282              		.loc 1 700 0
+ 283 001c 40F20003 		movw	r3, #:lower16:g_ulBase
+ 284 0020 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 285 0024 1B68     		ldr	r3, [r3, #0]
+ 286 0026 1846     		mov	r0, r3
+ 287 0028 FFF7FEFF 		bl	UARTCharGet
+ 288 002c 0346     		mov	r3, r0
+ 289 002e FB72     		strb	r3, [r7, #11]
+ 705:C:/StellarisWare/utils\uartstdio.c ****         if(cChar == '\b')
+ 290              		.loc 1 705 0
+ 291 0030 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 292 0032 082B     		cmp	r3, #8
+ 293 0034 0FD1     		bne	.L11
+ 711:C:/StellarisWare/utils\uartstdio.c ****             if(ulCount)
+ 294              		.loc 1 711 0
+ 295 0036 FB68     		ldr	r3, [r7, #12]
+ 296 0038 002B     		cmp	r3, #0
+ 297 003a 4AD0     		beq	.L20
+ 716:C:/StellarisWare/utils\uartstdio.c ****                 UARTwrite("\b \b", 3);
+ 298              		.loc 1 716 0
+ 299 003c 40F20000 		movw	r0, #:lower16:.LC1
+ 300 0040 C0F20000 		movt	r0, #:upper16:.LC1
+ 301 0044 4FF00301 		mov	r1, #3
+ 302 0048 FFF7FEFF 		bl	UARTwrite
+ 721:C:/StellarisWare/utils\uartstdio.c ****                 ulCount--;
+ 303              		.loc 1 721 0
+ 304 004c FB68     		ldr	r3, [r7, #12]
+ 305 004e 03F1FF33 		add	r3, r3, #-1
+ 306 0052 FB60     		str	r3, [r7, #12]
+ 727:C:/StellarisWare/utils\uartstdio.c ****             continue;
+ 307              		.loc 1 727 0
+ 308 0054 3DE0     		b	.L20
+ 309              	.L11:
+ 734:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\n') && bLastWasCR)
+ 310              		.loc 1 734 0
+ 311 0056 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 312 0058 0A2B     		cmp	r3, #10
+ 313 005a 0ED1     		bne	.L14
+ 734:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\n') && bLastWasCR)
+ 314              		.loc 1 734 0 is_stmt 0 discriminator 1
+ 315 005c 40F20003 		movw	r3, #:lower16:bLastWasCR.4231
+ 316 0060 C0F20003 		movt	r3, #:upper16:bLastWasCR.4231
+ 317 0064 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 318 0066 002B     		cmp	r3, #0
+ 319 0068 07D0     		beq	.L14
+ 736:C:/StellarisWare/utils\uartstdio.c ****             bLastWasCR = 0;
+ 320              		.loc 1 736 0 is_stmt 1
+ 321 006a 40F20003 		movw	r3, #:lower16:bLastWasCR.4231
+ 322 006e C0F20003 		movt	r3, #:upper16:bLastWasCR.4231
+ 323 0072 4FF00002 		mov	r2, #0
+ 324 0076 1A70     		strb	r2, [r3, #0]
+ 737:C:/StellarisWare/utils\uartstdio.c ****             continue;
+ 325              		.loc 1 737 0
+ 326 0078 2CE0     		b	.L13
+ 327              	.L14:
+ 743:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\r') || (cChar == '\n') || (cChar == 0x1b))
+ 328              		.loc 1 743 0
+ 329 007a FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 330 007c 0D2B     		cmp	r3, #13
+ 331 007e 05D0     		beq	.L15
+ 743:C:/StellarisWare/utils\uartstdio.c ****         if((cChar == '\r') || (cChar == '\n') || (cChar == 0x1b))
+ 332              		.loc 1 743 0 is_stmt 0 discriminator 1
+ 333 0080 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 334 0082 0A2B     		cmp	r3, #10
+ 335 0084 02D0     		beq	.L15
+ 336 0086 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 337 0088 1B2B     		cmp	r3, #27
+ 338 008a 0AD1     		bne	.L16
+ 339              	.L15:
+ 750:C:/StellarisWare/utils\uartstdio.c ****             if(cChar == '\r')
+ 340              		.loc 1 750 0 is_stmt 1
+ 341 008c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 342 008e 0D2B     		cmp	r3, #13
+ 343 0090 21D1     		bne	.L21
+ 752:C:/StellarisWare/utils\uartstdio.c ****                 bLastWasCR = 1;
+ 344              		.loc 1 752 0
+ 345 0092 40F20003 		movw	r3, #:lower16:bLastWasCR.4231
+ 346 0096 C0F20003 		movt	r3, #:upper16:bLastWasCR.4231
+ 347 009a 4FF00102 		mov	r2, #1
+ 348 009e 1A70     		strb	r2, [r3, #0]
+ 758:C:/StellarisWare/utils\uartstdio.c ****             break;
+ 349              		.loc 1 758 0
+ 350 00a0 19E0     		b	.L21
+ 351              	.L16:
+ 766:C:/StellarisWare/utils\uartstdio.c ****         if(ulCount < ulLen)
+ 352              		.loc 1 766 0
+ 353 00a2 FA68     		ldr	r2, [r7, #12]
+ 354 00a4 3B68     		ldr	r3, [r7, #0]
+ 355 00a6 9A42     		cmp	r2, r3
+ 356 00a8 B7D2     		bcs	.L22
+ 771:C:/StellarisWare/utils\uartstdio.c ****             pcBuf[ulCount] = cChar;
+ 357              		.loc 1 771 0
+ 358 00aa 7A68     		ldr	r2, [r7, #4]
+ 359 00ac FB68     		ldr	r3, [r7, #12]
+ 360 00ae D318     		adds	r3, r2, r3
+ 361 00b0 FA7A     		ldrb	r2, [r7, #11]
+ 362 00b2 1A70     		strb	r2, [r3, #0]
+ 776:C:/StellarisWare/utils\uartstdio.c ****             ulCount++;
+ 363              		.loc 1 776 0
+ 364 00b4 FB68     		ldr	r3, [r7, #12]
+ 365 00b6 03F10103 		add	r3, r3, #1
+ 366 00ba FB60     		str	r3, [r7, #12]
+ 781:C:/StellarisWare/utils\uartstdio.c ****             MAP_UARTCharPut(g_ulBase, cChar);
+ 367              		.loc 1 781 0
+ 368 00bc 40F20003 		movw	r3, #:lower16:g_ulBase
+ 369 00c0 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 370 00c4 1A68     		ldr	r2, [r3, #0]
+ 371 00c6 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 372 00c8 1046     		mov	r0, r2
+ 373 00ca 1946     		mov	r1, r3
+ 374 00cc FFF7FEFF 		bl	UARTCharPut
+ 375              		.loc 1 783 0
+ 376 00d0 A3E7     		b	.L22
+ 377              	.L20:
+ 727:C:/StellarisWare/utils\uartstdio.c ****             continue;
+ 378              		.loc 1 727 0
+ 379 00d2 00BF     		nop
+ 380              	.L13:
+ 381              		.loc 1 783 0
+ 382 00d4 A1E7     		b	.L22
+ 383              	.L21:
+ 758:C:/StellarisWare/utils\uartstdio.c ****             break;
+ 384              		.loc 1 758 0
+ 385 00d6 00BF     		nop
+ 386              	.L18:
+ 784:C:/StellarisWare/utils\uartstdio.c **** 
+ 785:C:/StellarisWare/utils\uartstdio.c ****     //
+ 786:C:/StellarisWare/utils\uartstdio.c ****     // Add a null termination to the string.
+ 787:C:/StellarisWare/utils\uartstdio.c ****     //
+ 788:C:/StellarisWare/utils\uartstdio.c ****     pcBuf[ulCount] = 0;
+ 387              		.loc 1 788 0
+ 388 00d8 7A68     		ldr	r2, [r7, #4]
+ 389 00da FB68     		ldr	r3, [r7, #12]
+ 390 00dc D318     		adds	r3, r2, r3
+ 391 00de 4FF00002 		mov	r2, #0
+ 392 00e2 1A70     		strb	r2, [r3, #0]
+ 789:C:/StellarisWare/utils\uartstdio.c **** 
+ 790:C:/StellarisWare/utils\uartstdio.c ****     //
+ 791:C:/StellarisWare/utils\uartstdio.c ****     // Send a CRLF pair to the terminal to end the line.
+ 792:C:/StellarisWare/utils\uartstdio.c ****     //
+ 793:C:/StellarisWare/utils\uartstdio.c ****     UARTwrite("\r\n", 2);
+ 393              		.loc 1 793 0
+ 394 00e4 40F20000 		movw	r0, #:lower16:.LC2
+ 395 00e8 C0F20000 		movt	r0, #:upper16:.LC2
+ 396 00ec 4FF00201 		mov	r1, #2
+ 397 00f0 FFF7FEFF 		bl	UARTwrite
+ 794:C:/StellarisWare/utils\uartstdio.c **** 
+ 795:C:/StellarisWare/utils\uartstdio.c ****     //
+ 796:C:/StellarisWare/utils\uartstdio.c ****     // Return the count of chars in the buffer, not counting the trailing 0.
+ 797:C:/StellarisWare/utils\uartstdio.c ****     //
+ 798:C:/StellarisWare/utils\uartstdio.c ****     return(ulCount);
+ 398              		.loc 1 798 0
+ 399 00f4 FB68     		ldr	r3, [r7, #12]
+ 799:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 800:C:/StellarisWare/utils\uartstdio.c **** }
+ 400              		.loc 1 800 0
+ 401 00f6 1846     		mov	r0, r3
+ 402 00f8 07F11007 		add	r7, r7, #16
+ 403 00fc BD46     		mov	sp, r7
+ 404 00fe 80BD     		pop	{r7, pc}
+ 405              		.cfi_endproc
+ 406              	.LFE3:
+ 408              		.section	.text.UARTgetc,"ax",%progbits
+ 409              		.align	2
+ 410              		.global	UARTgetc
+ 411              		.thumb
+ 412              		.thumb_func
+ 414              	UARTgetc:
+ 415              	.LFB4:
+ 801:C:/StellarisWare/utils\uartstdio.c **** 
+ 802:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 803:C:/StellarisWare/utils\uartstdio.c **** //
+ 804:C:/StellarisWare/utils\uartstdio.c **** //! Read a single character from the UART, blocking if necessary.
+ 805:C:/StellarisWare/utils\uartstdio.c **** //!
+ 806:C:/StellarisWare/utils\uartstdio.c **** //! This function will receive a single character from the UART and store it at
+ 807:C:/StellarisWare/utils\uartstdio.c **** //! the supplied address.
+ 808:C:/StellarisWare/utils\uartstdio.c **** //!
+ 809:C:/StellarisWare/utils\uartstdio.c **** //! In both buffered and unbuffered modes, this function will block until a
+ 810:C:/StellarisWare/utils\uartstdio.c **** //! character is received.  If non-blocking operation is required in buffered
+ 811:C:/StellarisWare/utils\uartstdio.c **** //! mode, a call to UARTRxAvail() may be made to determine whether any
+ 812:C:/StellarisWare/utils\uartstdio.c **** //! characters are currently available for reading.
+ 813:C:/StellarisWare/utils\uartstdio.c **** //!
+ 814:C:/StellarisWare/utils\uartstdio.c **** //! \return Returns the character read.
+ 815:C:/StellarisWare/utils\uartstdio.c **** //
+ 816:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 817:C:/StellarisWare/utils\uartstdio.c **** unsigned char
+ 818:C:/StellarisWare/utils\uartstdio.c **** UARTgetc(void)
+ 819:C:/StellarisWare/utils\uartstdio.c **** {
+ 416              		.loc 1 819 0
+ 417              		.cfi_startproc
+ 418              		@ args = 0, pretend = 0, frame = 0
+ 419              		@ frame_needed = 1, uses_anonymous_args = 0
+ 420 0000 80B5     		push	{r7, lr}
+ 421              	.LCFI12:
+ 422              		.cfi_def_cfa_offset 8
+ 423              		.cfi_offset 14, -4
+ 424              		.cfi_offset 7, -8
+ 425 0002 00AF     		add	r7, sp, #0
+ 426              	.LCFI13:
+ 427              		.cfi_def_cfa_register 7
+ 820:C:/StellarisWare/utils\uartstdio.c **** #ifdef UART_BUFFERED
+ 821:C:/StellarisWare/utils\uartstdio.c ****     unsigned char cChar;
+ 822:C:/StellarisWare/utils\uartstdio.c **** 
+ 823:C:/StellarisWare/utils\uartstdio.c ****     //
+ 824:C:/StellarisWare/utils\uartstdio.c ****     // Wait for a character to be received.
+ 825:C:/StellarisWare/utils\uartstdio.c ****     //
+ 826:C:/StellarisWare/utils\uartstdio.c ****     while(RX_BUFFER_EMPTY)
+ 827:C:/StellarisWare/utils\uartstdio.c ****     {
+ 828:C:/StellarisWare/utils\uartstdio.c ****         //
+ 829:C:/StellarisWare/utils\uartstdio.c ****         // Block waiting for a character to be received (if the buffer is
+ 830:C:/StellarisWare/utils\uartstdio.c ****         // currently empty).
+ 831:C:/StellarisWare/utils\uartstdio.c ****         //
+ 832:C:/StellarisWare/utils\uartstdio.c ****     }
+ 833:C:/StellarisWare/utils\uartstdio.c **** 
+ 834:C:/StellarisWare/utils\uartstdio.c ****     //
+ 835:C:/StellarisWare/utils\uartstdio.c ****     // Read a character from the buffer.
+ 836:C:/StellarisWare/utils\uartstdio.c ****     //
+ 837:C:/StellarisWare/utils\uartstdio.c ****     cChar = g_pcUARTRxBuffer[g_ulUARTRxReadIndex];
+ 838:C:/StellarisWare/utils\uartstdio.c ****     ADVANCE_RX_BUFFER_INDEX(g_ulUARTRxReadIndex);
+ 839:C:/StellarisWare/utils\uartstdio.c **** 
+ 840:C:/StellarisWare/utils\uartstdio.c ****     //
+ 841:C:/StellarisWare/utils\uartstdio.c ****     // Return the character to the caller.
+ 842:C:/StellarisWare/utils\uartstdio.c ****     //
+ 843:C:/StellarisWare/utils\uartstdio.c ****     return(cChar);
+ 844:C:/StellarisWare/utils\uartstdio.c **** #else
+ 845:C:/StellarisWare/utils\uartstdio.c ****     //
+ 846:C:/StellarisWare/utils\uartstdio.c ****     // Block until a character is received by the UART then return it to
+ 847:C:/StellarisWare/utils\uartstdio.c ****     // the caller.
+ 848:C:/StellarisWare/utils\uartstdio.c ****     //
+ 849:C:/StellarisWare/utils\uartstdio.c ****     return(MAP_UARTCharGet(g_ulBase));
+ 428              		.loc 1 849 0
+ 429 0004 40F20003 		movw	r3, #:lower16:g_ulBase
+ 430 0008 C0F20003 		movt	r3, #:upper16:g_ulBase
+ 431 000c 1B68     		ldr	r3, [r3, #0]
+ 432 000e 1846     		mov	r0, r3
+ 433 0010 FFF7FEFF 		bl	UARTCharGet
+ 434 0014 0346     		mov	r3, r0
+ 435 0016 DBB2     		uxtb	r3, r3
+ 850:C:/StellarisWare/utils\uartstdio.c **** #endif
+ 851:C:/StellarisWare/utils\uartstdio.c **** }
+ 436              		.loc 1 851 0
+ 437 0018 1846     		mov	r0, r3
+ 438 001a 80BD     		pop	{r7, pc}
+ 439              		.cfi_endproc
+ 440              	.LFE4:
+ 442              		.section	.rodata
+ 443 0037 00       		.align	2
+ 444              	.LC3:
+ 445 0038 2000     		.ascii	" \000"
+ 446 003a 0000     		.align	2
+ 447              	.LC4:
+ 448 003c 4552524F 		.ascii	"ERROR\000"
+ 448      5200
+ 449 0042 0000     		.section	.text.UARTprintf,"ax",%progbits
+ 450              		.align	2
+ 451              		.global	UARTprintf
+ 452              		.thumb
+ 453              		.thumb_func
+ 455              	UARTprintf:
+ 456              	.LFB5:
+ 852:C:/StellarisWare/utils\uartstdio.c **** 
+ 853:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 854:C:/StellarisWare/utils\uartstdio.c **** //
+ 855:C:/StellarisWare/utils\uartstdio.c **** //! A simple UART based printf function supporting \%c, \%d, \%p, \%s, \%u,
+ 856:C:/StellarisWare/utils\uartstdio.c **** //! \%x, and \%X.
+ 857:C:/StellarisWare/utils\uartstdio.c **** //!
+ 858:C:/StellarisWare/utils\uartstdio.c **** //! \param pcString is the format string.
+ 859:C:/StellarisWare/utils\uartstdio.c **** //! \param ... are the optional arguments, which depend on the contents of the
+ 860:C:/StellarisWare/utils\uartstdio.c **** //! format string.
+ 861:C:/StellarisWare/utils\uartstdio.c **** //!
+ 862:C:/StellarisWare/utils\uartstdio.c **** //! This function is very similar to the C library <tt>fprintf()</tt> function.
+ 863:C:/StellarisWare/utils\uartstdio.c **** //! All of its output will be sent to the UART.  Only the following formatting
+ 864:C:/StellarisWare/utils\uartstdio.c **** //! characters are supported:
+ 865:C:/StellarisWare/utils\uartstdio.c **** //!
+ 866:C:/StellarisWare/utils\uartstdio.c **** //! - \%c to print a character
+ 867:C:/StellarisWare/utils\uartstdio.c **** //! - \%d to print a decimal value
+ 868:C:/StellarisWare/utils\uartstdio.c **** //! - \%s to print a string
+ 869:C:/StellarisWare/utils\uartstdio.c **** //! - \%u to print an unsigned decimal value
+ 870:C:/StellarisWare/utils\uartstdio.c **** //! - \%x to print a hexadecimal value using lower case letters
+ 871:C:/StellarisWare/utils\uartstdio.c **** //! - \%X to print a hexadecimal value using lower case letters (not upper case
+ 872:C:/StellarisWare/utils\uartstdio.c **** //! letters as would typically be used)
+ 873:C:/StellarisWare/utils\uartstdio.c **** //! - \%p to print a pointer as a hexadecimal value
+ 874:C:/StellarisWare/utils\uartstdio.c **** //! - \%\% to print out a \% character
+ 875:C:/StellarisWare/utils\uartstdio.c **** //!
+ 876:C:/StellarisWare/utils\uartstdio.c **** //! For \%s, \%d, \%u, \%p, \%x, and \%X, an optional number may reside
+ 877:C:/StellarisWare/utils\uartstdio.c **** //! between the \% and the format character, which specifies the minimum number
+ 878:C:/StellarisWare/utils\uartstdio.c **** //! of characters to use for that value; if preceded by a 0 then the extra
+ 879:C:/StellarisWare/utils\uartstdio.c **** //! characters will be filled with zeros instead of spaces.  For example,
+ 880:C:/StellarisWare/utils\uartstdio.c **** //! ``\%8d'' will use eight characters to print the decimal value with spaces
+ 881:C:/StellarisWare/utils\uartstdio.c **** //! added to reach eight; ``\%08d'' will use eight characters as well but will
+ 882:C:/StellarisWare/utils\uartstdio.c **** //! add zeroes instead of spaces.
+ 883:C:/StellarisWare/utils\uartstdio.c **** //!
+ 884:C:/StellarisWare/utils\uartstdio.c **** //! The type of the arguments after \e pcString must match the requirements of
+ 885:C:/StellarisWare/utils\uartstdio.c **** //! the format string.  For example, if an integer was passed where a string
+ 886:C:/StellarisWare/utils\uartstdio.c **** //! was expected, an error of some kind will most likely occur.
+ 887:C:/StellarisWare/utils\uartstdio.c **** //!
+ 888:C:/StellarisWare/utils\uartstdio.c **** //! \return None.
+ 889:C:/StellarisWare/utils\uartstdio.c **** //
+ 890:C:/StellarisWare/utils\uartstdio.c **** //*****************************************************************************
+ 891:C:/StellarisWare/utils\uartstdio.c **** void
+ 892:C:/StellarisWare/utils\uartstdio.c **** UARTprintf(const char *pcString, ...)
+ 893:C:/StellarisWare/utils\uartstdio.c **** {
+ 457              		.loc 1 893 0
+ 458              		.cfi_startproc
+ 459              		@ args = 4, pretend = 16, frame = 56
+ 460              		@ frame_needed = 1, uses_anonymous_args = 1
+ 461 0000 0FB4     		push	{r0, r1, r2, r3}
+ 462              	.LCFI14:
+ 463              		.cfi_def_cfa_offset 16
+ 464              		.cfi_offset 3, -4
+ 465              		.cfi_offset 2, -8
+ 466              		.cfi_offset 1, -12
+ 467              		.cfi_offset 0, -16
+ 468 0002 80B5     		push	{r7, lr}
+ 469              	.LCFI15:
+ 470              		.cfi_def_cfa_offset 24
+ 471              		.cfi_offset 14, -20
+ 472              		.cfi_offset 7, -24
+ 473 0004 8EB0     		sub	sp, sp, #56
+ 474              	.LCFI16:
+ 475              		.cfi_def_cfa_offset 80
+ 476 0006 00AF     		add	r7, sp, #0
+ 477              	.LCFI17:
+ 478              		.cfi_def_cfa_register 7
+ 894:C:/StellarisWare/utils\uartstdio.c ****     unsigned long ulIdx, ulValue, ulPos, ulCount, ulBase, ulNeg;
+ 895:C:/StellarisWare/utils\uartstdio.c ****     char *pcStr, pcBuf[16], cFill;
+ 896:C:/StellarisWare/utils\uartstdio.c ****     va_list vaArgP;
+ 897:C:/StellarisWare/utils\uartstdio.c **** 
+ 898:C:/StellarisWare/utils\uartstdio.c ****     //
+ 899:C:/StellarisWare/utils\uartstdio.c ****     // Check the arguments.
+ 900:C:/StellarisWare/utils\uartstdio.c ****     //
+ 901:C:/StellarisWare/utils\uartstdio.c ****     ASSERT(pcString != 0);
+ 902:C:/StellarisWare/utils\uartstdio.c **** 
+ 903:C:/StellarisWare/utils\uartstdio.c ****     //
+ 904:C:/StellarisWare/utils\uartstdio.c ****     // Start the varargs processing.
+ 905:C:/StellarisWare/utils\uartstdio.c ****     //
+ 906:C:/StellarisWare/utils\uartstdio.c ****     va_start(vaArgP, pcString);
+ 479              		.loc 1 906 0
+ 480 0008 07F14403 		add	r3, r7, #68
+ 481 000c 7B60     		str	r3, [r7, #4]
+ 907:C:/StellarisWare/utils\uartstdio.c **** 
+ 908:C:/StellarisWare/utils\uartstdio.c ****     //
+ 909:C:/StellarisWare/utils\uartstdio.c ****     // Loop while there are more characters in the string.
+ 910:C:/StellarisWare/utils\uartstdio.c ****     //
+ 911:C:/StellarisWare/utils\uartstdio.c ****     while(*pcString)
+ 482              		.loc 1 911 0
+ 483 000e 23E2     		b	.L25
+ 484              	.L59:
+ 912:C:/StellarisWare/utils\uartstdio.c ****     {
+ 913:C:/StellarisWare/utils\uartstdio.c ****         //
+ 914:C:/StellarisWare/utils\uartstdio.c ****         // Find the first non-% character, or the end of the string.
+ 915:C:/StellarisWare/utils\uartstdio.c ****         //
+ 916:C:/StellarisWare/utils\uartstdio.c ****         for(ulIdx = 0; (pcString[ulIdx] != '%') && (pcString[ulIdx] != '\0');
+ 485              		.loc 1 916 0
+ 486 0010 4FF00003 		mov	r3, #0
+ 487 0014 7B63     		str	r3, [r7, #52]
+ 488 0016 03E0     		b	.L26
+ 489              	.L28:
+ 917:C:/StellarisWare/utils\uartstdio.c ****             ulIdx++)
+ 490              		.loc 1 917 0
+ 491 0018 7B6B     		ldr	r3, [r7, #52]
+ 492 001a 03F10103 		add	r3, r3, #1
+ 493 001e 7B63     		str	r3, [r7, #52]
+ 494              	.L26:
+ 916:C:/StellarisWare/utils\uartstdio.c ****         for(ulIdx = 0; (pcString[ulIdx] != '%') && (pcString[ulIdx] != '\0');
+ 495              		.loc 1 916 0 discriminator 1
+ 496 0020 3A6C     		ldr	r2, [r7, #64]
+ 497 0022 7B6B     		ldr	r3, [r7, #52]
+ 498 0024 D318     		adds	r3, r2, r3
+ 499 0026 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 500 0028 252B     		cmp	r3, #37
+ 501 002a 05D0     		beq	.L27
+ 916:C:/StellarisWare/utils\uartstdio.c ****         for(ulIdx = 0; (pcString[ulIdx] != '%') && (pcString[ulIdx] != '\0');
+ 502              		.loc 1 916 0 is_stmt 0 discriminator 2
+ 503 002c 3A6C     		ldr	r2, [r7, #64]
+ 504 002e 7B6B     		ldr	r3, [r7, #52]
+ 505 0030 D318     		adds	r3, r2, r3
+ 506 0032 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 507 0034 002B     		cmp	r3, #0
+ 508 0036 EFD1     		bne	.L28
+ 509              	.L27:
+ 918:C:/StellarisWare/utils\uartstdio.c ****         {
+ 919:C:/StellarisWare/utils\uartstdio.c ****         }
+ 920:C:/StellarisWare/utils\uartstdio.c **** 
+ 921:C:/StellarisWare/utils\uartstdio.c ****         //
+ 922:C:/StellarisWare/utils\uartstdio.c ****         // Write this portion of the string.
+ 923:C:/StellarisWare/utils\uartstdio.c ****         //
+ 924:C:/StellarisWare/utils\uartstdio.c ****         UARTwrite(pcString, ulIdx);
+ 510              		.loc 1 924 0 is_stmt 1
+ 511 0038 386C     		ldr	r0, [r7, #64]
+ 512 003a 796B     		ldr	r1, [r7, #52]
+ 513 003c FFF7FEFF 		bl	UARTwrite
+ 925:C:/StellarisWare/utils\uartstdio.c **** 
+ 926:C:/StellarisWare/utils\uartstdio.c ****         //
+ 927:C:/StellarisWare/utils\uartstdio.c ****         // Skip the portion of the string that was written.
+ 928:C:/StellarisWare/utils\uartstdio.c ****         //
+ 929:C:/StellarisWare/utils\uartstdio.c ****         pcString += ulIdx;
+ 514              		.loc 1 929 0
+ 515 0040 3A6C     		ldr	r2, [r7, #64]
+ 516 0042 7B6B     		ldr	r3, [r7, #52]
+ 517 0044 D318     		adds	r3, r2, r3
+ 518 0046 3B64     		str	r3, [r7, #64]
+ 930:C:/StellarisWare/utils\uartstdio.c **** 
+ 931:C:/StellarisWare/utils\uartstdio.c ****         //
+ 932:C:/StellarisWare/utils\uartstdio.c ****         // See if the next character is a %.
+ 933:C:/StellarisWare/utils\uartstdio.c ****         //
+ 934:C:/StellarisWare/utils\uartstdio.c ****         if(*pcString == '%')
+ 519              		.loc 1 934 0
+ 520 0048 3B6C     		ldr	r3, [r7, #64]
+ 521 004a 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 522 004c 252B     		cmp	r3, #37
+ 523 004e 40F00382 		bne	.L25
+ 935:C:/StellarisWare/utils\uartstdio.c ****         {
+ 936:C:/StellarisWare/utils\uartstdio.c ****             //
+ 937:C:/StellarisWare/utils\uartstdio.c ****             // Skip the %.
+ 938:C:/StellarisWare/utils\uartstdio.c ****             //
+ 939:C:/StellarisWare/utils\uartstdio.c ****             pcString++;
+ 524              		.loc 1 939 0
+ 525 0052 3B6C     		ldr	r3, [r7, #64]
+ 526 0054 03F10103 		add	r3, r3, #1
+ 527 0058 3B64     		str	r3, [r7, #64]
+ 940:C:/StellarisWare/utils\uartstdio.c **** 
+ 941:C:/StellarisWare/utils\uartstdio.c ****             //
+ 942:C:/StellarisWare/utils\uartstdio.c ****             // Set the digit count to zero, and the fill character to space
+ 943:C:/StellarisWare/utils\uartstdio.c ****             // (i.e. to the defaults).
+ 944:C:/StellarisWare/utils\uartstdio.c ****             //
+ 945:C:/StellarisWare/utils\uartstdio.c ****             ulCount = 0;
+ 528              		.loc 1 945 0
+ 529 005a 4FF00003 		mov	r3, #0
+ 530 005e FB62     		str	r3, [r7, #44]
+ 946:C:/StellarisWare/utils\uartstdio.c ****             cFill = ' ';
+ 531              		.loc 1 946 0
+ 532 0060 4FF02003 		mov	r3, #32
+ 533 0064 87F82330 		strb	r3, [r7, #35]
+ 534              	.L29:
+ 947:C:/StellarisWare/utils\uartstdio.c **** 
+ 948:C:/StellarisWare/utils\uartstdio.c ****             //
+ 949:C:/StellarisWare/utils\uartstdio.c ****             // It may be necessary to get back here to process more characters.
+ 950:C:/StellarisWare/utils\uartstdio.c ****             // Goto's aren't pretty, but effective.  I feel extremely dirty for
+ 951:C:/StellarisWare/utils\uartstdio.c ****             // using not one but two of the beasts.
+ 952:C:/StellarisWare/utils\uartstdio.c ****             //
+ 953:C:/StellarisWare/utils\uartstdio.c **** again:
+ 954:C:/StellarisWare/utils\uartstdio.c **** 
+ 955:C:/StellarisWare/utils\uartstdio.c ****             //
+ 956:C:/StellarisWare/utils\uartstdio.c ****             // Determine how to handle the next character.
+ 957:C:/StellarisWare/utils\uartstdio.c ****             //
+ 958:C:/StellarisWare/utils\uartstdio.c ****             switch(*pcString++)
+ 535              		.loc 1 958 0
+ 536 0068 3B6C     		ldr	r3, [r7, #64]
+ 537 006a 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 538 006c 3A6C     		ldr	r2, [r7, #64]
+ 539 006e 02F10102 		add	r2, r2, #1
+ 540 0072 3A64     		str	r2, [r7, #64]
+ 541 0074 A3F12503 		sub	r3, r3, #37
+ 542 0078 532B     		cmp	r3, #83
+ 543 007a 00F2E381 		bhi	.L30
+ 544 007e 01A2     		adr	r2, .L38
+ 545 0080 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 546              		.align	2
+ 547              	.L38:
+ 548 0084 33040000 		.word	.L31+1
+ 549 0088 45040000 		.word	.L30+1
+ 550 008c 45040000 		.word	.L30+1
+ 551 0090 45040000 		.word	.L30+1
+ 552 0094 45040000 		.word	.L30+1
+ 553 0098 45040000 		.word	.L30+1
+ 554 009c 45040000 		.word	.L30+1
+ 555 00a0 45040000 		.word	.L30+1
+ 556 00a4 45040000 		.word	.L30+1
+ 557 00a8 45040000 		.word	.L30+1
+ 558 00ac 45040000 		.word	.L30+1
+ 559 00b0 D5010000 		.word	.L32+1
+ 560 00b4 D5010000 		.word	.L32+1
+ 561 00b8 D5010000 		.word	.L32+1
+ 562 00bc D5010000 		.word	.L32+1
+ 563 00c0 D5010000 		.word	.L32+1
+ 564 00c4 D5010000 		.word	.L32+1
+ 565 00c8 D5010000 		.word	.L32+1
+ 566 00cc D5010000 		.word	.L32+1
+ 567 00d0 D5010000 		.word	.L32+1
+ 568 00d4 D5010000 		.word	.L32+1
+ 569 00d8 45040000 		.word	.L30+1
+ 570 00dc 45040000 		.word	.L30+1
+ 571 00e0 45040000 		.word	.L30+1
+ 572 00e4 45040000 		.word	.L30+1
+ 573 00e8 45040000 		.word	.L30+1
+ 574 00ec 45040000 		.word	.L30+1
+ 575 00f0 45040000 		.word	.L30+1
+ 576 00f4 45040000 		.word	.L30+1
+ 577 00f8 45040000 		.word	.L30+1
+ 578 00fc 45040000 		.word	.L30+1
+ 579 0100 45040000 		.word	.L30+1
+ 580 0104 45040000 		.word	.L30+1
+ 581 0108 45040000 		.word	.L30+1
+ 582 010c 45040000 		.word	.L30+1
+ 583 0110 45040000 		.word	.L30+1
+ 584 0114 45040000 		.word	.L30+1
+ 585 0118 45040000 		.word	.L30+1
+ 586 011c 45040000 		.word	.L30+1
+ 587 0120 45040000 		.word	.L30+1
+ 588 0124 45040000 		.word	.L30+1
+ 589 0128 45040000 		.word	.L30+1
+ 590 012c 45040000 		.word	.L30+1
+ 591 0130 45040000 		.word	.L30+1
+ 592 0134 45040000 		.word	.L30+1
+ 593 0138 45040000 		.word	.L30+1
+ 594 013c 45040000 		.word	.L30+1
+ 595 0140 45040000 		.word	.L30+1
+ 596 0144 45040000 		.word	.L30+1
+ 597 0148 45040000 		.word	.L30+1
+ 598 014c 45040000 		.word	.L30+1
+ 599 0150 F5020000 		.word	.L33+1
+ 600 0154 45040000 		.word	.L30+1
+ 601 0158 45040000 		.word	.L30+1
+ 602 015c 45040000 		.word	.L30+1
+ 603 0160 45040000 		.word	.L30+1
+ 604 0164 45040000 		.word	.L30+1
+ 605 0168 45040000 		.word	.L30+1
+ 606 016c 45040000 		.word	.L30+1
+ 607 0170 45040000 		.word	.L30+1
+ 608 0174 45040000 		.word	.L30+1
+ 609 0178 45040000 		.word	.L30+1
+ 610 017c 15020000 		.word	.L34+1
+ 611 0180 31020000 		.word	.L35+1
+ 612 0184 45040000 		.word	.L30+1
+ 613 0188 45040000 		.word	.L30+1
+ 614 018c 45040000 		.word	.L30+1
+ 615 0190 45040000 		.word	.L30+1
+ 616 0194 45040000 		.word	.L30+1
+ 617 0198 45040000 		.word	.L30+1
+ 618 019c 45040000 		.word	.L30+1
+ 619 01a0 45040000 		.word	.L30+1
+ 620 01a4 45040000 		.word	.L30+1
+ 621 01a8 45040000 		.word	.L30+1
+ 622 01ac 45040000 		.word	.L30+1
+ 623 01b0 F5020000 		.word	.L33+1
+ 624 01b4 45040000 		.word	.L30+1
+ 625 01b8 45040000 		.word	.L30+1
+ 626 01bc 67020000 		.word	.L36+1
+ 627 01c0 45040000 		.word	.L30+1
+ 628 01c4 D5020000 		.word	.L37+1
+ 629 01c8 45040000 		.word	.L30+1
+ 630 01cc 45040000 		.word	.L30+1
+ 631 01d0 F5020000 		.word	.L33+1
+ 632              	.L32:
+ 959:C:/StellarisWare/utils\uartstdio.c ****             {
+ 960:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 961:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the digit characters.
+ 962:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 963:C:/StellarisWare/utils\uartstdio.c ****                 case '0':
+ 964:C:/StellarisWare/utils\uartstdio.c ****                 case '1':
+ 965:C:/StellarisWare/utils\uartstdio.c ****                 case '2':
+ 966:C:/StellarisWare/utils\uartstdio.c ****                 case '3':
+ 967:C:/StellarisWare/utils\uartstdio.c ****                 case '4':
+ 968:C:/StellarisWare/utils\uartstdio.c ****                 case '5':
+ 969:C:/StellarisWare/utils\uartstdio.c ****                 case '6':
+ 970:C:/StellarisWare/utils\uartstdio.c ****                 case '7':
+ 971:C:/StellarisWare/utils\uartstdio.c ****                 case '8':
+ 972:C:/StellarisWare/utils\uartstdio.c ****                 case '9':
+ 973:C:/StellarisWare/utils\uartstdio.c ****                 {
+ 974:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 975:C:/StellarisWare/utils\uartstdio.c ****                     // If this is a zero, and it is the first digit, then the
+ 976:C:/StellarisWare/utils\uartstdio.c ****                     // fill character is a zero instead of a space.
+ 977:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 978:C:/StellarisWare/utils\uartstdio.c ****                     if((pcString[-1] == '0') && (ulCount == 0))
+ 633              		.loc 1 978 0
+ 634 01d4 3B6C     		ldr	r3, [r7, #64]
+ 635 01d6 03F1FF33 		add	r3, r3, #-1
+ 636 01da 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 637 01dc 302B     		cmp	r3, #48
+ 638 01de 06D1     		bne	.L39
+ 639              		.loc 1 978 0 is_stmt 0 discriminator 1
+ 640 01e0 FB6A     		ldr	r3, [r7, #44]
+ 641 01e2 002B     		cmp	r3, #0
+ 642 01e4 03D1     		bne	.L39
+ 979:C:/StellarisWare/utils\uartstdio.c ****                     {
+ 980:C:/StellarisWare/utils\uartstdio.c ****                         cFill = '0';
+ 643              		.loc 1 980 0 is_stmt 1
+ 644 01e6 4FF03003 		mov	r3, #48
+ 645 01ea 87F82330 		strb	r3, [r7, #35]
+ 646              	.L39:
+ 981:C:/StellarisWare/utils\uartstdio.c ****                     }
+ 982:C:/StellarisWare/utils\uartstdio.c **** 
+ 983:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 984:C:/StellarisWare/utils\uartstdio.c ****                     // Update the digit count.
+ 985:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 986:C:/StellarisWare/utils\uartstdio.c ****                     ulCount *= 10;
+ 647              		.loc 1 986 0
+ 648 01ee FA6A     		ldr	r2, [r7, #44]
+ 649 01f0 1346     		mov	r3, r2
+ 650 01f2 4FEA8303 		lsl	r3, r3, #2
+ 651 01f6 9B18     		adds	r3, r3, r2
+ 652 01f8 4FEA4303 		lsl	r3, r3, #1
+ 653 01fc FB62     		str	r3, [r7, #44]
+ 987:C:/StellarisWare/utils\uartstdio.c ****                     ulCount += pcString[-1] - '0';
+ 654              		.loc 1 987 0
+ 655 01fe 3B6C     		ldr	r3, [r7, #64]
+ 656 0200 03F1FF33 		add	r3, r3, #-1
+ 657 0204 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 658 0206 1A46     		mov	r2, r3
+ 659 0208 FB6A     		ldr	r3, [r7, #44]
+ 660 020a D318     		adds	r3, r2, r3
+ 661 020c A3F13003 		sub	r3, r3, #48
+ 662 0210 FB62     		str	r3, [r7, #44]
+ 988:C:/StellarisWare/utils\uartstdio.c **** 
+ 989:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 990:C:/StellarisWare/utils\uartstdio.c ****                     // Get the next character.
+ 991:C:/StellarisWare/utils\uartstdio.c ****                     //
+ 992:C:/StellarisWare/utils\uartstdio.c ****                     goto again;
+ 663              		.loc 1 992 0
+ 664 0212 29E7     		b	.L29
+ 665              	.L34:
+ 993:C:/StellarisWare/utils\uartstdio.c ****                 }
+ 994:C:/StellarisWare/utils\uartstdio.c **** 
+ 995:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 996:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %c command.
+ 997:C:/StellarisWare/utils\uartstdio.c ****                 //
+ 998:C:/StellarisWare/utils\uartstdio.c ****                 case 'c':
+ 999:C:/StellarisWare/utils\uartstdio.c ****                 {
+1000:C:/StellarisWare/utils\uartstdio.c ****                     //
+1001:C:/StellarisWare/utils\uartstdio.c ****                     // Get the value from the varargs.
+1002:C:/StellarisWare/utils\uartstdio.c ****                     //
+1003:C:/StellarisWare/utils\uartstdio.c ****                     ulValue = va_arg(vaArgP, unsigned long);
+ 666              		.loc 1 1003 0
+ 667 0214 7B68     		ldr	r3, [r7, #4]
+ 668 0216 03F10402 		add	r2, r3, #4
+ 669 021a 7A60     		str	r2, [r7, #4]
+ 670 021c 1B68     		ldr	r3, [r3, #0]
+ 671 021e BB61     		str	r3, [r7, #24]
+1004:C:/StellarisWare/utils\uartstdio.c **** 
+1005:C:/StellarisWare/utils\uartstdio.c ****                     //
+1006:C:/StellarisWare/utils\uartstdio.c ****                     // Print out the character.
+1007:C:/StellarisWare/utils\uartstdio.c ****                     //
+1008:C:/StellarisWare/utils\uartstdio.c ****                     UARTwrite((char *)&ulValue, 1);
+ 672              		.loc 1 1008 0
+ 673 0220 07F11803 		add	r3, r7, #24
+ 674 0224 1846     		mov	r0, r3
+ 675 0226 4FF00101 		mov	r1, #1
+ 676 022a FFF7FEFF 		bl	UARTwrite
+1009:C:/StellarisWare/utils\uartstdio.c **** 
+1010:C:/StellarisWare/utils\uartstdio.c ****                     //
+1011:C:/StellarisWare/utils\uartstdio.c ****                     // This command has been handled.
+1012:C:/StellarisWare/utils\uartstdio.c ****                     //
+1013:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 677              		.loc 1 1013 0
+ 678 022e 13E1     		b	.L25
+ 679              	.L35:
+1014:C:/StellarisWare/utils\uartstdio.c ****                 }
+1015:C:/StellarisWare/utils\uartstdio.c **** 
+1016:C:/StellarisWare/utils\uartstdio.c ****                 //
+1017:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %d command.
+1018:C:/StellarisWare/utils\uartstdio.c ****                 //
+1019:C:/StellarisWare/utils\uartstdio.c ****                 case 'd':
+1020:C:/StellarisWare/utils\uartstdio.c ****                 {
+1021:C:/StellarisWare/utils\uartstdio.c ****                     //
+1022:C:/StellarisWare/utils\uartstdio.c ****                     // Get the value from the varargs.
+1023:C:/StellarisWare/utils\uartstdio.c ****                     //
+1024:C:/StellarisWare/utils\uartstdio.c ****                     ulValue = va_arg(vaArgP, unsigned long);
+ 680              		.loc 1 1024 0
+ 681 0230 7B68     		ldr	r3, [r7, #4]
+ 682 0232 03F10402 		add	r2, r3, #4
+ 683 0236 7A60     		str	r2, [r7, #4]
+ 684 0238 1B68     		ldr	r3, [r3, #0]
+ 685 023a BB61     		str	r3, [r7, #24]
+1025:C:/StellarisWare/utils\uartstdio.c **** 
+1026:C:/StellarisWare/utils\uartstdio.c ****                     //
+1027:C:/StellarisWare/utils\uartstdio.c ****                     // Reset the buffer position.
+1028:C:/StellarisWare/utils\uartstdio.c ****                     //
+1029:C:/StellarisWare/utils\uartstdio.c ****                     ulPos = 0;
+ 686              		.loc 1 1029 0
+ 687 023c 4FF00003 		mov	r3, #0
+ 688 0240 3B63     		str	r3, [r7, #48]
+1030:C:/StellarisWare/utils\uartstdio.c **** 
+1031:C:/StellarisWare/utils\uartstdio.c ****                     //
+1032:C:/StellarisWare/utils\uartstdio.c ****                     // If the value is negative, make it positive and indicate
+1033:C:/StellarisWare/utils\uartstdio.c ****                     // that a minus sign is needed.
+1034:C:/StellarisWare/utils\uartstdio.c ****                     //
+1035:C:/StellarisWare/utils\uartstdio.c ****                     if((long)ulValue < 0)
+ 689              		.loc 1 1035 0
+ 690 0242 BB69     		ldr	r3, [r7, #24]
+ 691 0244 002B     		cmp	r3, #0
+ 692 0246 07DA     		bge	.L40
+1036:C:/StellarisWare/utils\uartstdio.c ****                     {
+1037:C:/StellarisWare/utils\uartstdio.c ****                         //
+1038:C:/StellarisWare/utils\uartstdio.c ****                         // Make the value positive.
+1039:C:/StellarisWare/utils\uartstdio.c ****                         //
+1040:C:/StellarisWare/utils\uartstdio.c ****                         ulValue = -(long)ulValue;
+ 693              		.loc 1 1040 0
+ 694 0248 BB69     		ldr	r3, [r7, #24]
+ 695 024a C3F10003 		rsb	r3, r3, #0
+ 696 024e BB61     		str	r3, [r7, #24]
+1041:C:/StellarisWare/utils\uartstdio.c **** 
+1042:C:/StellarisWare/utils\uartstdio.c ****                         //
+1043:C:/StellarisWare/utils\uartstdio.c ****                         // Indicate that the value is negative.
+1044:C:/StellarisWare/utils\uartstdio.c ****                         //
+1045:C:/StellarisWare/utils\uartstdio.c ****                         ulNeg = 1;
+ 697              		.loc 1 1045 0
+ 698 0250 4FF00103 		mov	r3, #1
+ 699 0254 7B62     		str	r3, [r7, #36]
+ 700 0256 02E0     		b	.L41
+ 701              	.L40:
+1046:C:/StellarisWare/utils\uartstdio.c ****                     }
+1047:C:/StellarisWare/utils\uartstdio.c ****                     else
+1048:C:/StellarisWare/utils\uartstdio.c ****                     {
+1049:C:/StellarisWare/utils\uartstdio.c ****                         //
+1050:C:/StellarisWare/utils\uartstdio.c ****                         // Indicate that the value is positive so that a minus
+1051:C:/StellarisWare/utils\uartstdio.c ****                         // sign isn't inserted.
+1052:C:/StellarisWare/utils\uartstdio.c ****                         //
+1053:C:/StellarisWare/utils\uartstdio.c ****                         ulNeg = 0;
+ 702              		.loc 1 1053 0
+ 703 0258 4FF00003 		mov	r3, #0
+ 704 025c 7B62     		str	r3, [r7, #36]
+ 705              	.L41:
+1054:C:/StellarisWare/utils\uartstdio.c ****                     }
+1055:C:/StellarisWare/utils\uartstdio.c **** 
+1056:C:/StellarisWare/utils\uartstdio.c ****                     //
+1057:C:/StellarisWare/utils\uartstdio.c ****                     // Set the base to 10.
+1058:C:/StellarisWare/utils\uartstdio.c ****                     //
+1059:C:/StellarisWare/utils\uartstdio.c ****                     ulBase = 10;
+ 706              		.loc 1 1059 0
+ 707 025e 4FF00A03 		mov	r3, #10
+ 708 0262 BB62     		str	r3, [r7, #40]
+1060:C:/StellarisWare/utils\uartstdio.c **** 
+1061:C:/StellarisWare/utils\uartstdio.c ****                     //
+1062:C:/StellarisWare/utils\uartstdio.c ****                     // Convert the value to ASCII.
+1063:C:/StellarisWare/utils\uartstdio.c ****                     //
+1064:C:/StellarisWare/utils\uartstdio.c ****                     goto convert;
+ 709              		.loc 1 1064 0
+ 710 0264 55E0     		b	.L42
+ 711              	.L36:
+1065:C:/StellarisWare/utils\uartstdio.c ****                 }
+1066:C:/StellarisWare/utils\uartstdio.c **** 
+1067:C:/StellarisWare/utils\uartstdio.c ****                 //
+1068:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %s command.
+1069:C:/StellarisWare/utils\uartstdio.c ****                 //
+1070:C:/StellarisWare/utils\uartstdio.c ****                 case 's':
+1071:C:/StellarisWare/utils\uartstdio.c ****                 {
+1072:C:/StellarisWare/utils\uartstdio.c ****                     //
+1073:C:/StellarisWare/utils\uartstdio.c ****                     // Get the string pointer from the varargs.
+1074:C:/StellarisWare/utils\uartstdio.c ****                     //
+1075:C:/StellarisWare/utils\uartstdio.c ****                     pcStr = va_arg(vaArgP, char *);
+ 712              		.loc 1 1075 0
+ 713 0266 7B68     		ldr	r3, [r7, #4]
+ 714 0268 03F10402 		add	r2, r3, #4
+ 715 026c 7A60     		str	r2, [r7, #4]
+ 716 026e 1B68     		ldr	r3, [r3, #0]
+ 717 0270 FB61     		str	r3, [r7, #28]
+1076:C:/StellarisWare/utils\uartstdio.c **** 
+1077:C:/StellarisWare/utils\uartstdio.c ****                     //
+1078:C:/StellarisWare/utils\uartstdio.c ****                     // Determine the length of the string.
+1079:C:/StellarisWare/utils\uartstdio.c ****                     //
+1080:C:/StellarisWare/utils\uartstdio.c ****                     for(ulIdx = 0; pcStr[ulIdx] != '\0'; ulIdx++)
+ 718              		.loc 1 1080 0
+ 719 0272 4FF00003 		mov	r3, #0
+ 720 0276 7B63     		str	r3, [r7, #52]
+ 721 0278 03E0     		b	.L43
+ 722              	.L44:
+ 723              		.loc 1 1080 0 is_stmt 0 discriminator 2
+ 724 027a 7B6B     		ldr	r3, [r7, #52]
+ 725 027c 03F10103 		add	r3, r3, #1
+ 726 0280 7B63     		str	r3, [r7, #52]
+ 727              	.L43:
+ 728              		.loc 1 1080 0 discriminator 1
+ 729 0282 FA69     		ldr	r2, [r7, #28]
+ 730 0284 7B6B     		ldr	r3, [r7, #52]
+ 731 0286 D318     		adds	r3, r2, r3
+ 732 0288 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 733 028a 002B     		cmp	r3, #0
+ 734 028c F5D1     		bne	.L44
+1081:C:/StellarisWare/utils\uartstdio.c ****                     {
+1082:C:/StellarisWare/utils\uartstdio.c ****                     }
+1083:C:/StellarisWare/utils\uartstdio.c **** 
+1084:C:/StellarisWare/utils\uartstdio.c ****                     //
+1085:C:/StellarisWare/utils\uartstdio.c ****                     // Write the string.
+1086:C:/StellarisWare/utils\uartstdio.c ****                     //
+1087:C:/StellarisWare/utils\uartstdio.c ****                     UARTwrite(pcStr, ulIdx);
+ 735              		.loc 1 1087 0 is_stmt 1
+ 736 028e F869     		ldr	r0, [r7, #28]
+ 737 0290 796B     		ldr	r1, [r7, #52]
+ 738 0292 FFF7FEFF 		bl	UARTwrite
+1088:C:/StellarisWare/utils\uartstdio.c **** 
+1089:C:/StellarisWare/utils\uartstdio.c ****                     //
+1090:C:/StellarisWare/utils\uartstdio.c ****                     // Write any required padding spaces
+1091:C:/StellarisWare/utils\uartstdio.c ****                     //
+1092:C:/StellarisWare/utils\uartstdio.c ****                     if(ulCount > ulIdx)
+ 739              		.loc 1 1092 0
+ 740 0296 FA6A     		ldr	r2, [r7, #44]
+ 741 0298 7B6B     		ldr	r3, [r7, #52]
+ 742 029a 9A42     		cmp	r2, r3
+ 743 029c 40F2DB80 		bls	.L60
+1093:C:/StellarisWare/utils\uartstdio.c ****                     {
+1094:C:/StellarisWare/utils\uartstdio.c ****                         ulCount -= ulIdx;
+ 744              		.loc 1 1094 0
+ 745 02a0 FA6A     		ldr	r2, [r7, #44]
+ 746 02a2 7B6B     		ldr	r3, [r7, #52]
+ 747 02a4 D31A     		subs	r3, r2, r3
+ 748 02a6 FB62     		str	r3, [r7, #44]
+1095:C:/StellarisWare/utils\uartstdio.c ****                         while(ulCount--)
+ 749              		.loc 1 1095 0
+ 750 02a8 07E0     		b	.L46
+ 751              	.L47:
+1096:C:/StellarisWare/utils\uartstdio.c ****                         {
+1097:C:/StellarisWare/utils\uartstdio.c ****                             UARTwrite(" ", 1);
+ 752              		.loc 1 1097 0
+ 753 02aa 40F20000 		movw	r0, #:lower16:.LC3
+ 754 02ae C0F20000 		movt	r0, #:upper16:.LC3
+ 755 02b2 4FF00101 		mov	r1, #1
+ 756 02b6 FFF7FEFF 		bl	UARTwrite
+ 757              	.L46:
+1095:C:/StellarisWare/utils\uartstdio.c ****                         while(ulCount--)
+ 758              		.loc 1 1095 0 discriminator 1
+ 759 02ba FB6A     		ldr	r3, [r7, #44]
+ 760 02bc 002B     		cmp	r3, #0
+ 761 02be 0CBF     		ite	eq
+ 762 02c0 0023     		moveq	r3, #0
+ 763 02c2 0123     		movne	r3, #1
+ 764 02c4 DBB2     		uxtb	r3, r3
+ 765 02c6 FA6A     		ldr	r2, [r7, #44]
+ 766 02c8 02F1FF32 		add	r2, r2, #-1
+ 767 02cc FA62     		str	r2, [r7, #44]
+ 768 02ce 002B     		cmp	r3, #0
+ 769 02d0 EBD1     		bne	.L47
+1098:C:/StellarisWare/utils\uartstdio.c ****                         }
+1099:C:/StellarisWare/utils\uartstdio.c ****                     }
+1100:C:/StellarisWare/utils\uartstdio.c ****                     //
+1101:C:/StellarisWare/utils\uartstdio.c ****                     // This command has been handled.
+1102:C:/StellarisWare/utils\uartstdio.c ****                     //
+1103:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 770              		.loc 1 1103 0
+ 771 02d2 C0E0     		b	.L60
+ 772              	.L37:
+1104:C:/StellarisWare/utils\uartstdio.c ****                 }
+1105:C:/StellarisWare/utils\uartstdio.c **** 
+1106:C:/StellarisWare/utils\uartstdio.c ****                 //
+1107:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %u command.
+1108:C:/StellarisWare/utils\uartstdio.c ****                 //
+1109:C:/StellarisWare/utils\uartstdio.c ****                 case 'u':
+1110:C:/StellarisWare/utils\uartstdio.c ****                 {
+1111:C:/StellarisWare/utils\uartstdio.c ****                     //
+1112:C:/StellarisWare/utils\uartstdio.c ****                     // Get the value from the varargs.
+1113:C:/StellarisWare/utils\uartstdio.c ****                     //
+1114:C:/StellarisWare/utils\uartstdio.c ****                     ulValue = va_arg(vaArgP, unsigned long);
+ 773              		.loc 1 1114 0
+ 774 02d4 7B68     		ldr	r3, [r7, #4]
+ 775 02d6 03F10402 		add	r2, r3, #4
+ 776 02da 7A60     		str	r2, [r7, #4]
+ 777 02dc 1B68     		ldr	r3, [r3, #0]
+ 778 02de BB61     		str	r3, [r7, #24]
+1115:C:/StellarisWare/utils\uartstdio.c **** 
+1116:C:/StellarisWare/utils\uartstdio.c ****                     //
+1117:C:/StellarisWare/utils\uartstdio.c ****                     // Reset the buffer position.
+1118:C:/StellarisWare/utils\uartstdio.c ****                     //
+1119:C:/StellarisWare/utils\uartstdio.c ****                     ulPos = 0;
+ 779              		.loc 1 1119 0
+ 780 02e0 4FF00003 		mov	r3, #0
+ 781 02e4 3B63     		str	r3, [r7, #48]
+1120:C:/StellarisWare/utils\uartstdio.c **** 
+1121:C:/StellarisWare/utils\uartstdio.c ****                     //
+1122:C:/StellarisWare/utils\uartstdio.c ****                     // Set the base to 10.
+1123:C:/StellarisWare/utils\uartstdio.c ****                     //
+1124:C:/StellarisWare/utils\uartstdio.c ****                     ulBase = 10;
+ 782              		.loc 1 1124 0
+ 783 02e6 4FF00A03 		mov	r3, #10
+ 784 02ea BB62     		str	r3, [r7, #40]
+1125:C:/StellarisWare/utils\uartstdio.c **** 
+1126:C:/StellarisWare/utils\uartstdio.c ****                     //
+1127:C:/StellarisWare/utils\uartstdio.c ****                     // Indicate that the value is positive so that a minus sign
+1128:C:/StellarisWare/utils\uartstdio.c ****                     // isn't inserted.
+1129:C:/StellarisWare/utils\uartstdio.c ****                     //
+1130:C:/StellarisWare/utils\uartstdio.c ****                     ulNeg = 0;
+ 785              		.loc 1 1130 0
+ 786 02ec 4FF00003 		mov	r3, #0
+ 787 02f0 7B62     		str	r3, [r7, #36]
+1131:C:/StellarisWare/utils\uartstdio.c **** 
+1132:C:/StellarisWare/utils\uartstdio.c ****                     //
+1133:C:/StellarisWare/utils\uartstdio.c ****                     // Convert the value to ASCII.
+1134:C:/StellarisWare/utils\uartstdio.c ****                     //
+1135:C:/StellarisWare/utils\uartstdio.c ****                     goto convert;
+ 788              		.loc 1 1135 0
+ 789 02f2 0EE0     		b	.L42
+ 790              	.L33:
+1136:C:/StellarisWare/utils\uartstdio.c ****                 }
+1137:C:/StellarisWare/utils\uartstdio.c **** 
+1138:C:/StellarisWare/utils\uartstdio.c ****                 //
+1139:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %x and %X commands.  Note that they are treated
+1140:C:/StellarisWare/utils\uartstdio.c ****                 // identically; i.e. %X will use lower case letters for a-f
+1141:C:/StellarisWare/utils\uartstdio.c ****                 // instead of the upper case letters is should use.  We also
+1142:C:/StellarisWare/utils\uartstdio.c ****                 // alias %p to %x.
+1143:C:/StellarisWare/utils\uartstdio.c ****                 //
+1144:C:/StellarisWare/utils\uartstdio.c ****                 case 'x':
+1145:C:/StellarisWare/utils\uartstdio.c ****                 case 'X':
+1146:C:/StellarisWare/utils\uartstdio.c ****                 case 'p':
+1147:C:/StellarisWare/utils\uartstdio.c ****                 {
+1148:C:/StellarisWare/utils\uartstdio.c ****                     //
+1149:C:/StellarisWare/utils\uartstdio.c ****                     // Get the value from the varargs.
+1150:C:/StellarisWare/utils\uartstdio.c ****                     //
+1151:C:/StellarisWare/utils\uartstdio.c ****                     ulValue = va_arg(vaArgP, unsigned long);
+ 791              		.loc 1 1151 0
+ 792 02f4 7B68     		ldr	r3, [r7, #4]
+ 793 02f6 03F10402 		add	r2, r3, #4
+ 794 02fa 7A60     		str	r2, [r7, #4]
+ 795 02fc 1B68     		ldr	r3, [r3, #0]
+ 796 02fe BB61     		str	r3, [r7, #24]
+1152:C:/StellarisWare/utils\uartstdio.c **** 
+1153:C:/StellarisWare/utils\uartstdio.c ****                     //
+1154:C:/StellarisWare/utils\uartstdio.c ****                     // Reset the buffer position.
+1155:C:/StellarisWare/utils\uartstdio.c ****                     //
+1156:C:/StellarisWare/utils\uartstdio.c ****                     ulPos = 0;
+ 797              		.loc 1 1156 0
+ 798 0300 4FF00003 		mov	r3, #0
+ 799 0304 3B63     		str	r3, [r7, #48]
+1157:C:/StellarisWare/utils\uartstdio.c **** 
+1158:C:/StellarisWare/utils\uartstdio.c ****                     //
+1159:C:/StellarisWare/utils\uartstdio.c ****                     // Set the base to 16.
+1160:C:/StellarisWare/utils\uartstdio.c ****                     //
+1161:C:/StellarisWare/utils\uartstdio.c ****                     ulBase = 16;
+ 800              		.loc 1 1161 0
+ 801 0306 4FF01003 		mov	r3, #16
+ 802 030a BB62     		str	r3, [r7, #40]
+1162:C:/StellarisWare/utils\uartstdio.c **** 
+1163:C:/StellarisWare/utils\uartstdio.c ****                     //
+1164:C:/StellarisWare/utils\uartstdio.c ****                     // Indicate that the value is positive so that a minus sign
+1165:C:/StellarisWare/utils\uartstdio.c ****                     // isn't inserted.
+1166:C:/StellarisWare/utils\uartstdio.c ****                     //
+1167:C:/StellarisWare/utils\uartstdio.c ****                     ulNeg = 0;
+ 803              		.loc 1 1167 0
+ 804 030c 4FF00003 		mov	r3, #0
+ 805 0310 7B62     		str	r3, [r7, #36]
+ 806              	.L42:
+1168:C:/StellarisWare/utils\uartstdio.c **** 
+1169:C:/StellarisWare/utils\uartstdio.c ****                     //
+1170:C:/StellarisWare/utils\uartstdio.c ****                     // Determine the number of digits in the string version of
+1171:C:/StellarisWare/utils\uartstdio.c ****                     // the value.
+1172:C:/StellarisWare/utils\uartstdio.c ****                     //
+1173:C:/StellarisWare/utils\uartstdio.c **** convert:
+1174:C:/StellarisWare/utils\uartstdio.c ****                     for(ulIdx = 1;
+ 807              		.loc 1 1174 0
+ 808 0312 4FF00103 		mov	r3, #1
+ 809 0316 7B63     		str	r3, [r7, #52]
+ 810 0318 08E0     		b	.L48
+ 811              	.L50:
+1175:C:/StellarisWare/utils\uartstdio.c ****                         (((ulIdx * ulBase) <= ulValue) &&
+1176:C:/StellarisWare/utils\uartstdio.c ****                          (((ulIdx * ulBase) / ulBase) == ulIdx));
+1177:C:/StellarisWare/utils\uartstdio.c ****                         ulIdx *= ulBase, ulCount--)
+ 812              		.loc 1 1177 0
+ 813 031a 7B6B     		ldr	r3, [r7, #52]
+ 814 031c BA6A     		ldr	r2, [r7, #40]
+ 815 031e 02FB03F3 		mul	r3, r2, r3
+ 816 0322 7B63     		str	r3, [r7, #52]
+ 817 0324 FB6A     		ldr	r3, [r7, #44]
+ 818 0326 03F1FF33 		add	r3, r3, #-1
+ 819 032a FB62     		str	r3, [r7, #44]
+ 820              	.L48:
+1175:C:/StellarisWare/utils\uartstdio.c ****                         (((ulIdx * ulBase) <= ulValue) &&
+ 821              		.loc 1 1175 0 discriminator 1
+ 822 032c 7B6B     		ldr	r3, [r7, #52]
+ 823 032e BA6A     		ldr	r2, [r7, #40]
+ 824 0330 02FB03F2 		mul	r2, r2, r3
+ 825 0334 BB69     		ldr	r3, [r7, #24]
+1174:C:/StellarisWare/utils\uartstdio.c ****                     for(ulIdx = 1;
+ 826              		.loc 1 1174 0 discriminator 1
+ 827 0336 9A42     		cmp	r2, r3
+ 828 0338 09D8     		bhi	.L49
+1176:C:/StellarisWare/utils\uartstdio.c ****                          (((ulIdx * ulBase) / ulBase) == ulIdx));
+ 829              		.loc 1 1176 0
+ 830 033a 7B6B     		ldr	r3, [r7, #52]
+ 831 033c BA6A     		ldr	r2, [r7, #40]
+ 832 033e 02FB03F2 		mul	r2, r2, r3
+ 833 0342 BB6A     		ldr	r3, [r7, #40]
+ 834 0344 B2FBF3F2 		udiv	r2, r2, r3
+1175:C:/StellarisWare/utils\uartstdio.c ****                         (((ulIdx * ulBase) <= ulValue) &&
+ 835              		.loc 1 1175 0
+ 836 0348 7B6B     		ldr	r3, [r7, #52]
+ 837 034a 9A42     		cmp	r2, r3
+ 838 034c E5D0     		beq	.L50
+ 839              	.L49:
+1178:C:/StellarisWare/utils\uartstdio.c ****                     {
+1179:C:/StellarisWare/utils\uartstdio.c ****                     }
+1180:C:/StellarisWare/utils\uartstdio.c **** 
+1181:C:/StellarisWare/utils\uartstdio.c ****                     //
+1182:C:/StellarisWare/utils\uartstdio.c ****                     // If the value is negative, reduce the count of padding
+1183:C:/StellarisWare/utils\uartstdio.c ****                     // characters needed.
+1184:C:/StellarisWare/utils\uartstdio.c ****                     //
+1185:C:/StellarisWare/utils\uartstdio.c ****                     if(ulNeg)
+ 840              		.loc 1 1185 0
+ 841 034e 7B6A     		ldr	r3, [r7, #36]
+ 842 0350 002B     		cmp	r3, #0
+ 843 0352 03D0     		beq	.L51
+1186:C:/StellarisWare/utils\uartstdio.c ****                     {
+1187:C:/StellarisWare/utils\uartstdio.c ****                         ulCount--;
+ 844              		.loc 1 1187 0
+ 845 0354 FB6A     		ldr	r3, [r7, #44]
+ 846 0356 03F1FF33 		add	r3, r3, #-1
+ 847 035a FB62     		str	r3, [r7, #44]
+ 848              	.L51:
+1188:C:/StellarisWare/utils\uartstdio.c ****                     }
+1189:C:/StellarisWare/utils\uartstdio.c **** 
+1190:C:/StellarisWare/utils\uartstdio.c ****                     //
+1191:C:/StellarisWare/utils\uartstdio.c ****                     // If the value is negative and the value is padded with
+1192:C:/StellarisWare/utils\uartstdio.c ****                     // zeros, then place the minus sign before the padding.
+1193:C:/StellarisWare/utils\uartstdio.c ****                     //
+1194:C:/StellarisWare/utils\uartstdio.c ****                     if(ulNeg && (cFill == '0'))
+ 849              		.loc 1 1194 0
+ 850 035c 7B6A     		ldr	r3, [r7, #36]
+ 851 035e 002B     		cmp	r3, #0
+ 852 0360 11D0     		beq	.L52
+ 853              		.loc 1 1194 0 is_stmt 0 discriminator 1
+ 854 0362 97F82330 		ldrb	r3, [r7, #35]	@ zero_extendqisi2
+ 855 0366 302B     		cmp	r3, #48
+ 856 0368 0DD1     		bne	.L52
+1195:C:/StellarisWare/utils\uartstdio.c ****                     {
+1196:C:/StellarisWare/utils\uartstdio.c ****                         //
+1197:C:/StellarisWare/utils\uartstdio.c ****                         // Place the minus sign in the output buffer.
+1198:C:/StellarisWare/utils\uartstdio.c ****                         //
+1199:C:/StellarisWare/utils\uartstdio.c ****                         pcBuf[ulPos++] = '-';
+ 857              		.loc 1 1199 0 is_stmt 1
+ 858 036a 3B6B     		ldr	r3, [r7, #48]
+ 859 036c 07F10802 		add	r2, r7, #8
+ 860 0370 D318     		adds	r3, r2, r3
+ 861 0372 4FF02D02 		mov	r2, #45
+ 862 0376 1A70     		strb	r2, [r3, #0]
+ 863 0378 3B6B     		ldr	r3, [r7, #48]
+ 864 037a 03F10103 		add	r3, r3, #1
+ 865 037e 3B63     		str	r3, [r7, #48]
+1200:C:/StellarisWare/utils\uartstdio.c **** 
+1201:C:/StellarisWare/utils\uartstdio.c ****                         //
+1202:C:/StellarisWare/utils\uartstdio.c ****                         // The minus sign has been placed, so turn off the
+1203:C:/StellarisWare/utils\uartstdio.c ****                         // negative flag.
+1204:C:/StellarisWare/utils\uartstdio.c ****                         //
+1205:C:/StellarisWare/utils\uartstdio.c ****                         ulNeg = 0;
+ 866              		.loc 1 1205 0
+ 867 0380 4FF00003 		mov	r3, #0
+ 868 0384 7B62     		str	r3, [r7, #36]
+ 869              	.L52:
+1206:C:/StellarisWare/utils\uartstdio.c ****                     }
+1207:C:/StellarisWare/utils\uartstdio.c **** 
+1208:C:/StellarisWare/utils\uartstdio.c ****                     //
+1209:C:/StellarisWare/utils\uartstdio.c ****                     // Provide additional padding at the beginning of the
+1210:C:/StellarisWare/utils\uartstdio.c ****                     // string conversion if needed.
+1211:C:/StellarisWare/utils\uartstdio.c ****                     //
+1212:C:/StellarisWare/utils\uartstdio.c ****                     if((ulCount > 1) && (ulCount < 16))
+ 870              		.loc 1 1212 0
+ 871 0386 FB6A     		ldr	r3, [r7, #44]
+ 872 0388 012B     		cmp	r3, #1
+ 873 038a 19D9     		bls	.L53
+ 874              		.loc 1 1212 0 is_stmt 0 discriminator 1
+ 875 038c FB6A     		ldr	r3, [r7, #44]
+ 876 038e 0F2B     		cmp	r3, #15
+ 877 0390 16D8     		bhi	.L53
+1213:C:/StellarisWare/utils\uartstdio.c ****                     {
+1214:C:/StellarisWare/utils\uartstdio.c ****                         for(ulCount--; ulCount; ulCount--)
+ 878              		.loc 1 1214 0 is_stmt 1
+ 879 0392 FB6A     		ldr	r3, [r7, #44]
+ 880 0394 03F1FF33 		add	r3, r3, #-1
+ 881 0398 FB62     		str	r3, [r7, #44]
+ 882 039a 0EE0     		b	.L54
+ 883              	.L55:
+1215:C:/StellarisWare/utils\uartstdio.c ****                         {
+1216:C:/StellarisWare/utils\uartstdio.c ****                             pcBuf[ulPos++] = cFill;
+ 884              		.loc 1 1216 0 discriminator 2
+ 885 039c 3B6B     		ldr	r3, [r7, #48]
+ 886 039e 07F10802 		add	r2, r7, #8
+ 887 03a2 D318     		adds	r3, r2, r3
+ 888 03a4 97F82320 		ldrb	r2, [r7, #35]
+ 889 03a8 1A70     		strb	r2, [r3, #0]
+ 890 03aa 3B6B     		ldr	r3, [r7, #48]
+ 891 03ac 03F10103 		add	r3, r3, #1
+ 892 03b0 3B63     		str	r3, [r7, #48]
+1214:C:/StellarisWare/utils\uartstdio.c ****                         for(ulCount--; ulCount; ulCount--)
+ 893              		.loc 1 1214 0 discriminator 2
+ 894 03b2 FB6A     		ldr	r3, [r7, #44]
+ 895 03b4 03F1FF33 		add	r3, r3, #-1
+ 896 03b8 FB62     		str	r3, [r7, #44]
+ 897              	.L54:
+1214:C:/StellarisWare/utils\uartstdio.c ****                         for(ulCount--; ulCount; ulCount--)
+ 898              		.loc 1 1214 0 is_stmt 0 discriminator 1
+ 899 03ba FB6A     		ldr	r3, [r7, #44]
+ 900 03bc 002B     		cmp	r3, #0
+ 901 03be EDD1     		bne	.L55
+ 902              	.L53:
+1217:C:/StellarisWare/utils\uartstdio.c ****                         }
+1218:C:/StellarisWare/utils\uartstdio.c ****                     }
+1219:C:/StellarisWare/utils\uartstdio.c **** 
+1220:C:/StellarisWare/utils\uartstdio.c ****                     //
+1221:C:/StellarisWare/utils\uartstdio.c ****                     // If the value is negative, then place the minus sign
+1222:C:/StellarisWare/utils\uartstdio.c ****                     // before the number.
+1223:C:/StellarisWare/utils\uartstdio.c ****                     //
+1224:C:/StellarisWare/utils\uartstdio.c ****                     if(ulNeg)
+ 903              		.loc 1 1224 0 is_stmt 1
+ 904 03c0 7B6A     		ldr	r3, [r7, #36]
+ 905 03c2 002B     		cmp	r3, #0
+ 906 03c4 2BD0     		beq	.L57
+1225:C:/StellarisWare/utils\uartstdio.c ****                     {
+1226:C:/StellarisWare/utils\uartstdio.c ****                         //
+1227:C:/StellarisWare/utils\uartstdio.c ****                         // Place the minus sign in the output buffer.
+1228:C:/StellarisWare/utils\uartstdio.c ****                         //
+1229:C:/StellarisWare/utils\uartstdio.c ****                         pcBuf[ulPos++] = '-';
+ 907              		.loc 1 1229 0
+ 908 03c6 3B6B     		ldr	r3, [r7, #48]
+ 909 03c8 07F10802 		add	r2, r7, #8
+ 910 03cc D318     		adds	r3, r2, r3
+ 911 03ce 4FF02D02 		mov	r2, #45
+ 912 03d2 1A70     		strb	r2, [r3, #0]
+ 913 03d4 3B6B     		ldr	r3, [r7, #48]
+ 914 03d6 03F10103 		add	r3, r3, #1
+ 915 03da 3B63     		str	r3, [r7, #48]
+1230:C:/StellarisWare/utils\uartstdio.c ****                     }
+1231:C:/StellarisWare/utils\uartstdio.c **** 
+1232:C:/StellarisWare/utils\uartstdio.c ****                     //
+1233:C:/StellarisWare/utils\uartstdio.c ****                     // Convert the value into a string.
+1234:C:/StellarisWare/utils\uartstdio.c ****                     //
+1235:C:/StellarisWare/utils\uartstdio.c ****                     for(; ulIdx; ulIdx /= ulBase)
+ 916              		.loc 1 1235 0
+ 917 03dc 1FE0     		b	.L57
+ 918              	.L58:
+1236:C:/StellarisWare/utils\uartstdio.c ****                     {
+1237:C:/StellarisWare/utils\uartstdio.c ****                         pcBuf[ulPos++] = g_pcHex[(ulValue / ulIdx) % ulBase];
+ 919              		.loc 1 1237 0 discriminator 2
+ 920 03de 40F20003 		movw	r3, #:lower16:g_pcHex
+ 921 03e2 C0F20003 		movt	r3, #:upper16:g_pcHex
+ 922 03e6 1A68     		ldr	r2, [r3, #0]
+ 923 03e8 B969     		ldr	r1, [r7, #24]
+ 924 03ea 7B6B     		ldr	r3, [r7, #52]
+ 925 03ec B1FBF3F3 		udiv	r3, r1, r3
+ 926 03f0 B96A     		ldr	r1, [r7, #40]
+ 927 03f2 B3FBF1F1 		udiv	r1, r3, r1
+ 928 03f6 B86A     		ldr	r0, [r7, #40]
+ 929 03f8 00FB01F1 		mul	r1, r0, r1
+ 930 03fc 5B1A     		subs	r3, r3, r1
+ 931 03fe D318     		adds	r3, r2, r3
+ 932 0400 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 933 0402 3B6B     		ldr	r3, [r7, #48]
+ 934 0404 07F10801 		add	r1, r7, #8
+ 935 0408 CB18     		adds	r3, r1, r3
+ 936 040a 1A70     		strb	r2, [r3, #0]
+ 937 040c 3B6B     		ldr	r3, [r7, #48]
+ 938 040e 03F10103 		add	r3, r3, #1
+ 939 0412 3B63     		str	r3, [r7, #48]
+1235:C:/StellarisWare/utils\uartstdio.c ****                     for(; ulIdx; ulIdx /= ulBase)
+ 940              		.loc 1 1235 0 discriminator 2
+ 941 0414 7A6B     		ldr	r2, [r7, #52]
+ 942 0416 BB6A     		ldr	r3, [r7, #40]
+ 943 0418 B2FBF3F3 		udiv	r3, r2, r3
+ 944 041c 7B63     		str	r3, [r7, #52]
+ 945              	.L57:
+1235:C:/StellarisWare/utils\uartstdio.c ****                     for(; ulIdx; ulIdx /= ulBase)
+ 946              		.loc 1 1235 0 is_stmt 0 discriminator 1
+ 947 041e 7B6B     		ldr	r3, [r7, #52]
+ 948 0420 002B     		cmp	r3, #0
+ 949 0422 DCD1     		bne	.L58
+1238:C:/StellarisWare/utils\uartstdio.c ****                     }
+1239:C:/StellarisWare/utils\uartstdio.c **** 
+1240:C:/StellarisWare/utils\uartstdio.c ****                     //
+1241:C:/StellarisWare/utils\uartstdio.c ****                     // Write the string.
+1242:C:/StellarisWare/utils\uartstdio.c ****                     //
+1243:C:/StellarisWare/utils\uartstdio.c ****                     UARTwrite(pcBuf, ulPos);
+ 950              		.loc 1 1243 0 is_stmt 1
+ 951 0424 07F10803 		add	r3, r7, #8
+ 952 0428 1846     		mov	r0, r3
+ 953 042a 396B     		ldr	r1, [r7, #48]
+ 954 042c FFF7FEFF 		bl	UARTwrite
+1244:C:/StellarisWare/utils\uartstdio.c **** 
+1245:C:/StellarisWare/utils\uartstdio.c ****                     //
+1246:C:/StellarisWare/utils\uartstdio.c ****                     // This command has been handled.
+1247:C:/StellarisWare/utils\uartstdio.c ****                     //
+1248:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 955              		.loc 1 1248 0
+ 956 0430 12E0     		b	.L25
+ 957              	.L31:
+1249:C:/StellarisWare/utils\uartstdio.c ****                 }
+1250:C:/StellarisWare/utils\uartstdio.c **** 
+1251:C:/StellarisWare/utils\uartstdio.c ****                 //
+1252:C:/StellarisWare/utils\uartstdio.c ****                 // Handle the %% command.
+1253:C:/StellarisWare/utils\uartstdio.c ****                 //
+1254:C:/StellarisWare/utils\uartstdio.c ****                 case '%':
+1255:C:/StellarisWare/utils\uartstdio.c ****                 {
+1256:C:/StellarisWare/utils\uartstdio.c ****                     //
+1257:C:/StellarisWare/utils\uartstdio.c ****                     // Simply write a single %.
+1258:C:/StellarisWare/utils\uartstdio.c ****                     //
+1259:C:/StellarisWare/utils\uartstdio.c ****                     UARTwrite(pcString - 1, 1);
+ 958              		.loc 1 1259 0
+ 959 0432 3B6C     		ldr	r3, [r7, #64]
+ 960 0434 03F1FF33 		add	r3, r3, #-1
+ 961 0438 1846     		mov	r0, r3
+ 962 043a 4FF00101 		mov	r1, #1
+ 963 043e FFF7FEFF 		bl	UARTwrite
+1260:C:/StellarisWare/utils\uartstdio.c **** 
+1261:C:/StellarisWare/utils\uartstdio.c ****                     //
+1262:C:/StellarisWare/utils\uartstdio.c ****                     // This command has been handled.
+1263:C:/StellarisWare/utils\uartstdio.c ****                     //
+1264:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 964              		.loc 1 1264 0
+ 965 0442 09E0     		b	.L25
+ 966              	.L30:
+1265:C:/StellarisWare/utils\uartstdio.c ****                 }
+1266:C:/StellarisWare/utils\uartstdio.c **** 
+1267:C:/StellarisWare/utils\uartstdio.c ****                 //
+1268:C:/StellarisWare/utils\uartstdio.c ****                 // Handle all other commands.
+1269:C:/StellarisWare/utils\uartstdio.c ****                 //
+1270:C:/StellarisWare/utils\uartstdio.c ****                 default:
+1271:C:/StellarisWare/utils\uartstdio.c ****                 {
+1272:C:/StellarisWare/utils\uartstdio.c ****                     //
+1273:C:/StellarisWare/utils\uartstdio.c ****                     // Indicate an error.
+1274:C:/StellarisWare/utils\uartstdio.c ****                     //
+1275:C:/StellarisWare/utils\uartstdio.c ****                     UARTwrite("ERROR", 5);
+ 967              		.loc 1 1275 0
+ 968 0444 40F20000 		movw	r0, #:lower16:.LC4
+ 969 0448 C0F20000 		movt	r0, #:upper16:.LC4
+ 970 044c 4FF00501 		mov	r1, #5
+ 971 0450 FFF7FEFF 		bl	UARTwrite
+1276:C:/StellarisWare/utils\uartstdio.c **** 
+1277:C:/StellarisWare/utils\uartstdio.c ****                     //
+1278:C:/StellarisWare/utils\uartstdio.c ****                     // This command has been handled.
+1279:C:/StellarisWare/utils\uartstdio.c ****                     //
+1280:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 972              		.loc 1 1280 0
+ 973 0454 00E0     		b	.L25
+ 974              	.L60:
+1103:C:/StellarisWare/utils\uartstdio.c ****                     break;
+ 975              		.loc 1 1103 0
+ 976 0456 00BF     		nop
+ 977              	.L25:
+ 911:C:/StellarisWare/utils\uartstdio.c ****     while(*pcString)
+ 978              		.loc 1 911 0 discriminator 1
+ 979 0458 3B6C     		ldr	r3, [r7, #64]
+ 980 045a 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 981 045c 002B     		cmp	r3, #0
+ 982 045e 7FF4D7AD 		bne	.L59
+1281:C:/StellarisWare/utils\uartstdio.c ****                 }
+1282:C:/StellarisWare/utils\uartstdio.c ****             }
+1283:C:/StellarisWare/utils\uartstdio.c ****         }
+1284:C:/StellarisWare/utils\uartstdio.c ****     }
+1285:C:/StellarisWare/utils\uartstdio.c **** 
+1286:C:/StellarisWare/utils\uartstdio.c ****     //
+1287:C:/StellarisWare/utils\uartstdio.c ****     // End the varargs processing.
+1288:C:/StellarisWare/utils\uartstdio.c ****     //
+1289:C:/StellarisWare/utils\uartstdio.c ****     va_end(vaArgP);
+1290:C:/StellarisWare/utils\uartstdio.c **** }
+ 983              		.loc 1 1290 0
+ 984 0462 07F13807 		add	r7, r7, #56
+ 985 0466 BD46     		mov	sp, r7
+ 986 0468 BDE88040 		pop	{r7, lr}
+ 987 046c 04B0     		add	sp, sp, #16
+ 988 046e 7047     		bx	lr
+ 989              		.cfi_endproc
+ 990              	.LFE5:
+ 992              		.bss
+ 993              	bLastWasCR.4231:
+ 994 0004 00       		.space	1
+ 995 0005 000000   		.text
+ 996              	.Letext0:
+ 997              		.file 2 "c:\\program files (x86)\\codesourcery\\sourcery_codebench_lite_for_arm_eabi\\bin\\../lib/
+ 998              		.file 3 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:00000000 uartstdio.c
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:19     .bss:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:20     .bss:00000000 g_ulBase
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:23     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:29     .rodata:00000014 g_pcHex
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:34     .rodata:00000018 g_ulUARTBase
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:41     .rodata:00000024 g_ulUARTPeriph
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:46     .text.UARTStdioInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:51     .text.UARTStdioInit:00000000 UARTStdioInit
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:87     .text.UARTStdioInitExpClk:00000000 UARTStdioInitExpClk
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:82     .text.UARTStdioInitExpClk:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:163    .text.UARTwrite:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:168    .text.UARTwrite:00000000 UARTwrite
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:240    .rodata:00000030 .LC1
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:243    .rodata:00000034 .LC2
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:246    .text.UARTgets:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:251    .text.UARTgets:00000000 UARTgets
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:993    .bss:00000004 bLastWasCR.4231
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:409    .text.UARTgetc:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:414    .text.UARTgetc:00000000 UARTgetc
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:444    .rodata:00000038 .LC3
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:447    .rodata:0000003c .LC4
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:450    .text.UARTprintf:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:455    .text.UARTprintf:00000000 UARTprintf
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:548    .text.UARTprintf:00000084 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccdtmlPe.s:634    .text.UARTprintf:000001d4 $t
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+SysCtlPeripheralPresent
+SysCtlPeripheralEnable
+SysCtlClockGet
+UARTConfigSetExpClk
+UARTEnable
+UARTCharPut
+UARTCharGet

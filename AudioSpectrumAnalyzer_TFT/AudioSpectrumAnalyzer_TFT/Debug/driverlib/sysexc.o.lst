@@ -1,0 +1,517 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"sysexc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.SysExcIntRegister,"ax",%progbits
+  19              		.align	2
+  20              		.global	SysExcIntRegister
+  21              		.thumb
+  22              		.thumb_func
+  24              	SysExcIntRegister:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/sysexc.c"
+   1:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\sysexc.c **** //
+   3:C:/StellarisWare/driverlib\sysexc.c **** // sysexc.c - Routines for the System Exception Module.
+   4:C:/StellarisWare/driverlib\sysexc.c **** //
+   5:C:/StellarisWare/driverlib\sysexc.c **** // Copyright (c) 2011-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\sysexc.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\sysexc.c **** // 
+   8:C:/StellarisWare/driverlib\sysexc.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\sysexc.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\sysexc.c **** //   are met:
+  11:C:/StellarisWare/driverlib\sysexc.c **** // 
+  12:C:/StellarisWare/driverlib\sysexc.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\sysexc.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\sysexc.c **** // 
+  15:C:/StellarisWare/driverlib\sysexc.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\sysexc.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\sysexc.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\sysexc.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\sysexc.c **** // 
+  20:C:/StellarisWare/driverlib\sysexc.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\sysexc.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\sysexc.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\sysexc.c **** // 
+  24:C:/StellarisWare/driverlib\sysexc.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\sysexc.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\sysexc.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\sysexc.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\sysexc.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\sysexc.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\sysexc.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\sysexc.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\sysexc.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\sysexc.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\sysexc.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\sysexc.c **** // 
+  36:C:/StellarisWare/driverlib\sysexc.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\sysexc.c **** //
+  38:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\sysexc.c **** 
+  40:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\sysexc.c **** //
+  42:C:/StellarisWare/driverlib\sysexc.c **** //! \addtogroup sysexc_api
+  43:C:/StellarisWare/driverlib\sysexc.c **** //! @{
+  44:C:/StellarisWare/driverlib\sysexc.c **** //
+  45:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\sysexc.c **** 
+  47:C:/StellarisWare/driverlib\sysexc.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\sysexc.c **** #include "inc/hw_sysexc.h"
+  49:C:/StellarisWare/driverlib\sysexc.c **** #include "inc/hw_types.h"
+  50:C:/StellarisWare/driverlib\sysexc.c **** #include "interrupt.h"
+  51:C:/StellarisWare/driverlib\sysexc.c **** 
+  52:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  53:C:/StellarisWare/driverlib\sysexc.c **** //
+  54:C:/StellarisWare/driverlib\sysexc.c **** //! Registers an interrupt handler for the system exception interrupt.
+  55:C:/StellarisWare/driverlib\sysexc.c **** //!
+  56:C:/StellarisWare/driverlib\sysexc.c **** //! \param pfnHandler is a pointer to the function to be called when the system
+  57:C:/StellarisWare/driverlib\sysexc.c **** //! exception interrupt occurs.
+  58:C:/StellarisWare/driverlib\sysexc.c **** //!
+  59:C:/StellarisWare/driverlib\sysexc.c **** //! This function places the address of the system exception interrupt handler
+  60:C:/StellarisWare/driverlib\sysexc.c **** //! into the interrupt vector table in SRAM.  This function also enables the
+  61:C:/StellarisWare/driverlib\sysexc.c **** //! global interrupt in the interrupt controller; specific system exception
+  62:C:/StellarisWare/driverlib\sysexc.c **** //! interrupts must be enabled via SysExcIntEnable().  It is the interrupt
+  63:C:/StellarisWare/driverlib\sysexc.c **** //! handler's responsibility to clear the interrupt source.
+  64:C:/StellarisWare/driverlib\sysexc.c **** //!
+  65:C:/StellarisWare/driverlib\sysexc.c **** //! \sa IntRegister() for important information about registering interrupt
+  66:C:/StellarisWare/driverlib\sysexc.c **** //! handlers.
+  67:C:/StellarisWare/driverlib\sysexc.c **** //!
+  68:C:/StellarisWare/driverlib\sysexc.c **** //! \return None.
+  69:C:/StellarisWare/driverlib\sysexc.c **** //
+  70:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  71:C:/StellarisWare/driverlib\sysexc.c **** void
+  72:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntRegister(void (*pfnHandler)(void))
+  73:C:/StellarisWare/driverlib\sysexc.c **** {
+  27              		.loc 1 73 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 14, -4
+  35              		.cfi_offset 7, -8
+  36 0002 82B0     		sub	sp, sp, #8
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  74:C:/StellarisWare/driverlib\sysexc.c ****     //
+  75:C:/StellarisWare/driverlib\sysexc.c ****     // Register the interrupt handler.
+  76:C:/StellarisWare/driverlib\sysexc.c ****     //
+  77:C:/StellarisWare/driverlib\sysexc.c ****     IntRegister(INT_SYSEXC, pfnHandler);
+  43              		.loc 1 77 0
+  44 0008 4FF07A00 		mov	r0, #122
+  45 000c 7968     		ldr	r1, [r7, #4]
+  46 000e FFF7FEFF 		bl	IntRegister
+  78:C:/StellarisWare/driverlib\sysexc.c **** 
+  79:C:/StellarisWare/driverlib\sysexc.c ****     //
+  80:C:/StellarisWare/driverlib\sysexc.c ****     // Enable the system exception interrupt.
+  81:C:/StellarisWare/driverlib\sysexc.c ****     //
+  82:C:/StellarisWare/driverlib\sysexc.c ****     IntEnable(INT_SYSEXC);
+  47              		.loc 1 82 0
+  48 0012 4FF07A00 		mov	r0, #122
+  49 0016 FFF7FEFF 		bl	IntEnable
+  83:C:/StellarisWare/driverlib\sysexc.c **** }
+  50              		.loc 1 83 0
+  51 001a 07F10807 		add	r7, r7, #8
+  52 001e BD46     		mov	sp, r7
+  53 0020 80BD     		pop	{r7, pc}
+  54              		.cfi_endproc
+  55              	.LFE0:
+  57 0022 00BF     		.section	.text.SysExcIntUnregister,"ax",%progbits
+  58              		.align	2
+  59              		.global	SysExcIntUnregister
+  60              		.thumb
+  61              		.thumb_func
+  63              	SysExcIntUnregister:
+  64              	.LFB1:
+  84:C:/StellarisWare/driverlib\sysexc.c **** 
+  85:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+  86:C:/StellarisWare/driverlib\sysexc.c **** //
+  87:C:/StellarisWare/driverlib\sysexc.c **** //! Unregisters the system exception interrupt handler.
+  88:C:/StellarisWare/driverlib\sysexc.c **** //!
+  89:C:/StellarisWare/driverlib\sysexc.c **** //! This function removes the system exception interrupt handler from the
+  90:C:/StellarisWare/driverlib\sysexc.c **** //! vector table in SRAM.  This function also masks off the system exception
+  91:C:/StellarisWare/driverlib\sysexc.c **** //! interrupt in the interrupt controller so that the interrupt handler is no
+  92:C:/StellarisWare/driverlib\sysexc.c **** //! longer called.
+  93:C:/StellarisWare/driverlib\sysexc.c **** //!
+  94:C:/StellarisWare/driverlib\sysexc.c **** //! \sa IntRegister() for important information about registering interrupt
+  95:C:/StellarisWare/driverlib\sysexc.c **** //! handlers.
+  96:C:/StellarisWare/driverlib\sysexc.c **** //!
+  97:C:/StellarisWare/driverlib\sysexc.c **** //! \return None.
+  98:C:/StellarisWare/driverlib\sysexc.c **** //
+  99:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 100:C:/StellarisWare/driverlib\sysexc.c **** void
+ 101:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntUnregister(void)
+ 102:C:/StellarisWare/driverlib\sysexc.c **** {
+  65              		.loc 1 102 0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 1, uses_anonymous_args = 0
+  69 0000 80B5     		push	{r7, lr}
+  70              	.LCFI3:
+  71              		.cfi_def_cfa_offset 8
+  72              		.cfi_offset 14, -4
+  73              		.cfi_offset 7, -8
+  74 0002 00AF     		add	r7, sp, #0
+  75              	.LCFI4:
+  76              		.cfi_def_cfa_register 7
+ 103:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 104:C:/StellarisWare/driverlib\sysexc.c ****     // Disable the system exception interrupt.
+ 105:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 106:C:/StellarisWare/driverlib\sysexc.c ****     IntDisable(INT_SYSEXC);
+  77              		.loc 1 106 0
+  78 0004 4FF07A00 		mov	r0, #122
+  79 0008 FFF7FEFF 		bl	IntDisable
+ 107:C:/StellarisWare/driverlib\sysexc.c **** 
+ 108:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 109:C:/StellarisWare/driverlib\sysexc.c ****     // Unregister the system exception interrupt handler.
+ 110:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 111:C:/StellarisWare/driverlib\sysexc.c ****     IntUnregister(INT_SYSEXC);
+  80              		.loc 1 111 0
+  81 000c 4FF07A00 		mov	r0, #122
+  82 0010 FFF7FEFF 		bl	IntUnregister
+ 112:C:/StellarisWare/driverlib\sysexc.c **** }
+  83              		.loc 1 112 0
+  84 0014 80BD     		pop	{r7, pc}
+  85              		.cfi_endproc
+  86              	.LFE1:
+  88 0016 00BF     		.section	.text.SysExcIntEnable,"ax",%progbits
+  89              		.align	2
+  90              		.global	SysExcIntEnable
+  91              		.thumb
+  92              		.thumb_func
+  94              	SysExcIntEnable:
+  95              	.LFB2:
+ 113:C:/StellarisWare/driverlib\sysexc.c **** 
+ 114:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 115:C:/StellarisWare/driverlib\sysexc.c **** //
+ 116:C:/StellarisWare/driverlib\sysexc.c **** //! Enables individual system exception interrupt sources.
+ 117:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 118:C:/StellarisWare/driverlib\sysexc.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be enabled.
+ 119:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 120:C:/StellarisWare/driverlib\sysexc.c **** //! This function enables the indicated system exception interrupt sources.
+ 121:C:/StellarisWare/driverlib\sysexc.c **** //! Only the sources that are enabled can be reflected to the processor
+ 122:C:/StellarisWare/driverlib\sysexc.c **** //! interrupt; disabled sources have no effect on the processor.
+ 123:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 124:C:/StellarisWare/driverlib\sysexc.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+ 125:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 126:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IXC - Floating-point inexact exception interrupt
+ 127:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_OFC - Floating-point overflow exception interrupt
+ 128:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_UFC - Floating-point underflow exception interrupt
+ 129:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IOC - Floating-point invalid operation interrupt
+ 130:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_DZC - Floating-point divide by zero exception interrupt
+ 131:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IDC - Floating-point input denormal exception interrupt
+ 132:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 133:C:/StellarisWare/driverlib\sysexc.c **** //! \return None.
+ 134:C:/StellarisWare/driverlib\sysexc.c **** //
+ 135:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 136:C:/StellarisWare/driverlib\sysexc.c **** void
+ 137:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntEnable(unsigned long ulIntFlags)
+ 138:C:/StellarisWare/driverlib\sysexc.c **** {
+  96              		.loc 1 138 0
+  97              		.cfi_startproc
+  98              		@ args = 0, pretend = 0, frame = 8
+  99              		@ frame_needed = 1, uses_anonymous_args = 0
+ 100              		@ link register save eliminated.
+ 101 0000 80B4     		push	{r7}
+ 102              	.LCFI5:
+ 103              		.cfi_def_cfa_offset 4
+ 104              		.cfi_offset 7, -4
+ 105 0002 83B0     		sub	sp, sp, #12
+ 106              	.LCFI6:
+ 107              		.cfi_def_cfa_offset 16
+ 108 0004 00AF     		add	r7, sp, #0
+ 109              	.LCFI7:
+ 110              		.cfi_def_cfa_register 7
+ 111 0006 7860     		str	r0, [r7, #4]
+ 139:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 140:C:/StellarisWare/driverlib\sysexc.c ****     // Enable the specified interrupts.
+ 141:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 142:C:/StellarisWare/driverlib\sysexc.c ****     HWREG(SYSEXC_IM) |= ulIntFlags;
+ 112              		.loc 1 142 0
+ 113 0008 49F20403 		movw	r3, #36868
+ 114 000c C4F20F03 		movt	r3, 16399
+ 115 0010 49F20402 		movw	r2, #36868
+ 116 0014 C4F20F02 		movt	r2, 16399
+ 117 0018 1168     		ldr	r1, [r2, #0]
+ 118 001a 7A68     		ldr	r2, [r7, #4]
+ 119 001c 0A43     		orrs	r2, r2, r1
+ 120 001e 1A60     		str	r2, [r3, #0]
+ 143:C:/StellarisWare/driverlib\sysexc.c **** }
+ 121              		.loc 1 143 0
+ 122 0020 07F10C07 		add	r7, r7, #12
+ 123 0024 BD46     		mov	sp, r7
+ 124 0026 80BC     		pop	{r7}
+ 125 0028 7047     		bx	lr
+ 126              		.cfi_endproc
+ 127              	.LFE2:
+ 129 002a 00BF     		.section	.text.SysExcIntDisable,"ax",%progbits
+ 130              		.align	2
+ 131              		.global	SysExcIntDisable
+ 132              		.thumb
+ 133              		.thumb_func
+ 135              	SysExcIntDisable:
+ 136              	.LFB3:
+ 144:C:/StellarisWare/driverlib\sysexc.c **** 
+ 145:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 146:C:/StellarisWare/driverlib\sysexc.c **** //
+ 147:C:/StellarisWare/driverlib\sysexc.c **** //! Disables individual system exception interrupt sources.
+ 148:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 149:C:/StellarisWare/driverlib\sysexc.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be disabled.
+ 150:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 151:C:/StellarisWare/driverlib\sysexc.c **** //! This function disables the indicated system exception interrupt sources.
+ 152:C:/StellarisWare/driverlib\sysexc.c **** //! Only sources that are enabled can be reflected to the processor interrupt;
+ 153:C:/StellarisWare/driverlib\sysexc.c **** //! disabled sources have no effect on the processor.
+ 154:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 155:C:/StellarisWare/driverlib\sysexc.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+ 156:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 157:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IXC - Floating-point inexact exception interrupt
+ 158:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_OFC - Floating-point overflow exception interrupt
+ 159:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_UFC - Floating-point underflow exception interrupt
+ 160:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IOC - Floating-point invalid operation interrupt
+ 161:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_DZC - Floating-point divide by zero exception interrupt
+ 162:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IDC - Floating-point input denormal exception interrupt
+ 163:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 164:C:/StellarisWare/driverlib\sysexc.c **** //! \return None.
+ 165:C:/StellarisWare/driverlib\sysexc.c **** //
+ 166:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 167:C:/StellarisWare/driverlib\sysexc.c **** void
+ 168:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntDisable(unsigned long ulIntFlags)
+ 169:C:/StellarisWare/driverlib\sysexc.c **** {
+ 137              		.loc 1 169 0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 8
+ 140              		@ frame_needed = 1, uses_anonymous_args = 0
+ 141              		@ link register save eliminated.
+ 142 0000 80B4     		push	{r7}
+ 143              	.LCFI8:
+ 144              		.cfi_def_cfa_offset 4
+ 145              		.cfi_offset 7, -4
+ 146 0002 83B0     		sub	sp, sp, #12
+ 147              	.LCFI9:
+ 148              		.cfi_def_cfa_offset 16
+ 149 0004 00AF     		add	r7, sp, #0
+ 150              	.LCFI10:
+ 151              		.cfi_def_cfa_register 7
+ 152 0006 7860     		str	r0, [r7, #4]
+ 170:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 171:C:/StellarisWare/driverlib\sysexc.c ****     // Disable the specified interrupts.
+ 172:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 173:C:/StellarisWare/driverlib\sysexc.c ****     HWREG(SYSEXC_IM) &= ~(ulIntFlags);
+ 153              		.loc 1 173 0
+ 154 0008 49F20403 		movw	r3, #36868
+ 155 000c C4F20F03 		movt	r3, 16399
+ 156 0010 49F20402 		movw	r2, #36868
+ 157 0014 C4F20F02 		movt	r2, 16399
+ 158 0018 1168     		ldr	r1, [r2, #0]
+ 159 001a 7A68     		ldr	r2, [r7, #4]
+ 160 001c 6FEA0202 		mvn	r2, r2
+ 161 0020 0A40     		ands	r2, r2, r1
+ 162 0022 1A60     		str	r2, [r3, #0]
+ 174:C:/StellarisWare/driverlib\sysexc.c **** }
+ 163              		.loc 1 174 0
+ 164 0024 07F10C07 		add	r7, r7, #12
+ 165 0028 BD46     		mov	sp, r7
+ 166 002a 80BC     		pop	{r7}
+ 167 002c 7047     		bx	lr
+ 168              		.cfi_endproc
+ 169              	.LFE3:
+ 171 002e 00BF     		.section	.text.SysExcIntStatus,"ax",%progbits
+ 172              		.align	2
+ 173              		.global	SysExcIntStatus
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	SysExcIntStatus:
+ 178              	.LFB4:
+ 175:C:/StellarisWare/driverlib\sysexc.c **** 
+ 176:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 177:C:/StellarisWare/driverlib\sysexc.c **** //
+ 178:C:/StellarisWare/driverlib\sysexc.c **** //! Gets the current system exception interrupt status.
+ 179:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 180:C:/StellarisWare/driverlib\sysexc.c **** //! \param bMasked is \b false if the raw interrupt status is required and
+ 181:C:/StellarisWare/driverlib\sysexc.c **** //! \b true if the masked interrupt status is required.
+ 182:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 183:C:/StellarisWare/driverlib\sysexc.c **** //! This function returns the system exception interrupt status.  Either the
+ 184:C:/StellarisWare/driverlib\sysexc.c **** //! raw interrupt status or the status of interrupts that are allowed to
+ 185:C:/StellarisWare/driverlib\sysexc.c **** //! reflect to the processor can be returned.
+ 186:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 187:C:/StellarisWare/driverlib\sysexc.c **** //! \return Returns the current system exception interrupt status, enumerated
+ 188:C:/StellarisWare/driverlib\sysexc.c **** //! as the logical OR of \b SYSEXC_INT_FP_IXC, \b SYSEXC_INT_FP_OFC,
+ 189:C:/StellarisWare/driverlib\sysexc.c **** //! \b SYSEXC_INT_FP_UFC, \b SYSEXC_INT_FP_IOC, \b SYSEXC_INT_FP_DZC, and
+ 190:C:/StellarisWare/driverlib\sysexc.c **** //! \b SYSEXC_INT_FP_IDC.
+ 191:C:/StellarisWare/driverlib\sysexc.c **** //
+ 192:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 193:C:/StellarisWare/driverlib\sysexc.c **** unsigned long
+ 194:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntStatus(tBoolean bMasked)
+ 195:C:/StellarisWare/driverlib\sysexc.c **** {
+ 179              		.loc 1 195 0
+ 180              		.cfi_startproc
+ 181              		@ args = 0, pretend = 0, frame = 8
+ 182              		@ frame_needed = 1, uses_anonymous_args = 0
+ 183              		@ link register save eliminated.
+ 184 0000 80B4     		push	{r7}
+ 185              	.LCFI11:
+ 186              		.cfi_def_cfa_offset 4
+ 187              		.cfi_offset 7, -4
+ 188 0002 83B0     		sub	sp, sp, #12
+ 189              	.LCFI12:
+ 190              		.cfi_def_cfa_offset 16
+ 191 0004 00AF     		add	r7, sp, #0
+ 192              	.LCFI13:
+ 193              		.cfi_def_cfa_register 7
+ 194 0006 0346     		mov	r3, r0
+ 195 0008 FB71     		strb	r3, [r7, #7]
+ 196:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 197:C:/StellarisWare/driverlib\sysexc.c ****     // Return either the interrupt status or the raw interrupt status as
+ 198:C:/StellarisWare/driverlib\sysexc.c ****     // requested.
+ 199:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 200:C:/StellarisWare/driverlib\sysexc.c ****     if(bMasked)
+ 196              		.loc 1 200 0
+ 197 000a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 198 000c 002B     		cmp	r3, #0
+ 199 000e 05D0     		beq	.L6
+ 201:C:/StellarisWare/driverlib\sysexc.c ****     {
+ 202:C:/StellarisWare/driverlib\sysexc.c ****         return(HWREG(SYSEXC_MIS));
+ 200              		.loc 1 202 0
+ 201 0010 49F20803 		movw	r3, #36872
+ 202 0014 C4F20F03 		movt	r3, 16399
+ 203 0018 1B68     		ldr	r3, [r3, #0]
+ 204 001a 04E0     		b	.L7
+ 205              	.L6:
+ 203:C:/StellarisWare/driverlib\sysexc.c ****     }
+ 204:C:/StellarisWare/driverlib\sysexc.c ****     else
+ 205:C:/StellarisWare/driverlib\sysexc.c ****     {
+ 206:C:/StellarisWare/driverlib\sysexc.c ****         return(HWREG(SYSEXC_RIS));
+ 206              		.loc 1 206 0
+ 207 001c 4FF41043 		mov	r3, #36864
+ 208 0020 C4F20F03 		movt	r3, 16399
+ 209 0024 1B68     		ldr	r3, [r3, #0]
+ 210              	.L7:
+ 207:C:/StellarisWare/driverlib\sysexc.c ****     }
+ 208:C:/StellarisWare/driverlib\sysexc.c **** }
+ 211              		.loc 1 208 0
+ 212 0026 1846     		mov	r0, r3
+ 213 0028 07F10C07 		add	r7, r7, #12
+ 214 002c BD46     		mov	sp, r7
+ 215 002e 80BC     		pop	{r7}
+ 216 0030 7047     		bx	lr
+ 217              		.cfi_endproc
+ 218              	.LFE4:
+ 220 0032 00BF     		.section	.text.SysExcIntClear,"ax",%progbits
+ 221              		.align	2
+ 222              		.global	SysExcIntClear
+ 223              		.thumb
+ 224              		.thumb_func
+ 226              	SysExcIntClear:
+ 227              	.LFB5:
+ 209:C:/StellarisWare/driverlib\sysexc.c **** 
+ 210:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 211:C:/StellarisWare/driverlib\sysexc.c **** //
+ 212:C:/StellarisWare/driverlib\sysexc.c **** //! Clears system exception interrupt sources.
+ 213:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 214:C:/StellarisWare/driverlib\sysexc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 215:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 216:C:/StellarisWare/driverlib\sysexc.c **** //! This function clears the specified system exception interrupt sources, so
+ 217:C:/StellarisWare/driverlib\sysexc.c **** //! that they no longer assert.  This function must be called in the interrupt
+ 218:C:/StellarisWare/driverlib\sysexc.c **** //! handler to keep the interrupt from being recognized again immediately upon
+ 219:C:/StellarisWare/driverlib\sysexc.c **** //! exit.
+ 220:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 221:C:/StellarisWare/driverlib\sysexc.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+ 222:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 223:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IXC - Floating-point inexact exception interrupt
+ 224:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_OFC - Floating-point overflow exception interrupt
+ 225:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_UFC - Floating-point underflow exception interrupt
+ 226:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IOC - Floating-point invalid operation interrupt
+ 227:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_DZC - Floating-point divide by zero exception interrupt
+ 228:C:/StellarisWare/driverlib\sysexc.c **** //! - \b SYSEXC_INT_FP_IDC - Floating-point input denormal exception interrupt
+ 229:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 230:C:/StellarisWare/driverlib\sysexc.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 231:C:/StellarisWare/driverlib\sysexc.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 232:C:/StellarisWare/driverlib\sysexc.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 233:C:/StellarisWare/driverlib\sysexc.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 234:C:/StellarisWare/driverlib\sysexc.c **** //! returning from the interrupt handler before the interrupt source is
+ 235:C:/StellarisWare/driverlib\sysexc.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 236:C:/StellarisWare/driverlib\sysexc.c **** //! being immediately reentered (because the interrupt controller still sees
+ 237:C:/StellarisWare/driverlib\sysexc.c **** //! the interrupt source asserted).
+ 238:C:/StellarisWare/driverlib\sysexc.c **** //!
+ 239:C:/StellarisWare/driverlib\sysexc.c **** //! \return None.
+ 240:C:/StellarisWare/driverlib\sysexc.c **** //
+ 241:C:/StellarisWare/driverlib\sysexc.c **** //*****************************************************************************
+ 242:C:/StellarisWare/driverlib\sysexc.c **** void
+ 243:C:/StellarisWare/driverlib\sysexc.c **** SysExcIntClear(unsigned long ulIntFlags)
+ 244:C:/StellarisWare/driverlib\sysexc.c **** {
+ 228              		.loc 1 244 0
+ 229              		.cfi_startproc
+ 230              		@ args = 0, pretend = 0, frame = 8
+ 231              		@ frame_needed = 1, uses_anonymous_args = 0
+ 232              		@ link register save eliminated.
+ 233 0000 80B4     		push	{r7}
+ 234              	.LCFI14:
+ 235              		.cfi_def_cfa_offset 4
+ 236              		.cfi_offset 7, -4
+ 237 0002 83B0     		sub	sp, sp, #12
+ 238              	.LCFI15:
+ 239              		.cfi_def_cfa_offset 16
+ 240 0004 00AF     		add	r7, sp, #0
+ 241              	.LCFI16:
+ 242              		.cfi_def_cfa_register 7
+ 243 0006 7860     		str	r0, [r7, #4]
+ 245:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 246:C:/StellarisWare/driverlib\sysexc.c ****     // Clear the requested interrupt sources.
+ 247:C:/StellarisWare/driverlib\sysexc.c ****     //
+ 248:C:/StellarisWare/driverlib\sysexc.c ****     HWREG(SYSEXC_IC) = ulIntFlags;
+ 244              		.loc 1 248 0
+ 245 0008 49F20C03 		movw	r3, #36876
+ 246 000c C4F20F03 		movt	r3, 16399
+ 247 0010 7A68     		ldr	r2, [r7, #4]
+ 248 0012 1A60     		str	r2, [r3, #0]
+ 249:C:/StellarisWare/driverlib\sysexc.c **** }
+ 249              		.loc 1 249 0
+ 250 0014 07F10C07 		add	r7, r7, #12
+ 251 0018 BD46     		mov	sp, r7
+ 252 001a 80BC     		pop	{r7}
+ 253 001c 7047     		bx	lr
+ 254              		.cfi_endproc
+ 255              	.LFE5:
+ 257 001e 00BF     		.text
+ 258              	.Letext0:
+ 259              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 sysexc.c
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:19     .text.SysExcIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:24     .text.SysExcIntRegister:00000000 SysExcIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:58     .text.SysExcIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:63     .text.SysExcIntUnregister:00000000 SysExcIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:89     .text.SysExcIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:94     .text.SysExcIntEnable:00000000 SysExcIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:130    .text.SysExcIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:135    .text.SysExcIntDisable:00000000 SysExcIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:172    .text.SysExcIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:177    .text.SysExcIntStatus:00000000 SysExcIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:221    .text.SysExcIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cczLoexc.s:226    .text.SysExcIntClear:00000000 SysExcIntClear
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

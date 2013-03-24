@@ -1,0 +1,413 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"cpu_usage.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.data
+  19              		.align	2
+  22              	g_pulCPUUsageTimerPeriph:
+  23 0000 01001010 		.word	269484033
+  24 0004 02001010 		.word	269484034
+  25 0008 04001010 		.word	269484036
+  26 000c 08001010 		.word	269484040
+  27              		.align	2
+  30              	g_pulCPUUsageTimerBase:
+  31 0010 00000340 		.word	1073938432
+  32 0014 00100340 		.word	1073942528
+  33 0018 00200340 		.word	1073946624
+  34 001c 00300340 		.word	1073950720
+  35              		.bss
+  36              		.align	2
+  37              	g_ulCPUUsageTimer:
+  38 0000 00000000 		.space	4
+  39              		.align	2
+  40              	g_ulCPUUsageTicks:
+  41 0004 00000000 		.space	4
+  42              		.align	2
+  43              	g_ulCPUUsagePrevious:
+  44 0008 00000000 		.space	4
+  45              		.section	.text.CPUUsageTick,"ax",%progbits
+  46              		.align	2
+  47              		.global	CPUUsageTick
+  48              		.thumb
+  49              		.thumb_func
+  51              	CPUUsageTick:
+  52              	.LFB0:
+  53              		.file 1 "C:/StellarisWare/utils/cpu_usage.c"
+   1:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\cpu_usage.c **** //
+   3:C:/StellarisWare/utils\cpu_usage.c **** // cpu_usage.c - Routines to determine the CPU utilization.
+   4:C:/StellarisWare/utils\cpu_usage.c **** //
+   5:C:/StellarisWare/utils\cpu_usage.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\cpu_usage.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\cpu_usage.c **** // 
+   8:C:/StellarisWare/utils\cpu_usage.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\cpu_usage.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\cpu_usage.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\cpu_usage.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\cpu_usage.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\cpu_usage.c **** // 
+  14:C:/StellarisWare/utils\cpu_usage.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\cpu_usage.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\cpu_usage.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\cpu_usage.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\cpu_usage.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\cpu_usage.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\cpu_usage.c **** // 
+  21:C:/StellarisWare/utils\cpu_usage.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\cpu_usage.c **** //
+  23:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\cpu_usage.c **** 
+  25:C:/StellarisWare/utils\cpu_usage.c **** #include "inc/hw_memmap.h"
+  26:C:/StellarisWare/utils\cpu_usage.c **** #include "inc/hw_types.h"
+  27:C:/StellarisWare/utils\cpu_usage.c **** #include "driverlib/debug.h"
+  28:C:/StellarisWare/utils\cpu_usage.c **** #include "driverlib/rom.h"
+  29:C:/StellarisWare/utils\cpu_usage.c **** #include "driverlib/rom_map.h"
+  30:C:/StellarisWare/utils\cpu_usage.c **** #include "driverlib/sysctl.h"
+  31:C:/StellarisWare/utils\cpu_usage.c **** #include "driverlib/timer.h"
+  32:C:/StellarisWare/utils\cpu_usage.c **** #include "utils/cpu_usage.h"
+  33:C:/StellarisWare/utils\cpu_usage.c **** 
+  34:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  35:C:/StellarisWare/utils\cpu_usage.c **** //
+  36:C:/StellarisWare/utils\cpu_usage.c **** //! \addtogroup cpu_usage_api
+  37:C:/StellarisWare/utils\cpu_usage.c **** //! @{
+  38:C:/StellarisWare/utils\cpu_usage.c **** //
+  39:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  40:C:/StellarisWare/utils\cpu_usage.c **** 
+  41:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  42:C:/StellarisWare/utils\cpu_usage.c **** //
+  43:C:/StellarisWare/utils\cpu_usage.c **** // The peripheral identifier for the timer modules that could be used for
+  44:C:/StellarisWare/utils\cpu_usage.c **** // tracking CPU utilization.
+  45:C:/StellarisWare/utils\cpu_usage.c **** //
+  46:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  47:C:/StellarisWare/utils\cpu_usage.c **** static unsigned long g_pulCPUUsageTimerPeriph[4] =
+  48:C:/StellarisWare/utils\cpu_usage.c **** {
+  49:C:/StellarisWare/utils\cpu_usage.c ****     SYSCTL_PERIPH_TIMER0, SYSCTL_PERIPH_TIMER1, SYSCTL_PERIPH_TIMER2,
+  50:C:/StellarisWare/utils\cpu_usage.c ****     SYSCTL_PERIPH_TIMER3
+  51:C:/StellarisWare/utils\cpu_usage.c **** };
+  52:C:/StellarisWare/utils\cpu_usage.c **** 
+  53:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  54:C:/StellarisWare/utils\cpu_usage.c **** //
+  55:C:/StellarisWare/utils\cpu_usage.c **** // The base address of the timer modules that could be used for tracking CPU
+  56:C:/StellarisWare/utils\cpu_usage.c **** // utilization.
+  57:C:/StellarisWare/utils\cpu_usage.c **** //
+  58:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  59:C:/StellarisWare/utils\cpu_usage.c **** static unsigned long g_pulCPUUsageTimerBase[4] =
+  60:C:/StellarisWare/utils\cpu_usage.c **** {
+  61:C:/StellarisWare/utils\cpu_usage.c ****     TIMER0_BASE, TIMER1_BASE, TIMER2_BASE, TIMER3_BASE
+  62:C:/StellarisWare/utils\cpu_usage.c **** };
+  63:C:/StellarisWare/utils\cpu_usage.c **** 
+  64:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  65:C:/StellarisWare/utils\cpu_usage.c **** //
+  66:C:/StellarisWare/utils\cpu_usage.c **** // The index of the timer module that will be used for tracking CPU
+  67:C:/StellarisWare/utils\cpu_usage.c **** // utilization.
+  68:C:/StellarisWare/utils\cpu_usage.c **** //
+  69:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  70:C:/StellarisWare/utils\cpu_usage.c **** static unsigned long g_ulCPUUsageTimer;
+  71:C:/StellarisWare/utils\cpu_usage.c **** 
+  72:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  73:C:/StellarisWare/utils\cpu_usage.c **** //
+  74:C:/StellarisWare/utils\cpu_usage.c **** // The number of processor clock ticks per timing period.
+  75:C:/StellarisWare/utils\cpu_usage.c **** //
+  76:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  77:C:/StellarisWare/utils\cpu_usage.c **** static unsigned long g_ulCPUUsageTicks;
+  78:C:/StellarisWare/utils\cpu_usage.c **** 
+  79:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  80:C:/StellarisWare/utils\cpu_usage.c **** //
+  81:C:/StellarisWare/utils\cpu_usage.c **** // The value of timer two on the previous timing period.  This is used to
+  82:C:/StellarisWare/utils\cpu_usage.c **** // determine the number of clock ticks counted by the timer during the timing
+  83:C:/StellarisWare/utils\cpu_usage.c **** // period.
+  84:C:/StellarisWare/utils\cpu_usage.c **** //
+  85:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  86:C:/StellarisWare/utils\cpu_usage.c **** static unsigned long g_ulCPUUsagePrevious;
+  87:C:/StellarisWare/utils\cpu_usage.c **** 
+  88:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  89:C:/StellarisWare/utils\cpu_usage.c **** //
+  90:C:/StellarisWare/utils\cpu_usage.c **** //! Updates the CPU usage for the new timing period.
+  91:C:/StellarisWare/utils\cpu_usage.c **** //!
+  92:C:/StellarisWare/utils\cpu_usage.c **** //! This function, when called at the end of a timing period, will update the
+  93:C:/StellarisWare/utils\cpu_usage.c **** //! CPU usage.
+  94:C:/StellarisWare/utils\cpu_usage.c **** //!
+  95:C:/StellarisWare/utils\cpu_usage.c **** //! \return Returns the CPU usage percentage as a 16.16 fixed-point value.
+  96:C:/StellarisWare/utils\cpu_usage.c **** //
+  97:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+  98:C:/StellarisWare/utils\cpu_usage.c **** unsigned long
+  99:C:/StellarisWare/utils\cpu_usage.c **** CPUUsageTick(void)
+ 100:C:/StellarisWare/utils\cpu_usage.c **** {
+  54              		.loc 1 100 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 8
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              	.LCFI0:
+  60              		.cfi_def_cfa_offset 8
+  61              		.cfi_offset 14, -4
+  62              		.cfi_offset 7, -8
+  63 0002 82B0     		sub	sp, sp, #8
+  64              	.LCFI1:
+  65              		.cfi_def_cfa_offset 16
+  66 0004 00AF     		add	r7, sp, #0
+  67              	.LCFI2:
+  68              		.cfi_def_cfa_register 7
+ 101:C:/StellarisWare/utils\cpu_usage.c ****     unsigned long ulValue, ulUsage;
+ 102:C:/StellarisWare/utils\cpu_usage.c **** 
+ 103:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 104:C:/StellarisWare/utils\cpu_usage.c ****     // Get the current value of the timer.
+ 105:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 106:C:/StellarisWare/utils\cpu_usage.c ****     ulValue = MAP_TimerValueGet(g_pulCPUUsageTimerBase[g_ulCPUUsageTimer],
+  69              		.loc 1 106 0
+  70 0006 40F20003 		movw	r3, #:lower16:g_ulCPUUsageTimer
+  71 000a C0F20003 		movt	r3, #:upper16:g_ulCPUUsageTimer
+  72 000e 1A68     		ldr	r2, [r3, #0]
+  73 0010 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerBase
+  74 0014 C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerBase
+  75 0018 53F82230 		ldr	r3, [r3, r2, lsl #2]
+  76 001c 1846     		mov	r0, r3
+  77 001e 4FF0FF01 		mov	r1, #255
+  78 0022 FFF7FEFF 		bl	TimerValueGet
+  79 0026 7860     		str	r0, [r7, #4]
+ 107:C:/StellarisWare/utils\cpu_usage.c ****                                 TIMER_A);
+ 108:C:/StellarisWare/utils\cpu_usage.c **** 
+ 109:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 110:C:/StellarisWare/utils\cpu_usage.c ****     // Based on the number of clock ticks accumulated by the timer during the
+ 111:C:/StellarisWare/utils\cpu_usage.c ****     // previous timing period, compute the CPU usage as a 16.16 fixed-point
+ 112:C:/StellarisWare/utils\cpu_usage.c ****     // value.
+ 113:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 114:C:/StellarisWare/utils\cpu_usage.c ****     ulUsage = ((((g_ulCPUUsagePrevious - ulValue) * 6400) /
+  80              		.loc 1 114 0
+  81 0028 40F20003 		movw	r3, #:lower16:g_ulCPUUsagePrevious
+  82 002c C0F20003 		movt	r3, #:upper16:g_ulCPUUsagePrevious
+  83 0030 1A68     		ldr	r2, [r3, #0]
+  84 0032 7B68     		ldr	r3, [r7, #4]
+  85 0034 D31A     		subs	r3, r2, r3
+  86 0036 4FF4C852 		mov	r2, #6400
+  87 003a 02FB03F2 		mul	r2, r2, r3
+  88 003e 40F20003 		movw	r3, #:lower16:g_ulCPUUsageTicks
+  89 0042 C0F20003 		movt	r3, #:upper16:g_ulCPUUsageTicks
+  90 0046 1B68     		ldr	r3, [r3, #0]
+  91 0048 B2FBF3F3 		udiv	r3, r2, r3
+  92 004c 4FEA8323 		lsl	r3, r3, #10
+  93 0050 3B60     		str	r3, [r7, #0]
+ 115:C:/StellarisWare/utils\cpu_usage.c ****                 g_ulCPUUsageTicks) * 1024);
+ 116:C:/StellarisWare/utils\cpu_usage.c **** 
+ 117:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 118:C:/StellarisWare/utils\cpu_usage.c ****     // Save the previous value of the timer.
+ 119:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 120:C:/StellarisWare/utils\cpu_usage.c ****     g_ulCPUUsagePrevious = ulValue;
+  94              		.loc 1 120 0
+  95 0052 40F20003 		movw	r3, #:lower16:g_ulCPUUsagePrevious
+  96 0056 C0F20003 		movt	r3, #:upper16:g_ulCPUUsagePrevious
+  97 005a 7A68     		ldr	r2, [r7, #4]
+  98 005c 1A60     		str	r2, [r3, #0]
+ 121:C:/StellarisWare/utils\cpu_usage.c **** 
+ 122:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 123:C:/StellarisWare/utils\cpu_usage.c ****     // Return the new CPU usage value.
+ 124:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 125:C:/StellarisWare/utils\cpu_usage.c ****     return(ulUsage);
+  99              		.loc 1 125 0
+ 100 005e 3B68     		ldr	r3, [r7, #0]
+ 126:C:/StellarisWare/utils\cpu_usage.c **** }
+ 101              		.loc 1 126 0
+ 102 0060 1846     		mov	r0, r3
+ 103 0062 07F10807 		add	r7, r7, #8
+ 104 0066 BD46     		mov	sp, r7
+ 105 0068 80BD     		pop	{r7, pc}
+ 106              		.cfi_endproc
+ 107              	.LFE0:
+ 109 006a 00BF     		.section	.text.CPUUsageInit,"ax",%progbits
+ 110              		.align	2
+ 111              		.global	CPUUsageInit
+ 112              		.thumb
+ 113              		.thumb_func
+ 115              	CPUUsageInit:
+ 116              	.LFB1:
+ 127:C:/StellarisWare/utils\cpu_usage.c **** 
+ 128:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+ 129:C:/StellarisWare/utils\cpu_usage.c **** //
+ 130:C:/StellarisWare/utils\cpu_usage.c **** //! Initializes the CPU usage measurement module.
+ 131:C:/StellarisWare/utils\cpu_usage.c **** //!
+ 132:C:/StellarisWare/utils\cpu_usage.c **** //! \param ulClockRate is the rate of the clock supplied to the timer module.
+ 133:C:/StellarisWare/utils\cpu_usage.c **** //! \param ulRate is the number of times per second that CPUUsageTick() is
+ 134:C:/StellarisWare/utils\cpu_usage.c **** //! called.
+ 135:C:/StellarisWare/utils\cpu_usage.c **** //! \param ulTimer is the index of the timer module to use.
+ 136:C:/StellarisWare/utils\cpu_usage.c **** //!
+ 137:C:/StellarisWare/utils\cpu_usage.c **** //! This function prepares the CPU usage measurement module for measuring the
+ 138:C:/StellarisWare/utils\cpu_usage.c **** //! CPU usage of the application.
+ 139:C:/StellarisWare/utils\cpu_usage.c **** //!
+ 140:C:/StellarisWare/utils\cpu_usage.c **** //! \return None.
+ 141:C:/StellarisWare/utils\cpu_usage.c **** //
+ 142:C:/StellarisWare/utils\cpu_usage.c **** //*****************************************************************************
+ 143:C:/StellarisWare/utils\cpu_usage.c **** void
+ 144:C:/StellarisWare/utils\cpu_usage.c **** CPUUsageInit(unsigned long ulClockRate, unsigned long ulRate,
+ 145:C:/StellarisWare/utils\cpu_usage.c ****              unsigned long ulTimer)
+ 146:C:/StellarisWare/utils\cpu_usage.c **** {
+ 117              		.loc 1 146 0
+ 118              		.cfi_startproc
+ 119              		@ args = 0, pretend = 0, frame = 16
+ 120              		@ frame_needed = 1, uses_anonymous_args = 0
+ 121 0000 80B5     		push	{r7, lr}
+ 122              	.LCFI3:
+ 123              		.cfi_def_cfa_offset 8
+ 124              		.cfi_offset 14, -4
+ 125              		.cfi_offset 7, -8
+ 126 0002 84B0     		sub	sp, sp, #16
+ 127              	.LCFI4:
+ 128              		.cfi_def_cfa_offset 24
+ 129 0004 00AF     		add	r7, sp, #0
+ 130              	.LCFI5:
+ 131              		.cfi_def_cfa_register 7
+ 132 0006 F860     		str	r0, [r7, #12]
+ 133 0008 B960     		str	r1, [r7, #8]
+ 134 000a 7A60     		str	r2, [r7, #4]
+ 147:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 148:C:/StellarisWare/utils\cpu_usage.c ****     // Check the arguments.
+ 149:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 150:C:/StellarisWare/utils\cpu_usage.c ****     ASSERT(ulClockRate > ulRate);
+ 151:C:/StellarisWare/utils\cpu_usage.c ****     ASSERT(ulTimer < 4);
+ 152:C:/StellarisWare/utils\cpu_usage.c **** 
+ 153:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 154:C:/StellarisWare/utils\cpu_usage.c ****     // Save the timer index.
+ 155:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 156:C:/StellarisWare/utils\cpu_usage.c ****     g_ulCPUUsageTimer = ulTimer;
+ 135              		.loc 1 156 0
+ 136 000c 40F20003 		movw	r3, #:lower16:g_ulCPUUsageTimer
+ 137 0010 C0F20003 		movt	r3, #:upper16:g_ulCPUUsageTimer
+ 138 0014 7A68     		ldr	r2, [r7, #4]
+ 139 0016 1A60     		str	r2, [r3, #0]
+ 157:C:/StellarisWare/utils\cpu_usage.c **** 
+ 158:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 159:C:/StellarisWare/utils\cpu_usage.c ****     // Determine the number of system clocks per measurement period.
+ 160:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 161:C:/StellarisWare/utils\cpu_usage.c ****     g_ulCPUUsageTicks = ulClockRate / ulRate;
+ 140              		.loc 1 161 0
+ 141 0018 FA68     		ldr	r2, [r7, #12]
+ 142 001a BB68     		ldr	r3, [r7, #8]
+ 143 001c B2FBF3F2 		udiv	r2, r2, r3
+ 144 0020 40F20003 		movw	r3, #:lower16:g_ulCPUUsageTicks
+ 145 0024 C0F20003 		movt	r3, #:upper16:g_ulCPUUsageTicks
+ 146 0028 1A60     		str	r2, [r3, #0]
+ 162:C:/StellarisWare/utils\cpu_usage.c **** 
+ 163:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 164:C:/StellarisWare/utils\cpu_usage.c ****     // Set the previous value of the timer to the initial timer value.
+ 165:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 166:C:/StellarisWare/utils\cpu_usage.c ****     g_ulCPUUsagePrevious = 0xffffffff;
+ 147              		.loc 1 166 0
+ 148 002a 40F20003 		movw	r3, #:lower16:g_ulCPUUsagePrevious
+ 149 002e C0F20003 		movt	r3, #:upper16:g_ulCPUUsagePrevious
+ 150 0032 4FF0FF32 		mov	r2, #-1
+ 151 0036 1A60     		str	r2, [r3, #0]
+ 167:C:/StellarisWare/utils\cpu_usage.c **** 
+ 168:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 169:C:/StellarisWare/utils\cpu_usage.c ****     // Enable peripheral clock gating.
+ 170:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 171:C:/StellarisWare/utils\cpu_usage.c ****     MAP_SysCtlPeripheralClockGating(true);
+ 152              		.loc 1 171 0
+ 153 0038 4FF00100 		mov	r0, #1
+ 154 003c FFF7FEFF 		bl	SysCtlPeripheralClockGating
+ 172:C:/StellarisWare/utils\cpu_usage.c **** 
+ 173:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 174:C:/StellarisWare/utils\cpu_usage.c ****     // Enable the third timer while the processor is in run mode, but disable
+ 175:C:/StellarisWare/utils\cpu_usage.c ****     // it in sleep mode.  It will therefore count system clocks when the
+ 176:C:/StellarisWare/utils\cpu_usage.c ****     // processor is running but not when it is sleeping.
+ 177:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 178:C:/StellarisWare/utils\cpu_usage.c ****     MAP_SysCtlPeripheralEnable(g_pulCPUUsageTimerPeriph[ulTimer]);
+ 155              		.loc 1 178 0
+ 156 0040 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerPeriph
+ 157 0044 C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerPeriph
+ 158 0048 7A68     		ldr	r2, [r7, #4]
+ 159 004a 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 160 004e 1846     		mov	r0, r3
+ 161 0050 FFF7FEFF 		bl	SysCtlPeripheralEnable
+ 179:C:/StellarisWare/utils\cpu_usage.c ****     MAP_SysCtlPeripheralSleepDisable(g_pulCPUUsageTimerPeriph[ulTimer]);
+ 162              		.loc 1 179 0
+ 163 0054 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerPeriph
+ 164 0058 C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerPeriph
+ 165 005c 7A68     		ldr	r2, [r7, #4]
+ 166 005e 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 167 0062 1846     		mov	r0, r3
+ 168 0064 FFF7FEFF 		bl	SysCtlPeripheralSleepDisable
+ 180:C:/StellarisWare/utils\cpu_usage.c **** 
+ 181:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 182:C:/StellarisWare/utils\cpu_usage.c ****     // Configure the third timer for 32-bit periodic operation.
+ 183:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 184:C:/StellarisWare/utils\cpu_usage.c ****     MAP_TimerConfigure(g_pulCPUUsageTimerBase[ulTimer], TIMER_CFG_PERIODIC);
+ 169              		.loc 1 184 0
+ 170 0068 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerBase
+ 171 006c C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerBase
+ 172 0070 7A68     		ldr	r2, [r7, #4]
+ 173 0072 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 174 0076 1846     		mov	r0, r3
+ 175 0078 4FF02201 		mov	r1, #34
+ 176 007c FFF7FEFF 		bl	TimerConfigure
+ 185:C:/StellarisWare/utils\cpu_usage.c **** 
+ 186:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 187:C:/StellarisWare/utils\cpu_usage.c ****     // Set the load value for the third timer to the maximum value.
+ 188:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 189:C:/StellarisWare/utils\cpu_usage.c ****     MAP_TimerLoadSet(g_pulCPUUsageTimerBase[ulTimer], TIMER_A, 0xffffffff);
+ 177              		.loc 1 189 0
+ 178 0080 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerBase
+ 179 0084 C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerBase
+ 180 0088 7A68     		ldr	r2, [r7, #4]
+ 181 008a 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 182 008e 1846     		mov	r0, r3
+ 183 0090 4FF0FF01 		mov	r1, #255
+ 184 0094 4FF0FF32 		mov	r2, #-1
+ 185 0098 FFF7FEFF 		bl	TimerLoadSet
+ 190:C:/StellarisWare/utils\cpu_usage.c **** 
+ 191:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 192:C:/StellarisWare/utils\cpu_usage.c ****     // Enable the third timer.  It will now count the number of system clocks
+ 193:C:/StellarisWare/utils\cpu_usage.c ****     // during which the processor is executing code.
+ 194:C:/StellarisWare/utils\cpu_usage.c ****     //
+ 195:C:/StellarisWare/utils\cpu_usage.c ****     MAP_TimerEnable(g_pulCPUUsageTimerBase[ulTimer], TIMER_A);
+ 186              		.loc 1 195 0
+ 187 009c 40F20003 		movw	r3, #:lower16:g_pulCPUUsageTimerBase
+ 188 00a0 C0F20003 		movt	r3, #:upper16:g_pulCPUUsageTimerBase
+ 189 00a4 7A68     		ldr	r2, [r7, #4]
+ 190 00a6 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 191 00aa 1846     		mov	r0, r3
+ 192 00ac 4FF0FF01 		mov	r1, #255
+ 193 00b0 FFF7FEFF 		bl	TimerEnable
+ 196:C:/StellarisWare/utils\cpu_usage.c **** }
+ 194              		.loc 1 196 0
+ 195 00b4 07F11007 		add	r7, r7, #16
+ 196 00b8 BD46     		mov	sp, r7
+ 197 00ba 80BD     		pop	{r7, pc}
+ 198              		.cfi_endproc
+ 199              	.LFE1:
+ 201              		.text
+ 202              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 cpu_usage.c
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:19     .data:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:22     .data:00000000 g_pulCPUUsageTimerPeriph
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:30     .data:00000010 g_pulCPUUsageTimerBase
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:36     .bss:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:37     .bss:00000000 g_ulCPUUsageTimer
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:40     .bss:00000004 g_ulCPUUsageTicks
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:43     .bss:00000008 g_ulCPUUsagePrevious
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:46     .text.CPUUsageTick:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:51     .text.CPUUsageTick:00000000 CPUUsageTick
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:110    .text.CPUUsageInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwm12oB.s:115    .text.CPUUsageInit:00000000 CPUUsageInit
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+TimerValueGet
+SysCtlPeripheralClockGating
+SysCtlPeripheralEnable
+SysCtlPeripheralSleepDisable
+TimerConfigure
+TimerLoadSet
+TimerEnable

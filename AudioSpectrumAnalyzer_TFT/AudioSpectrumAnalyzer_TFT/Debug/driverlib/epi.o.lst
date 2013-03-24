@@ -1,0 +1,2458 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"epi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.EPIModeSet,"ax",%progbits
+  19              		.align	2
+  20              		.global	EPIModeSet
+  21              		.thumb
+  22              		.thumb_func
+  24              	EPIModeSet:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/epi.c"
+   1:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\epi.c **** //
+   3:C:/StellarisWare/driverlib\epi.c **** // epi.c - Driver for the EPI module.
+   4:C:/StellarisWare/driverlib\epi.c **** //
+   5:C:/StellarisWare/driverlib\epi.c **** // Copyright (c) 2008-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\epi.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\epi.c **** // 
+   8:C:/StellarisWare/driverlib\epi.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\epi.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\epi.c **** //   are met:
+  11:C:/StellarisWare/driverlib\epi.c **** // 
+  12:C:/StellarisWare/driverlib\epi.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\epi.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\epi.c **** // 
+  15:C:/StellarisWare/driverlib\epi.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\epi.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\epi.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\epi.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\epi.c **** // 
+  20:C:/StellarisWare/driverlib\epi.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\epi.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\epi.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\epi.c **** // 
+  24:C:/StellarisWare/driverlib\epi.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\epi.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\epi.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\epi.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\epi.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\epi.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\epi.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\epi.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\epi.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\epi.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\epi.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\epi.c **** // 
+  36:C:/StellarisWare/driverlib\epi.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\epi.c **** //
+  38:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\epi.c **** 
+  40:C:/StellarisWare/driverlib\epi.c **** #include "inc/hw_epi.h"
+  41:C:/StellarisWare/driverlib\epi.c **** #include "inc/hw_ints.h"
+  42:C:/StellarisWare/driverlib\epi.c **** #include "inc/hw_memmap.h"
+  43:C:/StellarisWare/driverlib\epi.c **** #include "inc/hw_types.h"
+  44:C:/StellarisWare/driverlib\epi.c **** #include "driverlib/debug.h"
+  45:C:/StellarisWare/driverlib\epi.c **** #include "driverlib/epi.h"
+  46:C:/StellarisWare/driverlib\epi.c **** #include "driverlib/interrupt.h"
+  47:C:/StellarisWare/driverlib\epi.c **** 
+  48:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  49:C:/StellarisWare/driverlib\epi.c **** //
+  50:C:/StellarisWare/driverlib\epi.c **** //! \addtogroup epi_api
+  51:C:/StellarisWare/driverlib\epi.c **** //! @{
+  52:C:/StellarisWare/driverlib\epi.c **** //
+  53:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  54:C:/StellarisWare/driverlib\epi.c **** 
+  55:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\epi.c **** //
+  57:C:/StellarisWare/driverlib\epi.c **** //! Sets the usage mode of the EPI module.
+  58:C:/StellarisWare/driverlib\epi.c **** //!
+  59:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+  60:C:/StellarisWare/driverlib\epi.c **** //! \param ulMode is the usage mode of the EPI module.
+  61:C:/StellarisWare/driverlib\epi.c **** //!
+  62:C:/StellarisWare/driverlib\epi.c **** //! This functions sets the operating mode of the EPI module.  The parameter
+  63:C:/StellarisWare/driverlib\epi.c **** //! \e ulMode must be one of the following:
+  64:C:/StellarisWare/driverlib\epi.c **** //!
+  65:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_MODE_GENERAL - use for general-purpose mode operation
+  66:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_MODE_SDRAM - use with SDRAM device
+  67:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_MODE_HB8 - use with host-bus 8-bit interface
+  68:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_MODE_HB16 - use with host-bus 16-bit interface
+  69:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_MODE_DISABLE - disable the EPI module
+  70:C:/StellarisWare/driverlib\epi.c **** //!
+  71:C:/StellarisWare/driverlib\epi.c **** //! Selection of any of the above modes enables the EPI module, except
+  72:C:/StellarisWare/driverlib\epi.c **** //! for \b EPI_MODE_DISABLE which should be used to disable the module.
+  73:C:/StellarisWare/driverlib\epi.c **** //!
+  74:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+  75:C:/StellarisWare/driverlib\epi.c **** //
+  76:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  77:C:/StellarisWare/driverlib\epi.c **** void
+  78:C:/StellarisWare/driverlib\epi.c **** EPIModeSet(unsigned long ulBase, unsigned long ulMode)
+  79:C:/StellarisWare/driverlib\epi.c **** {
+  27              		.loc 1 79 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 83B0     		sub	sp, sp, #12
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 3960     		str	r1, [r7, #0]
+  80:C:/StellarisWare/driverlib\epi.c ****     //
+  81:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+  82:C:/StellarisWare/driverlib\epi.c ****     //
+  83:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+  84:C:/StellarisWare/driverlib\epi.c ****     ASSERT((ulMode == EPI_MODE_GENERAL) ||
+  85:C:/StellarisWare/driverlib\epi.c ****            (ulMode == EPI_MODE_SDRAM) ||
+  86:C:/StellarisWare/driverlib\epi.c ****            (ulMode == EPI_MODE_HB8) ||
+  87:C:/StellarisWare/driverlib\epi.c ****            (ulMode == EPI_MODE_HB16) ||
+  88:C:/StellarisWare/driverlib\epi.c ****            (ulMode == EPI_MODE_DISABLE));
+  89:C:/StellarisWare/driverlib\epi.c **** 
+  90:C:/StellarisWare/driverlib\epi.c ****     //
+  91:C:/StellarisWare/driverlib\epi.c ****     // Write the mode word to the register.
+  92:C:/StellarisWare/driverlib\epi.c ****     //
+  93:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_CFG) = ulMode;
+  44              		.loc 1 93 0
+  45 000a 7B68     		ldr	r3, [r7, #4]
+  46 000c 3A68     		ldr	r2, [r7, #0]
+  47 000e 1A60     		str	r2, [r3, #0]
+  94:C:/StellarisWare/driverlib\epi.c **** }
+  48              		.loc 1 94 0
+  49 0010 07F10C07 		add	r7, r7, #12
+  50 0014 BD46     		mov	sp, r7
+  51 0016 80BC     		pop	{r7}
+  52 0018 7047     		bx	lr
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56 001a 00BF     		.section	.text.EPIDividerSet,"ax",%progbits
+  57              		.align	2
+  58              		.global	EPIDividerSet
+  59              		.thumb
+  60              		.thumb_func
+  62              	EPIDividerSet:
+  63              	.LFB1:
+  95:C:/StellarisWare/driverlib\epi.c **** 
+  96:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+  97:C:/StellarisWare/driverlib\epi.c **** //
+  98:C:/StellarisWare/driverlib\epi.c **** //! Sets the clock divider for the EPI module.
+  99:C:/StellarisWare/driverlib\epi.c **** //!
+ 100:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 101:C:/StellarisWare/driverlib\epi.c **** //! \param ulDivider is the value of the clock divider to be applied to
+ 102:C:/StellarisWare/driverlib\epi.c **** //! the external interface (0-65535).
+ 103:C:/StellarisWare/driverlib\epi.c **** //!
+ 104:C:/StellarisWare/driverlib\epi.c **** //! This function sets the clock divider(s) that is used to determine the
+ 105:C:/StellarisWare/driverlib\epi.c **** //! clock rate of the external interface.  The \e ulDivider value is used to
+ 106:C:/StellarisWare/driverlib\epi.c **** //! derive the EPI clock rate from the system clock based on the following
+ 107:C:/StellarisWare/driverlib\epi.c **** //! formula.
+ 108:C:/StellarisWare/driverlib\epi.c **** //!
+ 109:C:/StellarisWare/driverlib\epi.c **** //! EPIClock = (Divider == 0) ? SysClk : (SysClk / (((Divider / 2) + 1) * 2))
+ 110:C:/StellarisWare/driverlib\epi.c **** //!
+ 111:C:/StellarisWare/driverlib\epi.c **** //! For example, a divider value of 1 results in an EPI clock rate of half
+ 112:C:/StellarisWare/driverlib\epi.c **** //! the system clock, value of 2 or 3 yields one quarter of the system clock and
+ 113:C:/StellarisWare/driverlib\epi.c **** //! a value of 4 results in one sixth of the system clock rate.
+ 114:C:/StellarisWare/driverlib\epi.c **** //!
+ 115:C:/StellarisWare/driverlib\epi.c **** //! In cases where a dual chip select mode is in use and different clock rates
+ 116:C:/StellarisWare/driverlib\epi.c **** //! are required for each chip select, the \e ulDivider parameter must contain
+ 117:C:/StellarisWare/driverlib\epi.c **** //! two dividers.  The lower 16 bits define the divider to be used with CS0n
+ 118:C:/StellarisWare/driverlib\epi.c **** //! and the upper 16 bits define the divider for CS1n.
+ 119:C:/StellarisWare/driverlib\epi.c **** //!
+ 120:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 121:C:/StellarisWare/driverlib\epi.c **** //
+ 122:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 123:C:/StellarisWare/driverlib\epi.c **** void
+ 124:C:/StellarisWare/driverlib\epi.c **** EPIDividerSet(unsigned long ulBase, unsigned long ulDivider)
+ 125:C:/StellarisWare/driverlib\epi.c **** {
+  64              		.loc 1 125 0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 8
+  67              		@ frame_needed = 1, uses_anonymous_args = 0
+  68              		@ link register save eliminated.
+  69 0000 80B4     		push	{r7}
+  70              	.LCFI3:
+  71              		.cfi_def_cfa_offset 4
+  72              		.cfi_offset 7, -4
+  73 0002 83B0     		sub	sp, sp, #12
+  74              	.LCFI4:
+  75              		.cfi_def_cfa_offset 16
+  76 0004 00AF     		add	r7, sp, #0
+  77              	.LCFI5:
+  78              		.cfi_def_cfa_register 7
+  79 0006 7860     		str	r0, [r7, #4]
+  80 0008 3960     		str	r1, [r7, #0]
+ 126:C:/StellarisWare/driverlib\epi.c ****     //
+ 127:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 128:C:/StellarisWare/driverlib\epi.c ****     //
+ 129:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 130:C:/StellarisWare/driverlib\epi.c **** 
+ 131:C:/StellarisWare/driverlib\epi.c ****     //
+ 132:C:/StellarisWare/driverlib\epi.c ****     // Write the divider value to the register.
+ 133:C:/StellarisWare/driverlib\epi.c ****     //
+ 134:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_BAUD) = ulDivider;
+  81              		.loc 1 134 0
+  82 000a 7B68     		ldr	r3, [r7, #4]
+  83 000c 03F10403 		add	r3, r3, #4
+  84 0010 3A68     		ldr	r2, [r7, #0]
+  85 0012 1A60     		str	r2, [r3, #0]
+ 135:C:/StellarisWare/driverlib\epi.c **** }
+  86              		.loc 1 135 0
+  87 0014 07F10C07 		add	r7, r7, #12
+  88 0018 BD46     		mov	sp, r7
+  89 001a 80BC     		pop	{r7}
+  90 001c 7047     		bx	lr
+  91              		.cfi_endproc
+  92              	.LFE1:
+  94 001e 00BF     		.section	.text.EPIConfigSDRAMSet,"ax",%progbits
+  95              		.align	2
+  96              		.global	EPIConfigSDRAMSet
+  97              		.thumb
+  98              		.thumb_func
+ 100              	EPIConfigSDRAMSet:
+ 101              	.LFB2:
+ 136:C:/StellarisWare/driverlib\epi.c **** 
+ 137:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 138:C:/StellarisWare/driverlib\epi.c **** //
+ 139:C:/StellarisWare/driverlib\epi.c **** //! Configures the SDRAM mode of operation.
+ 140:C:/StellarisWare/driverlib\epi.c **** //!
+ 141:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 142:C:/StellarisWare/driverlib\epi.c **** //! \param ulConfig is the SDRAM interface configuration.
+ 143:C:/StellarisWare/driverlib\epi.c **** //! \param ulRefresh is the refresh count in core clocks (0-2047).
+ 144:C:/StellarisWare/driverlib\epi.c **** //!
+ 145:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure the SDRAM interface, when the SDRAM
+ 146:C:/StellarisWare/driverlib\epi.c **** //! mode is chosen with the function EPIModeSet().  The parameter \e ulConfig
+ 147:C:/StellarisWare/driverlib\epi.c **** //! is the logical OR of several sets of choices:
+ 148:C:/StellarisWare/driverlib\epi.c **** //!
+ 149:C:/StellarisWare/driverlib\epi.c **** //! The processor core frequency must be specified with one of the following:
+ 150:C:/StellarisWare/driverlib\epi.c **** //!
+ 151:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_CORE_FREQ_0_15 - core clock is 0 MHz < clk <= 15 MHz
+ 152:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_CORE_FREQ_15_30 - core clock is 15 MHz < clk <= 30 MHz
+ 153:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_CORE_FREQ_30_50 - core clock is 30 MHz < clk <= 50 MHz
+ 154:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_CORE_FREQ_50_100 - core clock is 50 MHz < clk <= 100 MHz
+ 155:C:/StellarisWare/driverlib\epi.c **** //!
+ 156:C:/StellarisWare/driverlib\epi.c **** //! The low power mode is specified with one of the following:
+ 157:C:/StellarisWare/driverlib\epi.c **** //!
+ 158:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_LOW_POWER - enter low power, self-refresh state
+ 159:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_FULL_POWER - normal operating state
+ 160:C:/StellarisWare/driverlib\epi.c **** //!
+ 161:C:/StellarisWare/driverlib\epi.c **** //! The SDRAM device size is specified with one of the following:
+ 162:C:/StellarisWare/driverlib\epi.c **** //!
+ 163:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_SIZE_64MBIT - 64 Mbit device (8 MB)
+ 164:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_SIZE_128MBIT - 128 Mbit device (16 MB)
+ 165:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_SIZE_256MBIT - 256 Mbit device (32 MB)
+ 166:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_SDRAM_SIZE_512MBIT - 512 Mbit device (64 MB)
+ 167:C:/StellarisWare/driverlib\epi.c **** //!
+ 168:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulRefresh sets the refresh counter in units of core
+ 169:C:/StellarisWare/driverlib\epi.c **** //! clock ticks.  It is an 11-bit value with a range of 0 - 2047 counts.
+ 170:C:/StellarisWare/driverlib\epi.c **** //!
+ 171:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 172:C:/StellarisWare/driverlib\epi.c **** //
+ 173:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 174:C:/StellarisWare/driverlib\epi.c **** void
+ 175:C:/StellarisWare/driverlib\epi.c **** EPIConfigSDRAMSet(unsigned long ulBase, unsigned long ulConfig,
+ 176:C:/StellarisWare/driverlib\epi.c ****                   unsigned long ulRefresh)
+ 177:C:/StellarisWare/driverlib\epi.c **** {
+ 102              		.loc 1 177 0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 16
+ 105              		@ frame_needed = 1, uses_anonymous_args = 0
+ 106              		@ link register save eliminated.
+ 107 0000 80B4     		push	{r7}
+ 108              	.LCFI6:
+ 109              		.cfi_def_cfa_offset 4
+ 110              		.cfi_offset 7, -4
+ 111 0002 85B0     		sub	sp, sp, #20
+ 112              	.LCFI7:
+ 113              		.cfi_def_cfa_offset 24
+ 114 0004 00AF     		add	r7, sp, #0
+ 115              	.LCFI8:
+ 116              		.cfi_def_cfa_register 7
+ 117 0006 F860     		str	r0, [r7, #12]
+ 118 0008 B960     		str	r1, [r7, #8]
+ 119 000a 7A60     		str	r2, [r7, #4]
+ 178:C:/StellarisWare/driverlib\epi.c ****     //
+ 179:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 180:C:/StellarisWare/driverlib\epi.c ****     //
+ 181:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 182:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulRefresh < 2048);
+ 183:C:/StellarisWare/driverlib\epi.c **** 
+ 184:C:/StellarisWare/driverlib\epi.c ****     //
+ 185:C:/StellarisWare/driverlib\epi.c ****     // Fill in the refresh count field of the configuration word.
+ 186:C:/StellarisWare/driverlib\epi.c ****     //
+ 187:C:/StellarisWare/driverlib\epi.c ****     ulConfig &= ~EPI_SDRAMCFG_RFSH_M;
+ 120              		.loc 1 187 0
+ 121 000c BB68     		ldr	r3, [r7, #8]
+ 122 000e 23F0FE63 		bic	r3, r3, #133169152
+ 123 0012 23F47023 		bic	r3, r3, #983040
+ 124 0016 BB60     		str	r3, [r7, #8]
+ 188:C:/StellarisWare/driverlib\epi.c ****     ulConfig |= ulRefresh << EPI_SDRAMCFG_RFSH_S;
+ 125              		.loc 1 188 0
+ 126 0018 7B68     		ldr	r3, [r7, #4]
+ 127 001a 4FEA0343 		lsl	r3, r3, #16
+ 128 001e BA68     		ldr	r2, [r7, #8]
+ 129 0020 1343     		orrs	r3, r3, r2
+ 130 0022 BB60     		str	r3, [r7, #8]
+ 189:C:/StellarisWare/driverlib\epi.c **** 
+ 190:C:/StellarisWare/driverlib\epi.c ****     //
+ 191:C:/StellarisWare/driverlib\epi.c ****     // Write the SDRAM configuration register.
+ 192:C:/StellarisWare/driverlib\epi.c ****     //
+ 193:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_SDRAMCFG) = ulConfig;
+ 131              		.loc 1 193 0
+ 132 0024 FB68     		ldr	r3, [r7, #12]
+ 133 0026 03F11003 		add	r3, r3, #16
+ 134 002a BA68     		ldr	r2, [r7, #8]
+ 135 002c 1A60     		str	r2, [r3, #0]
+ 194:C:/StellarisWare/driverlib\epi.c **** }
+ 136              		.loc 1 194 0
+ 137 002e 07F11407 		add	r7, r7, #20
+ 138 0032 BD46     		mov	sp, r7
+ 139 0034 80BC     		pop	{r7}
+ 140 0036 7047     		bx	lr
+ 141              		.cfi_endproc
+ 142              	.LFE2:
+ 144              		.section	.text.EPIConfigHB8Set,"ax",%progbits
+ 145              		.align	2
+ 146              		.global	EPIConfigHB8Set
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	EPIConfigHB8Set:
+ 151              	.LFB3:
+ 195:C:/StellarisWare/driverlib\epi.c **** 
+ 196:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 197:C:/StellarisWare/driverlib\epi.c **** //
+ 198:C:/StellarisWare/driverlib\epi.c **** //! Configures the interface for Host-bus 8 operation.
+ 199:C:/StellarisWare/driverlib\epi.c **** //!
+ 200:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 201:C:/StellarisWare/driverlib\epi.c **** //! \param ulConfig is the interface configuration.
+ 202:C:/StellarisWare/driverlib\epi.c **** //! \param ulMaxWait is the maximum number of external clocks to wait
+ 203:C:/StellarisWare/driverlib\epi.c **** //! if a FIFO ready signal is holding off the transaction.
+ 204:C:/StellarisWare/driverlib\epi.c **** //!
+ 205:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure the interface when used in Host-bus 8
+ 206:C:/StellarisWare/driverlib\epi.c **** //! operation as chosen with the function EPIModeSet().  The parameter
+ 207:C:/StellarisWare/driverlib\epi.c **** //! \e ulConfig is the logical OR of any of the following:
+ 208:C:/StellarisWare/driverlib\epi.c **** //!
+ 209:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB8_MODE_ADMUX, \b EPI_HB8_MODE_ADDEMUX,
+ 210:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB8_MODE_SRAM, or \b EPI_HB8_MODE_FIFO to select the HB8 mode
+ 211:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_USE_TXEMPTY - enable TXEMPTY signal with FIFO
+ 212:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_USE_RXFULL - enable RXFULL signal with FIFO
+ 213:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_WRHIGH - use active high write strobe, otherwise it is
+ 214:C:/StellarisWare/driverlib\epi.c **** //! active low
+ 215:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_RDHIGH - use active high read strobe, otherwise it is
+ 216:C:/StellarisWare/driverlib\epi.c **** //! active low
+ 217:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB8_WRWAIT_0, \b EPI_HB8_WRWAIT_1, \b EPI_HB8_WRWAIT_2,
+ 218:C:/StellarisWare/driverlib\epi.c **** //! or \b EPI_HB8_WRWAIT_3 to select the number of write wait states (default
+ 219:C:/StellarisWare/driverlib\epi.c **** //! is 0 wait states)
+ 220:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB8_RDWAIT_0, \b EPI_HB8_RDWAIT_1, \b EPI_HB8_RDWAIT_2,
+ 221:C:/StellarisWare/driverlib\epi.c **** //! or \b EPI_HB8_RDWAIT_3 to select the number of read wait states (default
+ 222:C:/StellarisWare/driverlib\epi.c **** //! is 0 wait states)
+ 223:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_WORD_ACCESS - use Word Access mode to route bytes to the
+ 224:C:/StellarisWare/driverlib\epi.c **** //! correct byte lanes allowing data to be stored in bits [31:8].  If absent,
+ 225:C:/StellarisWare/driverlib\epi.c **** //! all data transfers use bits [7:0].
+ 226:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB8_CSBAUD_DUAL - use different baud rates when accessing devices
+ 227:C:/StellarisWare/driverlib\epi.c **** //! on each CSn. CS0n uses the baud rate specified by the lower 16 bits of the
+ 228:C:/StellarisWare/driverlib\epi.c **** //! divider passed to EPIDividerSet() and CS1n uses the divider passed in the
+ 229:C:/StellarisWare/driverlib\epi.c **** //! upper 16 bits.  If this option is absent, both chip selects use the baud
+ 230:C:/StellarisWare/driverlib\epi.c **** //! rate resulting from the divider in the lower 16 bits of the parameter passed
+ 231:C:/StellarisWare/driverlib\epi.c **** //! to EPIDividerSet().
+ 232:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB8_CSCFG_CS, \b EPI_HB8_CSCFG_ALE,
+ 233:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB8_CSCFG_DUAL_CS or \b EPI_HB8_CSCFG_ALE_DUAL_CS.
+ 234:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB8_CSCFG_CS sets EPI30 to operate as a Chip Select (CSn) signal.
+ 235:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB8_CSCFG_ALE sets EPI30 to operate as an address latch (ALE).
+ 236:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB8_CSCFG_DUAL_CS sets EPI30 to operate as CS0n and EPI27 as CS1n
+ 237:C:/StellarisWare/driverlib\epi.c **** //! with the asserted chip select determined from the most significant address
+ 238:C:/StellarisWare/driverlib\epi.c **** //! bit for the respective external address map.  \b EPI_HB8_CSCFG_ALE_DUAL_CS
+ 239:C:/StellarisWare/driverlib\epi.c **** //! sets EPI30 as an address latch (ALE), EPI27 as CS0n and EPI26 as CS1n with
+ 240:C:/StellarisWare/driverlib\epi.c **** //! the asserted chip select determined from the most significant address bit
+ 241:C:/StellarisWare/driverlib\epi.c **** //! for the respective external address map.
+ 242:C:/StellarisWare/driverlib\epi.c **** //!
+ 243:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulMaxWait is used if the FIFO mode is chosen.  If a
+ 244:C:/StellarisWare/driverlib\epi.c **** //! FIFO is used along with RXFULL or TXEMPTY ready signals, then this
+ 245:C:/StellarisWare/driverlib\epi.c **** //! parameter determines the maximum number of clocks to wait when the
+ 246:C:/StellarisWare/driverlib\epi.c **** //! transaction is being held off by by the FIFO using one of these ready
+ 247:C:/StellarisWare/driverlib\epi.c **** //! signals.  A value of 0 means to wait forever.
+ 248:C:/StellarisWare/driverlib\epi.c **** //!
+ 249:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 250:C:/StellarisWare/driverlib\epi.c **** //
+ 251:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 252:C:/StellarisWare/driverlib\epi.c **** void
+ 253:C:/StellarisWare/driverlib\epi.c **** EPIConfigHB8Set(unsigned long ulBase, unsigned long ulConfig,
+ 254:C:/StellarisWare/driverlib\epi.c ****                 unsigned long ulMaxWait)
+ 255:C:/StellarisWare/driverlib\epi.c **** {
+ 152              		.loc 1 255 0
+ 153              		.cfi_startproc
+ 154              		@ args = 0, pretend = 0, frame = 16
+ 155              		@ frame_needed = 1, uses_anonymous_args = 0
+ 156              		@ link register save eliminated.
+ 157 0000 80B4     		push	{r7}
+ 158              	.LCFI9:
+ 159              		.cfi_def_cfa_offset 4
+ 160              		.cfi_offset 7, -4
+ 161 0002 85B0     		sub	sp, sp, #20
+ 162              	.LCFI10:
+ 163              		.cfi_def_cfa_offset 24
+ 164 0004 00AF     		add	r7, sp, #0
+ 165              	.LCFI11:
+ 166              		.cfi_def_cfa_register 7
+ 167 0006 F860     		str	r0, [r7, #12]
+ 168 0008 B960     		str	r1, [r7, #8]
+ 169 000a 7A60     		str	r2, [r7, #4]
+ 256:C:/StellarisWare/driverlib\epi.c ****     //
+ 257:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 258:C:/StellarisWare/driverlib\epi.c ****     //
+ 259:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 260:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulMaxWait < 256);
+ 261:C:/StellarisWare/driverlib\epi.c **** 
+ 262:C:/StellarisWare/driverlib\epi.c ****     //
+ 263:C:/StellarisWare/driverlib\epi.c ****     // Determine the CS and word access modes.
+ 264:C:/StellarisWare/driverlib\epi.c ****     //
+ 265:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB8CFG2) = (((ulConfig & EPI_HB8_WORD_ACCESS) ?
+ 170              		.loc 1 265 0
+ 171 000c FB68     		ldr	r3, [r7, #12]
+ 172 000e 03F11403 		add	r3, r3, #20
+ 173 0012 1946     		mov	r1, r3
+ 174 0014 BB68     		ldr	r3, [r7, #8]
+ 175 0016 03F48073 		and	r3, r3, #256
+ 266:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB8CFG2_WORD : 0) |
+ 176              		.loc 1 266 0
+ 177 001a 002B     		cmp	r3, #0
+ 178 001c 02D0     		beq	.L5
+ 179              		.loc 1 266 0 is_stmt 0 discriminator 1
+ 180 001e 4FF00042 		mov	r2, #-2147483648
+ 181 0022 01E0     		b	.L6
+ 182              	.L5:
+ 183              		.loc 1 266 0 discriminator 2
+ 184 0024 4FF00002 		mov	r2, #0
+ 185              	.L6:
+ 267:C:/StellarisWare/driverlib\epi.c ****                                      ((ulConfig & EPI_HB8_CSBAUD_DUAL) ?
+ 186              		.loc 1 267 0 is_stmt 1
+ 187 0028 BB68     		ldr	r3, [r7, #8]
+ 188 002a 03F40063 		and	r3, r3, #2048
+ 268:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB8CFG2_CSBAUD : 0) |
+ 189              		.loc 1 268 0
+ 190 002e 002B     		cmp	r3, #0
+ 191 0030 02D0     		beq	.L7
+ 192              		.loc 1 268 0 is_stmt 0 discriminator 1
+ 193 0032 4FF08063 		mov	r3, #67108864
+ 194 0036 01E0     		b	.L8
+ 195              	.L7:
+ 196              		.loc 1 268 0 discriminator 2
+ 197 0038 4FF00003 		mov	r3, #0
+ 198              	.L8:
+ 266:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB8CFG2_WORD : 0) |
+ 199              		.loc 1 266 0 is_stmt 1
+ 200 003c 1A43     		orrs	r2, r2, r3
+ 269:C:/StellarisWare/driverlib\epi.c ****                                       ((ulConfig & EPI_HB8_CSCFG_MASK) << 15));
+ 201              		.loc 1 269 0
+ 202 003e BB68     		ldr	r3, [r7, #8]
+ 203 0040 03F4C063 		and	r3, r3, #1536
+ 204 0044 4FEAC333 		lsl	r3, r3, #15
+ 268:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB8CFG2_CSBAUD : 0) |
+ 205              		.loc 1 268 0
+ 206 0048 1343     		orrs	r3, r3, r2
+ 265:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB8CFG2) = (((ulConfig & EPI_HB8_WORD_ACCESS) ?
+ 207              		.loc 1 265 0
+ 208 004a 0B60     		str	r3, [r1, #0]
+ 270:C:/StellarisWare/driverlib\epi.c ****     //
+ 271:C:/StellarisWare/driverlib\epi.c ****     // Fill in the max wait field of the configuration word.
+ 272:C:/StellarisWare/driverlib\epi.c ****     //
+ 273:C:/StellarisWare/driverlib\epi.c ****     ulConfig &= ~EPI_HB8CFG_MAXWAIT_M;
+ 209              		.loc 1 273 0
+ 210 004c BB68     		ldr	r3, [r7, #8]
+ 211 004e 23F47F43 		bic	r3, r3, #65280
+ 212 0052 BB60     		str	r3, [r7, #8]
+ 274:C:/StellarisWare/driverlib\epi.c ****     ulConfig |= ulMaxWait << EPI_HB8CFG_MAXWAIT_S;
+ 213              		.loc 1 274 0
+ 214 0054 7B68     		ldr	r3, [r7, #4]
+ 215 0056 4FEA0323 		lsl	r3, r3, #8
+ 216 005a BA68     		ldr	r2, [r7, #8]
+ 217 005c 1343     		orrs	r3, r3, r2
+ 218 005e BB60     		str	r3, [r7, #8]
+ 275:C:/StellarisWare/driverlib\epi.c **** 
+ 276:C:/StellarisWare/driverlib\epi.c ****     //
+ 277:C:/StellarisWare/driverlib\epi.c ****     // Write the main HostBus8 configuration register.
+ 278:C:/StellarisWare/driverlib\epi.c ****     //
+ 279:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB8CFG)  = ulConfig;
+ 219              		.loc 1 279 0
+ 220 0060 FB68     		ldr	r3, [r7, #12]
+ 221 0062 03F11003 		add	r3, r3, #16
+ 222 0066 BA68     		ldr	r2, [r7, #8]
+ 223 0068 1A60     		str	r2, [r3, #0]
+ 280:C:/StellarisWare/driverlib\epi.c **** }
+ 224              		.loc 1 280 0
+ 225 006a 07F11407 		add	r7, r7, #20
+ 226 006e BD46     		mov	sp, r7
+ 227 0070 80BC     		pop	{r7}
+ 228 0072 7047     		bx	lr
+ 229              		.cfi_endproc
+ 230              	.LFE3:
+ 232              		.section	.text.EPIConfigHB16Set,"ax",%progbits
+ 233              		.align	2
+ 234              		.global	EPIConfigHB16Set
+ 235              		.thumb
+ 236              		.thumb_func
+ 238              	EPIConfigHB16Set:
+ 239              	.LFB4:
+ 281:C:/StellarisWare/driverlib\epi.c **** 
+ 282:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 283:C:/StellarisWare/driverlib\epi.c **** //
+ 284:C:/StellarisWare/driverlib\epi.c **** //! Configures the interface for Host-bus 16 operation.
+ 285:C:/StellarisWare/driverlib\epi.c **** //!
+ 286:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 287:C:/StellarisWare/driverlib\epi.c **** //! \param ulConfig is the interface configuration.
+ 288:C:/StellarisWare/driverlib\epi.c **** //! \param ulMaxWait is the maximum number of external clocks to wait
+ 289:C:/StellarisWare/driverlib\epi.c **** //! if a FIFO ready signal is holding off the transaction.
+ 290:C:/StellarisWare/driverlib\epi.c **** //!
+ 291:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure the interface when used in Host-bus 16
+ 292:C:/StellarisWare/driverlib\epi.c **** //! operation as chosen with the function EPIModeSet().  The parameter
+ 293:C:/StellarisWare/driverlib\epi.c **** //! \e ulConfig is the logical OR of any of the following:
+ 294:C:/StellarisWare/driverlib\epi.c **** //!
+ 295:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB16_MODE_ADMUX, \b EPI_HB16_MODE_ADDEMUX,
+ 296:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB16_MODE_SRAM, or \b EPI_HB16_MODE_FIFO to select the HB16 mode
+ 297:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_USE_TXEMPTY - enable TXEMPTY signal with FIFO
+ 298:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_USE_RXFULL - enable RXFULL signal with FIFO
+ 299:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_WRHIGH - use active high write strobe, otherwise it is
+ 300:C:/StellarisWare/driverlib\epi.c **** //! active low
+ 301:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_RDHIGH - use active high read strobe, otherwise it is
+ 302:C:/StellarisWare/driverlib\epi.c **** //! active low
+ 303:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB16_WRWAIT_0, \b EPI_HB16_WRWAIT_1, \b EPI_HB16_WRWAIT_2,
+ 304:C:/StellarisWare/driverlib\epi.c **** //! or \b EPI_HB16_WRWAIT_3 to select the number of write wait states (default
+ 305:C:/StellarisWare/driverlib\epi.c **** //! is 0 wait states)
+ 306:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB16_RDWAIT_0, \b EPI_HB16_RDWAIT_1, \b EPI_HB16_RDWAIT_2,
+ 307:C:/StellarisWare/driverlib\epi.c **** //! or \b EPI_HB16_RDWAIT_3 to select the number of read wait states (default
+ 308:C:/StellarisWare/driverlib\epi.c **** //! is 0 wait states)
+ 309:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_WORD_ACCESS - use Word Access mode to route bytes to the
+ 310:C:/StellarisWare/driverlib\epi.c **** //! correct byte lanes allowing data to be stored in bits [31:16].  If absent,
+ 311:C:/StellarisWare/driverlib\epi.c **** //! all data transfers use bits [15:0].
+ 312:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_BSEL - enables byte selects.  In this mode, two EPI signals
+ 313:C:/StellarisWare/driverlib\epi.c **** //! operate as byte selects allowing 8-bit transfers.  If this flag is not
+ 314:C:/StellarisWare/driverlib\epi.c **** //! specified, data must be read and written using only 16-bit transfers.
+ 315:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_HB16_CSBAUD_DUAL - use different baud rates when accessing devices
+ 316:C:/StellarisWare/driverlib\epi.c **** //! on each CSn. CS0n uses the baud rate specified by the lower 16 bits of the
+ 317:C:/StellarisWare/driverlib\epi.c **** //! divider passed to EPIDividerSet() and CS1n uses the divider passed in the
+ 318:C:/StellarisWare/driverlib\epi.c **** //! upper 16 bits.  If this option is absent, both chip selects use the baud
+ 319:C:/StellarisWare/driverlib\epi.c **** //! rate resulting from the divider in the lower 16 bits of the parameter passed
+ 320:C:/StellarisWare/driverlib\epi.c **** //! to EPIDividerSet().
+ 321:C:/StellarisWare/driverlib\epi.c **** //! - one of \b EPI_HB16_CSCFG_CS, \b EPI_HB16_CSCFG_ALE,
+ 322:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB16_CSCFG_DUAL_CS or \b EPI_HB16_CSCFG_ALE_DUAL_CS.
+ 323:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB16_CSCFG_CS sets EPI30 to operate as a Chip Select (CSn) signal.
+ 324:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB16_CSCFG_ALE sets EPI30 to operate as an address latch (ALE).
+ 325:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_HB16_CSCFG_DUAL_CS sets EPI30 to operate as CS0n and EPI27 as CS1n
+ 326:C:/StellarisWare/driverlib\epi.c **** //! with the asserted chip select determined from the most significant address
+ 327:C:/StellarisWare/driverlib\epi.c **** //! bit for the respective external address map.  \b EPI_HB16_CSCFG_ALE_DUAL_CS
+ 328:C:/StellarisWare/driverlib\epi.c **** //! sets EPI30 as an address latch (ALE), EPI27 as CS0n and EPI26 as CS1n with
+ 329:C:/StellarisWare/driverlib\epi.c **** //! the asserted chip select determined from the most significant address bit
+ 330:C:/StellarisWare/driverlib\epi.c **** //! for the respective external address map.
+ 331:C:/StellarisWare/driverlib\epi.c **** //!
+ 332:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulMaxWait is used if the FIFO mode is chosen.  If a
+ 333:C:/StellarisWare/driverlib\epi.c **** //! FIFO is used along with RXFULL or TXEMPTY ready signals, then this
+ 334:C:/StellarisWare/driverlib\epi.c **** //! parameter determines the maximum number of clocks to wait when the
+ 335:C:/StellarisWare/driverlib\epi.c **** //! transaction is being held off by by the FIFO using one of these ready
+ 336:C:/StellarisWare/driverlib\epi.c **** //! signals.  A value of 0 means to wait forever.
+ 337:C:/StellarisWare/driverlib\epi.c **** //!
+ 338:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 339:C:/StellarisWare/driverlib\epi.c **** //
+ 340:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 341:C:/StellarisWare/driverlib\epi.c **** void
+ 342:C:/StellarisWare/driverlib\epi.c **** EPIConfigHB16Set(unsigned long ulBase, unsigned long ulConfig,
+ 343:C:/StellarisWare/driverlib\epi.c ****                 unsigned long ulMaxWait)
+ 344:C:/StellarisWare/driverlib\epi.c **** {
+ 240              		.loc 1 344 0
+ 241              		.cfi_startproc
+ 242              		@ args = 0, pretend = 0, frame = 16
+ 243              		@ frame_needed = 1, uses_anonymous_args = 0
+ 244              		@ link register save eliminated.
+ 245 0000 80B4     		push	{r7}
+ 246              	.LCFI12:
+ 247              		.cfi_def_cfa_offset 4
+ 248              		.cfi_offset 7, -4
+ 249 0002 85B0     		sub	sp, sp, #20
+ 250              	.LCFI13:
+ 251              		.cfi_def_cfa_offset 24
+ 252 0004 00AF     		add	r7, sp, #0
+ 253              	.LCFI14:
+ 254              		.cfi_def_cfa_register 7
+ 255 0006 F860     		str	r0, [r7, #12]
+ 256 0008 B960     		str	r1, [r7, #8]
+ 257 000a 7A60     		str	r2, [r7, #4]
+ 345:C:/StellarisWare/driverlib\epi.c ****     //
+ 346:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 347:C:/StellarisWare/driverlib\epi.c ****     //
+ 348:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 349:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulMaxWait < 256);
+ 350:C:/StellarisWare/driverlib\epi.c **** 
+ 351:C:/StellarisWare/driverlib\epi.c ****     //
+ 352:C:/StellarisWare/driverlib\epi.c ****     // Determine the CS and word access modes.
+ 353:C:/StellarisWare/driverlib\epi.c ****     //
+ 354:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB16CFG2) = (((ulConfig & EPI_HB16_WORD_ACCESS) ?
+ 258              		.loc 1 354 0
+ 259 000c FB68     		ldr	r3, [r7, #12]
+ 260 000e 03F11403 		add	r3, r3, #20
+ 261 0012 1946     		mov	r1, r3
+ 262 0014 BB68     		ldr	r3, [r7, #8]
+ 263 0016 03F48073 		and	r3, r3, #256
+ 355:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB16CFG2_WORD : 0) |
+ 264              		.loc 1 355 0
+ 265 001a 002B     		cmp	r3, #0
+ 266 001c 02D0     		beq	.L10
+ 267              		.loc 1 355 0 is_stmt 0 discriminator 1
+ 268 001e 4FF00042 		mov	r2, #-2147483648
+ 269 0022 01E0     		b	.L11
+ 270              	.L10:
+ 271              		.loc 1 355 0 discriminator 2
+ 272 0024 4FF00002 		mov	r2, #0
+ 273              	.L11:
+ 356:C:/StellarisWare/driverlib\epi.c ****                                      ((ulConfig & EPI_HB16_CSBAUD_DUAL) ?
+ 274              		.loc 1 356 0 is_stmt 1
+ 275 0028 BB68     		ldr	r3, [r7, #8]
+ 276 002a 03F40063 		and	r3, r3, #2048
+ 357:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB16CFG2_CSBAUD : 0) |
+ 277              		.loc 1 357 0
+ 278 002e 002B     		cmp	r3, #0
+ 279 0030 02D0     		beq	.L12
+ 280              		.loc 1 357 0 is_stmt 0 discriminator 1
+ 281 0032 4FF08063 		mov	r3, #67108864
+ 282 0036 01E0     		b	.L13
+ 283              	.L12:
+ 284              		.loc 1 357 0 discriminator 2
+ 285 0038 4FF00003 		mov	r3, #0
+ 286              	.L13:
+ 355:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB16CFG2_WORD : 0) |
+ 287              		.loc 1 355 0 is_stmt 1
+ 288 003c 1A43     		orrs	r2, r2, r3
+ 358:C:/StellarisWare/driverlib\epi.c ****                                       ((ulConfig & EPI_HB16_CSCFG_MASK) << 15));
+ 289              		.loc 1 358 0
+ 290 003e BB68     		ldr	r3, [r7, #8]
+ 291 0040 03F4C063 		and	r3, r3, #1536
+ 292 0044 4FEAC333 		lsl	r3, r3, #15
+ 357:C:/StellarisWare/driverlib\epi.c ****                                        EPI_HB16CFG2_CSBAUD : 0) |
+ 293              		.loc 1 357 0
+ 294 0048 1343     		orrs	r3, r3, r2
+ 354:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB16CFG2) = (((ulConfig & EPI_HB16_WORD_ACCESS) ?
+ 295              		.loc 1 354 0
+ 296 004a 0B60     		str	r3, [r1, #0]
+ 359:C:/StellarisWare/driverlib\epi.c **** 
+ 360:C:/StellarisWare/driverlib\epi.c ****     //
+ 361:C:/StellarisWare/driverlib\epi.c ****     // Fill in the max wait field of the configuration word.
+ 362:C:/StellarisWare/driverlib\epi.c ****     //
+ 363:C:/StellarisWare/driverlib\epi.c ****     ulConfig &= ~EPI_HB16CFG_MAXWAIT_M;
+ 297              		.loc 1 363 0
+ 298 004c BB68     		ldr	r3, [r7, #8]
+ 299 004e 23F47F43 		bic	r3, r3, #65280
+ 300 0052 BB60     		str	r3, [r7, #8]
+ 364:C:/StellarisWare/driverlib\epi.c ****     ulConfig |= ulMaxWait << EPI_HB16CFG_MAXWAIT_S;
+ 301              		.loc 1 364 0
+ 302 0054 7B68     		ldr	r3, [r7, #4]
+ 303 0056 4FEA0323 		lsl	r3, r3, #8
+ 304 005a BA68     		ldr	r2, [r7, #8]
+ 305 005c 1343     		orrs	r3, r3, r2
+ 306 005e BB60     		str	r3, [r7, #8]
+ 365:C:/StellarisWare/driverlib\epi.c **** 
+ 366:C:/StellarisWare/driverlib\epi.c ****     //
+ 367:C:/StellarisWare/driverlib\epi.c ****     // Write the main HostBus16 configuration register.
+ 368:C:/StellarisWare/driverlib\epi.c ****     //
+ 369:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_HB16CFG)  = ulConfig;
+ 307              		.loc 1 369 0
+ 308 0060 FB68     		ldr	r3, [r7, #12]
+ 309 0062 03F11003 		add	r3, r3, #16
+ 310 0066 BA68     		ldr	r2, [r7, #8]
+ 311 0068 1A60     		str	r2, [r3, #0]
+ 370:C:/StellarisWare/driverlib\epi.c **** }
+ 312              		.loc 1 370 0
+ 313 006a 07F11407 		add	r7, r7, #20
+ 314 006e BD46     		mov	sp, r7
+ 315 0070 80BC     		pop	{r7}
+ 316 0072 7047     		bx	lr
+ 317              		.cfi_endproc
+ 318              	.LFE4:
+ 320              		.section	.text.EPIConfigGPModeSet,"ax",%progbits
+ 321              		.align	2
+ 322              		.global	EPIConfigGPModeSet
+ 323              		.thumb
+ 324              		.thumb_func
+ 326              	EPIConfigGPModeSet:
+ 327              	.LFB5:
+ 371:C:/StellarisWare/driverlib\epi.c **** 
+ 372:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 373:C:/StellarisWare/driverlib\epi.c **** //
+ 374:C:/StellarisWare/driverlib\epi.c **** //! Configures the interface for general-purpose mode operation.
+ 375:C:/StellarisWare/driverlib\epi.c **** //!
+ 376:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 377:C:/StellarisWare/driverlib\epi.c **** //! \param ulConfig is the interface configuration.
+ 378:C:/StellarisWare/driverlib\epi.c **** //! \param ulFrameCount is the frame size in clocks, if the frame signal
+ 379:C:/StellarisWare/driverlib\epi.c **** //! is used (0-15).
+ 380:C:/StellarisWare/driverlib\epi.c **** //! \param ulMaxWait is the maximum number of external clocks to wait
+ 381:C:/StellarisWare/driverlib\epi.c **** //! when the external clock enable is holding off the transaction (0-255).
+ 382:C:/StellarisWare/driverlib\epi.c **** //!
+ 383:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure the interface when used in
+ 384:C:/StellarisWare/driverlib\epi.c **** //! general-purpose operation as chosen with the function EPIModeSet().  The
+ 385:C:/StellarisWare/driverlib\epi.c **** //! parameter \e ulConfig is the logical OR of any of the following:
+ 386:C:/StellarisWare/driverlib\epi.c **** //!
+ 387:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_CLKPIN - interface clock is output on a pin
+ 388:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_CLKGATE - clock is stopped when there is no transaction,
+ 389:C:/StellarisWare/driverlib\epi.c **** //! otherwise it is free-running
+ 390:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_RDYEN - the external peripheral drives an iRDY signal into
+ 391:C:/StellarisWare/driverlib\epi.c **** //! pin EPI0S27.  If absent, the peripheral is assumed to be ready at all times.
+ 392:C:/StellarisWare/driverlib\epi.c **** //! This flag may only be used with a free-running clock (\b EPI_GPMODE_CLKGATE
+ 393:C:/StellarisWare/driverlib\epi.c **** //! is absent).
+ 394:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_FRAMEPIN - framing signal is emitted on a pin
+ 395:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_FRAME50 - framing signal is 50/50 duty cycle, otherwise it
+ 396:C:/StellarisWare/driverlib\epi.c **** //! is a pulse
+ 397:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_READWRITE - read and write strobes are emitted on pins
+ 398:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_WRITE2CYCLE - a two-cycle write is used, otherwise a
+ 399:C:/StellarisWare/driverlib\epi.c **** //! single-cycle write is used
+ 400:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_READ2CYCLE - a two-cycle read is used, otherwise a
+ 401:C:/StellarisWare/driverlib\epi.c **** //! single-cycle read is used
+ 402:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_ASIZE_NONE, \b EPI_GPMODE_ASIZE_4,
+ 403:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_GPMODE_ASIZE_12, or \b EPI_GPMODE_ASIZE_20 to choose no address
+ 404:C:/StellarisWare/driverlib\epi.c **** //! bus or an address bus size of 4, 12, or 20 bits
+ 405:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_DSIZE_8, \b EPI_GPMODE_DSIZE_16,
+ 406:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_GPMODE_DSIZE_24, or \b EPI_GPMODE_DSIZE_32 to select a data bus
+ 407:C:/StellarisWare/driverlib\epi.c **** //! size of 8, 16, 24, or 32 bits
+ 408:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_GPMODE_WORD_ACCESS - use Word Access mode to route bytes to the
+ 409:C:/StellarisWare/driverlib\epi.c **** //! correct byte lanes allowing data to be stored in the upper bits of the word
+ 410:C:/StellarisWare/driverlib\epi.c **** //! when necessary.
+ 411:C:/StellarisWare/driverlib\epi.c **** //!
+ 412:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulFrameCount is the number of clocks used to form the
+ 413:C:/StellarisWare/driverlib\epi.c **** //! framing signal, if the framing signal is used.  The behavior depends on
+ 414:C:/StellarisWare/driverlib\epi.c **** //! whether the frame signal is a pulse or a 50/50 duty cycle.  This value
+ 415:C:/StellarisWare/driverlib\epi.c **** //! is not used if the framing signal is not enabled with the option
+ 416:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_GPMODE_FRAMEPIN.
+ 417:C:/StellarisWare/driverlib\epi.c **** //!
+ 418:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulMaxWait is used if the external clock enable is turned
+ 419:C:/StellarisWare/driverlib\epi.c **** //! on with the \b EPI_GPMODE_CLKENA option is used.  In the case that
+ 420:C:/StellarisWare/driverlib\epi.c **** //! external clock enable is used, this parameter determines the maximum
+ 421:C:/StellarisWare/driverlib\epi.c **** //! number of clocks to wait when the external clock enable signal is holding
+ 422:C:/StellarisWare/driverlib\epi.c **** //! off a transaction.  A value of 0 means to wait forever.  If a non-zero
+ 423:C:/StellarisWare/driverlib\epi.c **** //! value is used and exceeded, an interrupt occurs and the transaction
+ 424:C:/StellarisWare/driverlib\epi.c **** //! aborted.
+ 425:C:/StellarisWare/driverlib\epi.c **** //!
+ 426:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 427:C:/StellarisWare/driverlib\epi.c **** //
+ 428:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 429:C:/StellarisWare/driverlib\epi.c **** void
+ 430:C:/StellarisWare/driverlib\epi.c **** EPIConfigGPModeSet(unsigned long ulBase, unsigned long ulConfig,
+ 431:C:/StellarisWare/driverlib\epi.c ****                    unsigned long ulFrameCount, unsigned long ulMaxWait)
+ 432:C:/StellarisWare/driverlib\epi.c **** {
+ 328              		.loc 1 432 0
+ 329              		.cfi_startproc
+ 330              		@ args = 0, pretend = 0, frame = 16
+ 331              		@ frame_needed = 1, uses_anonymous_args = 0
+ 332              		@ link register save eliminated.
+ 333 0000 80B4     		push	{r7}
+ 334              	.LCFI15:
+ 335              		.cfi_def_cfa_offset 4
+ 336              		.cfi_offset 7, -4
+ 337 0002 85B0     		sub	sp, sp, #20
+ 338              	.LCFI16:
+ 339              		.cfi_def_cfa_offset 24
+ 340 0004 00AF     		add	r7, sp, #0
+ 341              	.LCFI17:
+ 342              		.cfi_def_cfa_register 7
+ 343 0006 F860     		str	r0, [r7, #12]
+ 344 0008 B960     		str	r1, [r7, #8]
+ 345 000a 7A60     		str	r2, [r7, #4]
+ 346 000c 3B60     		str	r3, [r7, #0]
+ 433:C:/StellarisWare/driverlib\epi.c ****     //
+ 434:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 435:C:/StellarisWare/driverlib\epi.c ****     //
+ 436:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 437:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulFrameCount < 16);
+ 438:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulMaxWait < 256);
+ 439:C:/StellarisWare/driverlib\epi.c **** 
+ 440:C:/StellarisWare/driverlib\epi.c ****     //
+ 441:C:/StellarisWare/driverlib\epi.c ****     // Set the word access mode.
+ 442:C:/StellarisWare/driverlib\epi.c ****     //
+ 443:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_GPCFG2) = ((ulConfig & EPI_GPMODE_WORD_ACCESS) ?
+ 347              		.loc 1 443 0
+ 348 000e FB68     		ldr	r3, [r7, #12]
+ 349 0010 03F11403 		add	r3, r3, #20
+ 350 0014 1A46     		mov	r2, r3
+ 351 0016 BB68     		ldr	r3, [r7, #8]
+ 352 0018 03F48073 		and	r3, r3, #256
+ 353 001c 002B     		cmp	r3, #0
+ 354 001e 02D0     		beq	.L15
+ 355              		.loc 1 443 0 is_stmt 0 discriminator 1
+ 356 0020 4FF00043 		mov	r3, #-2147483648
+ 357 0024 01E0     		b	.L16
+ 358              	.L15:
+ 359              		.loc 1 443 0 discriminator 2
+ 360 0026 4FF00003 		mov	r3, #0
+ 361              	.L16:
+ 362              		.loc 1 443 0 discriminator 3
+ 363 002a 1360     		str	r3, [r2, #0]
+ 444:C:/StellarisWare/driverlib\epi.c ****                                     EPI_GPCFG2_WORD : 0);
+ 445:C:/StellarisWare/driverlib\epi.c **** 
+ 446:C:/StellarisWare/driverlib\epi.c ****     //
+ 447:C:/StellarisWare/driverlib\epi.c ****     // Fill in the frame count field of the configuration word.
+ 448:C:/StellarisWare/driverlib\epi.c ****     //
+ 449:C:/StellarisWare/driverlib\epi.c ****     ulConfig &= ~EPI_GPCFG_FRMCNT_M;
+ 364              		.loc 1 449 0 is_stmt 1 discriminator 3
+ 365 002c BB68     		ldr	r3, [r7, #8]
+ 366 002e 23F07073 		bic	r3, r3, #62914560
+ 367 0032 BB60     		str	r3, [r7, #8]
+ 450:C:/StellarisWare/driverlib\epi.c ****     ulConfig |= ulFrameCount << EPI_GPCFG_FRMCNT_S;
+ 368              		.loc 1 450 0 discriminator 3
+ 369 0034 7B68     		ldr	r3, [r7, #4]
+ 370 0036 4FEA8353 		lsl	r3, r3, #22
+ 371 003a BA68     		ldr	r2, [r7, #8]
+ 372 003c 1343     		orrs	r3, r3, r2
+ 373 003e BB60     		str	r3, [r7, #8]
+ 451:C:/StellarisWare/driverlib\epi.c **** 
+ 452:C:/StellarisWare/driverlib\epi.c ****     //
+ 453:C:/StellarisWare/driverlib\epi.c ****     // Fill in the max wait field of the configuration word.
+ 454:C:/StellarisWare/driverlib\epi.c ****     //
+ 455:C:/StellarisWare/driverlib\epi.c ****     ulConfig &= ~EPI_GPCFG_MAXWAIT_M;
+ 374              		.loc 1 455 0 discriminator 3
+ 375 0040 BB68     		ldr	r3, [r7, #8]
+ 376 0042 23F47F43 		bic	r3, r3, #65280
+ 377 0046 BB60     		str	r3, [r7, #8]
+ 456:C:/StellarisWare/driverlib\epi.c ****     ulConfig |= ulMaxWait << EPI_GPCFG_MAXWAIT_S;
+ 378              		.loc 1 456 0 discriminator 3
+ 379 0048 3B68     		ldr	r3, [r7, #0]
+ 380 004a 4FEA0323 		lsl	r3, r3, #8
+ 381 004e BA68     		ldr	r2, [r7, #8]
+ 382 0050 1343     		orrs	r3, r3, r2
+ 383 0052 BB60     		str	r3, [r7, #8]
+ 457:C:/StellarisWare/driverlib\epi.c **** 
+ 458:C:/StellarisWare/driverlib\epi.c ****     //
+ 459:C:/StellarisWare/driverlib\epi.c ****     // Write the non-moded configuration register.
+ 460:C:/StellarisWare/driverlib\epi.c ****     //
+ 461:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_GPCFG) = ulConfig;
+ 384              		.loc 1 461 0 discriminator 3
+ 385 0054 FB68     		ldr	r3, [r7, #12]
+ 386 0056 03F11003 		add	r3, r3, #16
+ 387 005a BA68     		ldr	r2, [r7, #8]
+ 388 005c 1A60     		str	r2, [r3, #0]
+ 462:C:/StellarisWare/driverlib\epi.c **** }
+ 389              		.loc 1 462 0 discriminator 3
+ 390 005e 07F11407 		add	r7, r7, #20
+ 391 0062 BD46     		mov	sp, r7
+ 392 0064 80BC     		pop	{r7}
+ 393 0066 7047     		bx	lr
+ 394              		.cfi_endproc
+ 395              	.LFE5:
+ 397              		.section	.text.EPIAddressMapSet,"ax",%progbits
+ 398              		.align	2
+ 399              		.global	EPIAddressMapSet
+ 400              		.thumb
+ 401              		.thumb_func
+ 403              	EPIAddressMapSet:
+ 404              	.LFB6:
+ 463:C:/StellarisWare/driverlib\epi.c **** 
+ 464:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 465:C:/StellarisWare/driverlib\epi.c **** //
+ 466:C:/StellarisWare/driverlib\epi.c **** //! Configures the address map for the external interface.
+ 467:C:/StellarisWare/driverlib\epi.c **** //!
+ 468:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 469:C:/StellarisWare/driverlib\epi.c **** //! \param ulMap is the address mapping configuration.
+ 470:C:/StellarisWare/driverlib\epi.c **** //!
+ 471:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure the address mapping for the external
+ 472:C:/StellarisWare/driverlib\epi.c **** //! interface.  This determines the base address of the external memory or
+ 473:C:/StellarisWare/driverlib\epi.c **** //! device within the processor peripheral and/or memory space.
+ 474:C:/StellarisWare/driverlib\epi.c **** //!
+ 475:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulMap is the logical OR of the following:
+ 476:C:/StellarisWare/driverlib\epi.c **** //!
+ 477:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_ADDR_PER_SIZE_256B, \b EPI_ADDR_PER_SIZE_64KB,
+ 478:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_ADDR_PER_SIZE_16MB, or \b EPI_ADDR_PER_SIZE_512MB to choose a
+ 479:C:/StellarisWare/driverlib\epi.c **** //! peripheral address space of 256 bytes, 64 Kbytes, 16 Mbytes or 512 Mbytes
+ 480:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_ADDR_PER_BASE_NONE, \b EPI_ADDR_PER_BASE_A, or
+ 481:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_ADDR_PER_BASE_C to choose the base address of the peripheral
+ 482:C:/StellarisWare/driverlib\epi.c **** //! space as none, 0xA0000000, or 0xC0000000
+ 483:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_ADDR_RAM_SIZE_256B, \b EPI_ADDR_RAM_SIZE_64KB,
+ 484:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_ADDR_RAM_SIZE_16MB, or \b EPI_ADDR_RAM_SIZE_512MB to choose a
+ 485:C:/StellarisWare/driverlib\epi.c **** //! RAM address space of 256 bytes, 64 Kbytes, 16 Mbytes or 512 Mbytes
+ 486:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_ADDR_RAM_BASE_NONE, \b EPI_ADDR_RAM_BASE_6, or
+ 487:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_ADDR_RAM_BASE_8 to choose the base address of the RAM space
+ 488:C:/StellarisWare/driverlib\epi.c **** //! as none, 0x60000000, or 0x80000000
+ 489:C:/StellarisWare/driverlib\epi.c **** //!
+ 490:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 491:C:/StellarisWare/driverlib\epi.c **** //
+ 492:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 493:C:/StellarisWare/driverlib\epi.c **** void
+ 494:C:/StellarisWare/driverlib\epi.c **** EPIAddressMapSet(unsigned long ulBase, unsigned long ulMap)
+ 495:C:/StellarisWare/driverlib\epi.c **** {
+ 405              		.loc 1 495 0
+ 406              		.cfi_startproc
+ 407              		@ args = 0, pretend = 0, frame = 8
+ 408              		@ frame_needed = 1, uses_anonymous_args = 0
+ 409              		@ link register save eliminated.
+ 410 0000 80B4     		push	{r7}
+ 411              	.LCFI18:
+ 412              		.cfi_def_cfa_offset 4
+ 413              		.cfi_offset 7, -4
+ 414 0002 83B0     		sub	sp, sp, #12
+ 415              	.LCFI19:
+ 416              		.cfi_def_cfa_offset 16
+ 417 0004 00AF     		add	r7, sp, #0
+ 418              	.LCFI20:
+ 419              		.cfi_def_cfa_register 7
+ 420 0006 7860     		str	r0, [r7, #4]
+ 421 0008 3960     		str	r1, [r7, #0]
+ 496:C:/StellarisWare/driverlib\epi.c ****     //
+ 497:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 498:C:/StellarisWare/driverlib\epi.c ****     //
+ 499:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 500:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulMap < 0x100);
+ 501:C:/StellarisWare/driverlib\epi.c **** 
+ 502:C:/StellarisWare/driverlib\epi.c ****     //
+ 503:C:/StellarisWare/driverlib\epi.c ****     // Set the value of the address mapping register.
+ 504:C:/StellarisWare/driverlib\epi.c ****     //
+ 505:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_ADDRMAP) = ulMap;
+ 422              		.loc 1 505 0
+ 423 000a 7B68     		ldr	r3, [r7, #4]
+ 424 000c 03F11C03 		add	r3, r3, #28
+ 425 0010 3A68     		ldr	r2, [r7, #0]
+ 426 0012 1A60     		str	r2, [r3, #0]
+ 506:C:/StellarisWare/driverlib\epi.c **** }
+ 427              		.loc 1 506 0
+ 428 0014 07F10C07 		add	r7, r7, #12
+ 429 0018 BD46     		mov	sp, r7
+ 430 001a 80BC     		pop	{r7}
+ 431 001c 7047     		bx	lr
+ 432              		.cfi_endproc
+ 433              	.LFE6:
+ 435 001e 00BF     		.section	.text.EPINonBlockingReadConfigure,"ax",%progbits
+ 436              		.align	2
+ 437              		.global	EPINonBlockingReadConfigure
+ 438              		.thumb
+ 439              		.thumb_func
+ 441              	EPINonBlockingReadConfigure:
+ 442              	.LFB7:
+ 507:C:/StellarisWare/driverlib\epi.c **** 
+ 508:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 509:C:/StellarisWare/driverlib\epi.c **** //
+ 510:C:/StellarisWare/driverlib\epi.c **** //! Configures a non-blocking read transaction.
+ 511:C:/StellarisWare/driverlib\epi.c **** //!
+ 512:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 513:C:/StellarisWare/driverlib\epi.c **** //! \param ulChannel is the read channel (0 or 1).
+ 514:C:/StellarisWare/driverlib\epi.c **** //! \param ulDataSize is the size of the data items to read.
+ 515:C:/StellarisWare/driverlib\epi.c **** //! \param ulAddress is the starting address to read.
+ 516:C:/StellarisWare/driverlib\epi.c **** //!
+ 517:C:/StellarisWare/driverlib\epi.c **** //! This function is used to configure a non-blocking read channel for a
+ 518:C:/StellarisWare/driverlib\epi.c **** //! transaction.  Two channels are available which can be used in a ping-pong
+ 519:C:/StellarisWare/driverlib\epi.c **** //! method for continuous reading.  It is not necessary to use both channels
+ 520:C:/StellarisWare/driverlib\epi.c **** //! to perform a non-blocking read.
+ 521:C:/StellarisWare/driverlib\epi.c **** //!
+ 522:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulDataSize is one of \b EPI_NBCONFIG_SIZE_8,
+ 523:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_NBCONFIG_SIZE_16, or \b EPI_NBCONFIG_SIZE_32 for 8-bit, 16-bit,
+ 524:C:/StellarisWare/driverlib\epi.c **** //! or 32-bit sized data transfers.
+ 525:C:/StellarisWare/driverlib\epi.c **** //!
+ 526:C:/StellarisWare/driverlib\epi.c **** //! The parameter \e ulAddress is the starting address for the read, relative
+ 527:C:/StellarisWare/driverlib\epi.c **** //! to the external device.  The start of the device is address 0.
+ 528:C:/StellarisWare/driverlib\epi.c **** //!
+ 529:C:/StellarisWare/driverlib\epi.c **** //! Once configured, the non-blocking read is started by calling
+ 530:C:/StellarisWare/driverlib\epi.c **** //! EPINonBlockingReadStart().  If the addresses to be read from the device
+ 531:C:/StellarisWare/driverlib\epi.c **** //! are in a sequence, it is not necessary to call this function multiple
+ 532:C:/StellarisWare/driverlib\epi.c **** //! times.  Until it is changed, the EPI module stores the last address
+ 533:C:/StellarisWare/driverlib\epi.c **** //! that was used for a non-blocking read (per channel).
+ 534:C:/StellarisWare/driverlib\epi.c **** //!
+ 535:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 536:C:/StellarisWare/driverlib\epi.c **** //
+ 537:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 538:C:/StellarisWare/driverlib\epi.c **** void
+ 539:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadConfigure(unsigned long ulBase, unsigned long ulChannel,
+ 540:C:/StellarisWare/driverlib\epi.c ****                             unsigned long ulDataSize, unsigned long ulAddress)
+ 541:C:/StellarisWare/driverlib\epi.c **** {
+ 443              		.loc 1 541 0
+ 444              		.cfi_startproc
+ 445              		@ args = 0, pretend = 0, frame = 24
+ 446              		@ frame_needed = 1, uses_anonymous_args = 0
+ 447              		@ link register save eliminated.
+ 448 0000 80B4     		push	{r7}
+ 449              	.LCFI21:
+ 450              		.cfi_def_cfa_offset 4
+ 451              		.cfi_offset 7, -4
+ 452 0002 87B0     		sub	sp, sp, #28
+ 453              	.LCFI22:
+ 454              		.cfi_def_cfa_offset 32
+ 455 0004 00AF     		add	r7, sp, #0
+ 456              	.LCFI23:
+ 457              		.cfi_def_cfa_register 7
+ 458 0006 F860     		str	r0, [r7, #12]
+ 459 0008 B960     		str	r1, [r7, #8]
+ 460 000a 7A60     		str	r2, [r7, #4]
+ 461 000c 3B60     		str	r3, [r7, #0]
+ 542:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulOffset;
+ 543:C:/StellarisWare/driverlib\epi.c **** 
+ 544:C:/StellarisWare/driverlib\epi.c ****     //
+ 545:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 546:C:/StellarisWare/driverlib\epi.c ****     //
+ 547:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 548:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulChannel < 2);
+ 549:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulDataSize < 4);
+ 550:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulAddress < 0x20000000);
+ 551:C:/StellarisWare/driverlib\epi.c **** 
+ 552:C:/StellarisWare/driverlib\epi.c ****     //
+ 553:C:/StellarisWare/driverlib\epi.c ****     // Compute the offset needed to select the correct channel regs.
+ 554:C:/StellarisWare/driverlib\epi.c ****     //
+ 555:C:/StellarisWare/driverlib\epi.c ****     ulOffset = ulChannel * (EPI_O_RSIZE1 - EPI_O_RSIZE0);
+ 462              		.loc 1 555 0
+ 463 000e BB68     		ldr	r3, [r7, #8]
+ 464 0010 4FEA0313 		lsl	r3, r3, #4
+ 465 0014 7B61     		str	r3, [r7, #20]
+ 556:C:/StellarisWare/driverlib\epi.c **** 
+ 557:C:/StellarisWare/driverlib\epi.c ****     //
+ 558:C:/StellarisWare/driverlib\epi.c ****     // Write the data size register for the channel.
+ 559:C:/StellarisWare/driverlib\epi.c ****     //
+ 560:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_RSIZE0 + ulOffset) = ulDataSize;
+ 466              		.loc 1 560 0
+ 467 0016 FA68     		ldr	r2, [r7, #12]
+ 468 0018 7B69     		ldr	r3, [r7, #20]
+ 469 001a D318     		adds	r3, r2, r3
+ 470 001c 03F12003 		add	r3, r3, #32
+ 471 0020 7A68     		ldr	r2, [r7, #4]
+ 472 0022 1A60     		str	r2, [r3, #0]
+ 561:C:/StellarisWare/driverlib\epi.c **** 
+ 562:C:/StellarisWare/driverlib\epi.c ****     //
+ 563:C:/StellarisWare/driverlib\epi.c ****     // Write the starting address register for the channel.
+ 564:C:/StellarisWare/driverlib\epi.c ****     //
+ 565:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_RADDR0 + ulOffset) = ulAddress;
+ 473              		.loc 1 565 0
+ 474 0024 FA68     		ldr	r2, [r7, #12]
+ 475 0026 7B69     		ldr	r3, [r7, #20]
+ 476 0028 D318     		adds	r3, r2, r3
+ 477 002a 03F12403 		add	r3, r3, #36
+ 478 002e 3A68     		ldr	r2, [r7, #0]
+ 479 0030 1A60     		str	r2, [r3, #0]
+ 566:C:/StellarisWare/driverlib\epi.c **** }
+ 480              		.loc 1 566 0
+ 481 0032 07F11C07 		add	r7, r7, #28
+ 482 0036 BD46     		mov	sp, r7
+ 483 0038 80BC     		pop	{r7}
+ 484 003a 7047     		bx	lr
+ 485              		.cfi_endproc
+ 486              	.LFE7:
+ 488              		.section	.text.EPINonBlockingReadStart,"ax",%progbits
+ 489              		.align	2
+ 490              		.global	EPINonBlockingReadStart
+ 491              		.thumb
+ 492              		.thumb_func
+ 494              	EPINonBlockingReadStart:
+ 495              	.LFB8:
+ 567:C:/StellarisWare/driverlib\epi.c **** 
+ 568:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 569:C:/StellarisWare/driverlib\epi.c **** //
+ 570:C:/StellarisWare/driverlib\epi.c **** //! Starts a non-blocking read transaction.
+ 571:C:/StellarisWare/driverlib\epi.c **** //!
+ 572:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 573:C:/StellarisWare/driverlib\epi.c **** //! \param ulChannel is the read channel (0 or 1).
+ 574:C:/StellarisWare/driverlib\epi.c **** //! \param ulCount is the number of items to read (1-4095).
+ 575:C:/StellarisWare/driverlib\epi.c **** //!
+ 576:C:/StellarisWare/driverlib\epi.c **** //! This function starts a non-blocking read that was previously configured
+ 577:C:/StellarisWare/driverlib\epi.c **** //! with the function EPINonBlockingReadConfigure().  Once this function is
+ 578:C:/StellarisWare/driverlib\epi.c **** //! called, the EPI module begins reading data from the external device
+ 579:C:/StellarisWare/driverlib\epi.c **** //! into the read FIFO.  The EPI stops reading when the FIFO fills up
+ 580:C:/StellarisWare/driverlib\epi.c **** //! and resumes reading when the application drains the FIFO, until the
+ 581:C:/StellarisWare/driverlib\epi.c **** //! total specified count of data items has been read.
+ 582:C:/StellarisWare/driverlib\epi.c **** //!
+ 583:C:/StellarisWare/driverlib\epi.c **** //! Once a read transaction is completed and the FIFO drained, another
+ 584:C:/StellarisWare/driverlib\epi.c **** //! transaction can be started from the next address by calling this
+ 585:C:/StellarisWare/driverlib\epi.c **** //! function again.
+ 586:C:/StellarisWare/driverlib\epi.c **** //!
+ 587:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 588:C:/StellarisWare/driverlib\epi.c **** //
+ 589:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 590:C:/StellarisWare/driverlib\epi.c **** void
+ 591:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadStart(unsigned long ulBase, unsigned long ulChannel,
+ 592:C:/StellarisWare/driverlib\epi.c ****                         unsigned long ulCount)
+ 593:C:/StellarisWare/driverlib\epi.c **** {
+ 496              		.loc 1 593 0
+ 497              		.cfi_startproc
+ 498              		@ args = 0, pretend = 0, frame = 24
+ 499              		@ frame_needed = 1, uses_anonymous_args = 0
+ 500              		@ link register save eliminated.
+ 501 0000 80B4     		push	{r7}
+ 502              	.LCFI24:
+ 503              		.cfi_def_cfa_offset 4
+ 504              		.cfi_offset 7, -4
+ 505 0002 87B0     		sub	sp, sp, #28
+ 506              	.LCFI25:
+ 507              		.cfi_def_cfa_offset 32
+ 508 0004 00AF     		add	r7, sp, #0
+ 509              	.LCFI26:
+ 510              		.cfi_def_cfa_register 7
+ 511 0006 F860     		str	r0, [r7, #12]
+ 512 0008 B960     		str	r1, [r7, #8]
+ 513 000a 7A60     		str	r2, [r7, #4]
+ 594:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulOffset;
+ 595:C:/StellarisWare/driverlib\epi.c **** 
+ 596:C:/StellarisWare/driverlib\epi.c ****     //
+ 597:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 598:C:/StellarisWare/driverlib\epi.c ****     //
+ 599:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 600:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulChannel < 2);
+ 601:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulCount < 4096);
+ 602:C:/StellarisWare/driverlib\epi.c **** 
+ 603:C:/StellarisWare/driverlib\epi.c ****     //
+ 604:C:/StellarisWare/driverlib\epi.c ****     // Compute the offset needed to select the correct channel regs.
+ 605:C:/StellarisWare/driverlib\epi.c ****     //
+ 606:C:/StellarisWare/driverlib\epi.c ****     ulOffset = ulChannel * (EPI_O_RPSTD1 - EPI_O_RPSTD0);
+ 514              		.loc 1 606 0
+ 515 000c BB68     		ldr	r3, [r7, #8]
+ 516 000e 4FEA0313 		lsl	r3, r3, #4
+ 517 0012 7B61     		str	r3, [r7, #20]
+ 607:C:/StellarisWare/driverlib\epi.c **** 
+ 608:C:/StellarisWare/driverlib\epi.c ****     //
+ 609:C:/StellarisWare/driverlib\epi.c ****     // Write to the read count register.
+ 610:C:/StellarisWare/driverlib\epi.c ****     //
+ 611:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_RPSTD0 + ulOffset) = ulCount;
+ 518              		.loc 1 611 0
+ 519 0014 FA68     		ldr	r2, [r7, #12]
+ 520 0016 7B69     		ldr	r3, [r7, #20]
+ 521 0018 D318     		adds	r3, r2, r3
+ 522 001a 03F12803 		add	r3, r3, #40
+ 523 001e 7A68     		ldr	r2, [r7, #4]
+ 524 0020 1A60     		str	r2, [r3, #0]
+ 612:C:/StellarisWare/driverlib\epi.c **** }
+ 525              		.loc 1 612 0
+ 526 0022 07F11C07 		add	r7, r7, #28
+ 527 0026 BD46     		mov	sp, r7
+ 528 0028 80BC     		pop	{r7}
+ 529 002a 7047     		bx	lr
+ 530              		.cfi_endproc
+ 531              	.LFE8:
+ 533              		.section	.text.EPINonBlockingReadStop,"ax",%progbits
+ 534              		.align	2
+ 535              		.global	EPINonBlockingReadStop
+ 536              		.thumb
+ 537              		.thumb_func
+ 539              	EPINonBlockingReadStop:
+ 540              	.LFB9:
+ 613:C:/StellarisWare/driverlib\epi.c **** 
+ 614:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 615:C:/StellarisWare/driverlib\epi.c **** //
+ 616:C:/StellarisWare/driverlib\epi.c **** //! Stops a non-blocking read transaction.
+ 617:C:/StellarisWare/driverlib\epi.c **** //!
+ 618:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 619:C:/StellarisWare/driverlib\epi.c **** //! \param ulChannel is the read channel (0 or 1).
+ 620:C:/StellarisWare/driverlib\epi.c **** //!
+ 621:C:/StellarisWare/driverlib\epi.c **** //! This function cancels a non-blocking read transaction that is already
+ 622:C:/StellarisWare/driverlib\epi.c **** //! in progress.
+ 623:C:/StellarisWare/driverlib\epi.c **** //!
+ 624:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 625:C:/StellarisWare/driverlib\epi.c **** //
+ 626:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 627:C:/StellarisWare/driverlib\epi.c **** void
+ 628:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadStop(unsigned long ulBase, unsigned long ulChannel)
+ 629:C:/StellarisWare/driverlib\epi.c **** {
+ 541              		.loc 1 629 0
+ 542              		.cfi_startproc
+ 543              		@ args = 0, pretend = 0, frame = 16
+ 544              		@ frame_needed = 1, uses_anonymous_args = 0
+ 545              		@ link register save eliminated.
+ 546 0000 80B4     		push	{r7}
+ 547              	.LCFI27:
+ 548              		.cfi_def_cfa_offset 4
+ 549              		.cfi_offset 7, -4
+ 550 0002 85B0     		sub	sp, sp, #20
+ 551              	.LCFI28:
+ 552              		.cfi_def_cfa_offset 24
+ 553 0004 00AF     		add	r7, sp, #0
+ 554              	.LCFI29:
+ 555              		.cfi_def_cfa_register 7
+ 556 0006 7860     		str	r0, [r7, #4]
+ 557 0008 3960     		str	r1, [r7, #0]
+ 630:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulOffset;
+ 631:C:/StellarisWare/driverlib\epi.c **** 
+ 632:C:/StellarisWare/driverlib\epi.c ****     //
+ 633:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 634:C:/StellarisWare/driverlib\epi.c ****     //
+ 635:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 636:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulChannel < 2);
+ 637:C:/StellarisWare/driverlib\epi.c **** 
+ 638:C:/StellarisWare/driverlib\epi.c ****     //
+ 639:C:/StellarisWare/driverlib\epi.c ****     // Compute the offset needed to select the correct channel regs.
+ 640:C:/StellarisWare/driverlib\epi.c ****     //
+ 641:C:/StellarisWare/driverlib\epi.c ****     ulOffset = ulChannel * (EPI_O_RPSTD1 - EPI_O_RPSTD0);
+ 558              		.loc 1 641 0
+ 559 000a 3B68     		ldr	r3, [r7, #0]
+ 560 000c 4FEA0313 		lsl	r3, r3, #4
+ 561 0010 FB60     		str	r3, [r7, #12]
+ 642:C:/StellarisWare/driverlib\epi.c **** 
+ 643:C:/StellarisWare/driverlib\epi.c ****     //
+ 644:C:/StellarisWare/driverlib\epi.c ****     // Write a 0 to the read count register, which cancels the transaction.
+ 645:C:/StellarisWare/driverlib\epi.c ****     //
+ 646:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_RPSTD0 + ulOffset) = 0;
+ 562              		.loc 1 646 0
+ 563 0012 7A68     		ldr	r2, [r7, #4]
+ 564 0014 FB68     		ldr	r3, [r7, #12]
+ 565 0016 D318     		adds	r3, r2, r3
+ 566 0018 03F12803 		add	r3, r3, #40
+ 567 001c 4FF00002 		mov	r2, #0
+ 568 0020 1A60     		str	r2, [r3, #0]
+ 647:C:/StellarisWare/driverlib\epi.c **** }
+ 569              		.loc 1 647 0
+ 570 0022 07F11407 		add	r7, r7, #20
+ 571 0026 BD46     		mov	sp, r7
+ 572 0028 80BC     		pop	{r7}
+ 573 002a 7047     		bx	lr
+ 574              		.cfi_endproc
+ 575              	.LFE9:
+ 577              		.section	.text.EPINonBlockingReadCount,"ax",%progbits
+ 578              		.align	2
+ 579              		.global	EPINonBlockingReadCount
+ 580              		.thumb
+ 581              		.thumb_func
+ 583              	EPINonBlockingReadCount:
+ 584              	.LFB10:
+ 648:C:/StellarisWare/driverlib\epi.c **** 
+ 649:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 650:C:/StellarisWare/driverlib\epi.c **** //
+ 651:C:/StellarisWare/driverlib\epi.c **** //! Get the count remaining for a non-blocking transaction.
+ 652:C:/StellarisWare/driverlib\epi.c **** //!
+ 653:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 654:C:/StellarisWare/driverlib\epi.c **** //! \param ulChannel is the read channel (0 or 1).
+ 655:C:/StellarisWare/driverlib\epi.c **** //!
+ 656:C:/StellarisWare/driverlib\epi.c **** //! This function gets the remaining count of items for a non-blocking read
+ 657:C:/StellarisWare/driverlib\epi.c **** //! transaction.
+ 658:C:/StellarisWare/driverlib\epi.c **** //!
+ 659:C:/StellarisWare/driverlib\epi.c **** //! \return The number of items remaining in the non-blocking read transaction.
+ 660:C:/StellarisWare/driverlib\epi.c **** //
+ 661:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 662:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 663:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadCount(unsigned long ulBase, unsigned long ulChannel)
+ 664:C:/StellarisWare/driverlib\epi.c **** {
+ 585              		.loc 1 664 0
+ 586              		.cfi_startproc
+ 587              		@ args = 0, pretend = 0, frame = 16
+ 588              		@ frame_needed = 1, uses_anonymous_args = 0
+ 589              		@ link register save eliminated.
+ 590 0000 80B4     		push	{r7}
+ 591              	.LCFI30:
+ 592              		.cfi_def_cfa_offset 4
+ 593              		.cfi_offset 7, -4
+ 594 0002 85B0     		sub	sp, sp, #20
+ 595              	.LCFI31:
+ 596              		.cfi_def_cfa_offset 24
+ 597 0004 00AF     		add	r7, sp, #0
+ 598              	.LCFI32:
+ 599              		.cfi_def_cfa_register 7
+ 600 0006 7860     		str	r0, [r7, #4]
+ 601 0008 3960     		str	r1, [r7, #0]
+ 665:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulOffset;
+ 666:C:/StellarisWare/driverlib\epi.c **** 
+ 667:C:/StellarisWare/driverlib\epi.c ****     //
+ 668:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 669:C:/StellarisWare/driverlib\epi.c ****     //
+ 670:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 671:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulChannel < 2);
+ 672:C:/StellarisWare/driverlib\epi.c **** 
+ 673:C:/StellarisWare/driverlib\epi.c ****     //
+ 674:C:/StellarisWare/driverlib\epi.c ****     // Compute the offset needed to select the correct channel regs.
+ 675:C:/StellarisWare/driverlib\epi.c ****     //
+ 676:C:/StellarisWare/driverlib\epi.c ****     ulOffset = ulChannel * (EPI_O_RPSTD1 - EPI_O_RPSTD0);
+ 602              		.loc 1 676 0
+ 603 000a 3B68     		ldr	r3, [r7, #0]
+ 604 000c 4FEA0313 		lsl	r3, r3, #4
+ 605 0010 FB60     		str	r3, [r7, #12]
+ 677:C:/StellarisWare/driverlib\epi.c **** 
+ 678:C:/StellarisWare/driverlib\epi.c ****     //
+ 679:C:/StellarisWare/driverlib\epi.c ****     // Read the count remaining and return the value to the caller.
+ 680:C:/StellarisWare/driverlib\epi.c ****     //
+ 681:C:/StellarisWare/driverlib\epi.c ****     return(HWREG(ulBase + EPI_O_RPSTD0 + ulOffset));
+ 606              		.loc 1 681 0
+ 607 0012 7A68     		ldr	r2, [r7, #4]
+ 608 0014 FB68     		ldr	r3, [r7, #12]
+ 609 0016 D318     		adds	r3, r2, r3
+ 610 0018 03F12803 		add	r3, r3, #40
+ 611 001c 1B68     		ldr	r3, [r3, #0]
+ 682:C:/StellarisWare/driverlib\epi.c **** }
+ 612              		.loc 1 682 0
+ 613 001e 1846     		mov	r0, r3
+ 614 0020 07F11407 		add	r7, r7, #20
+ 615 0024 BD46     		mov	sp, r7
+ 616 0026 80BC     		pop	{r7}
+ 617 0028 7047     		bx	lr
+ 618              		.cfi_endproc
+ 619              	.LFE10:
+ 621 002a 00BF     		.section	.text.EPINonBlockingReadAvail,"ax",%progbits
+ 622              		.align	2
+ 623              		.global	EPINonBlockingReadAvail
+ 624              		.thumb
+ 625              		.thumb_func
+ 627              	EPINonBlockingReadAvail:
+ 628              	.LFB11:
+ 683:C:/StellarisWare/driverlib\epi.c **** 
+ 684:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 685:C:/StellarisWare/driverlib\epi.c **** //
+ 686:C:/StellarisWare/driverlib\epi.c **** //! Get the count of items available in the read FIFO.
+ 687:C:/StellarisWare/driverlib\epi.c **** //!
+ 688:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 689:C:/StellarisWare/driverlib\epi.c **** //!
+ 690:C:/StellarisWare/driverlib\epi.c **** //! This function gets the number of items that are available to read in
+ 691:C:/StellarisWare/driverlib\epi.c **** //! the read FIFO.  The read FIFO is filled by a non-blocking read transaction
+ 692:C:/StellarisWare/driverlib\epi.c **** //! which is configured by the functions EPINonBlockingReadConfigure() and
+ 693:C:/StellarisWare/driverlib\epi.c **** //! EPINonBlockingReadStart().
+ 694:C:/StellarisWare/driverlib\epi.c **** //!
+ 695:C:/StellarisWare/driverlib\epi.c **** //! \return The number of items available to read in the read FIFO.
+ 696:C:/StellarisWare/driverlib\epi.c **** //
+ 697:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 698:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 699:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadAvail(unsigned long ulBase)
+ 700:C:/StellarisWare/driverlib\epi.c **** {
+ 629              		.loc 1 700 0
+ 630              		.cfi_startproc
+ 631              		@ args = 0, pretend = 0, frame = 8
+ 632              		@ frame_needed = 1, uses_anonymous_args = 0
+ 633              		@ link register save eliminated.
+ 634 0000 80B4     		push	{r7}
+ 635              	.LCFI33:
+ 636              		.cfi_def_cfa_offset 4
+ 637              		.cfi_offset 7, -4
+ 638 0002 83B0     		sub	sp, sp, #12
+ 639              	.LCFI34:
+ 640              		.cfi_def_cfa_offset 16
+ 641 0004 00AF     		add	r7, sp, #0
+ 642              	.LCFI35:
+ 643              		.cfi_def_cfa_register 7
+ 644 0006 7860     		str	r0, [r7, #4]
+ 701:C:/StellarisWare/driverlib\epi.c ****     //
+ 702:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 703:C:/StellarisWare/driverlib\epi.c ****     //
+ 704:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 705:C:/StellarisWare/driverlib\epi.c **** 
+ 706:C:/StellarisWare/driverlib\epi.c ****     //
+ 707:C:/StellarisWare/driverlib\epi.c ****     // Read the FIFO count and return it to the caller.
+ 708:C:/StellarisWare/driverlib\epi.c ****     //
+ 709:C:/StellarisWare/driverlib\epi.c ****     return(HWREG(ulBase + EPI_O_RFIFOCNT));
+ 645              		.loc 1 709 0
+ 646 0008 7B68     		ldr	r3, [r7, #4]
+ 647 000a 03F16C03 		add	r3, r3, #108
+ 648 000e 1B68     		ldr	r3, [r3, #0]
+ 710:C:/StellarisWare/driverlib\epi.c **** }
+ 649              		.loc 1 710 0
+ 650 0010 1846     		mov	r0, r3
+ 651 0012 07F10C07 		add	r7, r7, #12
+ 652 0016 BD46     		mov	sp, r7
+ 653 0018 80BC     		pop	{r7}
+ 654 001a 7047     		bx	lr
+ 655              		.cfi_endproc
+ 656              	.LFE11:
+ 658              		.section	.text.EPINonBlockingReadGet32,"ax",%progbits
+ 659              		.align	2
+ 660              		.global	EPINonBlockingReadGet32
+ 661              		.thumb
+ 662              		.thumb_func
+ 664              	EPINonBlockingReadGet32:
+ 665              	.LFB12:
+ 711:C:/StellarisWare/driverlib\epi.c **** 
+ 712:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 713:C:/StellarisWare/driverlib\epi.c **** //
+ 714:C:/StellarisWare/driverlib\epi.c **** //! Read available data from the read FIFO, as 32-bit data items.
+ 715:C:/StellarisWare/driverlib\epi.c **** //!
+ 716:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 717:C:/StellarisWare/driverlib\epi.c **** //! \param ulCount is the maximum count of items to read.
+ 718:C:/StellarisWare/driverlib\epi.c **** //! \param pulBuf is the caller supplied buffer where the read data should
+ 719:C:/StellarisWare/driverlib\epi.c **** //! be stored.
+ 720:C:/StellarisWare/driverlib\epi.c **** //!
+ 721:C:/StellarisWare/driverlib\epi.c **** //! This function reads 32-bit data items from the read FIFO and stores
+ 722:C:/StellarisWare/driverlib\epi.c **** //! the values in a caller-supplied buffer.  The function reads and stores
+ 723:C:/StellarisWare/driverlib\epi.c **** //! data from the FIFO until there is no more data in the FIFO or the maximum
+ 724:C:/StellarisWare/driverlib\epi.c **** //! count is reached as specified in the parameter \e ulCount.  The actual
+ 725:C:/StellarisWare/driverlib\epi.c **** //! count of items is returned.
+ 726:C:/StellarisWare/driverlib\epi.c **** //!
+ 727:C:/StellarisWare/driverlib\epi.c **** //! \return The number of items read from the FIFO.
+ 728:C:/StellarisWare/driverlib\epi.c **** //
+ 729:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 730:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 731:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadGet32(unsigned long ulBase, unsigned long ulCount,
+ 732:C:/StellarisWare/driverlib\epi.c ****                         unsigned long *pulBuf)
+ 733:C:/StellarisWare/driverlib\epi.c **** {
+ 666              		.loc 1 733 0
+ 667              		.cfi_startproc
+ 668              		@ args = 0, pretend = 0, frame = 24
+ 669              		@ frame_needed = 1, uses_anonymous_args = 0
+ 670              		@ link register save eliminated.
+ 671 0000 80B4     		push	{r7}
+ 672              	.LCFI36:
+ 673              		.cfi_def_cfa_offset 4
+ 674              		.cfi_offset 7, -4
+ 675 0002 87B0     		sub	sp, sp, #28
+ 676              	.LCFI37:
+ 677              		.cfi_def_cfa_offset 32
+ 678 0004 00AF     		add	r7, sp, #0
+ 679              	.LCFI38:
+ 680              		.cfi_def_cfa_register 7
+ 681 0006 F860     		str	r0, [r7, #12]
+ 682 0008 B960     		str	r1, [r7, #8]
+ 683 000a 7A60     		str	r2, [r7, #4]
+ 734:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulCountRead = 0;
+ 684              		.loc 1 734 0
+ 685 000c 4FF00003 		mov	r3, #0
+ 686 0010 7B61     		str	r3, [r7, #20]
+ 735:C:/StellarisWare/driverlib\epi.c **** 
+ 736:C:/StellarisWare/driverlib\epi.c ****     //
+ 737:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 738:C:/StellarisWare/driverlib\epi.c ****     //
+ 739:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 740:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulCount < 4096);
+ 741:C:/StellarisWare/driverlib\epi.c ****     ASSERT(pulBuf);
+ 742:C:/StellarisWare/driverlib\epi.c **** 
+ 743:C:/StellarisWare/driverlib\epi.c ****     //
+ 744:C:/StellarisWare/driverlib\epi.c ****     // Read from the FIFO while there are any items to read and
+ 745:C:/StellarisWare/driverlib\epi.c ****     // the caller's specified count is not exceeded.
+ 746:C:/StellarisWare/driverlib\epi.c ****     //
+ 747:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 687              		.loc 1 747 0
+ 688 0012 0DE0     		b	.L24
+ 689              	.L26:
+ 748:C:/StellarisWare/driverlib\epi.c ****     {
+ 749:C:/StellarisWare/driverlib\epi.c ****         //
+ 750:C:/StellarisWare/driverlib\epi.c ****         // Read from the FIFO and store in the caller supplied buffer.
+ 751:C:/StellarisWare/driverlib\epi.c ****         //
+ 752:C:/StellarisWare/driverlib\epi.c ****         *pulBuf = HWREG(ulBase + EPI_O_READFIFO);
+ 690              		.loc 1 752 0
+ 691 0014 FB68     		ldr	r3, [r7, #12]
+ 692 0016 03F17003 		add	r3, r3, #112
+ 693 001a 1A68     		ldr	r2, [r3, #0]
+ 694 001c 7B68     		ldr	r3, [r7, #4]
+ 695 001e 1A60     		str	r2, [r3, #0]
+ 753:C:/StellarisWare/driverlib\epi.c **** 
+ 754:C:/StellarisWare/driverlib\epi.c ****         //
+ 755:C:/StellarisWare/driverlib\epi.c ****         // Update the caller's buffer pointer and the count of items read.
+ 756:C:/StellarisWare/driverlib\epi.c ****         //
+ 757:C:/StellarisWare/driverlib\epi.c ****         pulBuf++;
+ 696              		.loc 1 757 0
+ 697 0020 7B68     		ldr	r3, [r7, #4]
+ 698 0022 03F10403 		add	r3, r3, #4
+ 699 0026 7B60     		str	r3, [r7, #4]
+ 758:C:/StellarisWare/driverlib\epi.c ****         ulCountRead++;
+ 700              		.loc 1 758 0
+ 701 0028 7B69     		ldr	r3, [r7, #20]
+ 702 002a 03F10103 		add	r3, r3, #1
+ 703 002e 7B61     		str	r3, [r7, #20]
+ 704              	.L24:
+ 747:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 705              		.loc 1 747 0 discriminator 1
+ 706 0030 FB68     		ldr	r3, [r7, #12]
+ 707 0032 03F16C03 		add	r3, r3, #108
+ 708 0036 1B68     		ldr	r3, [r3, #0]
+ 709 0038 002B     		cmp	r3, #0
+ 710 003a 0BD0     		beq	.L25
+ 747:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 711              		.loc 1 747 0 is_stmt 0 discriminator 2
+ 712 003c BB68     		ldr	r3, [r7, #8]
+ 713 003e 002B     		cmp	r3, #0
+ 714 0040 0CBF     		ite	eq
+ 715 0042 0023     		moveq	r3, #0
+ 716 0044 0123     		movne	r3, #1
+ 717 0046 DBB2     		uxtb	r3, r3
+ 718 0048 BA68     		ldr	r2, [r7, #8]
+ 719 004a 02F1FF32 		add	r2, r2, #-1
+ 720 004e BA60     		str	r2, [r7, #8]
+ 721 0050 002B     		cmp	r3, #0
+ 722 0052 DFD1     		bne	.L26
+ 723              	.L25:
+ 759:C:/StellarisWare/driverlib\epi.c ****     }
+ 760:C:/StellarisWare/driverlib\epi.c **** 
+ 761:C:/StellarisWare/driverlib\epi.c ****     //
+ 762:C:/StellarisWare/driverlib\epi.c ****     // Return the count of items read to the caller.
+ 763:C:/StellarisWare/driverlib\epi.c ****     //
+ 764:C:/StellarisWare/driverlib\epi.c ****     return(ulCountRead);
+ 724              		.loc 1 764 0 is_stmt 1
+ 725 0054 7B69     		ldr	r3, [r7, #20]
+ 765:C:/StellarisWare/driverlib\epi.c **** }
+ 726              		.loc 1 765 0
+ 727 0056 1846     		mov	r0, r3
+ 728 0058 07F11C07 		add	r7, r7, #28
+ 729 005c BD46     		mov	sp, r7
+ 730 005e 80BC     		pop	{r7}
+ 731 0060 7047     		bx	lr
+ 732              		.cfi_endproc
+ 733              	.LFE12:
+ 735 0062 00BF     		.section	.text.EPINonBlockingReadGet16,"ax",%progbits
+ 736              		.align	2
+ 737              		.global	EPINonBlockingReadGet16
+ 738              		.thumb
+ 739              		.thumb_func
+ 741              	EPINonBlockingReadGet16:
+ 742              	.LFB13:
+ 766:C:/StellarisWare/driverlib\epi.c **** 
+ 767:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 768:C:/StellarisWare/driverlib\epi.c **** //
+ 769:C:/StellarisWare/driverlib\epi.c **** //! Read available data from the read FIFO, as 16-bit data items.
+ 770:C:/StellarisWare/driverlib\epi.c **** //!
+ 771:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 772:C:/StellarisWare/driverlib\epi.c **** //! \param ulCount is the maximum count of items to read.
+ 773:C:/StellarisWare/driverlib\epi.c **** //! \param pusBuf is the caller-supplied buffer where the read data should
+ 774:C:/StellarisWare/driverlib\epi.c **** //! be stored.
+ 775:C:/StellarisWare/driverlib\epi.c **** //!
+ 776:C:/StellarisWare/driverlib\epi.c **** //! This function reads 16-bit data items from the read FIFO and stores
+ 777:C:/StellarisWare/driverlib\epi.c **** //! the values in a caller-supplied buffer.  The function reads and stores
+ 778:C:/StellarisWare/driverlib\epi.c **** //! data from the FIFO until there is no more data in the FIFO or the maximum
+ 779:C:/StellarisWare/driverlib\epi.c **** //! count is reached as specified in the parameter \e ulCount.  The actual
+ 780:C:/StellarisWare/driverlib\epi.c **** //! count of items is returned.
+ 781:C:/StellarisWare/driverlib\epi.c **** //!
+ 782:C:/StellarisWare/driverlib\epi.c **** //! \return The number of items read from the FIFO.
+ 783:C:/StellarisWare/driverlib\epi.c **** //
+ 784:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 785:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 786:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadGet16(unsigned long ulBase, unsigned long ulCount,
+ 787:C:/StellarisWare/driverlib\epi.c ****                         unsigned short *pusBuf)
+ 788:C:/StellarisWare/driverlib\epi.c **** {
+ 743              		.loc 1 788 0
+ 744              		.cfi_startproc
+ 745              		@ args = 0, pretend = 0, frame = 24
+ 746              		@ frame_needed = 1, uses_anonymous_args = 0
+ 747              		@ link register save eliminated.
+ 748 0000 80B4     		push	{r7}
+ 749              	.LCFI39:
+ 750              		.cfi_def_cfa_offset 4
+ 751              		.cfi_offset 7, -4
+ 752 0002 87B0     		sub	sp, sp, #28
+ 753              	.LCFI40:
+ 754              		.cfi_def_cfa_offset 32
+ 755 0004 00AF     		add	r7, sp, #0
+ 756              	.LCFI41:
+ 757              		.cfi_def_cfa_register 7
+ 758 0006 F860     		str	r0, [r7, #12]
+ 759 0008 B960     		str	r1, [r7, #8]
+ 760 000a 7A60     		str	r2, [r7, #4]
+ 789:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulCountRead = 0;
+ 761              		.loc 1 789 0
+ 762 000c 4FF00003 		mov	r3, #0
+ 763 0010 7B61     		str	r3, [r7, #20]
+ 790:C:/StellarisWare/driverlib\epi.c **** 
+ 791:C:/StellarisWare/driverlib\epi.c ****     //
+ 792:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 793:C:/StellarisWare/driverlib\epi.c ****     //
+ 794:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 795:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulCount < 4096);
+ 796:C:/StellarisWare/driverlib\epi.c ****     ASSERT(pusBuf);
+ 797:C:/StellarisWare/driverlib\epi.c **** 
+ 798:C:/StellarisWare/driverlib\epi.c ****     //
+ 799:C:/StellarisWare/driverlib\epi.c ****     // Read from the FIFO while there are any items to read, and
+ 800:C:/StellarisWare/driverlib\epi.c ****     // the caller's specified count is not exceeded.
+ 801:C:/StellarisWare/driverlib\epi.c ****     //
+ 802:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 764              		.loc 1 802 0
+ 765 0012 0EE0     		b	.L28
+ 766              	.L30:
+ 803:C:/StellarisWare/driverlib\epi.c ****     {
+ 804:C:/StellarisWare/driverlib\epi.c ****         //
+ 805:C:/StellarisWare/driverlib\epi.c ****         // Read from the FIFO and store in the caller-supplied buffer.
+ 806:C:/StellarisWare/driverlib\epi.c ****         //
+ 807:C:/StellarisWare/driverlib\epi.c ****         *pusBuf = (unsigned short)HWREG(ulBase + EPI_O_READFIFO);
+ 767              		.loc 1 807 0
+ 768 0014 FB68     		ldr	r3, [r7, #12]
+ 769 0016 03F17003 		add	r3, r3, #112
+ 770 001a 1B68     		ldr	r3, [r3, #0]
+ 771 001c 9AB2     		uxth	r2, r3
+ 772 001e 7B68     		ldr	r3, [r7, #4]
+ 773 0020 1A80     		strh	r2, [r3, #0]	@ movhi
+ 808:C:/StellarisWare/driverlib\epi.c **** 
+ 809:C:/StellarisWare/driverlib\epi.c ****         //
+ 810:C:/StellarisWare/driverlib\epi.c ****         // Update the caller's buffer pointer and the count of items read.
+ 811:C:/StellarisWare/driverlib\epi.c ****         //
+ 812:C:/StellarisWare/driverlib\epi.c ****         pusBuf++;
+ 774              		.loc 1 812 0
+ 775 0022 7B68     		ldr	r3, [r7, #4]
+ 776 0024 03F10203 		add	r3, r3, #2
+ 777 0028 7B60     		str	r3, [r7, #4]
+ 813:C:/StellarisWare/driverlib\epi.c ****         ulCountRead++;
+ 778              		.loc 1 813 0
+ 779 002a 7B69     		ldr	r3, [r7, #20]
+ 780 002c 03F10103 		add	r3, r3, #1
+ 781 0030 7B61     		str	r3, [r7, #20]
+ 782              	.L28:
+ 802:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 783              		.loc 1 802 0 discriminator 1
+ 784 0032 FB68     		ldr	r3, [r7, #12]
+ 785 0034 03F16C03 		add	r3, r3, #108
+ 786 0038 1B68     		ldr	r3, [r3, #0]
+ 787 003a 002B     		cmp	r3, #0
+ 788 003c 0BD0     		beq	.L29
+ 802:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 789              		.loc 1 802 0 is_stmt 0 discriminator 2
+ 790 003e BB68     		ldr	r3, [r7, #8]
+ 791 0040 002B     		cmp	r3, #0
+ 792 0042 0CBF     		ite	eq
+ 793 0044 0023     		moveq	r3, #0
+ 794 0046 0123     		movne	r3, #1
+ 795 0048 DBB2     		uxtb	r3, r3
+ 796 004a BA68     		ldr	r2, [r7, #8]
+ 797 004c 02F1FF32 		add	r2, r2, #-1
+ 798 0050 BA60     		str	r2, [r7, #8]
+ 799 0052 002B     		cmp	r3, #0
+ 800 0054 DED1     		bne	.L30
+ 801              	.L29:
+ 814:C:/StellarisWare/driverlib\epi.c ****     }
+ 815:C:/StellarisWare/driverlib\epi.c **** 
+ 816:C:/StellarisWare/driverlib\epi.c ****     //
+ 817:C:/StellarisWare/driverlib\epi.c ****     // Return the count of items read to the caller.
+ 818:C:/StellarisWare/driverlib\epi.c ****     //
+ 819:C:/StellarisWare/driverlib\epi.c ****     return(ulCountRead);
+ 802              		.loc 1 819 0 is_stmt 1
+ 803 0056 7B69     		ldr	r3, [r7, #20]
+ 820:C:/StellarisWare/driverlib\epi.c **** }
+ 804              		.loc 1 820 0
+ 805 0058 1846     		mov	r0, r3
+ 806 005a 07F11C07 		add	r7, r7, #28
+ 807 005e BD46     		mov	sp, r7
+ 808 0060 80BC     		pop	{r7}
+ 809 0062 7047     		bx	lr
+ 810              		.cfi_endproc
+ 811              	.LFE13:
+ 813              		.section	.text.EPINonBlockingReadGet8,"ax",%progbits
+ 814              		.align	2
+ 815              		.global	EPINonBlockingReadGet8
+ 816              		.thumb
+ 817              		.thumb_func
+ 819              	EPINonBlockingReadGet8:
+ 820              	.LFB14:
+ 821:C:/StellarisWare/driverlib\epi.c **** 
+ 822:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 823:C:/StellarisWare/driverlib\epi.c **** //
+ 824:C:/StellarisWare/driverlib\epi.c **** //! Read available data from the read FIFO, as 8-bit data items.
+ 825:C:/StellarisWare/driverlib\epi.c **** //!
+ 826:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 827:C:/StellarisWare/driverlib\epi.c **** //! \param ulCount is the maximum count of items to read.
+ 828:C:/StellarisWare/driverlib\epi.c **** //! \param pucBuf is the caller-supplied buffer where the read data should
+ 829:C:/StellarisWare/driverlib\epi.c **** //! be stored.
+ 830:C:/StellarisWare/driverlib\epi.c **** //!
+ 831:C:/StellarisWare/driverlib\epi.c **** //! This function reads 8-bit data items from the read FIFO and stores
+ 832:C:/StellarisWare/driverlib\epi.c **** //! the values in a caller-supplied buffer.  The function reads and stores
+ 833:C:/StellarisWare/driverlib\epi.c **** //! data from the FIFO until there is no more data in the FIFO or the maximum
+ 834:C:/StellarisWare/driverlib\epi.c **** //! count is reached as specified in the parameter \e ulCount.  The actual
+ 835:C:/StellarisWare/driverlib\epi.c **** //! count of items is returned.
+ 836:C:/StellarisWare/driverlib\epi.c **** //!
+ 837:C:/StellarisWare/driverlib\epi.c **** //! \return The number of items read from the FIFO.
+ 838:C:/StellarisWare/driverlib\epi.c **** //
+ 839:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 840:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 841:C:/StellarisWare/driverlib\epi.c **** EPINonBlockingReadGet8(unsigned long ulBase, unsigned long ulCount,
+ 842:C:/StellarisWare/driverlib\epi.c ****                        unsigned char *pucBuf)
+ 843:C:/StellarisWare/driverlib\epi.c **** {
+ 821              		.loc 1 843 0
+ 822              		.cfi_startproc
+ 823              		@ args = 0, pretend = 0, frame = 24
+ 824              		@ frame_needed = 1, uses_anonymous_args = 0
+ 825              		@ link register save eliminated.
+ 826 0000 80B4     		push	{r7}
+ 827              	.LCFI42:
+ 828              		.cfi_def_cfa_offset 4
+ 829              		.cfi_offset 7, -4
+ 830 0002 87B0     		sub	sp, sp, #28
+ 831              	.LCFI43:
+ 832              		.cfi_def_cfa_offset 32
+ 833 0004 00AF     		add	r7, sp, #0
+ 834              	.LCFI44:
+ 835              		.cfi_def_cfa_register 7
+ 836 0006 F860     		str	r0, [r7, #12]
+ 837 0008 B960     		str	r1, [r7, #8]
+ 838 000a 7A60     		str	r2, [r7, #4]
+ 844:C:/StellarisWare/driverlib\epi.c ****     unsigned long ulCountRead = 0;
+ 839              		.loc 1 844 0
+ 840 000c 4FF00003 		mov	r3, #0
+ 841 0010 7B61     		str	r3, [r7, #20]
+ 845:C:/StellarisWare/driverlib\epi.c **** 
+ 846:C:/StellarisWare/driverlib\epi.c ****     //
+ 847:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 848:C:/StellarisWare/driverlib\epi.c ****     //
+ 849:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 850:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulCount < 4096);
+ 851:C:/StellarisWare/driverlib\epi.c ****     ASSERT(pucBuf);
+ 852:C:/StellarisWare/driverlib\epi.c **** 
+ 853:C:/StellarisWare/driverlib\epi.c ****     //
+ 854:C:/StellarisWare/driverlib\epi.c ****     // Read from the FIFO while there are any items to read, and
+ 855:C:/StellarisWare/driverlib\epi.c ****     // the caller's specified count is not exceeded.
+ 856:C:/StellarisWare/driverlib\epi.c ****     //
+ 857:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 842              		.loc 1 857 0
+ 843 0012 0EE0     		b	.L32
+ 844              	.L34:
+ 858:C:/StellarisWare/driverlib\epi.c ****     {
+ 859:C:/StellarisWare/driverlib\epi.c ****         //
+ 860:C:/StellarisWare/driverlib\epi.c ****         // Read from the FIFO and store in the caller supplied buffer.
+ 861:C:/StellarisWare/driverlib\epi.c ****         //
+ 862:C:/StellarisWare/driverlib\epi.c ****         *pucBuf = (unsigned char)HWREG(ulBase + EPI_O_READFIFO);
+ 845              		.loc 1 862 0
+ 846 0014 FB68     		ldr	r3, [r7, #12]
+ 847 0016 03F17003 		add	r3, r3, #112
+ 848 001a 1B68     		ldr	r3, [r3, #0]
+ 849 001c DAB2     		uxtb	r2, r3
+ 850 001e 7B68     		ldr	r3, [r7, #4]
+ 851 0020 1A70     		strb	r2, [r3, #0]
+ 863:C:/StellarisWare/driverlib\epi.c **** 
+ 864:C:/StellarisWare/driverlib\epi.c ****         //
+ 865:C:/StellarisWare/driverlib\epi.c ****         // Update the caller's buffer pointer and the count of items read.
+ 866:C:/StellarisWare/driverlib\epi.c ****         //
+ 867:C:/StellarisWare/driverlib\epi.c ****         pucBuf++;
+ 852              		.loc 1 867 0
+ 853 0022 7B68     		ldr	r3, [r7, #4]
+ 854 0024 03F10103 		add	r3, r3, #1
+ 855 0028 7B60     		str	r3, [r7, #4]
+ 868:C:/StellarisWare/driverlib\epi.c ****         ulCountRead++;
+ 856              		.loc 1 868 0
+ 857 002a 7B69     		ldr	r3, [r7, #20]
+ 858 002c 03F10103 		add	r3, r3, #1
+ 859 0030 7B61     		str	r3, [r7, #20]
+ 860              	.L32:
+ 857:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 861              		.loc 1 857 0 discriminator 1
+ 862 0032 FB68     		ldr	r3, [r7, #12]
+ 863 0034 03F16C03 		add	r3, r3, #108
+ 864 0038 1B68     		ldr	r3, [r3, #0]
+ 865 003a 002B     		cmp	r3, #0
+ 866 003c 0BD0     		beq	.L33
+ 857:C:/StellarisWare/driverlib\epi.c ****     while(HWREG(ulBase + EPI_O_RFIFOCNT) && ulCount--)
+ 867              		.loc 1 857 0 is_stmt 0 discriminator 2
+ 868 003e BB68     		ldr	r3, [r7, #8]
+ 869 0040 002B     		cmp	r3, #0
+ 870 0042 0CBF     		ite	eq
+ 871 0044 0023     		moveq	r3, #0
+ 872 0046 0123     		movne	r3, #1
+ 873 0048 DBB2     		uxtb	r3, r3
+ 874 004a BA68     		ldr	r2, [r7, #8]
+ 875 004c 02F1FF32 		add	r2, r2, #-1
+ 876 0050 BA60     		str	r2, [r7, #8]
+ 877 0052 002B     		cmp	r3, #0
+ 878 0054 DED1     		bne	.L34
+ 879              	.L33:
+ 869:C:/StellarisWare/driverlib\epi.c ****     }
+ 870:C:/StellarisWare/driverlib\epi.c **** 
+ 871:C:/StellarisWare/driverlib\epi.c ****     //
+ 872:C:/StellarisWare/driverlib\epi.c ****     // Return the count of items read to the caller.
+ 873:C:/StellarisWare/driverlib\epi.c ****     //
+ 874:C:/StellarisWare/driverlib\epi.c ****     return(ulCountRead);
+ 880              		.loc 1 874 0 is_stmt 1
+ 881 0056 7B69     		ldr	r3, [r7, #20]
+ 875:C:/StellarisWare/driverlib\epi.c **** }
+ 882              		.loc 1 875 0
+ 883 0058 1846     		mov	r0, r3
+ 884 005a 07F11C07 		add	r7, r7, #28
+ 885 005e BD46     		mov	sp, r7
+ 886 0060 80BC     		pop	{r7}
+ 887 0062 7047     		bx	lr
+ 888              		.cfi_endproc
+ 889              	.LFE14:
+ 891              		.section	.text.EPIFIFOConfig,"ax",%progbits
+ 892              		.align	2
+ 893              		.global	EPIFIFOConfig
+ 894              		.thumb
+ 895              		.thumb_func
+ 897              	EPIFIFOConfig:
+ 898              	.LFB15:
+ 876:C:/StellarisWare/driverlib\epi.c **** 
+ 877:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 878:C:/StellarisWare/driverlib\epi.c **** //
+ 879:C:/StellarisWare/driverlib\epi.c **** //! Configures the read FIFO.
+ 880:C:/StellarisWare/driverlib\epi.c **** //!
+ 881:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 882:C:/StellarisWare/driverlib\epi.c **** //! \param ulConfig is the FIFO configuration.
+ 883:C:/StellarisWare/driverlib\epi.c **** //!
+ 884:C:/StellarisWare/driverlib\epi.c **** //! This function configures the FIFO trigger levels and error
+ 885:C:/StellarisWare/driverlib\epi.c **** //! generation.  The parameter \e ulConfig is the logical OR of the
+ 886:C:/StellarisWare/driverlib\epi.c **** //! following:
+ 887:C:/StellarisWare/driverlib\epi.c **** //!
+ 888:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_FIFO_CONFIG_WTFULLERR - enables an error interrupt when a write is
+ 889:C:/StellarisWare/driverlib\epi.c **** //! attempted and the write FIFO is full
+ 890:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_FIFO_CONFIG_RSTALLERR - enables an error interrupt when a read is
+ 891:C:/StellarisWare/driverlib\epi.c **** //! stalled due to an interleaved write or other reason
+ 892:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_FIFO_CONFIG_TX_EMPTY, \b EPI_FIFO_CONFIG_TX_1_4,
+ 893:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_FIFO_CONFIG_TX_1_2, or \b EPI_FIFO_CONFIG_TX_3_4 to set the
+ 894:C:/StellarisWare/driverlib\epi.c **** //! TX FIFO trigger level to empty, 1/4, 1/2, or 3/4 level
+ 895:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_FIFO_CONFIG_RX_1_8, \b EPI_FIFO_CONFIG_RX_1_4,
+ 896:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_FIFO_CONFIG_RX_1_2, \b EPI_FIFO_CONFIG_RX_3_4,
+ 897:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_FIFO_CONFIG_RX_7_8, or \b EPI_FIFO_CONFIG_RX_FULL to set the
+ 898:C:/StellarisWare/driverlib\epi.c **** //! RX FIFO trigger level to 1/8, 1/4, 1/2, 3/4, 7/8 or full level
+ 899:C:/StellarisWare/driverlib\epi.c **** //!
+ 900:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+ 901:C:/StellarisWare/driverlib\epi.c **** //
+ 902:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 903:C:/StellarisWare/driverlib\epi.c **** void
+ 904:C:/StellarisWare/driverlib\epi.c **** EPIFIFOConfig(unsigned long ulBase, unsigned long ulConfig)
+ 905:C:/StellarisWare/driverlib\epi.c **** {
+ 899              		.loc 1 905 0
+ 900              		.cfi_startproc
+ 901              		@ args = 0, pretend = 0, frame = 8
+ 902              		@ frame_needed = 1, uses_anonymous_args = 0
+ 903              		@ link register save eliminated.
+ 904 0000 80B4     		push	{r7}
+ 905              	.LCFI45:
+ 906              		.cfi_def_cfa_offset 4
+ 907              		.cfi_offset 7, -4
+ 908 0002 83B0     		sub	sp, sp, #12
+ 909              	.LCFI46:
+ 910              		.cfi_def_cfa_offset 16
+ 911 0004 00AF     		add	r7, sp, #0
+ 912              	.LCFI47:
+ 913              		.cfi_def_cfa_register 7
+ 914 0006 7860     		str	r0, [r7, #4]
+ 915 0008 3960     		str	r1, [r7, #0]
+ 906:C:/StellarisWare/driverlib\epi.c ****     //
+ 907:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 908:C:/StellarisWare/driverlib\epi.c ****     //
+ 909:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 910:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulConfig == (ulConfig & 0x00030077));
+ 911:C:/StellarisWare/driverlib\epi.c **** 
+ 912:C:/StellarisWare/driverlib\epi.c ****     //
+ 913:C:/StellarisWare/driverlib\epi.c ****     // Load the configuration into the FIFO config reg.
+ 914:C:/StellarisWare/driverlib\epi.c ****     //
+ 915:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_FIFOLVL) = ulConfig;
+ 916              		.loc 1 915 0
+ 917 000a 7B68     		ldr	r3, [r7, #4]
+ 918 000c 03F50073 		add	r3, r3, #512
+ 919 0010 3A68     		ldr	r2, [r7, #0]
+ 920 0012 1A60     		str	r2, [r3, #0]
+ 916:C:/StellarisWare/driverlib\epi.c **** }
+ 921              		.loc 1 916 0
+ 922 0014 07F10C07 		add	r7, r7, #12
+ 923 0018 BD46     		mov	sp, r7
+ 924 001a 80BC     		pop	{r7}
+ 925 001c 7047     		bx	lr
+ 926              		.cfi_endproc
+ 927              	.LFE15:
+ 929 001e 00BF     		.section	.text.EPIWriteFIFOCountGet,"ax",%progbits
+ 930              		.align	2
+ 931              		.global	EPIWriteFIFOCountGet
+ 932              		.thumb
+ 933              		.thumb_func
+ 935              	EPIWriteFIFOCountGet:
+ 936              	.LFB16:
+ 917:C:/StellarisWare/driverlib\epi.c **** 
+ 918:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 919:C:/StellarisWare/driverlib\epi.c **** //
+ 920:C:/StellarisWare/driverlib\epi.c **** //! Reads the number of empty slots in the write transaction FIFO.
+ 921:C:/StellarisWare/driverlib\epi.c **** //!
+ 922:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 923:C:/StellarisWare/driverlib\epi.c **** //!
+ 924:C:/StellarisWare/driverlib\epi.c **** //! This function returns the number of slots available in the transaction
+ 925:C:/StellarisWare/driverlib\epi.c **** //! FIFO.  It can be used in a polling method to avoid attempting a write
+ 926:C:/StellarisWare/driverlib\epi.c **** //! that would stall.
+ 927:C:/StellarisWare/driverlib\epi.c **** //!
+ 928:C:/StellarisWare/driverlib\epi.c **** //! \return The number of empty slots in the transaction FIFO.
+ 929:C:/StellarisWare/driverlib\epi.c **** //
+ 930:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 931:C:/StellarisWare/driverlib\epi.c **** unsigned long
+ 932:C:/StellarisWare/driverlib\epi.c **** EPIWriteFIFOCountGet(unsigned long ulBase)
+ 933:C:/StellarisWare/driverlib\epi.c **** {
+ 937              		.loc 1 933 0
+ 938              		.cfi_startproc
+ 939              		@ args = 0, pretend = 0, frame = 8
+ 940              		@ frame_needed = 1, uses_anonymous_args = 0
+ 941              		@ link register save eliminated.
+ 942 0000 80B4     		push	{r7}
+ 943              	.LCFI48:
+ 944              		.cfi_def_cfa_offset 4
+ 945              		.cfi_offset 7, -4
+ 946 0002 83B0     		sub	sp, sp, #12
+ 947              	.LCFI49:
+ 948              		.cfi_def_cfa_offset 16
+ 949 0004 00AF     		add	r7, sp, #0
+ 950              	.LCFI50:
+ 951              		.cfi_def_cfa_register 7
+ 952 0006 7860     		str	r0, [r7, #4]
+ 934:C:/StellarisWare/driverlib\epi.c ****     //
+ 935:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 936:C:/StellarisWare/driverlib\epi.c ****     //
+ 937:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 938:C:/StellarisWare/driverlib\epi.c **** 
+ 939:C:/StellarisWare/driverlib\epi.c ****     //
+ 940:C:/StellarisWare/driverlib\epi.c ****     // Read the FIFO count and return it to the caller.
+ 941:C:/StellarisWare/driverlib\epi.c ****     //
+ 942:C:/StellarisWare/driverlib\epi.c ****     return(HWREG(ulBase + EPI_O_WFIFOCNT));
+ 953              		.loc 1 942 0
+ 954 0008 7B68     		ldr	r3, [r7, #4]
+ 955 000a 03F50173 		add	r3, r3, #516
+ 956 000e 1B68     		ldr	r3, [r3, #0]
+ 943:C:/StellarisWare/driverlib\epi.c **** }
+ 957              		.loc 1 943 0
+ 958 0010 1846     		mov	r0, r3
+ 959 0012 07F10C07 		add	r7, r7, #12
+ 960 0016 BD46     		mov	sp, r7
+ 961 0018 80BC     		pop	{r7}
+ 962 001a 7047     		bx	lr
+ 963              		.cfi_endproc
+ 964              	.LFE16:
+ 966              		.section	.text.EPIIntEnable,"ax",%progbits
+ 967              		.align	2
+ 968              		.global	EPIIntEnable
+ 969              		.thumb
+ 970              		.thumb_func
+ 972              	EPIIntEnable:
+ 973              	.LFB17:
+ 944:C:/StellarisWare/driverlib\epi.c **** 
+ 945:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 946:C:/StellarisWare/driverlib\epi.c **** //
+ 947:C:/StellarisWare/driverlib\epi.c **** //! Enables EPI interrupt sources.
+ 948:C:/StellarisWare/driverlib\epi.c **** //!
+ 949:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 950:C:/StellarisWare/driverlib\epi.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 951:C:/StellarisWare/driverlib\epi.c **** //!
+ 952:C:/StellarisWare/driverlib\epi.c **** //! This function enables the specified EPI sources to generate interrupts.
+ 953:C:/StellarisWare/driverlib\epi.c **** //! The \e ulIntFlags parameter can be the logical OR of any of the following
+ 954:C:/StellarisWare/driverlib\epi.c **** //! values:
+ 955:C:/StellarisWare/driverlib\epi.c **** //!
+ 956:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_TXREQ - transmit FIFO is below the trigger level
+ 957:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_RXREQ - read FIFO is above the trigger level
+ 958:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_ERR - an error condition occurred
+ 959:C:/StellarisWare/driverlib\epi.c **** //!
+ 960:C:/StellarisWare/driverlib\epi.c **** //! \return Returns None.
+ 961:C:/StellarisWare/driverlib\epi.c **** //
+ 962:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 963:C:/StellarisWare/driverlib\epi.c **** void
+ 964:C:/StellarisWare/driverlib\epi.c **** EPIIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+ 965:C:/StellarisWare/driverlib\epi.c **** {
+ 974              		.loc 1 965 0
+ 975              		.cfi_startproc
+ 976              		@ args = 0, pretend = 0, frame = 8
+ 977              		@ frame_needed = 1, uses_anonymous_args = 0
+ 978              		@ link register save eliminated.
+ 979 0000 80B4     		push	{r7}
+ 980              	.LCFI51:
+ 981              		.cfi_def_cfa_offset 4
+ 982              		.cfi_offset 7, -4
+ 983 0002 83B0     		sub	sp, sp, #12
+ 984              	.LCFI52:
+ 985              		.cfi_def_cfa_offset 16
+ 986 0004 00AF     		add	r7, sp, #0
+ 987              	.LCFI53:
+ 988              		.cfi_def_cfa_register 7
+ 989 0006 7860     		str	r0, [r7, #4]
+ 990 0008 3960     		str	r1, [r7, #0]
+ 966:C:/StellarisWare/driverlib\epi.c ****     //
+ 967:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 968:C:/StellarisWare/driverlib\epi.c ****     //
+ 969:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+ 970:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulIntFlags < 16);
+ 971:C:/StellarisWare/driverlib\epi.c **** 
+ 972:C:/StellarisWare/driverlib\epi.c ****     //
+ 973:C:/StellarisWare/driverlib\epi.c ****     // Write the interrupt flags mask to the mask register.
+ 974:C:/StellarisWare/driverlib\epi.c ****     //
+ 975:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_IM) |= ulIntFlags;
+ 991              		.loc 1 975 0
+ 992 000a 7B68     		ldr	r3, [r7, #4]
+ 993 000c 03F50473 		add	r3, r3, #528
+ 994 0010 7A68     		ldr	r2, [r7, #4]
+ 995 0012 02F50472 		add	r2, r2, #528
+ 996 0016 1168     		ldr	r1, [r2, #0]
+ 997 0018 3A68     		ldr	r2, [r7, #0]
+ 998 001a 0A43     		orrs	r2, r2, r1
+ 999 001c 1A60     		str	r2, [r3, #0]
+ 976:C:/StellarisWare/driverlib\epi.c **** }
+ 1000              		.loc 1 976 0
+ 1001 001e 07F10C07 		add	r7, r7, #12
+ 1002 0022 BD46     		mov	sp, r7
+ 1003 0024 80BC     		pop	{r7}
+ 1004 0026 7047     		bx	lr
+ 1005              		.cfi_endproc
+ 1006              	.LFE17:
+ 1008              		.section	.text.EPIIntDisable,"ax",%progbits
+ 1009              		.align	2
+ 1010              		.global	EPIIntDisable
+ 1011              		.thumb
+ 1012              		.thumb_func
+ 1014              	EPIIntDisable:
+ 1015              	.LFB18:
+ 977:C:/StellarisWare/driverlib\epi.c **** 
+ 978:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 979:C:/StellarisWare/driverlib\epi.c **** //
+ 980:C:/StellarisWare/driverlib\epi.c **** //! Disables EPI interrupt sources.
+ 981:C:/StellarisWare/driverlib\epi.c **** //!
+ 982:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+ 983:C:/StellarisWare/driverlib\epi.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 984:C:/StellarisWare/driverlib\epi.c **** //!
+ 985:C:/StellarisWare/driverlib\epi.c **** //! This function disables the specified EPI sources for interrupt
+ 986:C:/StellarisWare/driverlib\epi.c **** //! generation.  The \e ulIntFlags parameter can be the logical OR
+ 987:C:/StellarisWare/driverlib\epi.c **** //! of any of the following values: \b EPI_INT_RXREQ, \b EPI_INT_TXREQ, or
+ 988:C:/StellarisWare/driverlib\epi.c **** //! \b I2S_INT_ERR.
+ 989:C:/StellarisWare/driverlib\epi.c **** //!
+ 990:C:/StellarisWare/driverlib\epi.c **** //! \return Returns None.
+ 991:C:/StellarisWare/driverlib\epi.c **** //
+ 992:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+ 993:C:/StellarisWare/driverlib\epi.c **** void
+ 994:C:/StellarisWare/driverlib\epi.c **** EPIIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 995:C:/StellarisWare/driverlib\epi.c **** {
+ 1016              		.loc 1 995 0
+ 1017              		.cfi_startproc
+ 1018              		@ args = 0, pretend = 0, frame = 8
+ 1019              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1020              		@ link register save eliminated.
+ 1021 0000 80B4     		push	{r7}
+ 1022              	.LCFI54:
+ 1023              		.cfi_def_cfa_offset 4
+ 1024              		.cfi_offset 7, -4
+ 1025 0002 83B0     		sub	sp, sp, #12
+ 1026              	.LCFI55:
+ 1027              		.cfi_def_cfa_offset 16
+ 1028 0004 00AF     		add	r7, sp, #0
+ 1029              	.LCFI56:
+ 1030              		.cfi_def_cfa_register 7
+ 1031 0006 7860     		str	r0, [r7, #4]
+ 1032 0008 3960     		str	r1, [r7, #0]
+ 996:C:/StellarisWare/driverlib\epi.c ****     //
+ 997:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+ 998:C:/StellarisWare/driverlib\epi.c ****     //
+ 999:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1000:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulIntFlags < 16);
+1001:C:/StellarisWare/driverlib\epi.c **** 
+1002:C:/StellarisWare/driverlib\epi.c ****     //
+1003:C:/StellarisWare/driverlib\epi.c ****     // Write the interrupt flags mask to the mask register.
+1004:C:/StellarisWare/driverlib\epi.c ****     //
+1005:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_IM) &= ~ulIntFlags;
+ 1033              		.loc 1 1005 0
+ 1034 000a 7B68     		ldr	r3, [r7, #4]
+ 1035 000c 03F50473 		add	r3, r3, #528
+ 1036 0010 7A68     		ldr	r2, [r7, #4]
+ 1037 0012 02F50472 		add	r2, r2, #528
+ 1038 0016 1168     		ldr	r1, [r2, #0]
+ 1039 0018 3A68     		ldr	r2, [r7, #0]
+ 1040 001a 6FEA0202 		mvn	r2, r2
+ 1041 001e 0A40     		ands	r2, r2, r1
+ 1042 0020 1A60     		str	r2, [r3, #0]
+1006:C:/StellarisWare/driverlib\epi.c **** }
+ 1043              		.loc 1 1006 0
+ 1044 0022 07F10C07 		add	r7, r7, #12
+ 1045 0026 BD46     		mov	sp, r7
+ 1046 0028 80BC     		pop	{r7}
+ 1047 002a 7047     		bx	lr
+ 1048              		.cfi_endproc
+ 1049              	.LFE18:
+ 1051              		.section	.text.EPIIntStatus,"ax",%progbits
+ 1052              		.align	2
+ 1053              		.global	EPIIntStatus
+ 1054              		.thumb
+ 1055              		.thumb_func
+ 1057              	EPIIntStatus:
+ 1058              	.LFB19:
+1007:C:/StellarisWare/driverlib\epi.c **** 
+1008:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1009:C:/StellarisWare/driverlib\epi.c **** //
+1010:C:/StellarisWare/driverlib\epi.c **** //! Gets the EPI interrupt status.
+1011:C:/StellarisWare/driverlib\epi.c **** //!
+1012:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+1013:C:/StellarisWare/driverlib\epi.c **** //! \param bMasked is set \b true to get the masked interrupt status, or
+1014:C:/StellarisWare/driverlib\epi.c **** //! \b false to get the raw interrupt status.
+1015:C:/StellarisWare/driverlib\epi.c **** //!
+1016:C:/StellarisWare/driverlib\epi.c **** //! This function returns the EPI interrupt status.  It can return either
+1017:C:/StellarisWare/driverlib\epi.c **** //! the raw or masked interrupt status.
+1018:C:/StellarisWare/driverlib\epi.c **** //!
+1019:C:/StellarisWare/driverlib\epi.c **** //! \return Returns the masked or raw EPI interrupt status, as a bit field
+1020:C:/StellarisWare/driverlib\epi.c **** //! of any of the following values: \b EPI_INT_TXREQ, \b EPI_INT_RXREQ,
+1021:C:/StellarisWare/driverlib\epi.c **** //! or \b EPI_INT_ERR
+1022:C:/StellarisWare/driverlib\epi.c **** //
+1023:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1024:C:/StellarisWare/driverlib\epi.c **** unsigned long
+1025:C:/StellarisWare/driverlib\epi.c **** EPIIntStatus(unsigned long ulBase, tBoolean bMasked)
+1026:C:/StellarisWare/driverlib\epi.c **** {
+ 1059              		.loc 1 1026 0
+ 1060              		.cfi_startproc
+ 1061              		@ args = 0, pretend = 0, frame = 8
+ 1062              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1063              		@ link register save eliminated.
+ 1064 0000 80B4     		push	{r7}
+ 1065              	.LCFI57:
+ 1066              		.cfi_def_cfa_offset 4
+ 1067              		.cfi_offset 7, -4
+ 1068 0002 83B0     		sub	sp, sp, #12
+ 1069              	.LCFI58:
+ 1070              		.cfi_def_cfa_offset 16
+ 1071 0004 00AF     		add	r7, sp, #0
+ 1072              	.LCFI59:
+ 1073              		.cfi_def_cfa_register 7
+ 1074 0006 7860     		str	r0, [r7, #4]
+ 1075 0008 0B46     		mov	r3, r1
+ 1076 000a FB70     		strb	r3, [r7, #3]
+1027:C:/StellarisWare/driverlib\epi.c ****     //
+1028:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+1029:C:/StellarisWare/driverlib\epi.c ****     //
+1030:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1031:C:/StellarisWare/driverlib\epi.c **** 
+1032:C:/StellarisWare/driverlib\epi.c ****     //
+1033:C:/StellarisWare/driverlib\epi.c ****     // Return either the interrupt status or the raw interrupt status as
+1034:C:/StellarisWare/driverlib\epi.c ****     // requested.
+1035:C:/StellarisWare/driverlib\epi.c ****     //
+1036:C:/StellarisWare/driverlib\epi.c ****     if(bMasked)
+ 1077              		.loc 1 1036 0
+ 1078 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1079 000e 002B     		cmp	r3, #0
+ 1080 0010 04D0     		beq	.L40
+1037:C:/StellarisWare/driverlib\epi.c ****     {
+1038:C:/StellarisWare/driverlib\epi.c ****         return(HWREG(ulBase + EPI_O_MIS));
+ 1081              		.loc 1 1038 0
+ 1082 0012 7B68     		ldr	r3, [r7, #4]
+ 1083 0014 03F50673 		add	r3, r3, #536
+ 1084 0018 1B68     		ldr	r3, [r3, #0]
+ 1085 001a 03E0     		b	.L41
+ 1086              	.L40:
+1039:C:/StellarisWare/driverlib\epi.c ****     }
+1040:C:/StellarisWare/driverlib\epi.c ****     else
+1041:C:/StellarisWare/driverlib\epi.c ****     {
+1042:C:/StellarisWare/driverlib\epi.c ****         return(HWREG(ulBase + EPI_O_RIS));
+ 1087              		.loc 1 1042 0
+ 1088 001c 7B68     		ldr	r3, [r7, #4]
+ 1089 001e 03F50573 		add	r3, r3, #532
+ 1090 0022 1B68     		ldr	r3, [r3, #0]
+ 1091              	.L41:
+1043:C:/StellarisWare/driverlib\epi.c ****     }
+1044:C:/StellarisWare/driverlib\epi.c **** }
+ 1092              		.loc 1 1044 0
+ 1093 0024 1846     		mov	r0, r3
+ 1094 0026 07F10C07 		add	r7, r7, #12
+ 1095 002a BD46     		mov	sp, r7
+ 1096 002c 80BC     		pop	{r7}
+ 1097 002e 7047     		bx	lr
+ 1098              		.cfi_endproc
+ 1099              	.LFE19:
+ 1101              		.section	.text.EPIIntErrorStatus,"ax",%progbits
+ 1102              		.align	2
+ 1103              		.global	EPIIntErrorStatus
+ 1104              		.thumb
+ 1105              		.thumb_func
+ 1107              	EPIIntErrorStatus:
+ 1108              	.LFB20:
+1045:C:/StellarisWare/driverlib\epi.c **** 
+1046:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1047:C:/StellarisWare/driverlib\epi.c **** //
+1048:C:/StellarisWare/driverlib\epi.c **** //! Gets the EPI error interrupt status.
+1049:C:/StellarisWare/driverlib\epi.c **** //!
+1050:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+1051:C:/StellarisWare/driverlib\epi.c **** //!
+1052:C:/StellarisWare/driverlib\epi.c **** //! This function returns the error status of the EPI.  If the return value of
+1053:C:/StellarisWare/driverlib\epi.c **** //! the function EPIIntStatus() has the flag \b EPI_INT_ERR set, then this
+1054:C:/StellarisWare/driverlib\epi.c **** //! function can be used to determine the cause of the error.
+1055:C:/StellarisWare/driverlib\epi.c **** //!
+1056:C:/StellarisWare/driverlib\epi.c **** //! This function returns a bit mask of error flags, which can be the logical
+1057:C:/StellarisWare/driverlib\epi.c **** //! OR of any of the following:
+1058:C:/StellarisWare/driverlib\epi.c **** //!
+1059:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_ERR_WTFULL - occurs when a write stalled when the transaction
+1060:C:/StellarisWare/driverlib\epi.c **** //! FIFO was full
+1061:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_ERR_RSTALL - occurs when a read stalled
+1062:C:/StellarisWare/driverlib\epi.c **** //! - \b EPI_INT_ERR_TIMEOUT - occurs when the external clock enable held
+1063:C:/StellarisWare/driverlib\epi.c **** //! off a transaction longer than the configured maximum wait time
+1064:C:/StellarisWare/driverlib\epi.c **** //!
+1065:C:/StellarisWare/driverlib\epi.c **** //! \return Returns the interrupt error flags as the logical OR of any of
+1066:C:/StellarisWare/driverlib\epi.c **** //! the following: \b EPI_INT_ERR_WTFULL, \b EPI_INT_ERR_RSTALL, or
+1067:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_INT_ERR_TIMEOUT.
+1068:C:/StellarisWare/driverlib\epi.c **** //
+1069:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1070:C:/StellarisWare/driverlib\epi.c **** unsigned long
+1071:C:/StellarisWare/driverlib\epi.c **** EPIIntErrorStatus(unsigned long ulBase)
+1072:C:/StellarisWare/driverlib\epi.c **** {
+ 1109              		.loc 1 1072 0
+ 1110              		.cfi_startproc
+ 1111              		@ args = 0, pretend = 0, frame = 8
+ 1112              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1113              		@ link register save eliminated.
+ 1114 0000 80B4     		push	{r7}
+ 1115              	.LCFI60:
+ 1116              		.cfi_def_cfa_offset 4
+ 1117              		.cfi_offset 7, -4
+ 1118 0002 83B0     		sub	sp, sp, #12
+ 1119              	.LCFI61:
+ 1120              		.cfi_def_cfa_offset 16
+ 1121 0004 00AF     		add	r7, sp, #0
+ 1122              	.LCFI62:
+ 1123              		.cfi_def_cfa_register 7
+ 1124 0006 7860     		str	r0, [r7, #4]
+1073:C:/StellarisWare/driverlib\epi.c ****     //
+1074:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+1075:C:/StellarisWare/driverlib\epi.c ****     //
+1076:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1077:C:/StellarisWare/driverlib\epi.c **** 
+1078:C:/StellarisWare/driverlib\epi.c ****     //
+1079:C:/StellarisWare/driverlib\epi.c ****     // Read the error status and return to caller.
+1080:C:/StellarisWare/driverlib\epi.c ****     //
+1081:C:/StellarisWare/driverlib\epi.c ****     return(HWREG(ulBase + EPI_O_EISC));
+ 1125              		.loc 1 1081 0
+ 1126 0008 7B68     		ldr	r3, [r7, #4]
+ 1127 000a 03F50773 		add	r3, r3, #540
+ 1128 000e 1B68     		ldr	r3, [r3, #0]
+1082:C:/StellarisWare/driverlib\epi.c **** }
+ 1129              		.loc 1 1082 0
+ 1130 0010 1846     		mov	r0, r3
+ 1131 0012 07F10C07 		add	r7, r7, #12
+ 1132 0016 BD46     		mov	sp, r7
+ 1133 0018 80BC     		pop	{r7}
+ 1134 001a 7047     		bx	lr
+ 1135              		.cfi_endproc
+ 1136              	.LFE20:
+ 1138              		.section	.text.EPIIntErrorClear,"ax",%progbits
+ 1139              		.align	2
+ 1140              		.global	EPIIntErrorClear
+ 1141              		.thumb
+ 1142              		.thumb_func
+ 1144              	EPIIntErrorClear:
+ 1145              	.LFB21:
+1083:C:/StellarisWare/driverlib\epi.c **** 
+1084:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1085:C:/StellarisWare/driverlib\epi.c **** //
+1086:C:/StellarisWare/driverlib\epi.c **** //! Clears pending EPI error sources.
+1087:C:/StellarisWare/driverlib\epi.c **** //!
+1088:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+1089:C:/StellarisWare/driverlib\epi.c **** //! \param ulErrFlags is a bit mask of the error sources to be cleared.
+1090:C:/StellarisWare/driverlib\epi.c **** //!
+1091:C:/StellarisWare/driverlib\epi.c **** //! This function clears the specified pending EPI errors.  The \e ulErrFlags
+1092:C:/StellarisWare/driverlib\epi.c **** //! parameter can be the logical OR of any of the following values:
+1093:C:/StellarisWare/driverlib\epi.c **** //! \b EPI_INT_ERR_WTFULL, \b EPI_INT_ERR_RSTALL, or \b EPI_INT_ERR_TIMEOUT.
+1094:C:/StellarisWare/driverlib\epi.c **** //!
+1095:C:/StellarisWare/driverlib\epi.c **** //! \return Returns None.
+1096:C:/StellarisWare/driverlib\epi.c **** //
+1097:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1098:C:/StellarisWare/driverlib\epi.c **** void
+1099:C:/StellarisWare/driverlib\epi.c **** EPIIntErrorClear(unsigned long ulBase, unsigned long ulErrFlags)
+1100:C:/StellarisWare/driverlib\epi.c **** {
+ 1146              		.loc 1 1100 0
+ 1147              		.cfi_startproc
+ 1148              		@ args = 0, pretend = 0, frame = 8
+ 1149              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1150              		@ link register save eliminated.
+ 1151 0000 80B4     		push	{r7}
+ 1152              	.LCFI63:
+ 1153              		.cfi_def_cfa_offset 4
+ 1154              		.cfi_offset 7, -4
+ 1155 0002 83B0     		sub	sp, sp, #12
+ 1156              	.LCFI64:
+ 1157              		.cfi_def_cfa_offset 16
+ 1158 0004 00AF     		add	r7, sp, #0
+ 1159              	.LCFI65:
+ 1160              		.cfi_def_cfa_register 7
+ 1161 0006 7860     		str	r0, [r7, #4]
+ 1162 0008 3960     		str	r1, [r7, #0]
+1101:C:/StellarisWare/driverlib\epi.c ****     //
+1102:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+1103:C:/StellarisWare/driverlib\epi.c ****     //
+1104:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1105:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulErrFlags < 16);
+1106:C:/StellarisWare/driverlib\epi.c **** 
+1107:C:/StellarisWare/driverlib\epi.c ****     //
+1108:C:/StellarisWare/driverlib\epi.c ****     // Write the error flags to the register to clear the pending errors.
+1109:C:/StellarisWare/driverlib\epi.c ****     //
+1110:C:/StellarisWare/driverlib\epi.c ****     HWREG(ulBase + EPI_O_EISC) = ulErrFlags;
+ 1163              		.loc 1 1110 0
+ 1164 000a 7B68     		ldr	r3, [r7, #4]
+ 1165 000c 03F50773 		add	r3, r3, #540
+ 1166 0010 3A68     		ldr	r2, [r7, #0]
+ 1167 0012 1A60     		str	r2, [r3, #0]
+1111:C:/StellarisWare/driverlib\epi.c **** }
+ 1168              		.loc 1 1111 0
+ 1169 0014 07F10C07 		add	r7, r7, #12
+ 1170 0018 BD46     		mov	sp, r7
+ 1171 001a 80BC     		pop	{r7}
+ 1172 001c 7047     		bx	lr
+ 1173              		.cfi_endproc
+ 1174              	.LFE21:
+ 1176 001e 00BF     		.section	.text.EPIIntRegister,"ax",%progbits
+ 1177              		.align	2
+ 1178              		.global	EPIIntRegister
+ 1179              		.thumb
+ 1180              		.thumb_func
+ 1182              	EPIIntRegister:
+ 1183              	.LFB22:
+1112:C:/StellarisWare/driverlib\epi.c **** 
+1113:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1114:C:/StellarisWare/driverlib\epi.c **** //
+1115:C:/StellarisWare/driverlib\epi.c **** //! Registers an interrupt handler for the EPI module.
+1116:C:/StellarisWare/driverlib\epi.c **** //!
+1117:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+1118:C:/StellarisWare/driverlib\epi.c **** //! \param pfnHandler is a pointer to the function to be called when the
+1119:C:/StellarisWare/driverlib\epi.c **** //! interrupt is activated.
+1120:C:/StellarisWare/driverlib\epi.c **** //!
+1121:C:/StellarisWare/driverlib\epi.c **** //! This sets and enables the handler to be called when the EPI module
+1122:C:/StellarisWare/driverlib\epi.c **** //! generates an interrupt.  Specific EPI interrupts must still be enabled
+1123:C:/StellarisWare/driverlib\epi.c **** //! with the EPIIntEnable() function.
+1124:C:/StellarisWare/driverlib\epi.c **** //!
+1125:C:/StellarisWare/driverlib\epi.c **** //! \sa IntRegister() for important information about registering interrupt
+1126:C:/StellarisWare/driverlib\epi.c **** //! handlers.
+1127:C:/StellarisWare/driverlib\epi.c **** //!
+1128:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+1129:C:/StellarisWare/driverlib\epi.c **** //
+1130:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1131:C:/StellarisWare/driverlib\epi.c **** void
+1132:C:/StellarisWare/driverlib\epi.c **** EPIIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+1133:C:/StellarisWare/driverlib\epi.c **** {
+ 1184              		.loc 1 1133 0
+ 1185              		.cfi_startproc
+ 1186              		@ args = 0, pretend = 0, frame = 8
+ 1187              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1188 0000 80B5     		push	{r7, lr}
+ 1189              	.LCFI66:
+ 1190              		.cfi_def_cfa_offset 8
+ 1191              		.cfi_offset 14, -4
+ 1192              		.cfi_offset 7, -8
+ 1193 0002 82B0     		sub	sp, sp, #8
+ 1194              	.LCFI67:
+ 1195              		.cfi_def_cfa_offset 16
+ 1196 0004 00AF     		add	r7, sp, #0
+ 1197              	.LCFI68:
+ 1198              		.cfi_def_cfa_register 7
+ 1199 0006 7860     		str	r0, [r7, #4]
+ 1200 0008 3960     		str	r1, [r7, #0]
+1134:C:/StellarisWare/driverlib\epi.c ****     //
+1135:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+1136:C:/StellarisWare/driverlib\epi.c ****     //
+1137:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1138:C:/StellarisWare/driverlib\epi.c ****     ASSERT(pfnHandler);
+1139:C:/StellarisWare/driverlib\epi.c **** 
+1140:C:/StellarisWare/driverlib\epi.c ****     //
+1141:C:/StellarisWare/driverlib\epi.c ****     // Register the interrupt handler.
+1142:C:/StellarisWare/driverlib\epi.c ****     //
+1143:C:/StellarisWare/driverlib\epi.c ****     IntRegister(INT_EPI0, pfnHandler);
+ 1201              		.loc 1 1143 0
+ 1202 000a 4FF04500 		mov	r0, #69
+ 1203 000e 3968     		ldr	r1, [r7, #0]
+ 1204 0010 FFF7FEFF 		bl	IntRegister
+1144:C:/StellarisWare/driverlib\epi.c **** 
+1145:C:/StellarisWare/driverlib\epi.c ****     //
+1146:C:/StellarisWare/driverlib\epi.c ****     // Enable the EPI interface interrupt.
+1147:C:/StellarisWare/driverlib\epi.c ****     //
+1148:C:/StellarisWare/driverlib\epi.c ****     IntEnable(INT_EPI0);
+ 1205              		.loc 1 1148 0
+ 1206 0014 4FF04500 		mov	r0, #69
+ 1207 0018 FFF7FEFF 		bl	IntEnable
+1149:C:/StellarisWare/driverlib\epi.c **** }
+ 1208              		.loc 1 1149 0
+ 1209 001c 07F10807 		add	r7, r7, #8
+ 1210 0020 BD46     		mov	sp, r7
+ 1211 0022 80BD     		pop	{r7, pc}
+ 1212              		.cfi_endproc
+ 1213              	.LFE22:
+ 1215              		.section	.text.EPIIntUnregister,"ax",%progbits
+ 1216              		.align	2
+ 1217              		.global	EPIIntUnregister
+ 1218              		.thumb
+ 1219              		.thumb_func
+ 1221              	EPIIntUnregister:
+ 1222              	.LFB23:
+1150:C:/StellarisWare/driverlib\epi.c **** 
+1151:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1152:C:/StellarisWare/driverlib\epi.c **** //
+1153:C:/StellarisWare/driverlib\epi.c **** //! Unregisters an interrupt handler for the EPI module.
+1154:C:/StellarisWare/driverlib\epi.c **** //!
+1155:C:/StellarisWare/driverlib\epi.c **** //! \param ulBase is the EPI module base address.
+1156:C:/StellarisWare/driverlib\epi.c **** //!
+1157:C:/StellarisWare/driverlib\epi.c **** //! This function disables and clears the handler to be called when the
+1158:C:/StellarisWare/driverlib\epi.c **** //! EPI interrupt occurs.
+1159:C:/StellarisWare/driverlib\epi.c **** //!
+1160:C:/StellarisWare/driverlib\epi.c **** //! \sa IntRegister() for important information about registering interrupt
+1161:C:/StellarisWare/driverlib\epi.c **** //! handlers.
+1162:C:/StellarisWare/driverlib\epi.c **** //!
+1163:C:/StellarisWare/driverlib\epi.c **** //! \return None.
+1164:C:/StellarisWare/driverlib\epi.c **** //
+1165:C:/StellarisWare/driverlib\epi.c **** //*****************************************************************************
+1166:C:/StellarisWare/driverlib\epi.c **** void
+1167:C:/StellarisWare/driverlib\epi.c **** EPIIntUnregister(unsigned long ulBase)
+1168:C:/StellarisWare/driverlib\epi.c **** {
+ 1223              		.loc 1 1168 0
+ 1224              		.cfi_startproc
+ 1225              		@ args = 0, pretend = 0, frame = 8
+ 1226              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1227 0000 80B5     		push	{r7, lr}
+ 1228              	.LCFI69:
+ 1229              		.cfi_def_cfa_offset 8
+ 1230              		.cfi_offset 14, -4
+ 1231              		.cfi_offset 7, -8
+ 1232 0002 82B0     		sub	sp, sp, #8
+ 1233              	.LCFI70:
+ 1234              		.cfi_def_cfa_offset 16
+ 1235 0004 00AF     		add	r7, sp, #0
+ 1236              	.LCFI71:
+ 1237              		.cfi_def_cfa_register 7
+ 1238 0006 7860     		str	r0, [r7, #4]
+1169:C:/StellarisWare/driverlib\epi.c ****     //
+1170:C:/StellarisWare/driverlib\epi.c ****     // Check the arguments.
+1171:C:/StellarisWare/driverlib\epi.c ****     //
+1172:C:/StellarisWare/driverlib\epi.c ****     ASSERT(ulBase == EPI0_BASE);
+1173:C:/StellarisWare/driverlib\epi.c **** 
+1174:C:/StellarisWare/driverlib\epi.c ****     //
+1175:C:/StellarisWare/driverlib\epi.c ****     // Disable the EPI interface interrupt.
+1176:C:/StellarisWare/driverlib\epi.c ****     //
+1177:C:/StellarisWare/driverlib\epi.c ****     IntDisable(INT_EPI0);
+ 1239              		.loc 1 1177 0
+ 1240 0008 4FF04500 		mov	r0, #69
+ 1241 000c FFF7FEFF 		bl	IntDisable
+1178:C:/StellarisWare/driverlib\epi.c **** 
+1179:C:/StellarisWare/driverlib\epi.c ****     //
+1180:C:/StellarisWare/driverlib\epi.c ****     // Unregister the interrupt handler.
+1181:C:/StellarisWare/driverlib\epi.c ****     //
+1182:C:/StellarisWare/driverlib\epi.c ****     IntUnregister(INT_EPI0);
+ 1242              		.loc 1 1182 0
+ 1243 0010 4FF04500 		mov	r0, #69
+ 1244 0014 FFF7FEFF 		bl	IntUnregister
+1183:C:/StellarisWare/driverlib\epi.c **** }
+ 1245              		.loc 1 1183 0
+ 1246 0018 07F10807 		add	r7, r7, #8
+ 1247 001c BD46     		mov	sp, r7
+ 1248 001e 80BD     		pop	{r7, pc}
+ 1249              		.cfi_endproc
+ 1250              	.LFE23:
+ 1252              		.text
+ 1253              	.Letext0:
+ 1254              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 epi.c
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:19     .text.EPIModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:24     .text.EPIModeSet:00000000 EPIModeSet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:57     .text.EPIDividerSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:62     .text.EPIDividerSet:00000000 EPIDividerSet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:95     .text.EPIConfigSDRAMSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:100    .text.EPIConfigSDRAMSet:00000000 EPIConfigSDRAMSet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:145    .text.EPIConfigHB8Set:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:150    .text.EPIConfigHB8Set:00000000 EPIConfigHB8Set
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:233    .text.EPIConfigHB16Set:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:238    .text.EPIConfigHB16Set:00000000 EPIConfigHB16Set
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:321    .text.EPIConfigGPModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:326    .text.EPIConfigGPModeSet:00000000 EPIConfigGPModeSet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:398    .text.EPIAddressMapSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:403    .text.EPIAddressMapSet:00000000 EPIAddressMapSet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:436    .text.EPINonBlockingReadConfigure:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:441    .text.EPINonBlockingReadConfigure:00000000 EPINonBlockingReadConfigure
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:489    .text.EPINonBlockingReadStart:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:494    .text.EPINonBlockingReadStart:00000000 EPINonBlockingReadStart
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:534    .text.EPINonBlockingReadStop:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:539    .text.EPINonBlockingReadStop:00000000 EPINonBlockingReadStop
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:578    .text.EPINonBlockingReadCount:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:583    .text.EPINonBlockingReadCount:00000000 EPINonBlockingReadCount
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:622    .text.EPINonBlockingReadAvail:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:627    .text.EPINonBlockingReadAvail:00000000 EPINonBlockingReadAvail
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:659    .text.EPINonBlockingReadGet32:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:664    .text.EPINonBlockingReadGet32:00000000 EPINonBlockingReadGet32
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:736    .text.EPINonBlockingReadGet16:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:741    .text.EPINonBlockingReadGet16:00000000 EPINonBlockingReadGet16
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:814    .text.EPINonBlockingReadGet8:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:819    .text.EPINonBlockingReadGet8:00000000 EPINonBlockingReadGet8
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:892    .text.EPIFIFOConfig:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:897    .text.EPIFIFOConfig:00000000 EPIFIFOConfig
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:930    .text.EPIWriteFIFOCountGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:935    .text.EPIWriteFIFOCountGet:00000000 EPIWriteFIFOCountGet
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:967    .text.EPIIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:972    .text.EPIIntEnable:00000000 EPIIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1009   .text.EPIIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1014   .text.EPIIntDisable:00000000 EPIIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1052   .text.EPIIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1057   .text.EPIIntStatus:00000000 EPIIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1102   .text.EPIIntErrorStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1107   .text.EPIIntErrorStatus:00000000 EPIIntErrorStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1139   .text.EPIIntErrorClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1144   .text.EPIIntErrorClear:00000000 EPIIntErrorClear
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1177   .text.EPIIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1182   .text.EPIIntRegister:00000000 EPIIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1216   .text.EPIIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccfuBgNt.s:1221   .text.EPIIntUnregister:00000000 EPIIntUnregister
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

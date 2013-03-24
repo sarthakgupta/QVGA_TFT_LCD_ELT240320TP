@@ -1,0 +1,617 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"systick.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.SysTickEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	SysTickEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	SysTickEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/systick.c"
+   1:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\systick.c **** //
+   3:C:/StellarisWare/driverlib\systick.c **** // systick.c - Driver for the SysTick timer in NVIC.
+   4:C:/StellarisWare/driverlib\systick.c **** //
+   5:C:/StellarisWare/driverlib\systick.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\systick.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\systick.c **** // 
+   8:C:/StellarisWare/driverlib\systick.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\systick.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\systick.c **** //   are met:
+  11:C:/StellarisWare/driverlib\systick.c **** // 
+  12:C:/StellarisWare/driverlib\systick.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\systick.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\systick.c **** // 
+  15:C:/StellarisWare/driverlib\systick.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\systick.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\systick.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\systick.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\systick.c **** // 
+  20:C:/StellarisWare/driverlib\systick.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\systick.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\systick.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\systick.c **** // 
+  24:C:/StellarisWare/driverlib\systick.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\systick.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\systick.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\systick.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\systick.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\systick.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\systick.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\systick.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\systick.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\systick.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\systick.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\systick.c **** // 
+  36:C:/StellarisWare/driverlib\systick.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\systick.c **** //
+  38:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\systick.c **** 
+  40:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\systick.c **** //
+  42:C:/StellarisWare/driverlib\systick.c **** //! \addtogroup systick_api
+  43:C:/StellarisWare/driverlib\systick.c **** //! @{
+  44:C:/StellarisWare/driverlib\systick.c **** //
+  45:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\systick.c **** 
+  47:C:/StellarisWare/driverlib\systick.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\systick.c **** #include "inc/hw_nvic.h"
+  49:C:/StellarisWare/driverlib\systick.c **** #include "inc/hw_types.h"
+  50:C:/StellarisWare/driverlib\systick.c **** #include "driverlib/debug.h"
+  51:C:/StellarisWare/driverlib\systick.c **** #include "driverlib/interrupt.h"
+  52:C:/StellarisWare/driverlib\systick.c **** #include "driverlib/systick.h"
+  53:C:/StellarisWare/driverlib\systick.c **** 
+  54:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  55:C:/StellarisWare/driverlib\systick.c **** //
+  56:C:/StellarisWare/driverlib\systick.c **** //! Enables the SysTick counter.
+  57:C:/StellarisWare/driverlib\systick.c **** //!
+  58:C:/StellarisWare/driverlib\systick.c **** //! This function starts the SysTick counter.  If an interrupt handler has been
+  59:C:/StellarisWare/driverlib\systick.c **** //! registered, it is called when the SysTick counter rolls over.
+  60:C:/StellarisWare/driverlib\systick.c **** //!
+  61:C:/StellarisWare/driverlib\systick.c **** //! \note Calling this function causes the SysTick counter to (re)commence
+  62:C:/StellarisWare/driverlib\systick.c **** //! counting from its current value.  The counter is not automatically reloaded
+  63:C:/StellarisWare/driverlib\systick.c **** //! with the period as specified in a previous call to SysTickPeriodSet().  If
+  64:C:/StellarisWare/driverlib\systick.c **** //! an immediate reload is required, the \b NVIC_ST_CURRENT register must be
+  65:C:/StellarisWare/driverlib\systick.c **** //! written to force the reload.  Any write to this register clears the SysTick
+  66:C:/StellarisWare/driverlib\systick.c **** //! counter to 0 and causes a reload with the supplied period on the next
+  67:C:/StellarisWare/driverlib\systick.c **** //! clock.
+  68:C:/StellarisWare/driverlib\systick.c **** //!
+  69:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+  70:C:/StellarisWare/driverlib\systick.c **** //
+  71:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  72:C:/StellarisWare/driverlib\systick.c **** void
+  73:C:/StellarisWare/driverlib\systick.c **** SysTickEnable(void)
+  74:C:/StellarisWare/driverlib\systick.c **** {
+  27              		.loc 1 74 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 00AF     		add	r7, sp, #0
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_register 7
+  75:C:/StellarisWare/driverlib\systick.c ****     //
+  76:C:/StellarisWare/driverlib\systick.c ****     // Enable SysTick.
+  77:C:/StellarisWare/driverlib\systick.c ****     //
+  78:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_CLK_SRC | NVIC_ST_CTRL_ENABLE;
+  39              		.loc 1 78 0
+  40 0004 4EF21003 		movw	r3, #57360
+  41 0008 CEF20003 		movt	r3, 57344
+  42 000c 4EF21002 		movw	r2, #57360
+  43 0010 CEF20002 		movt	r2, 57344
+  44 0014 1268     		ldr	r2, [r2, #0]
+  45 0016 42F00502 		orr	r2, r2, #5
+  46 001a 1A60     		str	r2, [r3, #0]
+  79:C:/StellarisWare/driverlib\systick.c **** }
+  47              		.loc 1 79 0
+  48 001c BD46     		mov	sp, r7
+  49 001e 80BC     		pop	{r7}
+  50 0020 7047     		bx	lr
+  51              		.cfi_endproc
+  52              	.LFE0:
+  54 0022 00BF     		.section	.text.SysTickDisable,"ax",%progbits
+  55              		.align	2
+  56              		.global	SysTickDisable
+  57              		.thumb
+  58              		.thumb_func
+  60              	SysTickDisable:
+  61              	.LFB1:
+  80:C:/StellarisWare/driverlib\systick.c **** 
+  81:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  82:C:/StellarisWare/driverlib\systick.c **** //
+  83:C:/StellarisWare/driverlib\systick.c **** //! Disables the SysTick counter.
+  84:C:/StellarisWare/driverlib\systick.c **** //!
+  85:C:/StellarisWare/driverlib\systick.c **** //! This function stops the SysTick counter.  If an interrupt handler has been
+  86:C:/StellarisWare/driverlib\systick.c **** //! registered, it is not called until SysTick is restarted.
+  87:C:/StellarisWare/driverlib\systick.c **** //!
+  88:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+  89:C:/StellarisWare/driverlib\systick.c **** //
+  90:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+  91:C:/StellarisWare/driverlib\systick.c **** void
+  92:C:/StellarisWare/driverlib\systick.c **** SysTickDisable(void)
+  93:C:/StellarisWare/driverlib\systick.c **** {
+  62              		.loc 1 93 0
+  63              		.cfi_startproc
+  64              		@ args = 0, pretend = 0, frame = 0
+  65              		@ frame_needed = 1, uses_anonymous_args = 0
+  66              		@ link register save eliminated.
+  67 0000 80B4     		push	{r7}
+  68              	.LCFI2:
+  69              		.cfi_def_cfa_offset 4
+  70              		.cfi_offset 7, -4
+  71 0002 00AF     		add	r7, sp, #0
+  72              	.LCFI3:
+  73              		.cfi_def_cfa_register 7
+  94:C:/StellarisWare/driverlib\systick.c ****     //
+  95:C:/StellarisWare/driverlib\systick.c ****     // Disable SysTick.
+  96:C:/StellarisWare/driverlib\systick.c ****     //
+  97:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_ENABLE);
+  74              		.loc 1 97 0
+  75 0004 4EF21003 		movw	r3, #57360
+  76 0008 CEF20003 		movt	r3, 57344
+  77 000c 4EF21002 		movw	r2, #57360
+  78 0010 CEF20002 		movt	r2, 57344
+  79 0014 1268     		ldr	r2, [r2, #0]
+  80 0016 22F00102 		bic	r2, r2, #1
+  81 001a 1A60     		str	r2, [r3, #0]
+  98:C:/StellarisWare/driverlib\systick.c **** }
+  82              		.loc 1 98 0
+  83 001c BD46     		mov	sp, r7
+  84 001e 80BC     		pop	{r7}
+  85 0020 7047     		bx	lr
+  86              		.cfi_endproc
+  87              	.LFE1:
+  89 0022 00BF     		.section	.text.SysTickIntRegister,"ax",%progbits
+  90              		.align	2
+  91              		.global	SysTickIntRegister
+  92              		.thumb
+  93              		.thumb_func
+  95              	SysTickIntRegister:
+  96              	.LFB2:
+  99:C:/StellarisWare/driverlib\systick.c **** 
+ 100:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 101:C:/StellarisWare/driverlib\systick.c **** //
+ 102:C:/StellarisWare/driverlib\systick.c **** //! Registers an interrupt handler for the SysTick interrupt.
+ 103:C:/StellarisWare/driverlib\systick.c **** //!
+ 104:C:/StellarisWare/driverlib\systick.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 105:C:/StellarisWare/driverlib\systick.c **** //! SysTick interrupt occurs.
+ 106:C:/StellarisWare/driverlib\systick.c **** //!
+ 107:C:/StellarisWare/driverlib\systick.c **** //! This function registers the handler to be called when a SysTick interrupt
+ 108:C:/StellarisWare/driverlib\systick.c **** //! occurs.
+ 109:C:/StellarisWare/driverlib\systick.c **** //!
+ 110:C:/StellarisWare/driverlib\systick.c **** //! \sa IntRegister() for important information about registering interrupt
+ 111:C:/StellarisWare/driverlib\systick.c **** //! handlers.
+ 112:C:/StellarisWare/driverlib\systick.c **** //!
+ 113:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+ 114:C:/StellarisWare/driverlib\systick.c **** //
+ 115:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 116:C:/StellarisWare/driverlib\systick.c **** void
+ 117:C:/StellarisWare/driverlib\systick.c **** SysTickIntRegister(void (*pfnHandler)(void))
+ 118:C:/StellarisWare/driverlib\systick.c **** {
+  97              		.loc 1 118 0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 8
+ 100              		@ frame_needed = 1, uses_anonymous_args = 0
+ 101 0000 80B5     		push	{r7, lr}
+ 102              	.LCFI4:
+ 103              		.cfi_def_cfa_offset 8
+ 104              		.cfi_offset 14, -4
+ 105              		.cfi_offset 7, -8
+ 106 0002 82B0     		sub	sp, sp, #8
+ 107              	.LCFI5:
+ 108              		.cfi_def_cfa_offset 16
+ 109 0004 00AF     		add	r7, sp, #0
+ 110              	.LCFI6:
+ 111              		.cfi_def_cfa_register 7
+ 112 0006 7860     		str	r0, [r7, #4]
+ 119:C:/StellarisWare/driverlib\systick.c ****     //
+ 120:C:/StellarisWare/driverlib\systick.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 121:C:/StellarisWare/driverlib\systick.c ****     //
+ 122:C:/StellarisWare/driverlib\systick.c ****     IntRegister(FAULT_SYSTICK, pfnHandler);
+ 113              		.loc 1 122 0
+ 114 0008 4FF00F00 		mov	r0, #15
+ 115 000c 7968     		ldr	r1, [r7, #4]
+ 116 000e FFF7FEFF 		bl	IntRegister
+ 123:C:/StellarisWare/driverlib\systick.c **** 
+ 124:C:/StellarisWare/driverlib\systick.c ****     //
+ 125:C:/StellarisWare/driverlib\systick.c ****     // Enable the SysTick interrupt.
+ 126:C:/StellarisWare/driverlib\systick.c ****     //
+ 127:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_INTEN;
+ 117              		.loc 1 127 0
+ 118 0012 4EF21003 		movw	r3, #57360
+ 119 0016 CEF20003 		movt	r3, 57344
+ 120 001a 4EF21002 		movw	r2, #57360
+ 121 001e CEF20002 		movt	r2, 57344
+ 122 0022 1268     		ldr	r2, [r2, #0]
+ 123 0024 42F00202 		orr	r2, r2, #2
+ 124 0028 1A60     		str	r2, [r3, #0]
+ 128:C:/StellarisWare/driverlib\systick.c **** }
+ 125              		.loc 1 128 0
+ 126 002a 07F10807 		add	r7, r7, #8
+ 127 002e BD46     		mov	sp, r7
+ 128 0030 80BD     		pop	{r7, pc}
+ 129              		.cfi_endproc
+ 130              	.LFE2:
+ 132 0032 00BF     		.section	.text.SysTickIntUnregister,"ax",%progbits
+ 133              		.align	2
+ 134              		.global	SysTickIntUnregister
+ 135              		.thumb
+ 136              		.thumb_func
+ 138              	SysTickIntUnregister:
+ 139              	.LFB3:
+ 129:C:/StellarisWare/driverlib\systick.c **** 
+ 130:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 131:C:/StellarisWare/driverlib\systick.c **** //
+ 132:C:/StellarisWare/driverlib\systick.c **** //! Unregisters the interrupt handler for the SysTick interrupt.
+ 133:C:/StellarisWare/driverlib\systick.c **** //!
+ 134:C:/StellarisWare/driverlib\systick.c **** //! This function unregisters the handler to be called when a SysTick interrupt
+ 135:C:/StellarisWare/driverlib\systick.c **** //! occurs.
+ 136:C:/StellarisWare/driverlib\systick.c **** //!
+ 137:C:/StellarisWare/driverlib\systick.c **** //! \sa IntRegister() for important information about registering interrupt
+ 138:C:/StellarisWare/driverlib\systick.c **** //! handlers.
+ 139:C:/StellarisWare/driverlib\systick.c **** //!
+ 140:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+ 141:C:/StellarisWare/driverlib\systick.c **** //
+ 142:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 143:C:/StellarisWare/driverlib\systick.c **** void
+ 144:C:/StellarisWare/driverlib\systick.c **** SysTickIntUnregister(void)
+ 145:C:/StellarisWare/driverlib\systick.c **** {
+ 140              		.loc 1 145 0
+ 141              		.cfi_startproc
+ 142              		@ args = 0, pretend = 0, frame = 0
+ 143              		@ frame_needed = 1, uses_anonymous_args = 0
+ 144 0000 80B5     		push	{r7, lr}
+ 145              	.LCFI7:
+ 146              		.cfi_def_cfa_offset 8
+ 147              		.cfi_offset 14, -4
+ 148              		.cfi_offset 7, -8
+ 149 0002 00AF     		add	r7, sp, #0
+ 150              	.LCFI8:
+ 151              		.cfi_def_cfa_register 7
+ 146:C:/StellarisWare/driverlib\systick.c ****     //
+ 147:C:/StellarisWare/driverlib\systick.c ****     // Disable the SysTick interrupt.
+ 148:C:/StellarisWare/driverlib\systick.c ****     //
+ 149:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_INTEN);
+ 152              		.loc 1 149 0
+ 153 0004 4EF21003 		movw	r3, #57360
+ 154 0008 CEF20003 		movt	r3, 57344
+ 155 000c 4EF21002 		movw	r2, #57360
+ 156 0010 CEF20002 		movt	r2, 57344
+ 157 0014 1268     		ldr	r2, [r2, #0]
+ 158 0016 22F00202 		bic	r2, r2, #2
+ 159 001a 1A60     		str	r2, [r3, #0]
+ 150:C:/StellarisWare/driverlib\systick.c **** 
+ 151:C:/StellarisWare/driverlib\systick.c ****     //
+ 152:C:/StellarisWare/driverlib\systick.c ****     // Unregister the interrupt handler.
+ 153:C:/StellarisWare/driverlib\systick.c ****     //
+ 154:C:/StellarisWare/driverlib\systick.c ****     IntUnregister(FAULT_SYSTICK);
+ 160              		.loc 1 154 0
+ 161 001c 4FF00F00 		mov	r0, #15
+ 162 0020 FFF7FEFF 		bl	IntUnregister
+ 155:C:/StellarisWare/driverlib\systick.c **** }
+ 163              		.loc 1 155 0
+ 164 0024 80BD     		pop	{r7, pc}
+ 165              		.cfi_endproc
+ 166              	.LFE3:
+ 168 0026 00BF     		.section	.text.SysTickIntEnable,"ax",%progbits
+ 169              		.align	2
+ 170              		.global	SysTickIntEnable
+ 171              		.thumb
+ 172              		.thumb_func
+ 174              	SysTickIntEnable:
+ 175              	.LFB4:
+ 156:C:/StellarisWare/driverlib\systick.c **** 
+ 157:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 158:C:/StellarisWare/driverlib\systick.c **** //
+ 159:C:/StellarisWare/driverlib\systick.c **** //! Enables the SysTick interrupt.
+ 160:C:/StellarisWare/driverlib\systick.c **** //!
+ 161:C:/StellarisWare/driverlib\systick.c **** //! This function enables the SysTick interrupt, allowing it to be
+ 162:C:/StellarisWare/driverlib\systick.c **** //! reflected to the processor.
+ 163:C:/StellarisWare/driverlib\systick.c **** //!
+ 164:C:/StellarisWare/driverlib\systick.c **** //! \note The SysTick interrupt handler is not required to clear the SysTick
+ 165:C:/StellarisWare/driverlib\systick.c **** //! interrupt source because it is cleared automatically by the NVIC when the
+ 166:C:/StellarisWare/driverlib\systick.c **** //! interrupt handler is called.
+ 167:C:/StellarisWare/driverlib\systick.c **** //!
+ 168:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+ 169:C:/StellarisWare/driverlib\systick.c **** //
+ 170:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 171:C:/StellarisWare/driverlib\systick.c **** void
+ 172:C:/StellarisWare/driverlib\systick.c **** SysTickIntEnable(void)
+ 173:C:/StellarisWare/driverlib\systick.c **** {
+ 176              		.loc 1 173 0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 1, uses_anonymous_args = 0
+ 180              		@ link register save eliminated.
+ 181 0000 80B4     		push	{r7}
+ 182              	.LCFI9:
+ 183              		.cfi_def_cfa_offset 4
+ 184              		.cfi_offset 7, -4
+ 185 0002 00AF     		add	r7, sp, #0
+ 186              	.LCFI10:
+ 187              		.cfi_def_cfa_register 7
+ 174:C:/StellarisWare/driverlib\systick.c ****     //
+ 175:C:/StellarisWare/driverlib\systick.c ****     // Enable the SysTick interrupt.
+ 176:C:/StellarisWare/driverlib\systick.c ****     //
+ 177:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_INTEN;
+ 188              		.loc 1 177 0
+ 189 0004 4EF21003 		movw	r3, #57360
+ 190 0008 CEF20003 		movt	r3, 57344
+ 191 000c 4EF21002 		movw	r2, #57360
+ 192 0010 CEF20002 		movt	r2, 57344
+ 193 0014 1268     		ldr	r2, [r2, #0]
+ 194 0016 42F00202 		orr	r2, r2, #2
+ 195 001a 1A60     		str	r2, [r3, #0]
+ 178:C:/StellarisWare/driverlib\systick.c **** }
+ 196              		.loc 1 178 0
+ 197 001c BD46     		mov	sp, r7
+ 198 001e 80BC     		pop	{r7}
+ 199 0020 7047     		bx	lr
+ 200              		.cfi_endproc
+ 201              	.LFE4:
+ 203 0022 00BF     		.section	.text.SysTickIntDisable,"ax",%progbits
+ 204              		.align	2
+ 205              		.global	SysTickIntDisable
+ 206              		.thumb
+ 207              		.thumb_func
+ 209              	SysTickIntDisable:
+ 210              	.LFB5:
+ 179:C:/StellarisWare/driverlib\systick.c **** 
+ 180:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 181:C:/StellarisWare/driverlib\systick.c **** //
+ 182:C:/StellarisWare/driverlib\systick.c **** //! Disables the SysTick interrupt.
+ 183:C:/StellarisWare/driverlib\systick.c **** //!
+ 184:C:/StellarisWare/driverlib\systick.c **** //! This function disables the SysTick interrupt, preventing it from being
+ 185:C:/StellarisWare/driverlib\systick.c **** //! reflected to the processor.
+ 186:C:/StellarisWare/driverlib\systick.c **** //!
+ 187:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+ 188:C:/StellarisWare/driverlib\systick.c **** //
+ 189:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 190:C:/StellarisWare/driverlib\systick.c **** void
+ 191:C:/StellarisWare/driverlib\systick.c **** SysTickIntDisable(void)
+ 192:C:/StellarisWare/driverlib\systick.c **** {
+ 211              		.loc 1 192 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 0
+ 214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 215              		@ link register save eliminated.
+ 216 0000 80B4     		push	{r7}
+ 217              	.LCFI11:
+ 218              		.cfi_def_cfa_offset 4
+ 219              		.cfi_offset 7, -4
+ 220 0002 00AF     		add	r7, sp, #0
+ 221              	.LCFI12:
+ 222              		.cfi_def_cfa_register 7
+ 193:C:/StellarisWare/driverlib\systick.c ****     //
+ 194:C:/StellarisWare/driverlib\systick.c ****     // Disable the SysTick interrupt.
+ 195:C:/StellarisWare/driverlib\systick.c ****     //
+ 196:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_INTEN);
+ 223              		.loc 1 196 0
+ 224 0004 4EF21003 		movw	r3, #57360
+ 225 0008 CEF20003 		movt	r3, 57344
+ 226 000c 4EF21002 		movw	r2, #57360
+ 227 0010 CEF20002 		movt	r2, 57344
+ 228 0014 1268     		ldr	r2, [r2, #0]
+ 229 0016 22F00202 		bic	r2, r2, #2
+ 230 001a 1A60     		str	r2, [r3, #0]
+ 197:C:/StellarisWare/driverlib\systick.c **** }
+ 231              		.loc 1 197 0
+ 232 001c BD46     		mov	sp, r7
+ 233 001e 80BC     		pop	{r7}
+ 234 0020 7047     		bx	lr
+ 235              		.cfi_endproc
+ 236              	.LFE5:
+ 238 0022 00BF     		.section	.text.SysTickPeriodSet,"ax",%progbits
+ 239              		.align	2
+ 240              		.global	SysTickPeriodSet
+ 241              		.thumb
+ 242              		.thumb_func
+ 244              	SysTickPeriodSet:
+ 245              	.LFB6:
+ 198:C:/StellarisWare/driverlib\systick.c **** 
+ 199:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 200:C:/StellarisWare/driverlib\systick.c **** //
+ 201:C:/StellarisWare/driverlib\systick.c **** //! Sets the period of the SysTick counter.
+ 202:C:/StellarisWare/driverlib\systick.c **** //!
+ 203:C:/StellarisWare/driverlib\systick.c **** //! \param ulPeriod is the number of clock ticks in each period of the SysTick
+ 204:C:/StellarisWare/driverlib\systick.c **** //! counter and must be between 1 and 16,777,216, inclusive.
+ 205:C:/StellarisWare/driverlib\systick.c **** //!
+ 206:C:/StellarisWare/driverlib\systick.c **** //! This function sets the rate at which the SysTick counter wraps, which
+ 207:C:/StellarisWare/driverlib\systick.c **** //! equates to the number of processor clocks between interrupts.
+ 208:C:/StellarisWare/driverlib\systick.c **** //!
+ 209:C:/StellarisWare/driverlib\systick.c **** //! \note Calling this function does not cause the SysTick counter to reload
+ 210:C:/StellarisWare/driverlib\systick.c **** //! immediately.  If an immediate reload is required, the \b NVIC_ST_CURRENT
+ 211:C:/StellarisWare/driverlib\systick.c **** //! register must be written.  Any write to this register clears the SysTick
+ 212:C:/StellarisWare/driverlib\systick.c **** //! counter to 0 and causes a reload with the \e ulPeriod supplied here on
+ 213:C:/StellarisWare/driverlib\systick.c **** //! the next clock after SysTick is enabled.
+ 214:C:/StellarisWare/driverlib\systick.c **** //!
+ 215:C:/StellarisWare/driverlib\systick.c **** //! \return None.
+ 216:C:/StellarisWare/driverlib\systick.c **** //
+ 217:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 218:C:/StellarisWare/driverlib\systick.c **** void
+ 219:C:/StellarisWare/driverlib\systick.c **** SysTickPeriodSet(unsigned long ulPeriod)
+ 220:C:/StellarisWare/driverlib\systick.c **** {
+ 246              		.loc 1 220 0
+ 247              		.cfi_startproc
+ 248              		@ args = 0, pretend = 0, frame = 8
+ 249              		@ frame_needed = 1, uses_anonymous_args = 0
+ 250              		@ link register save eliminated.
+ 251 0000 80B4     		push	{r7}
+ 252              	.LCFI13:
+ 253              		.cfi_def_cfa_offset 4
+ 254              		.cfi_offset 7, -4
+ 255 0002 83B0     		sub	sp, sp, #12
+ 256              	.LCFI14:
+ 257              		.cfi_def_cfa_offset 16
+ 258 0004 00AF     		add	r7, sp, #0
+ 259              	.LCFI15:
+ 260              		.cfi_def_cfa_register 7
+ 261 0006 7860     		str	r0, [r7, #4]
+ 221:C:/StellarisWare/driverlib\systick.c ****     //
+ 222:C:/StellarisWare/driverlib\systick.c ****     // Check the arguments.
+ 223:C:/StellarisWare/driverlib\systick.c ****     //
+ 224:C:/StellarisWare/driverlib\systick.c ****     ASSERT((ulPeriod > 0) && (ulPeriod <= 16777216));
+ 225:C:/StellarisWare/driverlib\systick.c **** 
+ 226:C:/StellarisWare/driverlib\systick.c ****     //
+ 227:C:/StellarisWare/driverlib\systick.c ****     // Set the period of the SysTick counter.
+ 228:C:/StellarisWare/driverlib\systick.c ****     //
+ 229:C:/StellarisWare/driverlib\systick.c ****     HWREG(NVIC_ST_RELOAD) = ulPeriod - 1;
+ 262              		.loc 1 229 0
+ 263 0008 4EF21403 		movw	r3, #57364
+ 264 000c CEF20003 		movt	r3, 57344
+ 265 0010 7A68     		ldr	r2, [r7, #4]
+ 266 0012 02F1FF32 		add	r2, r2, #-1
+ 267 0016 1A60     		str	r2, [r3, #0]
+ 230:C:/StellarisWare/driverlib\systick.c **** }
+ 268              		.loc 1 230 0
+ 269 0018 07F10C07 		add	r7, r7, #12
+ 270 001c BD46     		mov	sp, r7
+ 271 001e 80BC     		pop	{r7}
+ 272 0020 7047     		bx	lr
+ 273              		.cfi_endproc
+ 274              	.LFE6:
+ 276 0022 00BF     		.section	.text.SysTickPeriodGet,"ax",%progbits
+ 277              		.align	2
+ 278              		.global	SysTickPeriodGet
+ 279              		.thumb
+ 280              		.thumb_func
+ 282              	SysTickPeriodGet:
+ 283              	.LFB7:
+ 231:C:/StellarisWare/driverlib\systick.c **** 
+ 232:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 233:C:/StellarisWare/driverlib\systick.c **** //
+ 234:C:/StellarisWare/driverlib\systick.c **** //! Gets the period of the SysTick counter.
+ 235:C:/StellarisWare/driverlib\systick.c **** //!
+ 236:C:/StellarisWare/driverlib\systick.c **** //! This function returns the rate at which the SysTick counter wraps, which
+ 237:C:/StellarisWare/driverlib\systick.c **** //! equates to the number of processor clocks between interrupts.
+ 238:C:/StellarisWare/driverlib\systick.c **** //!
+ 239:C:/StellarisWare/driverlib\systick.c **** //! \return Returns the period of the SysTick counter.
+ 240:C:/StellarisWare/driverlib\systick.c **** //
+ 241:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 242:C:/StellarisWare/driverlib\systick.c **** unsigned long
+ 243:C:/StellarisWare/driverlib\systick.c **** SysTickPeriodGet(void)
+ 244:C:/StellarisWare/driverlib\systick.c **** {
+ 284              		.loc 1 244 0
+ 285              		.cfi_startproc
+ 286              		@ args = 0, pretend = 0, frame = 0
+ 287              		@ frame_needed = 1, uses_anonymous_args = 0
+ 288              		@ link register save eliminated.
+ 289 0000 80B4     		push	{r7}
+ 290              	.LCFI16:
+ 291              		.cfi_def_cfa_offset 4
+ 292              		.cfi_offset 7, -4
+ 293 0002 00AF     		add	r7, sp, #0
+ 294              	.LCFI17:
+ 295              		.cfi_def_cfa_register 7
+ 245:C:/StellarisWare/driverlib\systick.c ****     //
+ 246:C:/StellarisWare/driverlib\systick.c ****     // Return the period of the SysTick counter.
+ 247:C:/StellarisWare/driverlib\systick.c ****     //
+ 248:C:/StellarisWare/driverlib\systick.c ****     return(HWREG(NVIC_ST_RELOAD) + 1);
+ 296              		.loc 1 248 0
+ 297 0004 4EF21403 		movw	r3, #57364
+ 298 0008 CEF20003 		movt	r3, 57344
+ 299 000c 1B68     		ldr	r3, [r3, #0]
+ 300 000e 03F10103 		add	r3, r3, #1
+ 249:C:/StellarisWare/driverlib\systick.c **** }
+ 301              		.loc 1 249 0
+ 302 0012 1846     		mov	r0, r3
+ 303 0014 BD46     		mov	sp, r7
+ 304 0016 80BC     		pop	{r7}
+ 305 0018 7047     		bx	lr
+ 306              		.cfi_endproc
+ 307              	.LFE7:
+ 309 001a 00BF     		.section	.text.SysTickValueGet,"ax",%progbits
+ 310              		.align	2
+ 311              		.global	SysTickValueGet
+ 312              		.thumb
+ 313              		.thumb_func
+ 315              	SysTickValueGet:
+ 316              	.LFB8:
+ 250:C:/StellarisWare/driverlib\systick.c **** 
+ 251:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 252:C:/StellarisWare/driverlib\systick.c **** //
+ 253:C:/StellarisWare/driverlib\systick.c **** //! Gets the current value of the SysTick counter.
+ 254:C:/StellarisWare/driverlib\systick.c **** //!
+ 255:C:/StellarisWare/driverlib\systick.c **** //! This function returns the current value of the SysTick counter, which is
+ 256:C:/StellarisWare/driverlib\systick.c **** //! a value between the period - 1 and zero, inclusive.
+ 257:C:/StellarisWare/driverlib\systick.c **** //!
+ 258:C:/StellarisWare/driverlib\systick.c **** //! \return Returns the current value of the SysTick counter.
+ 259:C:/StellarisWare/driverlib\systick.c **** //
+ 260:C:/StellarisWare/driverlib\systick.c **** //*****************************************************************************
+ 261:C:/StellarisWare/driverlib\systick.c **** unsigned long
+ 262:C:/StellarisWare/driverlib\systick.c **** SysTickValueGet(void)
+ 263:C:/StellarisWare/driverlib\systick.c **** {
+ 317              		.loc 1 263 0
+ 318              		.cfi_startproc
+ 319              		@ args = 0, pretend = 0, frame = 0
+ 320              		@ frame_needed = 1, uses_anonymous_args = 0
+ 321              		@ link register save eliminated.
+ 322 0000 80B4     		push	{r7}
+ 323              	.LCFI18:
+ 324              		.cfi_def_cfa_offset 4
+ 325              		.cfi_offset 7, -4
+ 326 0002 00AF     		add	r7, sp, #0
+ 327              	.LCFI19:
+ 328              		.cfi_def_cfa_register 7
+ 264:C:/StellarisWare/driverlib\systick.c ****     //
+ 265:C:/StellarisWare/driverlib\systick.c ****     // Return the current value of the SysTick counter.
+ 266:C:/StellarisWare/driverlib\systick.c ****     //
+ 267:C:/StellarisWare/driverlib\systick.c ****     return(HWREG(NVIC_ST_CURRENT));
+ 329              		.loc 1 267 0
+ 330 0004 4EF21803 		movw	r3, #57368
+ 331 0008 CEF20003 		movt	r3, 57344
+ 332 000c 1B68     		ldr	r3, [r3, #0]
+ 268:C:/StellarisWare/driverlib\systick.c **** }
+ 333              		.loc 1 268 0
+ 334 000e 1846     		mov	r0, r3
+ 335 0010 BD46     		mov	sp, r7
+ 336 0012 80BC     		pop	{r7}
+ 337 0014 7047     		bx	lr
+ 338              		.cfi_endproc
+ 339              	.LFE8:
+ 341 0016 00BF     		.text
+ 342              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 systick.c
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:19     .text.SysTickEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:24     .text.SysTickEnable:00000000 SysTickEnable
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:55     .text.SysTickDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:60     .text.SysTickDisable:00000000 SysTickDisable
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:90     .text.SysTickIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:95     .text.SysTickIntRegister:00000000 SysTickIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:133    .text.SysTickIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:138    .text.SysTickIntUnregister:00000000 SysTickIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:169    .text.SysTickIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:174    .text.SysTickIntEnable:00000000 SysTickIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:204    .text.SysTickIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:209    .text.SysTickIntDisable:00000000 SysTickIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:239    .text.SysTickPeriodSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:244    .text.SysTickPeriodSet:00000000 SysTickPeriodSet
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:277    .text.SysTickPeriodGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:282    .text.SysTickPeriodGet:00000000 SysTickPeriodGet
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:310    .text.SysTickValueGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc4mwbEp.s:315    .text.SysTickValueGet:00000000 SysTickValueGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntUnregister

@@ -1,0 +1,2595 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"crc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_pucCrc8CCITT:
+  23 0000 00       		.byte	0
+  24 0001 07       		.byte	7
+  25 0002 0E       		.byte	14
+  26 0003 09       		.byte	9
+  27 0004 1C       		.byte	28
+  28 0005 1B       		.byte	27
+  29 0006 12       		.byte	18
+  30 0007 15       		.byte	21
+  31 0008 38       		.byte	56
+  32 0009 3F       		.byte	63
+  33 000a 36       		.byte	54
+  34 000b 31       		.byte	49
+  35 000c 24       		.byte	36
+  36 000d 23       		.byte	35
+  37 000e 2A       		.byte	42
+  38 000f 2D       		.byte	45
+  39 0010 70       		.byte	112
+  40 0011 77       		.byte	119
+  41 0012 7E       		.byte	126
+  42 0013 79       		.byte	121
+  43 0014 6C       		.byte	108
+  44 0015 6B       		.byte	107
+  45 0016 62       		.byte	98
+  46 0017 65       		.byte	101
+  47 0018 48       		.byte	72
+  48 0019 4F       		.byte	79
+  49 001a 46       		.byte	70
+  50 001b 41       		.byte	65
+  51 001c 54       		.byte	84
+  52 001d 53       		.byte	83
+  53 001e 5A       		.byte	90
+  54 001f 5D       		.byte	93
+  55 0020 E0       		.byte	-32
+  56 0021 E7       		.byte	-25
+  57 0022 EE       		.byte	-18
+  58 0023 E9       		.byte	-23
+  59 0024 FC       		.byte	-4
+  60 0025 FB       		.byte	-5
+  61 0026 F2       		.byte	-14
+  62 0027 F5       		.byte	-11
+  63 0028 D8       		.byte	-40
+  64 0029 DF       		.byte	-33
+  65 002a D6       		.byte	-42
+  66 002b D1       		.byte	-47
+  67 002c C4       		.byte	-60
+  68 002d C3       		.byte	-61
+  69 002e CA       		.byte	-54
+  70 002f CD       		.byte	-51
+  71 0030 90       		.byte	-112
+  72 0031 97       		.byte	-105
+  73 0032 9E       		.byte	-98
+  74 0033 99       		.byte	-103
+  75 0034 8C       		.byte	-116
+  76 0035 8B       		.byte	-117
+  77 0036 82       		.byte	-126
+  78 0037 85       		.byte	-123
+  79 0038 A8       		.byte	-88
+  80 0039 AF       		.byte	-81
+  81 003a A6       		.byte	-90
+  82 003b A1       		.byte	-95
+  83 003c B4       		.byte	-76
+  84 003d B3       		.byte	-77
+  85 003e BA       		.byte	-70
+  86 003f BD       		.byte	-67
+  87 0040 C7       		.byte	-57
+  88 0041 C0       		.byte	-64
+  89 0042 C9       		.byte	-55
+  90 0043 CE       		.byte	-50
+  91 0044 DB       		.byte	-37
+  92 0045 DC       		.byte	-36
+  93 0046 D5       		.byte	-43
+  94 0047 D2       		.byte	-46
+  95 0048 FF       		.byte	-1
+  96 0049 F8       		.byte	-8
+  97 004a F1       		.byte	-15
+  98 004b F6       		.byte	-10
+  99 004c E3       		.byte	-29
+ 100 004d E4       		.byte	-28
+ 101 004e ED       		.byte	-19
+ 102 004f EA       		.byte	-22
+ 103 0050 B7       		.byte	-73
+ 104 0051 B0       		.byte	-80
+ 105 0052 B9       		.byte	-71
+ 106 0053 BE       		.byte	-66
+ 107 0054 AB       		.byte	-85
+ 108 0055 AC       		.byte	-84
+ 109 0056 A5       		.byte	-91
+ 110 0057 A2       		.byte	-94
+ 111 0058 8F       		.byte	-113
+ 112 0059 88       		.byte	-120
+ 113 005a 81       		.byte	-127
+ 114 005b 86       		.byte	-122
+ 115 005c 93       		.byte	-109
+ 116 005d 94       		.byte	-108
+ 117 005e 9D       		.byte	-99
+ 118 005f 9A       		.byte	-102
+ 119 0060 27       		.byte	39
+ 120 0061 20       		.byte	32
+ 121 0062 29       		.byte	41
+ 122 0063 2E       		.byte	46
+ 123 0064 3B       		.byte	59
+ 124 0065 3C       		.byte	60
+ 125 0066 35       		.byte	53
+ 126 0067 32       		.byte	50
+ 127 0068 1F       		.byte	31
+ 128 0069 18       		.byte	24
+ 129 006a 11       		.byte	17
+ 130 006b 16       		.byte	22
+ 131 006c 03       		.byte	3
+ 132 006d 04       		.byte	4
+ 133 006e 0D       		.byte	13
+ 134 006f 0A       		.byte	10
+ 135 0070 57       		.byte	87
+ 136 0071 50       		.byte	80
+ 137 0072 59       		.byte	89
+ 138 0073 5E       		.byte	94
+ 139 0074 4B       		.byte	75
+ 140 0075 4C       		.byte	76
+ 141 0076 45       		.byte	69
+ 142 0077 42       		.byte	66
+ 143 0078 6F       		.byte	111
+ 144 0079 68       		.byte	104
+ 145 007a 61       		.byte	97
+ 146 007b 66       		.byte	102
+ 147 007c 73       		.byte	115
+ 148 007d 74       		.byte	116
+ 149 007e 7D       		.byte	125
+ 150 007f 7A       		.byte	122
+ 151 0080 89       		.byte	-119
+ 152 0081 8E       		.byte	-114
+ 153 0082 87       		.byte	-121
+ 154 0083 80       		.byte	-128
+ 155 0084 95       		.byte	-107
+ 156 0085 92       		.byte	-110
+ 157 0086 9B       		.byte	-101
+ 158 0087 9C       		.byte	-100
+ 159 0088 B1       		.byte	-79
+ 160 0089 B6       		.byte	-74
+ 161 008a BF       		.byte	-65
+ 162 008b B8       		.byte	-72
+ 163 008c AD       		.byte	-83
+ 164 008d AA       		.byte	-86
+ 165 008e A3       		.byte	-93
+ 166 008f A4       		.byte	-92
+ 167 0090 F9       		.byte	-7
+ 168 0091 FE       		.byte	-2
+ 169 0092 F7       		.byte	-9
+ 170 0093 F0       		.byte	-16
+ 171 0094 E5       		.byte	-27
+ 172 0095 E2       		.byte	-30
+ 173 0096 EB       		.byte	-21
+ 174 0097 EC       		.byte	-20
+ 175 0098 C1       		.byte	-63
+ 176 0099 C6       		.byte	-58
+ 177 009a CF       		.byte	-49
+ 178 009b C8       		.byte	-56
+ 179 009c DD       		.byte	-35
+ 180 009d DA       		.byte	-38
+ 181 009e D3       		.byte	-45
+ 182 009f D4       		.byte	-44
+ 183 00a0 69       		.byte	105
+ 184 00a1 6E       		.byte	110
+ 185 00a2 67       		.byte	103
+ 186 00a3 60       		.byte	96
+ 187 00a4 75       		.byte	117
+ 188 00a5 72       		.byte	114
+ 189 00a6 7B       		.byte	123
+ 190 00a7 7C       		.byte	124
+ 191 00a8 51       		.byte	81
+ 192 00a9 56       		.byte	86
+ 193 00aa 5F       		.byte	95
+ 194 00ab 58       		.byte	88
+ 195 00ac 4D       		.byte	77
+ 196 00ad 4A       		.byte	74
+ 197 00ae 43       		.byte	67
+ 198 00af 44       		.byte	68
+ 199 00b0 19       		.byte	25
+ 200 00b1 1E       		.byte	30
+ 201 00b2 17       		.byte	23
+ 202 00b3 10       		.byte	16
+ 203 00b4 05       		.byte	5
+ 204 00b5 02       		.byte	2
+ 205 00b6 0B       		.byte	11
+ 206 00b7 0C       		.byte	12
+ 207 00b8 21       		.byte	33
+ 208 00b9 26       		.byte	38
+ 209 00ba 2F       		.byte	47
+ 210 00bb 28       		.byte	40
+ 211 00bc 3D       		.byte	61
+ 212 00bd 3A       		.byte	58
+ 213 00be 33       		.byte	51
+ 214 00bf 34       		.byte	52
+ 215 00c0 4E       		.byte	78
+ 216 00c1 49       		.byte	73
+ 217 00c2 40       		.byte	64
+ 218 00c3 47       		.byte	71
+ 219 00c4 52       		.byte	82
+ 220 00c5 55       		.byte	85
+ 221 00c6 5C       		.byte	92
+ 222 00c7 5B       		.byte	91
+ 223 00c8 76       		.byte	118
+ 224 00c9 71       		.byte	113
+ 225 00ca 78       		.byte	120
+ 226 00cb 7F       		.byte	127
+ 227 00cc 6A       		.byte	106
+ 228 00cd 6D       		.byte	109
+ 229 00ce 64       		.byte	100
+ 230 00cf 63       		.byte	99
+ 231 00d0 3E       		.byte	62
+ 232 00d1 39       		.byte	57
+ 233 00d2 30       		.byte	48
+ 234 00d3 37       		.byte	55
+ 235 00d4 22       		.byte	34
+ 236 00d5 25       		.byte	37
+ 237 00d6 2C       		.byte	44
+ 238 00d7 2B       		.byte	43
+ 239 00d8 06       		.byte	6
+ 240 00d9 01       		.byte	1
+ 241 00da 08       		.byte	8
+ 242 00db 0F       		.byte	15
+ 243 00dc 1A       		.byte	26
+ 244 00dd 1D       		.byte	29
+ 245 00de 14       		.byte	20
+ 246 00df 13       		.byte	19
+ 247 00e0 AE       		.byte	-82
+ 248 00e1 A9       		.byte	-87
+ 249 00e2 A0       		.byte	-96
+ 250 00e3 A7       		.byte	-89
+ 251 00e4 B2       		.byte	-78
+ 252 00e5 B5       		.byte	-75
+ 253 00e6 BC       		.byte	-68
+ 254 00e7 BB       		.byte	-69
+ 255 00e8 96       		.byte	-106
+ 256 00e9 91       		.byte	-111
+ 257 00ea 98       		.byte	-104
+ 258 00eb 9F       		.byte	-97
+ 259 00ec 8A       		.byte	-118
+ 260 00ed 8D       		.byte	-115
+ 261 00ee 84       		.byte	-124
+ 262 00ef 83       		.byte	-125
+ 263 00f0 DE       		.byte	-34
+ 264 00f1 D9       		.byte	-39
+ 265 00f2 D0       		.byte	-48
+ 266 00f3 D7       		.byte	-41
+ 267 00f4 C2       		.byte	-62
+ 268 00f5 C5       		.byte	-59
+ 269 00f6 CC       		.byte	-52
+ 270 00f7 CB       		.byte	-53
+ 271 00f8 E6       		.byte	-26
+ 272 00f9 E1       		.byte	-31
+ 273 00fa E8       		.byte	-24
+ 274 00fb EF       		.byte	-17
+ 275 00fc FA       		.byte	-6
+ 276 00fd FD       		.byte	-3
+ 277 00fe F4       		.byte	-12
+ 278 00ff F3       		.byte	-13
+ 279              		.align	2
+ 282              	g_pusCrc16:
+ 283 0100 0000     		.short	0
+ 284 0102 C1C0     		.short	-16191
+ 285 0104 81C1     		.short	-15999
+ 286 0106 4001     		.short	320
+ 287 0108 01C3     		.short	-15615
+ 288 010a C003     		.short	960
+ 289 010c 8002     		.short	640
+ 290 010e 41C2     		.short	-15807
+ 291 0110 01C6     		.short	-14847
+ 292 0112 C006     		.short	1728
+ 293 0114 8007     		.short	1920
+ 294 0116 41C7     		.short	-14527
+ 295 0118 0005     		.short	1280
+ 296 011a C1C5     		.short	-14911
+ 297 011c 81C4     		.short	-15231
+ 298 011e 4004     		.short	1088
+ 299 0120 01CC     		.short	-13311
+ 300 0122 C00C     		.short	3264
+ 301 0124 800D     		.short	3456
+ 302 0126 41CD     		.short	-12991
+ 303 0128 000F     		.short	3840
+ 304 012a C1CF     		.short	-12351
+ 305 012c 81CE     		.short	-12671
+ 306 012e 400E     		.short	3648
+ 307 0130 000A     		.short	2560
+ 308 0132 C1CA     		.short	-13631
+ 309 0134 81CB     		.short	-13439
+ 310 0136 400B     		.short	2880
+ 311 0138 01C9     		.short	-14079
+ 312 013a C009     		.short	2496
+ 313 013c 8008     		.short	2176
+ 314 013e 41C8     		.short	-14271
+ 315 0140 01D8     		.short	-10239
+ 316 0142 C018     		.short	6336
+ 317 0144 8019     		.short	6528
+ 318 0146 41D9     		.short	-9919
+ 319 0148 001B     		.short	6912
+ 320 014a C1DB     		.short	-9279
+ 321 014c 81DA     		.short	-9599
+ 322 014e 401A     		.short	6720
+ 323 0150 001E     		.short	7680
+ 324 0152 C1DE     		.short	-8511
+ 325 0154 81DF     		.short	-8319
+ 326 0156 401F     		.short	8000
+ 327 0158 01DD     		.short	-8959
+ 328 015a C01D     		.short	7616
+ 329 015c 801C     		.short	7296
+ 330 015e 41DC     		.short	-9151
+ 331 0160 0014     		.short	5120
+ 332 0162 C1D4     		.short	-11071
+ 333 0164 81D5     		.short	-10879
+ 334 0166 4015     		.short	5440
+ 335 0168 01D7     		.short	-10495
+ 336 016a C017     		.short	6080
+ 337 016c 8016     		.short	5760
+ 338 016e 41D6     		.short	-10687
+ 339 0170 01D2     		.short	-11775
+ 340 0172 C012     		.short	4800
+ 341 0174 8013     		.short	4992
+ 342 0176 41D3     		.short	-11455
+ 343 0178 0011     		.short	4352
+ 344 017a C1D1     		.short	-11839
+ 345 017c 81D0     		.short	-12159
+ 346 017e 4010     		.short	4160
+ 347 0180 01F0     		.short	-4095
+ 348 0182 C030     		.short	12480
+ 349 0184 8031     		.short	12672
+ 350 0186 41F1     		.short	-3775
+ 351 0188 0033     		.short	13056
+ 352 018a C1F3     		.short	-3135
+ 353 018c 81F2     		.short	-3455
+ 354 018e 4032     		.short	12864
+ 355 0190 0036     		.short	13824
+ 356 0192 C1F6     		.short	-2367
+ 357 0194 81F7     		.short	-2175
+ 358 0196 4037     		.short	14144
+ 359 0198 01F5     		.short	-2815
+ 360 019a C035     		.short	13760
+ 361 019c 8034     		.short	13440
+ 362 019e 41F4     		.short	-3007
+ 363 01a0 003C     		.short	15360
+ 364 01a2 C1FC     		.short	-831
+ 365 01a4 81FD     		.short	-639
+ 366 01a6 403D     		.short	15680
+ 367 01a8 01FF     		.short	-255
+ 368 01aa C03F     		.short	16320
+ 369 01ac 803E     		.short	16000
+ 370 01ae 41FE     		.short	-447
+ 371 01b0 01FA     		.short	-1535
+ 372 01b2 C03A     		.short	15040
+ 373 01b4 803B     		.short	15232
+ 374 01b6 41FB     		.short	-1215
+ 375 01b8 0039     		.short	14592
+ 376 01ba C1F9     		.short	-1599
+ 377 01bc 81F8     		.short	-1919
+ 378 01be 4038     		.short	14400
+ 379 01c0 0028     		.short	10240
+ 380 01c2 C1E8     		.short	-5951
+ 381 01c4 81E9     		.short	-5759
+ 382 01c6 4029     		.short	10560
+ 383 01c8 01EB     		.short	-5375
+ 384 01ca C02B     		.short	11200
+ 385 01cc 802A     		.short	10880
+ 386 01ce 41EA     		.short	-5567
+ 387 01d0 01EE     		.short	-4607
+ 388 01d2 C02E     		.short	11968
+ 389 01d4 802F     		.short	12160
+ 390 01d6 41EF     		.short	-4287
+ 391 01d8 002D     		.short	11520
+ 392 01da C1ED     		.short	-4671
+ 393 01dc 81EC     		.short	-4991
+ 394 01de 402C     		.short	11328
+ 395 01e0 01E4     		.short	-7167
+ 396 01e2 C024     		.short	9408
+ 397 01e4 8025     		.short	9600
+ 398 01e6 41E5     		.short	-6847
+ 399 01e8 0027     		.short	9984
+ 400 01ea C1E7     		.short	-6207
+ 401 01ec 81E6     		.short	-6527
+ 402 01ee 4026     		.short	9792
+ 403 01f0 0022     		.short	8704
+ 404 01f2 C1E2     		.short	-7487
+ 405 01f4 81E3     		.short	-7295
+ 406 01f6 4023     		.short	9024
+ 407 01f8 01E1     		.short	-7935
+ 408 01fa C021     		.short	8640
+ 409 01fc 8020     		.short	8320
+ 410 01fe 41E0     		.short	-8127
+ 411 0200 01A0     		.short	-24575
+ 412 0202 C060     		.short	24768
+ 413 0204 8061     		.short	24960
+ 414 0206 41A1     		.short	-24255
+ 415 0208 0063     		.short	25344
+ 416 020a C1A3     		.short	-23615
+ 417 020c 81A2     		.short	-23935
+ 418 020e 4062     		.short	25152
+ 419 0210 0066     		.short	26112
+ 420 0212 C1A6     		.short	-22847
+ 421 0214 81A7     		.short	-22655
+ 422 0216 4067     		.short	26432
+ 423 0218 01A5     		.short	-23295
+ 424 021a C065     		.short	26048
+ 425 021c 8064     		.short	25728
+ 426 021e 41A4     		.short	-23487
+ 427 0220 006C     		.short	27648
+ 428 0222 C1AC     		.short	-21311
+ 429 0224 81AD     		.short	-21119
+ 430 0226 406D     		.short	27968
+ 431 0228 01AF     		.short	-20735
+ 432 022a C06F     		.short	28608
+ 433 022c 806E     		.short	28288
+ 434 022e 41AE     		.short	-20927
+ 435 0230 01AA     		.short	-22015
+ 436 0232 C06A     		.short	27328
+ 437 0234 806B     		.short	27520
+ 438 0236 41AB     		.short	-21695
+ 439 0238 0069     		.short	26880
+ 440 023a C1A9     		.short	-22079
+ 441 023c 81A8     		.short	-22399
+ 442 023e 4068     		.short	26688
+ 443 0240 0078     		.short	30720
+ 444 0242 C1B8     		.short	-18239
+ 445 0244 81B9     		.short	-18047
+ 446 0246 4079     		.short	31040
+ 447 0248 01BB     		.short	-17663
+ 448 024a C07B     		.short	31680
+ 449 024c 807A     		.short	31360
+ 450 024e 41BA     		.short	-17855
+ 451 0250 01BE     		.short	-16895
+ 452 0252 C07E     		.short	32448
+ 453 0254 807F     		.short	32640
+ 454 0256 41BF     		.short	-16575
+ 455 0258 007D     		.short	32000
+ 456 025a C1BD     		.short	-16959
+ 457 025c 81BC     		.short	-17279
+ 458 025e 407C     		.short	31808
+ 459 0260 01B4     		.short	-19455
+ 460 0262 C074     		.short	29888
+ 461 0264 8075     		.short	30080
+ 462 0266 41B5     		.short	-19135
+ 463 0268 0077     		.short	30464
+ 464 026a C1B7     		.short	-18495
+ 465 026c 81B6     		.short	-18815
+ 466 026e 4076     		.short	30272
+ 467 0270 0072     		.short	29184
+ 468 0272 C1B2     		.short	-19775
+ 469 0274 81B3     		.short	-19583
+ 470 0276 4073     		.short	29504
+ 471 0278 01B1     		.short	-20223
+ 472 027a C071     		.short	29120
+ 473 027c 8070     		.short	28800
+ 474 027e 41B0     		.short	-20415
+ 475 0280 0050     		.short	20480
+ 476 0282 C190     		.short	-28479
+ 477 0284 8191     		.short	-28287
+ 478 0286 4051     		.short	20800
+ 479 0288 0193     		.short	-27903
+ 480 028a C053     		.short	21440
+ 481 028c 8052     		.short	21120
+ 482 028e 4192     		.short	-28095
+ 483 0290 0196     		.short	-27135
+ 484 0292 C056     		.short	22208
+ 485 0294 8057     		.short	22400
+ 486 0296 4197     		.short	-26815
+ 487 0298 0055     		.short	21760
+ 488 029a C195     		.short	-27199
+ 489 029c 8194     		.short	-27519
+ 490 029e 4054     		.short	21568
+ 491 02a0 019C     		.short	-25599
+ 492 02a2 C05C     		.short	23744
+ 493 02a4 805D     		.short	23936
+ 494 02a6 419D     		.short	-25279
+ 495 02a8 005F     		.short	24320
+ 496 02aa C19F     		.short	-24639
+ 497 02ac 819E     		.short	-24959
+ 498 02ae 405E     		.short	24128
+ 499 02b0 005A     		.short	23040
+ 500 02b2 C19A     		.short	-25919
+ 501 02b4 819B     		.short	-25727
+ 502 02b6 405B     		.short	23360
+ 503 02b8 0199     		.short	-26367
+ 504 02ba C059     		.short	22976
+ 505 02bc 8058     		.short	22656
+ 506 02be 4198     		.short	-26559
+ 507 02c0 0188     		.short	-30719
+ 508 02c2 C048     		.short	18624
+ 509 02c4 8049     		.short	18816
+ 510 02c6 4189     		.short	-30399
+ 511 02c8 004B     		.short	19200
+ 512 02ca C18B     		.short	-29759
+ 513 02cc 818A     		.short	-30079
+ 514 02ce 404A     		.short	19008
+ 515 02d0 004E     		.short	19968
+ 516 02d2 C18E     		.short	-28991
+ 517 02d4 818F     		.short	-28799
+ 518 02d6 404F     		.short	20288
+ 519 02d8 018D     		.short	-29439
+ 520 02da C04D     		.short	19904
+ 521 02dc 804C     		.short	19584
+ 522 02de 418C     		.short	-29631
+ 523 02e0 0044     		.short	17408
+ 524 02e2 C184     		.short	-31551
+ 525 02e4 8185     		.short	-31359
+ 526 02e6 4045     		.short	17728
+ 527 02e8 0187     		.short	-30975
+ 528 02ea C047     		.short	18368
+ 529 02ec 8046     		.short	18048
+ 530 02ee 4186     		.short	-31167
+ 531 02f0 0182     		.short	-32255
+ 532 02f2 C042     		.short	17088
+ 533 02f4 8043     		.short	17280
+ 534 02f6 4183     		.short	-31935
+ 535 02f8 0041     		.short	16640
+ 536 02fa C181     		.short	-32319
+ 537 02fc 8180     		.short	-32639
+ 538 02fe 4040     		.short	16448
+ 539              		.global	g_pulCrc32
+ 540              		.align	2
+ 543              	g_pulCrc32:
+ 544 0300 00000000 		.word	0
+ 545 0304 96300777 		.word	1996959894
+ 546 0308 2C610EEE 		.word	-301047508
+ 547 030c BA510999 		.word	-1727442502
+ 548 0310 19C46D07 		.word	124634137
+ 549 0314 8FF46A70 		.word	1886057615
+ 550 0318 35A563E9 		.word	-379345611
+ 551 031c A395649E 		.word	-1637575261
+ 552 0320 3288DB0E 		.word	249268274
+ 553 0324 A4B8DC79 		.word	2044508324
+ 554 0328 1EE9D5E0 		.word	-522852066
+ 555 032c 88D9D297 		.word	-1747789432
+ 556 0330 2B4CB609 		.word	162941995
+ 557 0334 BD7CB17E 		.word	2125561021
+ 558 0338 072DB8E7 		.word	-407360249
+ 559 033c 911DBF90 		.word	-1866523247
+ 560 0340 6410B71D 		.word	498536548
+ 561 0344 F220B06A 		.word	1789927666
+ 562 0348 4871B9F3 		.word	-205950648
+ 563 034c DE41BE84 		.word	-2067906082
+ 564 0350 7DD4DA1A 		.word	450548861
+ 565 0354 EBE4DD6D 		.word	1843258603
+ 566 0358 51B5D4F4 		.word	-187386543
+ 567 035c C785D383 		.word	-2083289657
+ 568 0360 56986C13 		.word	325883990
+ 569 0364 C0A86B64 		.word	1684777152
+ 570 0368 7AF962FD 		.word	-43845254
+ 571 036c ECC9658A 		.word	-1973040660
+ 572 0370 4F5C0114 		.word	335633487
+ 573 0374 D96C0663 		.word	1661365465
+ 574 0378 633D0FFA 		.word	-99664541
+ 575 037c F50D088D 		.word	-1928851979
+ 576 0380 C8206E3B 		.word	997073096
+ 577 0384 5E10694C 		.word	1281953886
+ 578 0388 E44160D5 		.word	-715111964
+ 579 038c 727167A2 		.word	-1570279054
+ 580 0390 D1E4033C 		.word	1006888145
+ 581 0394 47D4044B 		.word	1258607687
+ 582 0398 FD850DD2 		.word	-770865667
+ 583 039c 6BB50AA5 		.word	-1526024853
+ 584 03a0 FAA8B535 		.word	901097722
+ 585 03a4 6C98B242 		.word	1119000684
+ 586 03a8 D6C9BBDB 		.word	-608450090
+ 587 03ac 40F9BCAC 		.word	-1396901568
+ 588 03b0 E36CD832 		.word	853044451
+ 589 03b4 755CDF45 		.word	1172266101
+ 590 03b8 CF0DD6DC 		.word	-589951537
+ 591 03bc 593DD1AB 		.word	-1412350631
+ 592 03c0 AC30D926 		.word	651767980
+ 593 03c4 3A00DE51 		.word	1373503546
+ 594 03c8 8051D7C8 		.word	-925412992
+ 595 03cc 1661D0BF 		.word	-1076862698
+ 596 03d0 B5F4B421 		.word	565507253
+ 597 03d4 23C4B356 		.word	1454621731
+ 598 03d8 9995BACF 		.word	-809855591
+ 599 03dc 0FA5BDB8 		.word	-1195530993
+ 600 03e0 9EB80228 		.word	671266974
+ 601 03e4 0888055F 		.word	1594198024
+ 602 03e8 B2D90CC6 		.word	-972236366
+ 603 03ec 24E90BB1 		.word	-1324619484
+ 604 03f0 877C6F2F 		.word	795835527
+ 605 03f4 114C6858 		.word	1483230225
+ 606 03f8 AB1D61C1 		.word	-1050600021
+ 607 03fc 3D2D66B6 		.word	-1234817731
+ 608 0400 9041DC76 		.word	1994146192
+ 609 0404 0671DB01 		.word	31158534
+ 610 0408 BC20D298 		.word	-1731059524
+ 611 040c 2A10D5EF 		.word	-271249366
+ 612 0410 8985B171 		.word	1907459465
+ 613 0414 1FB5B606 		.word	112637215
+ 614 0418 A5E4BF9F 		.word	-1614814043
+ 615 041c 33D4B8E8 		.word	-390540237
+ 616 0420 A2C90778 		.word	2013776290
+ 617 0424 34F9000F 		.word	251722036
+ 618 0428 8EA80996 		.word	-1777751922
+ 619 042c 18980EE1 		.word	-519137256
+ 620 0430 BB0D6A7F 		.word	2137656763
+ 621 0434 2D3D6D08 		.word	141376813
+ 622 0438 976C6491 		.word	-1855689577
+ 623 043c 015C63E6 		.word	-429695999
+ 624 0440 F4516B6B 		.word	1802195444
+ 625 0444 62616C1C 		.word	476864866
+ 626 0448 D8306585 		.word	-2056965928
+ 627 044c 4E0062F2 		.word	-228458418
+ 628 0450 ED95066C 		.word	1812370925
+ 629 0454 7BA5011B 		.word	453092731
+ 630 0458 C1F40882 		.word	-2113342271
+ 631 045c 57C40FF5 		.word	-183516073
+ 632 0460 C6D9B065 		.word	1706088902
+ 633 0464 50E9B712 		.word	314042704
+ 634 0468 EAB8BE8B 		.word	-1950435094
+ 635 046c 7C88B9FC 		.word	-54949764
+ 636 0470 DF1DDD62 		.word	1658658271
+ 637 0474 492DDA15 		.word	366619977
+ 638 0478 F37CD38C 		.word	-1932296973
+ 639 047c 654CD4FB 		.word	-69972891
+ 640 0480 5861B24D 		.word	1303535960
+ 641 0484 CE51B53A 		.word	984961486
+ 642 0488 7400BCA3 		.word	-1547960204
+ 643 048c E230BBD4 		.word	-725929758
+ 644 0490 41A5DF4A 		.word	1256170817
+ 645 0494 D795D83D 		.word	1037604311
+ 646 0498 6DC4D1A4 		.word	-1529756563
+ 647 049c FBF4D6D3 		.word	-740887301
+ 648 04a0 6AE96943 		.word	1131014506
+ 649 04a4 FCD96E34 		.word	879679996
+ 650 04a8 468867AD 		.word	-1385723834
+ 651 04ac D0B860DA 		.word	-631195440
+ 652 04b0 732D0444 		.word	1141124467
+ 653 04b4 E51D0333 		.word	855842277
+ 654 04b8 5F4C0AAA 		.word	-1442165665
+ 655 04bc C97C0DDD 		.word	-586318647
+ 656 04c0 3C710550 		.word	1342533948
+ 657 04c4 AA410227 		.word	654459306
+ 658 04c8 10100BBE 		.word	-1106571248
+ 659 04cc 86200CC9 		.word	-921952122
+ 660 04d0 25B56857 		.word	1466479909
+ 661 04d4 B3856F20 		.word	544179635
+ 662 04d8 09D466B9 		.word	-1184443383
+ 663 04dc 9FE461CE 		.word	-832445281
+ 664 04e0 0EF9DE5E 		.word	1591671054
+ 665 04e4 98C9D929 		.word	702138776
+ 666 04e8 2298D0B0 		.word	-1328506846
+ 667 04ec B4A8D7C7 		.word	-942167884
+ 668 04f0 173DB359 		.word	1504918807
+ 669 04f4 810DB42E 		.word	783551873
+ 670 04f8 3B5CBDB7 		.word	-1212326853
+ 671 04fc AD6CBAC0 		.word	-1061524307
+ 672 0500 2083B8ED 		.word	-306674912
+ 673 0504 B6B3BF9A 		.word	-1698712650
+ 674 0508 0CE2B603 		.word	62317068
+ 675 050c 9AD2B174 		.word	1957810842
+ 676 0510 3947D5EA 		.word	-355121351
+ 677 0514 AF77D29D 		.word	-1647151185
+ 678 0518 1526DB04 		.word	81470997
+ 679 051c 8316DC73 		.word	1943803523
+ 680 0520 120B63E3 		.word	-480048366
+ 681 0524 843B6494 		.word	-1805370492
+ 682 0528 3E6A6D0D 		.word	225274430
+ 683 052c A85A6A7A 		.word	2053790376
+ 684 0530 0BCF0EE4 		.word	-468791541
+ 685 0534 9DFF0993 		.word	-1828061283
+ 686 0538 27AE000A 		.word	167816743
+ 687 053c B19E077D 		.word	2097651377
+ 688 0540 44930FF0 		.word	-267414716
+ 689 0544 D2A30887 		.word	-2029476910
+ 690 0548 68F2011E 		.word	503444072
+ 691 054c FEC20669 		.word	1762050814
+ 692 0550 5D5762F7 		.word	-144550051
+ 693 0554 CB676580 		.word	-2140837941
+ 694 0558 71366C19 		.word	426522225
+ 695 055c E7066B6E 		.word	1852507879
+ 696 0560 761BD4FE 		.word	-19653770
+ 697 0564 E02BD389 		.word	-1982649376
+ 698 0568 5A7ADA10 		.word	282753626
+ 699 056c CC4ADD67 		.word	1742555852
+ 700 0570 6FDFB9F9 		.word	-105259153
+ 701 0574 F9EFBE8E 		.word	-1900089351
+ 702 0578 43BEB717 		.word	397917763
+ 703 057c D58EB060 		.word	1622183637
+ 704 0580 E8A3D6D6 		.word	-690576408
+ 705 0584 7E93D1A1 		.word	-1580100738
+ 706 0588 C4C2D838 		.word	953729732
+ 707 058c 52F2DF4F 		.word	1340076626
+ 708 0590 F167BBD1 		.word	-776247311
+ 709 0594 6757BCA6 		.word	-1497606297
+ 710 0598 DD06B53F 		.word	1068828381
+ 711 059c 4B36B248 		.word	1219638859
+ 712 05a0 DA2B0DD8 		.word	-670225446
+ 713 05a4 4C1B0AAF 		.word	-1358292148
+ 714 05a8 F64A0336 		.word	906185462
+ 715 05ac 607A0441 		.word	1090812512
+ 716 05b0 C3EF60DF 		.word	-547295293
+ 717 05b4 55DF67A8 		.word	-1469587627
+ 718 05b8 EF8E6E31 		.word	829329135
+ 719 05bc 79BE6946 		.word	1181335161
+ 720 05c0 8CB361CB 		.word	-882789492
+ 721 05c4 1A8366BC 		.word	-1134132454
+ 722 05c8 A0D26F25 		.word	628085408
+ 723 05cc 36E26852 		.word	1382605366
+ 724 05d0 95770CCC 		.word	-871598187
+ 725 05d4 03470BBB 		.word	-1156888829
+ 726 05d8 B9160222 		.word	570562233
+ 727 05dc 2F260555 		.word	1426400815
+ 728 05e0 BE3BBAC5 		.word	-977650754
+ 729 05e4 280BBDB2 		.word	-1296233688
+ 730 05e8 925AB42B 		.word	733239954
+ 731 05ec 046AB35C 		.word	1555261956
+ 732 05f0 A7FFD7C2 		.word	-1026031705
+ 733 05f4 31CFD0B5 		.word	-1244606671
+ 734 05f8 8B9ED92C 		.word	752459403
+ 735 05fc 1DAEDE5B 		.word	1541320221
+ 736 0600 B0C2649B 		.word	-1687895376
+ 737 0604 26F263EC 		.word	-328994266
+ 738 0608 9CA36A75 		.word	1969922972
+ 739 060c 0A936D02 		.word	40735498
+ 740 0610 A906099C 		.word	-1677130071
+ 741 0614 3F360EEB 		.word	-351390145
+ 742 0618 85670772 		.word	1913087877
+ 743 061c 13570005 		.word	83908371
+ 744 0620 824ABF95 		.word	-1782625662
+ 745 0624 147AB8E2 		.word	-491226604
+ 746 0628 AE2BB17B 		.word	2075208622
+ 747 062c 381BB60C 		.word	213261112
+ 748 0630 9B8ED292 		.word	-1831694693
+ 749 0634 0DBED5E5 		.word	-438977011
+ 750 0638 B7EFDC7C 		.word	2094854071
+ 751 063c 21DFDB0B 		.word	198958881
+ 752 0640 D4D2D386 		.word	-2032938284
+ 753 0644 42E2D4F1 		.word	-237706686
+ 754 0648 F8B3DD68 		.word	1759359992
+ 755 064c 6E83DA1F 		.word	534414190
+ 756 0650 CD16BE81 		.word	-2118248755
+ 757 0654 5B26B9F6 		.word	-155638181
+ 758 0658 E177B06F 		.word	1873836001
+ 759 065c 7747B718 		.word	414664567
+ 760 0660 E65A0888 		.word	-2012718362
+ 761 0664 706A0FFF 		.word	-15766928
+ 762 0668 CA3B0666 		.word	1711684554
+ 763 066c 5C0B0111 		.word	285281116
+ 764 0670 FF9E658F 		.word	-1889165569
+ 765 0674 69AE62F8 		.word	-127750551
+ 766 0678 D3FF6B61 		.word	1634467795
+ 767 067c 45CF6C16 		.word	376229701
+ 768 0680 78E20AA0 		.word	-1609899400
+ 769 0684 EED20DD7 		.word	-686959890
+ 770 0688 5483044E 		.word	1308918612
+ 771 068c C2B30339 		.word	956543938
+ 772 0690 612667A7 		.word	-1486412191
+ 773 0694 F71660D0 		.word	-799009033
+ 774 0698 4D476949 		.word	1231636301
+ 775 069c DB776E3E 		.word	1047427035
+ 776 06a0 4A6AD1AE 		.word	-1362007478
+ 777 06a4 DC5AD6D9 		.word	-640263460
+ 778 06a8 660BDF40 		.word	1088359270
+ 779 06ac F03BD837 		.word	936918000
+ 780 06b0 53AEBCA9 		.word	-1447252397
+ 781 06b4 C59EBBDE 		.word	-558129467
+ 782 06b8 7FCFB247 		.word	1202900863
+ 783 06bc E9FFB530 		.word	817233897
+ 784 06c0 1CF2BDBD 		.word	-1111625188
+ 785 06c4 8AC2BACA 		.word	-893730166
+ 786 06c8 3093B353 		.word	1404277552
+ 787 06cc A6A3B424 		.word	615818150
+ 788 06d0 0536D0BA 		.word	-1160759803
+ 789 06d4 9306D7CD 		.word	-841546093
+ 790 06d8 2957DE54 		.word	1423857449
+ 791 06dc BF67D923 		.word	601450431
+ 792 06e0 2E7A66B3 		.word	-1285129682
+ 793 06e4 B84A61C4 		.word	-1000256840
+ 794 06e8 021B685D 		.word	1567103746
+ 795 06ec 942B6F2A 		.word	711928724
+ 796 06f0 37BE0BB4 		.word	-1274298825
+ 797 06f4 A18E0CC3 		.word	-1022587231
+ 798 06f8 1BDF055A 		.word	1510334235
+ 799 06fc 8DEF022D 		.word	755167117
+ 800              		.section	.text.Crc8CCITT,"ax",%progbits
+ 801              		.align	2
+ 802              		.global	Crc8CCITT
+ 803              		.thumb
+ 804              		.thumb_func
+ 806              	Crc8CCITT:
+ 807              	.LFB0:
+ 808              		.file 1 "C:/StellarisWare/utils/crc.c"
+   1:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\crc.c **** //
+   3:C:/StellarisWare/utils\crc.c **** // crc.c - CRC functions.
+   4:C:/StellarisWare/utils\crc.c **** //
+   5:C:/StellarisWare/utils\crc.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\crc.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\crc.c **** // 
+   8:C:/StellarisWare/utils\crc.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\crc.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\crc.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\crc.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\crc.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\crc.c **** // 
+  14:C:/StellarisWare/utils\crc.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\crc.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\crc.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\crc.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\crc.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\crc.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\crc.c **** // 
+  21:C:/StellarisWare/utils\crc.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\crc.c **** //
+  23:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\crc.c **** 
+  25:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  26:C:/StellarisWare/utils\crc.c **** //
+  27:C:/StellarisWare/utils\crc.c **** //! \addtogroup crc_api
+  28:C:/StellarisWare/utils\crc.c **** //! @{
+  29:C:/StellarisWare/utils\crc.c **** //
+  30:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  31:C:/StellarisWare/utils\crc.c **** 
+  32:C:/StellarisWare/utils\crc.c **** #include "crc.h"
+  33:C:/StellarisWare/utils\crc.c **** 
+  34:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  35:C:/StellarisWare/utils\crc.c **** //
+  36:C:/StellarisWare/utils\crc.c **** // The CRC table for the polynomial C(x) = x^8 + x^2 + x + 1 (CRC-8-CCITT).
+  37:C:/StellarisWare/utils\crc.c **** //
+  38:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  39:C:/StellarisWare/utils\crc.c **** static const unsigned char g_pucCrc8CCITT[256] =
+  40:C:/StellarisWare/utils\crc.c **** {
+  41:C:/StellarisWare/utils\crc.c ****     0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15,
+  42:C:/StellarisWare/utils\crc.c ****     0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D,
+  43:C:/StellarisWare/utils\crc.c ****     0x70, 0x77, 0x7E, 0x79, 0x6C, 0x6B, 0x62, 0x65,
+  44:C:/StellarisWare/utils\crc.c ****     0x48, 0x4F, 0x46, 0x41, 0x54, 0x53, 0x5A, 0x5D,
+  45:C:/StellarisWare/utils\crc.c ****     0xE0, 0xE7, 0xEE, 0xE9, 0xFC, 0xFB, 0xF2, 0xF5,
+  46:C:/StellarisWare/utils\crc.c ****     0xD8, 0xDF, 0xD6, 0xD1, 0xC4, 0xC3, 0xCA, 0xCD,
+  47:C:/StellarisWare/utils\crc.c ****     0x90, 0x97, 0x9E, 0x99, 0x8C, 0x8B, 0x82, 0x85,
+  48:C:/StellarisWare/utils\crc.c ****     0xA8, 0xAF, 0xA6, 0xA1, 0xB4, 0xB3, 0xBA, 0xBD,
+  49:C:/StellarisWare/utils\crc.c ****     0xC7, 0xC0, 0xC9, 0xCE, 0xDB, 0xDC, 0xD5, 0xD2,
+  50:C:/StellarisWare/utils\crc.c ****     0xFF, 0xF8, 0xF1, 0xF6, 0xE3, 0xE4, 0xED, 0xEA,
+  51:C:/StellarisWare/utils\crc.c ****     0xB7, 0xB0, 0xB9, 0xBE, 0xAB, 0xAC, 0xA5, 0xA2,
+  52:C:/StellarisWare/utils\crc.c ****     0x8F, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9D, 0x9A,
+  53:C:/StellarisWare/utils\crc.c ****     0x27, 0x20, 0x29, 0x2E, 0x3B, 0x3C, 0x35, 0x32,
+  54:C:/StellarisWare/utils\crc.c ****     0x1F, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0D, 0x0A,
+  55:C:/StellarisWare/utils\crc.c ****     0x57, 0x50, 0x59, 0x5E, 0x4B, 0x4C, 0x45, 0x42,
+  56:C:/StellarisWare/utils\crc.c ****     0x6F, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7D, 0x7A,
+  57:C:/StellarisWare/utils\crc.c ****     0x89, 0x8E, 0x87, 0x80, 0x95, 0x92, 0x9B, 0x9C,
+  58:C:/StellarisWare/utils\crc.c ****     0xB1, 0xB6, 0xBF, 0xB8, 0xAD, 0xAA, 0xA3, 0xA4,
+  59:C:/StellarisWare/utils\crc.c ****     0xF9, 0xFE, 0xF7, 0xF0, 0xE5, 0xE2, 0xEB, 0xEC,
+  60:C:/StellarisWare/utils\crc.c ****     0xC1, 0xC6, 0xCF, 0xC8, 0xDD, 0xDA, 0xD3, 0xD4,
+  61:C:/StellarisWare/utils\crc.c ****     0x69, 0x6E, 0x67, 0x60, 0x75, 0x72, 0x7B, 0x7C,
+  62:C:/StellarisWare/utils\crc.c ****     0x51, 0x56, 0x5F, 0x58, 0x4D, 0x4A, 0x43, 0x44,
+  63:C:/StellarisWare/utils\crc.c ****     0x19, 0x1E, 0x17, 0x10, 0x05, 0x02, 0x0B, 0x0C,
+  64:C:/StellarisWare/utils\crc.c ****     0x21, 0x26, 0x2F, 0x28, 0x3D, 0x3A, 0x33, 0x34,
+  65:C:/StellarisWare/utils\crc.c ****     0x4E, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5C, 0x5B,
+  66:C:/StellarisWare/utils\crc.c ****     0x76, 0x71, 0x78, 0x7F, 0x6A, 0x6D, 0x64, 0x63,
+  67:C:/StellarisWare/utils\crc.c ****     0x3E, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2C, 0x2B,
+  68:C:/StellarisWare/utils\crc.c ****     0x06, 0x01, 0x08, 0x0F, 0x1A, 0x1D, 0x14, 0x13,
+  69:C:/StellarisWare/utils\crc.c ****     0xAE, 0xA9, 0xA0, 0xA7, 0xB2, 0xB5, 0xBC, 0xBB,
+  70:C:/StellarisWare/utils\crc.c ****     0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83,
+  71:C:/StellarisWare/utils\crc.c ****     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB,
+  72:C:/StellarisWare/utils\crc.c ****     0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3
+  73:C:/StellarisWare/utils\crc.c **** };
+  74:C:/StellarisWare/utils\crc.c **** 
+  75:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  76:C:/StellarisWare/utils\crc.c **** //
+  77:C:/StellarisWare/utils\crc.c **** // The CRC-16 table for the polynomial C(x) = x^16 + x^15 + x^2 + 1 (standard
+  78:C:/StellarisWare/utils\crc.c **** // CRC-16, also known as CRC-16-IBM and CRC-16-ANSI).
+  79:C:/StellarisWare/utils\crc.c **** //
+  80:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+  81:C:/StellarisWare/utils\crc.c **** static const unsigned short g_pusCrc16[256] =
+  82:C:/StellarisWare/utils\crc.c **** {
+  83:C:/StellarisWare/utils\crc.c ****     0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
+  84:C:/StellarisWare/utils\crc.c ****     0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
+  85:C:/StellarisWare/utils\crc.c ****     0xCC01, 0x0CC0, 0x0D80, 0xCD41, 0x0F00, 0xCFC1, 0xCE81, 0x0E40,
+  86:C:/StellarisWare/utils\crc.c ****     0x0A00, 0xCAC1, 0xCB81, 0x0B40, 0xC901, 0x09C0, 0x0880, 0xC841,
+  87:C:/StellarisWare/utils\crc.c ****     0xD801, 0x18C0, 0x1980, 0xD941, 0x1B00, 0xDBC1, 0xDA81, 0x1A40,
+  88:C:/StellarisWare/utils\crc.c ****     0x1E00, 0xDEC1, 0xDF81, 0x1F40, 0xDD01, 0x1DC0, 0x1C80, 0xDC41,
+  89:C:/StellarisWare/utils\crc.c ****     0x1400, 0xD4C1, 0xD581, 0x1540, 0xD701, 0x17C0, 0x1680, 0xD641,
+  90:C:/StellarisWare/utils\crc.c ****     0xD201, 0x12C0, 0x1380, 0xD341, 0x1100, 0xD1C1, 0xD081, 0x1040,
+  91:C:/StellarisWare/utils\crc.c ****     0xF001, 0x30C0, 0x3180, 0xF141, 0x3300, 0xF3C1, 0xF281, 0x3240,
+  92:C:/StellarisWare/utils\crc.c ****     0x3600, 0xF6C1, 0xF781, 0x3740, 0xF501, 0x35C0, 0x3480, 0xF441,
+  93:C:/StellarisWare/utils\crc.c ****     0x3C00, 0xFCC1, 0xFD81, 0x3D40, 0xFF01, 0x3FC0, 0x3E80, 0xFE41,
+  94:C:/StellarisWare/utils\crc.c ****     0xFA01, 0x3AC0, 0x3B80, 0xFB41, 0x3900, 0xF9C1, 0xF881, 0x3840,
+  95:C:/StellarisWare/utils\crc.c ****     0x2800, 0xE8C1, 0xE981, 0x2940, 0xEB01, 0x2BC0, 0x2A80, 0xEA41,
+  96:C:/StellarisWare/utils\crc.c ****     0xEE01, 0x2EC0, 0x2F80, 0xEF41, 0x2D00, 0xEDC1, 0xEC81, 0x2C40,
+  97:C:/StellarisWare/utils\crc.c ****     0xE401, 0x24C0, 0x2580, 0xE541, 0x2700, 0xE7C1, 0xE681, 0x2640,
+  98:C:/StellarisWare/utils\crc.c ****     0x2200, 0xE2C1, 0xE381, 0x2340, 0xE101, 0x21C0, 0x2080, 0xE041,
+  99:C:/StellarisWare/utils\crc.c ****     0xA001, 0x60C0, 0x6180, 0xA141, 0x6300, 0xA3C1, 0xA281, 0x6240,
+ 100:C:/StellarisWare/utils\crc.c ****     0x6600, 0xA6C1, 0xA781, 0x6740, 0xA501, 0x65C0, 0x6480, 0xA441,
+ 101:C:/StellarisWare/utils\crc.c ****     0x6C00, 0xACC1, 0xAD81, 0x6D40, 0xAF01, 0x6FC0, 0x6E80, 0xAE41,
+ 102:C:/StellarisWare/utils\crc.c ****     0xAA01, 0x6AC0, 0x6B80, 0xAB41, 0x6900, 0xA9C1, 0xA881, 0x6840,
+ 103:C:/StellarisWare/utils\crc.c ****     0x7800, 0xB8C1, 0xB981, 0x7940, 0xBB01, 0x7BC0, 0x7A80, 0xBA41,
+ 104:C:/StellarisWare/utils\crc.c ****     0xBE01, 0x7EC0, 0x7F80, 0xBF41, 0x7D00, 0xBDC1, 0xBC81, 0x7C40,
+ 105:C:/StellarisWare/utils\crc.c ****     0xB401, 0x74C0, 0x7580, 0xB541, 0x7700, 0xB7C1, 0xB681, 0x7640,
+ 106:C:/StellarisWare/utils\crc.c ****     0x7200, 0xB2C1, 0xB381, 0x7340, 0xB101, 0x71C0, 0x7080, 0xB041,
+ 107:C:/StellarisWare/utils\crc.c ****     0x5000, 0x90C1, 0x9181, 0x5140, 0x9301, 0x53C0, 0x5280, 0x9241,
+ 108:C:/StellarisWare/utils\crc.c ****     0x9601, 0x56C0, 0x5780, 0x9741, 0x5500, 0x95C1, 0x9481, 0x5440,
+ 109:C:/StellarisWare/utils\crc.c ****     0x9C01, 0x5CC0, 0x5D80, 0x9D41, 0x5F00, 0x9FC1, 0x9E81, 0x5E40,
+ 110:C:/StellarisWare/utils\crc.c ****     0x5A00, 0x9AC1, 0x9B81, 0x5B40, 0x9901, 0x59C0, 0x5880, 0x9841,
+ 111:C:/StellarisWare/utils\crc.c ****     0x8801, 0x48C0, 0x4980, 0x8941, 0x4B00, 0x8BC1, 0x8A81, 0x4A40,
+ 112:C:/StellarisWare/utils\crc.c ****     0x4E00, 0x8EC1, 0x8F81, 0x4F40, 0x8D01, 0x4DC0, 0x4C80, 0x8C41,
+ 113:C:/StellarisWare/utils\crc.c ****     0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
+ 114:C:/StellarisWare/utils\crc.c ****     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
+ 115:C:/StellarisWare/utils\crc.c **** };
+ 116:C:/StellarisWare/utils\crc.c **** 
+ 117:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 118:C:/StellarisWare/utils\crc.c **** //
+ 119:C:/StellarisWare/utils\crc.c **** // The CRC-32 table for the polynomial C(x) = x^32 + x^26 + x^23 + x^22 +
+ 120:C:/StellarisWare/utils\crc.c **** // x^16 + x^12 + x^11 + x^10 + x^8 + x^7 + x^5 + x^4 + x^2 + x + 1 (standard
+ 121:C:/StellarisWare/utils\crc.c **** // CRC32 as used in Ethernet, MPEG-2, PNG, etc.).
+ 122:C:/StellarisWare/utils\crc.c **** //
+ 123:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 124:C:/StellarisWare/utils\crc.c **** const unsigned long g_pulCrc32[] =
+ 125:C:/StellarisWare/utils\crc.c **** {
+ 126:C:/StellarisWare/utils\crc.c ****     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
+ 127:C:/StellarisWare/utils\crc.c ****     0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+ 128:C:/StellarisWare/utils\crc.c ****     0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
+ 129:C:/StellarisWare/utils\crc.c ****     0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
+ 130:C:/StellarisWare/utils\crc.c ****     0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de,
+ 131:C:/StellarisWare/utils\crc.c ****     0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
+ 132:C:/StellarisWare/utils\crc.c ****     0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec,
+ 133:C:/StellarisWare/utils\crc.c ****     0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
+ 134:C:/StellarisWare/utils\crc.c ****     0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172,
+ 135:C:/StellarisWare/utils\crc.c ****     0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
+ 136:C:/StellarisWare/utils\crc.c ****     0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940,
+ 137:C:/StellarisWare/utils\crc.c ****     0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
+ 138:C:/StellarisWare/utils\crc.c ****     0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116,
+ 139:C:/StellarisWare/utils\crc.c ****     0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
+ 140:C:/StellarisWare/utils\crc.c ****     0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924,
+ 141:C:/StellarisWare/utils\crc.c ****     0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
+ 142:C:/StellarisWare/utils\crc.c ****     0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a,
+ 143:C:/StellarisWare/utils\crc.c ****     0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
+ 144:C:/StellarisWare/utils\crc.c ****     0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818,
+ 145:C:/StellarisWare/utils\crc.c ****     0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
+ 146:C:/StellarisWare/utils\crc.c ****     0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e,
+ 147:C:/StellarisWare/utils\crc.c ****     0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
+ 148:C:/StellarisWare/utils\crc.c ****     0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c,
+ 149:C:/StellarisWare/utils\crc.c ****     0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
+ 150:C:/StellarisWare/utils\crc.c ****     0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2,
+ 151:C:/StellarisWare/utils\crc.c ****     0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
+ 152:C:/StellarisWare/utils\crc.c ****     0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0,
+ 153:C:/StellarisWare/utils\crc.c ****     0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
+ 154:C:/StellarisWare/utils\crc.c ****     0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086,
+ 155:C:/StellarisWare/utils\crc.c ****     0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+ 156:C:/StellarisWare/utils\crc.c ****     0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4,
+ 157:C:/StellarisWare/utils\crc.c ****     0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
+ 158:C:/StellarisWare/utils\crc.c ****     0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a,
+ 159:C:/StellarisWare/utils\crc.c ****     0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
+ 160:C:/StellarisWare/utils\crc.c ****     0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8,
+ 161:C:/StellarisWare/utils\crc.c ****     0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
+ 162:C:/StellarisWare/utils\crc.c ****     0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe,
+ 163:C:/StellarisWare/utils\crc.c ****     0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
+ 164:C:/StellarisWare/utils\crc.c ****     0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc,
+ 165:C:/StellarisWare/utils\crc.c ****     0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
+ 166:C:/StellarisWare/utils\crc.c ****     0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252,
+ 167:C:/StellarisWare/utils\crc.c ****     0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
+ 168:C:/StellarisWare/utils\crc.c ****     0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60,
+ 169:C:/StellarisWare/utils\crc.c ****     0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
+ 170:C:/StellarisWare/utils\crc.c ****     0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236,
+ 171:C:/StellarisWare/utils\crc.c ****     0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
+ 172:C:/StellarisWare/utils\crc.c ****     0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04,
+ 173:C:/StellarisWare/utils\crc.c ****     0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
+ 174:C:/StellarisWare/utils\crc.c ****     0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a,
+ 175:C:/StellarisWare/utils\crc.c ****     0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
+ 176:C:/StellarisWare/utils\crc.c ****     0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38,
+ 177:C:/StellarisWare/utils\crc.c ****     0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
+ 178:C:/StellarisWare/utils\crc.c ****     0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e,
+ 179:C:/StellarisWare/utils\crc.c ****     0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
+ 180:C:/StellarisWare/utils\crc.c ****     0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c,
+ 181:C:/StellarisWare/utils\crc.c ****     0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
+ 182:C:/StellarisWare/utils\crc.c ****     0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2,
+ 183:C:/StellarisWare/utils\crc.c ****     0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
+ 184:C:/StellarisWare/utils\crc.c ****     0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0,
+ 185:C:/StellarisWare/utils\crc.c ****     0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+ 186:C:/StellarisWare/utils\crc.c ****     0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6,
+ 187:C:/StellarisWare/utils\crc.c ****     0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
+ 188:C:/StellarisWare/utils\crc.c ****     0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94,
+ 189:C:/StellarisWare/utils\crc.c ****     0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
+ 190:C:/StellarisWare/utils\crc.c **** };
+ 191:C:/StellarisWare/utils\crc.c **** 
+ 192:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 193:C:/StellarisWare/utils\crc.c **** //
+ 194:C:/StellarisWare/utils\crc.c **** // This macro executes one iteration of the CRC-8-CCITT.
+ 195:C:/StellarisWare/utils\crc.c **** //
+ 196:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 197:C:/StellarisWare/utils\crc.c **** #define CRC8_ITER(crc, data)    g_pucCrc8CCITT[(unsigned char)((crc) ^ (data))]
+ 198:C:/StellarisWare/utils\crc.c **** 
+ 199:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 200:C:/StellarisWare/utils\crc.c **** //
+ 201:C:/StellarisWare/utils\crc.c **** // This macro executes one iteration of the CRC-16.
+ 202:C:/StellarisWare/utils\crc.c **** //
+ 203:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 204:C:/StellarisWare/utils\crc.c **** #define CRC16_ITER(crc, data)   (((crc) >> 8) ^                               \
+ 205:C:/StellarisWare/utils\crc.c ****                                  g_pusCrc16[(unsigned char)((crc) ^ (data))])
+ 206:C:/StellarisWare/utils\crc.c **** 
+ 207:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 208:C:/StellarisWare/utils\crc.c **** //
+ 209:C:/StellarisWare/utils\crc.c **** // This macro executes one iteration of the CRC-32.
+ 210:C:/StellarisWare/utils\crc.c **** //
+ 211:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 212:C:/StellarisWare/utils\crc.c **** #define CRC32_ITER(crc, data)   (((crc) >> 8) ^                               \
+ 213:C:/StellarisWare/utils\crc.c ****                                  g_pulCrc32[(unsigned char)((crc & 0xFF) ^    \
+ 214:C:/StellarisWare/utils\crc.c ****                                  (data))])
+ 215:C:/StellarisWare/utils\crc.c **** 
+ 216:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 217:C:/StellarisWare/utils\crc.c **** //
+ 218:C:/StellarisWare/utils\crc.c **** //! Calculates the CRC-8-CCITT of an array of bytes.
+ 219:C:/StellarisWare/utils\crc.c **** //!
+ 220:C:/StellarisWare/utils\crc.c **** //! \param ucCrc is the starting CRC-8-CCITT value.
+ 221:C:/StellarisWare/utils\crc.c **** //! \param pucData is a pointer to the data buffer.
+ 222:C:/StellarisWare/utils\crc.c **** //! \param ulCount is the number of bytes in the data buffer.
+ 223:C:/StellarisWare/utils\crc.c **** //!
+ 224:C:/StellarisWare/utils\crc.c **** //! This function is used to calculate the CRC-8-CCITT of the input buffer.
+ 225:C:/StellarisWare/utils\crc.c **** //! The CRC-8-CCITT is computed in a running fashion, meaning that the entire
+ 226:C:/StellarisWare/utils\crc.c **** //! data block that is to have its CRC-8-CCITT computed does not need to be
+ 227:C:/StellarisWare/utils\crc.c **** //! supplied all at once.  If the input buffer contains the entire block of
+ 228:C:/StellarisWare/utils\crc.c **** //! data, then \b ucCrc should be set to 0.  If, however, the entire block of
+ 229:C:/StellarisWare/utils\crc.c **** //! data is not available, then \b ucCrc should be set to 0 for the first
+ 230:C:/StellarisWare/utils\crc.c **** //! portion of the data, and then the returned value should be passed back in
+ 231:C:/StellarisWare/utils\crc.c **** //! as \b ucCrc for the next portion of the data.
+ 232:C:/StellarisWare/utils\crc.c **** //!
+ 233:C:/StellarisWare/utils\crc.c **** //! For example, to compute the CRC-8-CCITT of a block that has been split into
+ 234:C:/StellarisWare/utils\crc.c **** //! three pieces, use the following:
+ 235:C:/StellarisWare/utils\crc.c **** //!
+ 236:C:/StellarisWare/utils\crc.c **** //! \verbatim
+ 237:C:/StellarisWare/utils\crc.c **** //!     ucCrc = Crc8CCITT(0, pucData1, ulLen1);
+ 238:C:/StellarisWare/utils\crc.c **** //!     ucCrc = Crc8CCITT(ucCrc, pucData2, ulLen2);
+ 239:C:/StellarisWare/utils\crc.c **** //!     ucCrc = Crc8CCITT(ucCrc, pucData3, ulLen3);
+ 240:C:/StellarisWare/utils\crc.c **** //! \endverbatim
+ 241:C:/StellarisWare/utils\crc.c **** //!
+ 242:C:/StellarisWare/utils\crc.c **** //! Computing a CRC-8-CCITT in a running fashion is useful in cases where the
+ 243:C:/StellarisWare/utils\crc.c **** //! data is arriving via a serial link (for example) and is therefore not all
+ 244:C:/StellarisWare/utils\crc.c **** //! available at one time.
+ 245:C:/StellarisWare/utils\crc.c **** //!
+ 246:C:/StellarisWare/utils\crc.c **** //! \return The CRC-8-CCITT of the input data.
+ 247:C:/StellarisWare/utils\crc.c **** //
+ 248:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 249:C:/StellarisWare/utils\crc.c **** unsigned char
+ 250:C:/StellarisWare/utils\crc.c **** Crc8CCITT(unsigned char ucCrc, const unsigned char *pucData,
+ 251:C:/StellarisWare/utils\crc.c ****           unsigned long ulCount)
+ 252:C:/StellarisWare/utils\crc.c **** {
+ 809              		.loc 1 252 0
+ 810              		.cfi_startproc
+ 811              		@ args = 0, pretend = 0, frame = 24
+ 812              		@ frame_needed = 1, uses_anonymous_args = 0
+ 813              		@ link register save eliminated.
+ 814 0000 80B4     		push	{r7}
+ 815              	.LCFI0:
+ 816              		.cfi_def_cfa_offset 4
+ 817              		.cfi_offset 7, -4
+ 818 0002 87B0     		sub	sp, sp, #28
+ 819              	.LCFI1:
+ 820              		.cfi_def_cfa_offset 32
+ 821 0004 00AF     		add	r7, sp, #0
+ 822              	.LCFI2:
+ 823              		.cfi_def_cfa_register 7
+ 824 0006 0346     		mov	r3, r0
+ 825 0008 B960     		str	r1, [r7, #8]
+ 826 000a 7A60     		str	r2, [r7, #4]
+ 827 000c FB73     		strb	r3, [r7, #15]
+ 253:C:/StellarisWare/utils\crc.c ****     unsigned long ulTemp;
+ 254:C:/StellarisWare/utils\crc.c **** 
+ 255:C:/StellarisWare/utils\crc.c ****     //
+ 256:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not short-aligned, then perform a single step of
+ 257:C:/StellarisWare/utils\crc.c ****     // the CRC to make it short-aligned.
+ 258:C:/StellarisWare/utils\crc.c ****     //
+ 259:C:/StellarisWare/utils\crc.c ****     if((unsigned long)pucData & 1)
+ 828              		.loc 1 259 0
+ 829 000e BB68     		ldr	r3, [r7, #8]
+ 830 0010 03F00103 		and	r3, r3, #1
+ 831 0014 DBB2     		uxtb	r3, r3
+ 832 0016 002B     		cmp	r3, #0
+ 833 0018 13D0     		beq	.L2
+ 260:C:/StellarisWare/utils\crc.c ****     {
+ 261:C:/StellarisWare/utils\crc.c ****         //
+ 262:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on this input byte.
+ 263:C:/StellarisWare/utils\crc.c ****         //
+ 264:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, *pucData);
+ 834              		.loc 1 264 0
+ 835 001a BB68     		ldr	r3, [r7, #8]
+ 836 001c 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 837 001e FB7B     		ldrb	r3, [r7, #15]
+ 838 0020 5340     		eors	r3, r3, r2
+ 839 0022 DBB2     		uxtb	r3, r3
+ 840 0024 1A46     		mov	r2, r3
+ 841 0026 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 842 002a C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 843 002e 9B5C     		ldrb	r3, [r3, r2]
+ 844 0030 FB73     		strb	r3, [r7, #15]
+ 265:C:/StellarisWare/utils\crc.c **** 
+ 266:C:/StellarisWare/utils\crc.c ****         //
+ 267:C:/StellarisWare/utils\crc.c ****         // Skip this input byte.
+ 268:C:/StellarisWare/utils\crc.c ****         //
+ 269:C:/StellarisWare/utils\crc.c ****         pucData++;
+ 845              		.loc 1 269 0
+ 846 0032 BB68     		ldr	r3, [r7, #8]
+ 847 0034 03F10103 		add	r3, r3, #1
+ 848 0038 BB60     		str	r3, [r7, #8]
+ 270:C:/StellarisWare/utils\crc.c ****         ulCount--;
+ 849              		.loc 1 270 0
+ 850 003a 7B68     		ldr	r3, [r7, #4]
+ 851 003c 03F1FF33 		add	r3, r3, #-1
+ 852 0040 7B60     		str	r3, [r7, #4]
+ 853              	.L2:
+ 271:C:/StellarisWare/utils\crc.c ****     }
+ 272:C:/StellarisWare/utils\crc.c **** 
+ 273:C:/StellarisWare/utils\crc.c ****     //
+ 274:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not word-aligned and there are at least two bytes
+ 275:C:/StellarisWare/utils\crc.c ****     // of data left, then perform two steps of the CRC to make it word-aligned.
+ 276:C:/StellarisWare/utils\crc.c ****     //
+ 277:C:/StellarisWare/utils\crc.c ****     if(((unsigned long)pucData & 2) && (ulCount > 1))
+ 854              		.loc 1 277 0
+ 855 0042 BB68     		ldr	r3, [r7, #8]
+ 856 0044 03F00203 		and	r3, r3, #2
+ 857 0048 002B     		cmp	r3, #0
+ 858 004a 69D0     		beq	.L4
+ 859              		.loc 1 277 0 is_stmt 0 discriminator 1
+ 860 004c 7B68     		ldr	r3, [r7, #4]
+ 861 004e 012B     		cmp	r3, #1
+ 862 0050 66D9     		bls	.L4
+ 278:C:/StellarisWare/utils\crc.c ****     {
+ 279:C:/StellarisWare/utils\crc.c ****         //
+ 280:C:/StellarisWare/utils\crc.c ****         // Read the next short.
+ 281:C:/StellarisWare/utils\crc.c ****         //
+ 282:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 863              		.loc 1 282 0 is_stmt 1
+ 864 0052 BB68     		ldr	r3, [r7, #8]
+ 865 0054 1B88     		ldrh	r3, [r3, #0]
+ 866 0056 7B61     		str	r3, [r7, #20]
+ 283:C:/StellarisWare/utils\crc.c **** 
+ 284:C:/StellarisWare/utils\crc.c ****         //
+ 285:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 286:C:/StellarisWare/utils\crc.c ****         //
+ 287:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp);
+ 867              		.loc 1 287 0
+ 868 0058 7B69     		ldr	r3, [r7, #20]
+ 869 005a DAB2     		uxtb	r2, r3
+ 870 005c FB7B     		ldrb	r3, [r7, #15]
+ 871 005e 5340     		eors	r3, r3, r2
+ 872 0060 DBB2     		uxtb	r3, r3
+ 873 0062 1A46     		mov	r2, r3
+ 874 0064 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 875 0068 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 876 006c 9B5C     		ldrb	r3, [r3, r2]
+ 877 006e FB73     		strb	r3, [r7, #15]
+ 288:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp >> 8);
+ 878              		.loc 1 288 0
+ 879 0070 7B69     		ldr	r3, [r7, #20]
+ 880 0072 4FEA1323 		lsr	r3, r3, #8
+ 881 0076 DAB2     		uxtb	r2, r3
+ 882 0078 FB7B     		ldrb	r3, [r7, #15]
+ 883 007a 5340     		eors	r3, r3, r2
+ 884 007c DBB2     		uxtb	r3, r3
+ 885 007e 1A46     		mov	r2, r3
+ 886 0080 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 887 0084 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 888 0088 9B5C     		ldrb	r3, [r3, r2]
+ 889 008a FB73     		strb	r3, [r7, #15]
+ 289:C:/StellarisWare/utils\crc.c **** 
+ 290:C:/StellarisWare/utils\crc.c ****         //
+ 291:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 292:C:/StellarisWare/utils\crc.c ****         //
+ 293:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 890              		.loc 1 293 0
+ 891 008c BB68     		ldr	r3, [r7, #8]
+ 892 008e 03F10203 		add	r3, r3, #2
+ 893 0092 BB60     		str	r3, [r7, #8]
+ 294:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 894              		.loc 1 294 0
+ 895 0094 7B68     		ldr	r3, [r7, #4]
+ 896 0096 A3F10203 		sub	r3, r3, #2
+ 897 009a 7B60     		str	r3, [r7, #4]
+ 295:C:/StellarisWare/utils\crc.c ****     }
+ 296:C:/StellarisWare/utils\crc.c **** 
+ 297:C:/StellarisWare/utils\crc.c ****     //
+ 298:C:/StellarisWare/utils\crc.c ****     // While there is at least a word remaining in the data buffer, perform
+ 299:C:/StellarisWare/utils\crc.c ****     // four steps of the CRC to consume a word.
+ 300:C:/StellarisWare/utils\crc.c ****     //
+ 301:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 898              		.loc 1 301 0
+ 899 009c 40E0     		b	.L4
+ 900              	.L5:
+ 302:C:/StellarisWare/utils\crc.c ****     {
+ 303:C:/StellarisWare/utils\crc.c ****         //
+ 304:C:/StellarisWare/utils\crc.c ****         // Read the next word.
+ 305:C:/StellarisWare/utils\crc.c ****         //
+ 306:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned long *)pucData;
+ 901              		.loc 1 306 0
+ 902 009e BB68     		ldr	r3, [r7, #8]
+ 903 00a0 1B68     		ldr	r3, [r3, #0]
+ 904 00a2 7B61     		str	r3, [r7, #20]
+ 307:C:/StellarisWare/utils\crc.c **** 
+ 308:C:/StellarisWare/utils\crc.c ****         //
+ 309:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these four bytes.
+ 310:C:/StellarisWare/utils\crc.c ****         //
+ 311:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp);
+ 905              		.loc 1 311 0
+ 906 00a4 7B69     		ldr	r3, [r7, #20]
+ 907 00a6 DAB2     		uxtb	r2, r3
+ 908 00a8 FB7B     		ldrb	r3, [r7, #15]
+ 909 00aa 5340     		eors	r3, r3, r2
+ 910 00ac DBB2     		uxtb	r3, r3
+ 911 00ae 1A46     		mov	r2, r3
+ 912 00b0 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 913 00b4 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 914 00b8 9B5C     		ldrb	r3, [r3, r2]
+ 915 00ba FB73     		strb	r3, [r7, #15]
+ 312:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp >> 8);
+ 916              		.loc 1 312 0
+ 917 00bc 7B69     		ldr	r3, [r7, #20]
+ 918 00be 4FEA1323 		lsr	r3, r3, #8
+ 919 00c2 DAB2     		uxtb	r2, r3
+ 920 00c4 FB7B     		ldrb	r3, [r7, #15]
+ 921 00c6 5340     		eors	r3, r3, r2
+ 922 00c8 DBB2     		uxtb	r3, r3
+ 923 00ca 1A46     		mov	r2, r3
+ 924 00cc 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 925 00d0 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 926 00d4 9B5C     		ldrb	r3, [r3, r2]
+ 927 00d6 FB73     		strb	r3, [r7, #15]
+ 313:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp >> 16);
+ 928              		.loc 1 313 0
+ 929 00d8 7B69     		ldr	r3, [r7, #20]
+ 930 00da 4FEA1343 		lsr	r3, r3, #16
+ 931 00de DAB2     		uxtb	r2, r3
+ 932 00e0 FB7B     		ldrb	r3, [r7, #15]
+ 933 00e2 5340     		eors	r3, r3, r2
+ 934 00e4 DBB2     		uxtb	r3, r3
+ 935 00e6 1A46     		mov	r2, r3
+ 936 00e8 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 937 00ec C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 938 00f0 9B5C     		ldrb	r3, [r3, r2]
+ 939 00f2 FB73     		strb	r3, [r7, #15]
+ 314:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp >> 24);
+ 940              		.loc 1 314 0
+ 941 00f4 7B69     		ldr	r3, [r7, #20]
+ 942 00f6 4FEA1363 		lsr	r3, r3, #24
+ 943 00fa DAB2     		uxtb	r2, r3
+ 944 00fc FB7B     		ldrb	r3, [r7, #15]
+ 945 00fe 5340     		eors	r3, r3, r2
+ 946 0100 DBB2     		uxtb	r3, r3
+ 947 0102 1A46     		mov	r2, r3
+ 948 0104 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 949 0108 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 950 010c 9B5C     		ldrb	r3, [r3, r2]
+ 951 010e FB73     		strb	r3, [r7, #15]
+ 315:C:/StellarisWare/utils\crc.c **** 
+ 316:C:/StellarisWare/utils\crc.c ****         //
+ 317:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 318:C:/StellarisWare/utils\crc.c ****         //
+ 319:C:/StellarisWare/utils\crc.c ****         pucData += 4;
+ 952              		.loc 1 319 0
+ 953 0110 BB68     		ldr	r3, [r7, #8]
+ 954 0112 03F10403 		add	r3, r3, #4
+ 955 0116 BB60     		str	r3, [r7, #8]
+ 320:C:/StellarisWare/utils\crc.c ****         ulCount -= 4;
+ 956              		.loc 1 320 0
+ 957 0118 7B68     		ldr	r3, [r7, #4]
+ 958 011a A3F10403 		sub	r3, r3, #4
+ 959 011e 7B60     		str	r3, [r7, #4]
+ 960              	.L4:
+ 301:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 961              		.loc 1 301 0 discriminator 1
+ 962 0120 7B68     		ldr	r3, [r7, #4]
+ 963 0122 032B     		cmp	r3, #3
+ 964 0124 BBD8     		bhi	.L5
+ 321:C:/StellarisWare/utils\crc.c ****     }
+ 322:C:/StellarisWare/utils\crc.c **** 
+ 323:C:/StellarisWare/utils\crc.c ****     //
+ 324:C:/StellarisWare/utils\crc.c ****     // If there is a short left in the input buffer, then perform two steps of
+ 325:C:/StellarisWare/utils\crc.c ****     // the CRC.
+ 326:C:/StellarisWare/utils\crc.c ****     //
+ 327:C:/StellarisWare/utils\crc.c ****     if(ulCount > 1)
+ 965              		.loc 1 327 0
+ 966 0126 7B68     		ldr	r3, [r7, #4]
+ 967 0128 012B     		cmp	r3, #1
+ 968 012a 24D9     		bls	.L6
+ 328:C:/StellarisWare/utils\crc.c ****     {
+ 329:C:/StellarisWare/utils\crc.c ****         //
+ 330:C:/StellarisWare/utils\crc.c ****         // Read the short.
+ 331:C:/StellarisWare/utils\crc.c ****         //
+ 332:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 969              		.loc 1 332 0
+ 970 012c BB68     		ldr	r3, [r7, #8]
+ 971 012e 1B88     		ldrh	r3, [r3, #0]
+ 972 0130 7B61     		str	r3, [r7, #20]
+ 333:C:/StellarisWare/utils\crc.c **** 
+ 334:C:/StellarisWare/utils\crc.c ****         //
+ 335:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 336:C:/StellarisWare/utils\crc.c ****         //
+ 337:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp);
+ 973              		.loc 1 337 0
+ 974 0132 7B69     		ldr	r3, [r7, #20]
+ 975 0134 DAB2     		uxtb	r2, r3
+ 976 0136 FB7B     		ldrb	r3, [r7, #15]
+ 977 0138 5340     		eors	r3, r3, r2
+ 978 013a DBB2     		uxtb	r3, r3
+ 979 013c 1A46     		mov	r2, r3
+ 980 013e 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 981 0142 C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 982 0146 9B5C     		ldrb	r3, [r3, r2]
+ 983 0148 FB73     		strb	r3, [r7, #15]
+ 338:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, ulTemp >> 8);
+ 984              		.loc 1 338 0
+ 985 014a 7B69     		ldr	r3, [r7, #20]
+ 986 014c 4FEA1323 		lsr	r3, r3, #8
+ 987 0150 DAB2     		uxtb	r2, r3
+ 988 0152 FB7B     		ldrb	r3, [r7, #15]
+ 989 0154 5340     		eors	r3, r3, r2
+ 990 0156 DBB2     		uxtb	r3, r3
+ 991 0158 1A46     		mov	r2, r3
+ 992 015a 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 993 015e C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 994 0162 9B5C     		ldrb	r3, [r3, r2]
+ 995 0164 FB73     		strb	r3, [r7, #15]
+ 339:C:/StellarisWare/utils\crc.c **** 
+ 340:C:/StellarisWare/utils\crc.c ****         //
+ 341:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 342:C:/StellarisWare/utils\crc.c ****         //
+ 343:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 996              		.loc 1 343 0
+ 997 0166 BB68     		ldr	r3, [r7, #8]
+ 998 0168 03F10203 		add	r3, r3, #2
+ 999 016c BB60     		str	r3, [r7, #8]
+ 344:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 1000              		.loc 1 344 0
+ 1001 016e 7B68     		ldr	r3, [r7, #4]
+ 1002 0170 A3F10203 		sub	r3, r3, #2
+ 1003 0174 7B60     		str	r3, [r7, #4]
+ 1004              	.L6:
+ 345:C:/StellarisWare/utils\crc.c ****     }
+ 346:C:/StellarisWare/utils\crc.c **** 
+ 347:C:/StellarisWare/utils\crc.c ****     //
+ 348:C:/StellarisWare/utils\crc.c ****     // If there is a final byte remaining in the input buffer, then perform a
+ 349:C:/StellarisWare/utils\crc.c ****     // single step of the CRC.
+ 350:C:/StellarisWare/utils\crc.c ****     //
+ 351:C:/StellarisWare/utils\crc.c ****     if(ulCount != 0)
+ 1005              		.loc 1 351 0
+ 1006 0176 7B68     		ldr	r3, [r7, #4]
+ 1007 0178 002B     		cmp	r3, #0
+ 1008 017a 0BD0     		beq	.L7
+ 352:C:/StellarisWare/utils\crc.c ****     {
+ 353:C:/StellarisWare/utils\crc.c ****         ucCrc = CRC8_ITER(ucCrc, *pucData);
+ 1009              		.loc 1 353 0
+ 1010 017c BB68     		ldr	r3, [r7, #8]
+ 1011 017e 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 1012 0180 FB7B     		ldrb	r3, [r7, #15]
+ 1013 0182 5340     		eors	r3, r3, r2
+ 1014 0184 DBB2     		uxtb	r3, r3
+ 1015 0186 1A46     		mov	r2, r3
+ 1016 0188 40F20003 		movw	r3, #:lower16:g_pucCrc8CCITT
+ 1017 018c C0F20003 		movt	r3, #:upper16:g_pucCrc8CCITT
+ 1018 0190 9B5C     		ldrb	r3, [r3, r2]
+ 1019 0192 FB73     		strb	r3, [r7, #15]
+ 1020              	.L7:
+ 354:C:/StellarisWare/utils\crc.c ****     }
+ 355:C:/StellarisWare/utils\crc.c **** 
+ 356:C:/StellarisWare/utils\crc.c ****     //
+ 357:C:/StellarisWare/utils\crc.c ****     // Return the resulting CRC-8-CCITT value.
+ 358:C:/StellarisWare/utils\crc.c ****     //
+ 359:C:/StellarisWare/utils\crc.c ****     return(ucCrc);
+ 1021              		.loc 1 359 0
+ 1022 0194 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 360:C:/StellarisWare/utils\crc.c **** }
+ 1023              		.loc 1 360 0
+ 1024 0196 1846     		mov	r0, r3
+ 1025 0198 07F11C07 		add	r7, r7, #28
+ 1026 019c BD46     		mov	sp, r7
+ 1027 019e 80BC     		pop	{r7}
+ 1028 01a0 7047     		bx	lr
+ 1029              		.cfi_endproc
+ 1030              	.LFE0:
+ 1032 01a2 00BF     		.section	.text.Crc16,"ax",%progbits
+ 1033              		.align	2
+ 1034              		.global	Crc16
+ 1035              		.thumb
+ 1036              		.thumb_func
+ 1038              	Crc16:
+ 1039              	.LFB1:
+ 361:C:/StellarisWare/utils\crc.c **** 
+ 362:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 363:C:/StellarisWare/utils\crc.c **** //
+ 364:C:/StellarisWare/utils\crc.c **** //! Calculates the CRC-16 of an array of bytes.
+ 365:C:/StellarisWare/utils\crc.c **** //!
+ 366:C:/StellarisWare/utils\crc.c **** //! \param usCrc is the starting CRC-16 value.
+ 367:C:/StellarisWare/utils\crc.c **** //! \param pucData is a pointer to the data buffer.
+ 368:C:/StellarisWare/utils\crc.c **** //! \param ulCount is the number of bytes in the data buffer.
+ 369:C:/StellarisWare/utils\crc.c **** //!
+ 370:C:/StellarisWare/utils\crc.c **** //! This function is used to calculate the CRC-16 of the input buffer.  The
+ 371:C:/StellarisWare/utils\crc.c **** //! CRC-16 is computed in a running fashion, meaning that the entire data block
+ 372:C:/StellarisWare/utils\crc.c **** //! that is to have its CRC-16 computed does not need to be supplied all at
+ 373:C:/StellarisWare/utils\crc.c **** //! once.  If the input buffer contains the entire block of data, then \b usCrc
+ 374:C:/StellarisWare/utils\crc.c **** //! should be set to 0.  If, however, the entire block of data is not
+ 375:C:/StellarisWare/utils\crc.c **** //! available, then \b usCrc should be set to 0 for the first portion of the
+ 376:C:/StellarisWare/utils\crc.c **** //! data, and then the returned value should be passed back in as \b usCrc for
+ 377:C:/StellarisWare/utils\crc.c **** //! the next portion of the data.
+ 378:C:/StellarisWare/utils\crc.c **** //!
+ 379:C:/StellarisWare/utils\crc.c **** //! For example, to compute the CRC-16 of a block that has been split into
+ 380:C:/StellarisWare/utils\crc.c **** //! three pieces, use the following:
+ 381:C:/StellarisWare/utils\crc.c **** //!
+ 382:C:/StellarisWare/utils\crc.c **** //! \verbatim
+ 383:C:/StellarisWare/utils\crc.c **** //!     usCrc = Crc16(0, pucData1, ulLen1);
+ 384:C:/StellarisWare/utils\crc.c **** //!     usCrc = Crc16(usCrc, pucData2, ulLen2);
+ 385:C:/StellarisWare/utils\crc.c **** //!     usCrc = Crc16(usCrc, pucData3, ulLen3);
+ 386:C:/StellarisWare/utils\crc.c **** //! \endverbatim
+ 387:C:/StellarisWare/utils\crc.c **** //!
+ 388:C:/StellarisWare/utils\crc.c **** //! Computing a CRC-16 in a running fashion is useful in cases where the data
+ 389:C:/StellarisWare/utils\crc.c **** //! is arriving via a serial link (for example) and is therefore not all
+ 390:C:/StellarisWare/utils\crc.c **** //! available at one time.
+ 391:C:/StellarisWare/utils\crc.c **** //!
+ 392:C:/StellarisWare/utils\crc.c **** //! \return The CRC-16 of the input data.
+ 393:C:/StellarisWare/utils\crc.c **** //
+ 394:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 395:C:/StellarisWare/utils\crc.c **** unsigned short
+ 396:C:/StellarisWare/utils\crc.c **** Crc16(unsigned short usCrc, const unsigned char *pucData,
+ 397:C:/StellarisWare/utils\crc.c ****       unsigned long ulCount)
+ 398:C:/StellarisWare/utils\crc.c **** {
+ 1040              		.loc 1 398 0
+ 1041              		.cfi_startproc
+ 1042              		@ args = 0, pretend = 0, frame = 24
+ 1043              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1044              		@ link register save eliminated.
+ 1045 0000 80B4     		push	{r7}
+ 1046              	.LCFI3:
+ 1047              		.cfi_def_cfa_offset 4
+ 1048              		.cfi_offset 7, -4
+ 1049 0002 87B0     		sub	sp, sp, #28
+ 1050              	.LCFI4:
+ 1051              		.cfi_def_cfa_offset 32
+ 1052 0004 00AF     		add	r7, sp, #0
+ 1053              	.LCFI5:
+ 1054              		.cfi_def_cfa_register 7
+ 1055 0006 0346     		mov	r3, r0
+ 1056 0008 B960     		str	r1, [r7, #8]
+ 1057 000a 7A60     		str	r2, [r7, #4]
+ 1058 000c FB81     		strh	r3, [r7, #14]	@ movhi
+ 399:C:/StellarisWare/utils\crc.c ****     unsigned long ulTemp;
+ 400:C:/StellarisWare/utils\crc.c **** 
+ 401:C:/StellarisWare/utils\crc.c ****     //
+ 402:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not short-aligned, then perform a single step of
+ 403:C:/StellarisWare/utils\crc.c ****     // the CRC to make it short-aligned.
+ 404:C:/StellarisWare/utils\crc.c ****     //
+ 405:C:/StellarisWare/utils\crc.c ****     if((unsigned long)pucData & 1)
+ 1059              		.loc 1 405 0
+ 1060 000e BB68     		ldr	r3, [r7, #8]
+ 1061 0010 03F00103 		and	r3, r3, #1
+ 1062 0014 DBB2     		uxtb	r3, r3
+ 1063 0016 002B     		cmp	r3, #0
+ 1064 0018 1AD0     		beq	.L9
+ 406:C:/StellarisWare/utils\crc.c ****     {
+ 407:C:/StellarisWare/utils\crc.c ****         //
+ 408:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on this input byte.
+ 409:C:/StellarisWare/utils\crc.c ****         //
+ 410:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, *pucData);
+ 1065              		.loc 1 410 0
+ 1066 001a FB89     		ldrh	r3, [r7, #14]
+ 1067 001c 4FEA1323 		lsr	r3, r3, #8
+ 1068 0020 9AB2     		uxth	r2, r3
+ 1069 0022 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1070 0024 D9B2     		uxtb	r1, r3
+ 1071 0026 BB68     		ldr	r3, [r7, #8]
+ 1072 0028 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1073 002a 4B40     		eors	r3, r3, r1
+ 1074 002c DBB2     		uxtb	r3, r3
+ 1075 002e 1946     		mov	r1, r3
+ 1076 0030 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1077 0034 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1078 0038 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1079 003c 5340     		eors	r3, r3, r2
+ 1080 003e FB81     		strh	r3, [r7, #14]	@ movhi
+ 411:C:/StellarisWare/utils\crc.c **** 
+ 412:C:/StellarisWare/utils\crc.c ****         //
+ 413:C:/StellarisWare/utils\crc.c ****         // Skip this input byte.
+ 414:C:/StellarisWare/utils\crc.c ****         //
+ 415:C:/StellarisWare/utils\crc.c ****         pucData++;
+ 1081              		.loc 1 415 0
+ 1082 0040 BB68     		ldr	r3, [r7, #8]
+ 1083 0042 03F10103 		add	r3, r3, #1
+ 1084 0046 BB60     		str	r3, [r7, #8]
+ 416:C:/StellarisWare/utils\crc.c ****         ulCount--;
+ 1085              		.loc 1 416 0
+ 1086 0048 7B68     		ldr	r3, [r7, #4]
+ 1087 004a 03F1FF33 		add	r3, r3, #-1
+ 1088 004e 7B60     		str	r3, [r7, #4]
+ 1089              	.L9:
+ 417:C:/StellarisWare/utils\crc.c ****     }
+ 418:C:/StellarisWare/utils\crc.c **** 
+ 419:C:/StellarisWare/utils\crc.c ****     //
+ 420:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not word-aligned and there are at least two bytes
+ 421:C:/StellarisWare/utils\crc.c ****     // of data left, then perform two steps of the CRC to make it word-aligned.
+ 422:C:/StellarisWare/utils\crc.c ****     //
+ 423:C:/StellarisWare/utils\crc.c ****     if(((unsigned long)pucData & 2) && (ulCount > 1))
+ 1090              		.loc 1 423 0
+ 1091 0050 BB68     		ldr	r3, [r7, #8]
+ 1092 0052 03F00203 		and	r3, r3, #2
+ 1093 0056 002B     		cmp	r3, #0
+ 1094 0058 00F09580 		beq	.L11
+ 1095              		.loc 1 423 0 is_stmt 0 discriminator 1
+ 1096 005c 7B68     		ldr	r3, [r7, #4]
+ 1097 005e 012B     		cmp	r3, #1
+ 1098 0060 40F29180 		bls	.L11
+ 424:C:/StellarisWare/utils\crc.c ****     {
+ 425:C:/StellarisWare/utils\crc.c ****         //
+ 426:C:/StellarisWare/utils\crc.c ****         // Read the next short.
+ 427:C:/StellarisWare/utils\crc.c ****         //
+ 428:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 1099              		.loc 1 428 0 is_stmt 1
+ 1100 0064 BB68     		ldr	r3, [r7, #8]
+ 1101 0066 1B88     		ldrh	r3, [r3, #0]
+ 1102 0068 7B61     		str	r3, [r7, #20]
+ 429:C:/StellarisWare/utils\crc.c **** 
+ 430:C:/StellarisWare/utils\crc.c ****         //
+ 431:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 432:C:/StellarisWare/utils\crc.c ****         //
+ 433:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp);
+ 1103              		.loc 1 433 0
+ 1104 006a FB89     		ldrh	r3, [r7, #14]
+ 1105 006c 4FEA1323 		lsr	r3, r3, #8
+ 1106 0070 9AB2     		uxth	r2, r3
+ 1107 0072 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1108 0074 D9B2     		uxtb	r1, r3
+ 1109 0076 7B69     		ldr	r3, [r7, #20]
+ 1110 0078 DBB2     		uxtb	r3, r3
+ 1111 007a 4B40     		eors	r3, r3, r1
+ 1112 007c DBB2     		uxtb	r3, r3
+ 1113 007e 1946     		mov	r1, r3
+ 1114 0080 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1115 0084 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1116 0088 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1117 008c 5340     		eors	r3, r3, r2
+ 1118 008e FB81     		strh	r3, [r7, #14]	@ movhi
+ 434:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 8);
+ 1119              		.loc 1 434 0
+ 1120 0090 FB89     		ldrh	r3, [r7, #14]
+ 1121 0092 4FEA1323 		lsr	r3, r3, #8
+ 1122 0096 9AB2     		uxth	r2, r3
+ 1123 0098 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1124 009a D9B2     		uxtb	r1, r3
+ 1125 009c 7B69     		ldr	r3, [r7, #20]
+ 1126 009e 4FEA1323 		lsr	r3, r3, #8
+ 1127 00a2 DBB2     		uxtb	r3, r3
+ 1128 00a4 4B40     		eors	r3, r3, r1
+ 1129 00a6 DBB2     		uxtb	r3, r3
+ 1130 00a8 1946     		mov	r1, r3
+ 1131 00aa 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1132 00ae C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1133 00b2 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1134 00b6 5340     		eors	r3, r3, r2
+ 1135 00b8 FB81     		strh	r3, [r7, #14]	@ movhi
+ 435:C:/StellarisWare/utils\crc.c **** 
+ 436:C:/StellarisWare/utils\crc.c ****         //
+ 437:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 438:C:/StellarisWare/utils\crc.c ****         //
+ 439:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 1136              		.loc 1 439 0
+ 1137 00ba BB68     		ldr	r3, [r7, #8]
+ 1138 00bc 03F10203 		add	r3, r3, #2
+ 1139 00c0 BB60     		str	r3, [r7, #8]
+ 440:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 1140              		.loc 1 440 0
+ 1141 00c2 7B68     		ldr	r3, [r7, #4]
+ 1142 00c4 A3F10203 		sub	r3, r3, #2
+ 1143 00c8 7B60     		str	r3, [r7, #4]
+ 441:C:/StellarisWare/utils\crc.c ****     }
+ 442:C:/StellarisWare/utils\crc.c **** 
+ 443:C:/StellarisWare/utils\crc.c ****     //
+ 444:C:/StellarisWare/utils\crc.c ****     // While there is at least a word remaining in the data buffer, perform
+ 445:C:/StellarisWare/utils\crc.c ****     // four steps of the CRC to consume a word.
+ 446:C:/StellarisWare/utils\crc.c ****     //
+ 447:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 1144              		.loc 1 447 0
+ 1145 00ca 5CE0     		b	.L11
+ 1146              	.L12:
+ 448:C:/StellarisWare/utils\crc.c ****     {
+ 449:C:/StellarisWare/utils\crc.c ****         //
+ 450:C:/StellarisWare/utils\crc.c ****         // Read the next word.
+ 451:C:/StellarisWare/utils\crc.c ****         //
+ 452:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned long *)pucData;
+ 1147              		.loc 1 452 0
+ 1148 00cc BB68     		ldr	r3, [r7, #8]
+ 1149 00ce 1B68     		ldr	r3, [r3, #0]
+ 1150 00d0 7B61     		str	r3, [r7, #20]
+ 453:C:/StellarisWare/utils\crc.c **** 
+ 454:C:/StellarisWare/utils\crc.c ****         //
+ 455:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these four bytes.
+ 456:C:/StellarisWare/utils\crc.c ****         //
+ 457:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp);
+ 1151              		.loc 1 457 0
+ 1152 00d2 FB89     		ldrh	r3, [r7, #14]
+ 1153 00d4 4FEA1323 		lsr	r3, r3, #8
+ 1154 00d8 9AB2     		uxth	r2, r3
+ 1155 00da FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1156 00dc D9B2     		uxtb	r1, r3
+ 1157 00de 7B69     		ldr	r3, [r7, #20]
+ 1158 00e0 DBB2     		uxtb	r3, r3
+ 1159 00e2 4B40     		eors	r3, r3, r1
+ 1160 00e4 DBB2     		uxtb	r3, r3
+ 1161 00e6 1946     		mov	r1, r3
+ 1162 00e8 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1163 00ec C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1164 00f0 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1165 00f4 5340     		eors	r3, r3, r2
+ 1166 00f6 FB81     		strh	r3, [r7, #14]	@ movhi
+ 458:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 8);
+ 1167              		.loc 1 458 0
+ 1168 00f8 FB89     		ldrh	r3, [r7, #14]
+ 1169 00fa 4FEA1323 		lsr	r3, r3, #8
+ 1170 00fe 9AB2     		uxth	r2, r3
+ 1171 0100 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1172 0102 D9B2     		uxtb	r1, r3
+ 1173 0104 7B69     		ldr	r3, [r7, #20]
+ 1174 0106 4FEA1323 		lsr	r3, r3, #8
+ 1175 010a DBB2     		uxtb	r3, r3
+ 1176 010c 4B40     		eors	r3, r3, r1
+ 1177 010e DBB2     		uxtb	r3, r3
+ 1178 0110 1946     		mov	r1, r3
+ 1179 0112 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1180 0116 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1181 011a 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1182 011e 5340     		eors	r3, r3, r2
+ 1183 0120 FB81     		strh	r3, [r7, #14]	@ movhi
+ 459:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 16);
+ 1184              		.loc 1 459 0
+ 1185 0122 FB89     		ldrh	r3, [r7, #14]
+ 1186 0124 4FEA1323 		lsr	r3, r3, #8
+ 1187 0128 9AB2     		uxth	r2, r3
+ 1188 012a FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1189 012c D9B2     		uxtb	r1, r3
+ 1190 012e 7B69     		ldr	r3, [r7, #20]
+ 1191 0130 4FEA1343 		lsr	r3, r3, #16
+ 1192 0134 DBB2     		uxtb	r3, r3
+ 1193 0136 4B40     		eors	r3, r3, r1
+ 1194 0138 DBB2     		uxtb	r3, r3
+ 1195 013a 1946     		mov	r1, r3
+ 1196 013c 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1197 0140 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1198 0144 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1199 0148 5340     		eors	r3, r3, r2
+ 1200 014a FB81     		strh	r3, [r7, #14]	@ movhi
+ 460:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 24);
+ 1201              		.loc 1 460 0
+ 1202 014c FB89     		ldrh	r3, [r7, #14]
+ 1203 014e 4FEA1323 		lsr	r3, r3, #8
+ 1204 0152 9AB2     		uxth	r2, r3
+ 1205 0154 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1206 0156 D9B2     		uxtb	r1, r3
+ 1207 0158 7B69     		ldr	r3, [r7, #20]
+ 1208 015a 4FEA1363 		lsr	r3, r3, #24
+ 1209 015e DBB2     		uxtb	r3, r3
+ 1210 0160 4B40     		eors	r3, r3, r1
+ 1211 0162 DBB2     		uxtb	r3, r3
+ 1212 0164 1946     		mov	r1, r3
+ 1213 0166 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1214 016a C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1215 016e 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1216 0172 5340     		eors	r3, r3, r2
+ 1217 0174 FB81     		strh	r3, [r7, #14]	@ movhi
+ 461:C:/StellarisWare/utils\crc.c **** 
+ 462:C:/StellarisWare/utils\crc.c ****         //
+ 463:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 464:C:/StellarisWare/utils\crc.c ****         //
+ 465:C:/StellarisWare/utils\crc.c ****         pucData += 4;
+ 1218              		.loc 1 465 0
+ 1219 0176 BB68     		ldr	r3, [r7, #8]
+ 1220 0178 03F10403 		add	r3, r3, #4
+ 1221 017c BB60     		str	r3, [r7, #8]
+ 466:C:/StellarisWare/utils\crc.c ****         ulCount -= 4;
+ 1222              		.loc 1 466 0
+ 1223 017e 7B68     		ldr	r3, [r7, #4]
+ 1224 0180 A3F10403 		sub	r3, r3, #4
+ 1225 0184 7B60     		str	r3, [r7, #4]
+ 1226              	.L11:
+ 447:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 1227              		.loc 1 447 0 discriminator 1
+ 1228 0186 7B68     		ldr	r3, [r7, #4]
+ 1229 0188 032B     		cmp	r3, #3
+ 1230 018a 9FD8     		bhi	.L12
+ 467:C:/StellarisWare/utils\crc.c ****     }
+ 468:C:/StellarisWare/utils\crc.c **** 
+ 469:C:/StellarisWare/utils\crc.c ****     //
+ 470:C:/StellarisWare/utils\crc.c ****     // If there is a short left in the input buffer, then perform two steps of
+ 471:C:/StellarisWare/utils\crc.c ****     // the CRC.
+ 472:C:/StellarisWare/utils\crc.c ****     //
+ 473:C:/StellarisWare/utils\crc.c ****     if(ulCount > 1)
+ 1231              		.loc 1 473 0
+ 1232 018c 7B68     		ldr	r3, [r7, #4]
+ 1233 018e 012B     		cmp	r3, #1
+ 1234 0190 32D9     		bls	.L13
+ 474:C:/StellarisWare/utils\crc.c ****     {
+ 475:C:/StellarisWare/utils\crc.c ****         //
+ 476:C:/StellarisWare/utils\crc.c ****         // Read the short.
+ 477:C:/StellarisWare/utils\crc.c ****         //
+ 478:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 1235              		.loc 1 478 0
+ 1236 0192 BB68     		ldr	r3, [r7, #8]
+ 1237 0194 1B88     		ldrh	r3, [r3, #0]
+ 1238 0196 7B61     		str	r3, [r7, #20]
+ 479:C:/StellarisWare/utils\crc.c **** 
+ 480:C:/StellarisWare/utils\crc.c ****         //
+ 481:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 482:C:/StellarisWare/utils\crc.c ****         //
+ 483:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp);
+ 1239              		.loc 1 483 0
+ 1240 0198 FB89     		ldrh	r3, [r7, #14]
+ 1241 019a 4FEA1323 		lsr	r3, r3, #8
+ 1242 019e 9AB2     		uxth	r2, r3
+ 1243 01a0 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1244 01a2 D9B2     		uxtb	r1, r3
+ 1245 01a4 7B69     		ldr	r3, [r7, #20]
+ 1246 01a6 DBB2     		uxtb	r3, r3
+ 1247 01a8 4B40     		eors	r3, r3, r1
+ 1248 01aa DBB2     		uxtb	r3, r3
+ 1249 01ac 1946     		mov	r1, r3
+ 1250 01ae 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1251 01b2 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1252 01b6 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1253 01ba 5340     		eors	r3, r3, r2
+ 1254 01bc FB81     		strh	r3, [r7, #14]	@ movhi
+ 484:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 8);
+ 1255              		.loc 1 484 0
+ 1256 01be FB89     		ldrh	r3, [r7, #14]
+ 1257 01c0 4FEA1323 		lsr	r3, r3, #8
+ 1258 01c4 9AB2     		uxth	r2, r3
+ 1259 01c6 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1260 01c8 D9B2     		uxtb	r1, r3
+ 1261 01ca 7B69     		ldr	r3, [r7, #20]
+ 1262 01cc 4FEA1323 		lsr	r3, r3, #8
+ 1263 01d0 DBB2     		uxtb	r3, r3
+ 1264 01d2 4B40     		eors	r3, r3, r1
+ 1265 01d4 DBB2     		uxtb	r3, r3
+ 1266 01d6 1946     		mov	r1, r3
+ 1267 01d8 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1268 01dc C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1269 01e0 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1270 01e4 5340     		eors	r3, r3, r2
+ 1271 01e6 FB81     		strh	r3, [r7, #14]	@ movhi
+ 485:C:/StellarisWare/utils\crc.c **** 
+ 486:C:/StellarisWare/utils\crc.c ****         //
+ 487:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 488:C:/StellarisWare/utils\crc.c ****         //
+ 489:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 1272              		.loc 1 489 0
+ 1273 01e8 BB68     		ldr	r3, [r7, #8]
+ 1274 01ea 03F10203 		add	r3, r3, #2
+ 1275 01ee BB60     		str	r3, [r7, #8]
+ 490:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 1276              		.loc 1 490 0
+ 1277 01f0 7B68     		ldr	r3, [r7, #4]
+ 1278 01f2 A3F10203 		sub	r3, r3, #2
+ 1279 01f6 7B60     		str	r3, [r7, #4]
+ 1280              	.L13:
+ 491:C:/StellarisWare/utils\crc.c ****     }
+ 492:C:/StellarisWare/utils\crc.c **** 
+ 493:C:/StellarisWare/utils\crc.c ****     //
+ 494:C:/StellarisWare/utils\crc.c ****     // If there is a final byte remaining in the input buffer, then perform a
+ 495:C:/StellarisWare/utils\crc.c ****     // single step of the CRC.
+ 496:C:/StellarisWare/utils\crc.c ****     //
+ 497:C:/StellarisWare/utils\crc.c ****     if(ulCount != 0)
+ 1281              		.loc 1 497 0
+ 1282 01f8 7B68     		ldr	r3, [r7, #4]
+ 1283 01fa 002B     		cmp	r3, #0
+ 1284 01fc 12D0     		beq	.L14
+ 498:C:/StellarisWare/utils\crc.c ****     {
+ 499:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, *pucData);
+ 1285              		.loc 1 499 0
+ 1286 01fe FB89     		ldrh	r3, [r7, #14]
+ 1287 0200 4FEA1323 		lsr	r3, r3, #8
+ 1288 0204 9AB2     		uxth	r2, r3
+ 1289 0206 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 1290 0208 D9B2     		uxtb	r1, r3
+ 1291 020a BB68     		ldr	r3, [r7, #8]
+ 1292 020c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1293 020e 4B40     		eors	r3, r3, r1
+ 1294 0210 DBB2     		uxtb	r3, r3
+ 1295 0212 1946     		mov	r1, r3
+ 1296 0214 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1297 0218 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1298 021c 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1299 0220 5340     		eors	r3, r3, r2
+ 1300 0222 FB81     		strh	r3, [r7, #14]	@ movhi
+ 1301              	.L14:
+ 500:C:/StellarisWare/utils\crc.c ****     }
+ 501:C:/StellarisWare/utils\crc.c **** 
+ 502:C:/StellarisWare/utils\crc.c ****     //
+ 503:C:/StellarisWare/utils\crc.c ****     // Return the resulting CRC-16 value.
+ 504:C:/StellarisWare/utils\crc.c ****     //
+ 505:C:/StellarisWare/utils\crc.c ****     return(usCrc);
+ 1302              		.loc 1 505 0
+ 1303 0224 FB89     		ldrh	r3, [r7, #14]
+ 506:C:/StellarisWare/utils\crc.c **** }
+ 1304              		.loc 1 506 0
+ 1305 0226 1846     		mov	r0, r3
+ 1306 0228 07F11C07 		add	r7, r7, #28
+ 1307 022c BD46     		mov	sp, r7
+ 1308 022e 80BC     		pop	{r7}
+ 1309 0230 7047     		bx	lr
+ 1310              		.cfi_endproc
+ 1311              	.LFE1:
+ 1313 0232 00BF     		.section	.text.Crc16Array,"ax",%progbits
+ 1314              		.align	2
+ 1315              		.global	Crc16Array
+ 1316              		.thumb
+ 1317              		.thumb_func
+ 1319              	Crc16Array:
+ 1320              	.LFB2:
+ 507:C:/StellarisWare/utils\crc.c **** 
+ 508:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 509:C:/StellarisWare/utils\crc.c **** //
+ 510:C:/StellarisWare/utils\crc.c **** //! Calculates the CRC-16 of an array of words.
+ 511:C:/StellarisWare/utils\crc.c **** //!
+ 512:C:/StellarisWare/utils\crc.c **** //! \param ulWordLen is the length of the array in words (the number of bytes
+ 513:C:/StellarisWare/utils\crc.c **** //! divided by 4).
+ 514:C:/StellarisWare/utils\crc.c **** //! \param pulData is a pointer to the data buffer.
+ 515:C:/StellarisWare/utils\crc.c **** //!
+ 516:C:/StellarisWare/utils\crc.c **** //! This function is a wrapper around the running CRC-16 function, providing
+ 517:C:/StellarisWare/utils\crc.c **** //! the CRC-16 for a single block of data.
+ 518:C:/StellarisWare/utils\crc.c **** //!
+ 519:C:/StellarisWare/utils\crc.c **** //! \return The CRC-16 of the input data.
+ 520:C:/StellarisWare/utils\crc.c **** //
+ 521:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 522:C:/StellarisWare/utils\crc.c **** unsigned short
+ 523:C:/StellarisWare/utils\crc.c **** Crc16Array(unsigned long ulWordLen, const unsigned long *pulData)
+ 524:C:/StellarisWare/utils\crc.c **** {
+ 1321              		.loc 1 524 0
+ 1322              		.cfi_startproc
+ 1323              		@ args = 0, pretend = 0, frame = 8
+ 1324              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1325 0000 80B5     		push	{r7, lr}
+ 1326              	.LCFI6:
+ 1327              		.cfi_def_cfa_offset 8
+ 1328              		.cfi_offset 14, -4
+ 1329              		.cfi_offset 7, -8
+ 1330 0002 82B0     		sub	sp, sp, #8
+ 1331              	.LCFI7:
+ 1332              		.cfi_def_cfa_offset 16
+ 1333 0004 00AF     		add	r7, sp, #0
+ 1334              	.LCFI8:
+ 1335              		.cfi_def_cfa_register 7
+ 1336 0006 7860     		str	r0, [r7, #4]
+ 1337 0008 3960     		str	r1, [r7, #0]
+ 525:C:/StellarisWare/utils\crc.c ****     //
+ 526:C:/StellarisWare/utils\crc.c ****     // Calculate and return the CRC-16 of this array of words.
+ 527:C:/StellarisWare/utils\crc.c ****     //
+ 528:C:/StellarisWare/utils\crc.c ****     return(Crc16(0, (const unsigned char *)pulData, ulWordLen * 4));
+ 1338              		.loc 1 528 0
+ 1339 000a 7B68     		ldr	r3, [r7, #4]
+ 1340 000c 4FEA8303 		lsl	r3, r3, #2
+ 1341 0010 4FF00000 		mov	r0, #0
+ 1342 0014 3968     		ldr	r1, [r7, #0]
+ 1343 0016 1A46     		mov	r2, r3
+ 1344 0018 FFF7FEFF 		bl	Crc16
+ 1345 001c 0346     		mov	r3, r0
+ 529:C:/StellarisWare/utils\crc.c **** }
+ 1346              		.loc 1 529 0
+ 1347 001e 1846     		mov	r0, r3
+ 1348 0020 07F10807 		add	r7, r7, #8
+ 1349 0024 BD46     		mov	sp, r7
+ 1350 0026 80BD     		pop	{r7, pc}
+ 1351              		.cfi_endproc
+ 1352              	.LFE2:
+ 1354              		.section	.text.Crc16Array3,"ax",%progbits
+ 1355              		.align	2
+ 1356              		.global	Crc16Array3
+ 1357              		.thumb
+ 1358              		.thumb_func
+ 1360              	Crc16Array3:
+ 1361              	.LFB3:
+ 530:C:/StellarisWare/utils\crc.c **** 
+ 531:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 532:C:/StellarisWare/utils\crc.c **** //
+ 533:C:/StellarisWare/utils\crc.c **** //! Calculates three CRC-16s of an array of words.
+ 534:C:/StellarisWare/utils\crc.c **** //!
+ 535:C:/StellarisWare/utils\crc.c **** //! \param ulWordLen is the length of the array in words (the number of bytes
+ 536:C:/StellarisWare/utils\crc.c **** //! divided by 4).
+ 537:C:/StellarisWare/utils\crc.c **** //! \param pulData is a pointer to the data buffer.
+ 538:C:/StellarisWare/utils\crc.c **** //! \param pusCrc3 is a pointer to an array in which to place the three CRC-16
+ 539:C:/StellarisWare/utils\crc.c **** //! values.
+ 540:C:/StellarisWare/utils\crc.c **** //!
+ 541:C:/StellarisWare/utils\crc.c **** //! This function is used to calculate three CRC-16s of the input buffer; the
+ 542:C:/StellarisWare/utils\crc.c **** //! first uses every byte from the array, the second uses only the even-index
+ 543:C:/StellarisWare/utils\crc.c **** //! bytes from the array (in other words, bytes 0, 2, 4, etc.), and the third
+ 544:C:/StellarisWare/utils\crc.c **** //! uses only the odd-index bytes from the array (in other words, bytes 1, 3,
+ 545:C:/StellarisWare/utils\crc.c **** //! 5, etc.).
+ 546:C:/StellarisWare/utils\crc.c **** //!
+ 547:C:/StellarisWare/utils\crc.c **** //! \return None
+ 548:C:/StellarisWare/utils\crc.c **** //
+ 549:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 550:C:/StellarisWare/utils\crc.c **** void
+ 551:C:/StellarisWare/utils\crc.c **** Crc16Array3(unsigned long ulWordLen, const unsigned long *pulData,
+ 552:C:/StellarisWare/utils\crc.c ****             unsigned short *pusCrc3)
+ 553:C:/StellarisWare/utils\crc.c **** {
+ 1362              		.loc 1 553 0
+ 1363              		.cfi_startproc
+ 1364              		@ args = 0, pretend = 0, frame = 32
+ 1365              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1366              		@ link register save eliminated.
+ 1367 0000 80B4     		push	{r7}
+ 1368              	.LCFI9:
+ 1369              		.cfi_def_cfa_offset 4
+ 1370              		.cfi_offset 7, -4
+ 1371 0002 89B0     		sub	sp, sp, #36
+ 1372              	.LCFI10:
+ 1373              		.cfi_def_cfa_offset 40
+ 1374 0004 00AF     		add	r7, sp, #0
+ 1375              	.LCFI11:
+ 1376              		.cfi_def_cfa_register 7
+ 1377 0006 F860     		str	r0, [r7, #12]
+ 1378 0008 B960     		str	r1, [r7, #8]
+ 1379 000a 7A60     		str	r2, [r7, #4]
+ 554:C:/StellarisWare/utils\crc.c ****     unsigned short usCrc, usCrcOdd, usCrcEven;
+ 555:C:/StellarisWare/utils\crc.c ****     unsigned long ulTemp;
+ 556:C:/StellarisWare/utils\crc.c **** 
+ 557:C:/StellarisWare/utils\crc.c ****     //
+ 558:C:/StellarisWare/utils\crc.c ****     // Initialize the CRC values to zero.
+ 559:C:/StellarisWare/utils\crc.c ****     //
+ 560:C:/StellarisWare/utils\crc.c ****     usCrc = 0;
+ 1380              		.loc 1 560 0
+ 1381 000c 4FF00003 		mov	r3, #0
+ 1382 0010 FB83     		strh	r3, [r7, #30]	@ movhi
+ 561:C:/StellarisWare/utils\crc.c ****     usCrcOdd = 0;
+ 1383              		.loc 1 561 0
+ 1384 0012 4FF00003 		mov	r3, #0
+ 1385 0016 BB83     		strh	r3, [r7, #28]	@ movhi
+ 562:C:/StellarisWare/utils\crc.c ****     usCrcEven = 0;
+ 1386              		.loc 1 562 0
+ 1387 0018 4FF00003 		mov	r3, #0
+ 1388 001c 7B83     		strh	r3, [r7, #26]	@ movhi
+ 563:C:/StellarisWare/utils\crc.c **** 
+ 564:C:/StellarisWare/utils\crc.c ****     //
+ 565:C:/StellarisWare/utils\crc.c ****     // Loop while there are more words in the data buffer.
+ 566:C:/StellarisWare/utils\crc.c ****     //
+ 567:C:/StellarisWare/utils\crc.c ****     while(ulWordLen--)
+ 1389              		.loc 1 567 0
+ 1390 001e AAE0     		b	.L17
+ 1391              	.L18:
+ 568:C:/StellarisWare/utils\crc.c ****     {
+ 569:C:/StellarisWare/utils\crc.c ****         //
+ 570:C:/StellarisWare/utils\crc.c ****         // Read the next word.
+ 571:C:/StellarisWare/utils\crc.c ****         //
+ 572:C:/StellarisWare/utils\crc.c ****         ulTemp = *pulData++;
+ 1392              		.loc 1 572 0
+ 1393 0020 BB68     		ldr	r3, [r7, #8]
+ 1394 0022 1B68     		ldr	r3, [r3, #0]
+ 1395 0024 7B61     		str	r3, [r7, #20]
+ 1396 0026 BB68     		ldr	r3, [r7, #8]
+ 1397 0028 03F10403 		add	r3, r3, #4
+ 1398 002c BB60     		str	r3, [r7, #8]
+ 573:C:/StellarisWare/utils\crc.c **** 
+ 574:C:/StellarisWare/utils\crc.c ****         //
+ 575:C:/StellarisWare/utils\crc.c ****         // Perform the first CRC on all four data bytes.
+ 576:C:/StellarisWare/utils\crc.c ****         //
+ 577:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp);
+ 1399              		.loc 1 577 0
+ 1400 002e FB8B     		ldrh	r3, [r7, #30]
+ 1401 0030 4FEA1323 		lsr	r3, r3, #8
+ 1402 0034 9AB2     		uxth	r2, r3
+ 1403 0036 FB8B     		ldrh	r3, [r7, #30]	@ movhi
+ 1404 0038 D9B2     		uxtb	r1, r3
+ 1405 003a 7B69     		ldr	r3, [r7, #20]
+ 1406 003c DBB2     		uxtb	r3, r3
+ 1407 003e 4B40     		eors	r3, r3, r1
+ 1408 0040 DBB2     		uxtb	r3, r3
+ 1409 0042 1946     		mov	r1, r3
+ 1410 0044 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1411 0048 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1412 004c 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1413 0050 5340     		eors	r3, r3, r2
+ 1414 0052 FB83     		strh	r3, [r7, #30]	@ movhi
+ 578:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 8);
+ 1415              		.loc 1 578 0
+ 1416 0054 FB8B     		ldrh	r3, [r7, #30]
+ 1417 0056 4FEA1323 		lsr	r3, r3, #8
+ 1418 005a 9AB2     		uxth	r2, r3
+ 1419 005c FB8B     		ldrh	r3, [r7, #30]	@ movhi
+ 1420 005e D9B2     		uxtb	r1, r3
+ 1421 0060 7B69     		ldr	r3, [r7, #20]
+ 1422 0062 4FEA1323 		lsr	r3, r3, #8
+ 1423 0066 DBB2     		uxtb	r3, r3
+ 1424 0068 4B40     		eors	r3, r3, r1
+ 1425 006a DBB2     		uxtb	r3, r3
+ 1426 006c 1946     		mov	r1, r3
+ 1427 006e 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1428 0072 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1429 0076 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1430 007a 5340     		eors	r3, r3, r2
+ 1431 007c FB83     		strh	r3, [r7, #30]	@ movhi
+ 579:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 16);
+ 1432              		.loc 1 579 0
+ 1433 007e FB8B     		ldrh	r3, [r7, #30]
+ 1434 0080 4FEA1323 		lsr	r3, r3, #8
+ 1435 0084 9AB2     		uxth	r2, r3
+ 1436 0086 FB8B     		ldrh	r3, [r7, #30]	@ movhi
+ 1437 0088 D9B2     		uxtb	r1, r3
+ 1438 008a 7B69     		ldr	r3, [r7, #20]
+ 1439 008c 4FEA1343 		lsr	r3, r3, #16
+ 1440 0090 DBB2     		uxtb	r3, r3
+ 1441 0092 4B40     		eors	r3, r3, r1
+ 1442 0094 DBB2     		uxtb	r3, r3
+ 1443 0096 1946     		mov	r1, r3
+ 1444 0098 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1445 009c C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1446 00a0 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1447 00a4 5340     		eors	r3, r3, r2
+ 1448 00a6 FB83     		strh	r3, [r7, #30]	@ movhi
+ 580:C:/StellarisWare/utils\crc.c ****         usCrc = CRC16_ITER(usCrc, ulTemp >> 24);
+ 1449              		.loc 1 580 0
+ 1450 00a8 FB8B     		ldrh	r3, [r7, #30]
+ 1451 00aa 4FEA1323 		lsr	r3, r3, #8
+ 1452 00ae 9AB2     		uxth	r2, r3
+ 1453 00b0 FB8B     		ldrh	r3, [r7, #30]	@ movhi
+ 1454 00b2 D9B2     		uxtb	r1, r3
+ 1455 00b4 7B69     		ldr	r3, [r7, #20]
+ 1456 00b6 4FEA1363 		lsr	r3, r3, #24
+ 1457 00ba DBB2     		uxtb	r3, r3
+ 1458 00bc 4B40     		eors	r3, r3, r1
+ 1459 00be DBB2     		uxtb	r3, r3
+ 1460 00c0 1946     		mov	r1, r3
+ 1461 00c2 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1462 00c6 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1463 00ca 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1464 00ce 5340     		eors	r3, r3, r2
+ 1465 00d0 FB83     		strh	r3, [r7, #30]	@ movhi
+ 581:C:/StellarisWare/utils\crc.c **** 
+ 582:C:/StellarisWare/utils\crc.c ****         //
+ 583:C:/StellarisWare/utils\crc.c ****         // Perform the second CRC on only the even-index data bytes.
+ 584:C:/StellarisWare/utils\crc.c ****         //
+ 585:C:/StellarisWare/utils\crc.c ****         usCrcEven = CRC16_ITER(usCrcEven, ulTemp);
+ 1466              		.loc 1 585 0
+ 1467 00d2 7B8B     		ldrh	r3, [r7, #26]
+ 1468 00d4 4FEA1323 		lsr	r3, r3, #8
+ 1469 00d8 9AB2     		uxth	r2, r3
+ 1470 00da 7B8B     		ldrh	r3, [r7, #26]	@ movhi
+ 1471 00dc D9B2     		uxtb	r1, r3
+ 1472 00de 7B69     		ldr	r3, [r7, #20]
+ 1473 00e0 DBB2     		uxtb	r3, r3
+ 1474 00e2 4B40     		eors	r3, r3, r1
+ 1475 00e4 DBB2     		uxtb	r3, r3
+ 1476 00e6 1946     		mov	r1, r3
+ 1477 00e8 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1478 00ec C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1479 00f0 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1480 00f4 5340     		eors	r3, r3, r2
+ 1481 00f6 7B83     		strh	r3, [r7, #26]	@ movhi
+ 586:C:/StellarisWare/utils\crc.c ****         usCrcEven = CRC16_ITER(usCrcEven, ulTemp >> 16);
+ 1482              		.loc 1 586 0
+ 1483 00f8 7B8B     		ldrh	r3, [r7, #26]
+ 1484 00fa 4FEA1323 		lsr	r3, r3, #8
+ 1485 00fe 9AB2     		uxth	r2, r3
+ 1486 0100 7B8B     		ldrh	r3, [r7, #26]	@ movhi
+ 1487 0102 D9B2     		uxtb	r1, r3
+ 1488 0104 7B69     		ldr	r3, [r7, #20]
+ 1489 0106 4FEA1343 		lsr	r3, r3, #16
+ 1490 010a DBB2     		uxtb	r3, r3
+ 1491 010c 4B40     		eors	r3, r3, r1
+ 1492 010e DBB2     		uxtb	r3, r3
+ 1493 0110 1946     		mov	r1, r3
+ 1494 0112 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1495 0116 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1496 011a 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1497 011e 5340     		eors	r3, r3, r2
+ 1498 0120 7B83     		strh	r3, [r7, #26]	@ movhi
+ 587:C:/StellarisWare/utils\crc.c **** 
+ 588:C:/StellarisWare/utils\crc.c ****         //
+ 589:C:/StellarisWare/utils\crc.c ****         // Perform the third CRC on only the odd-index data bytes.
+ 590:C:/StellarisWare/utils\crc.c ****         //
+ 591:C:/StellarisWare/utils\crc.c ****         usCrcOdd = CRC16_ITER(usCrcOdd, ulTemp >> 8);
+ 1499              		.loc 1 591 0
+ 1500 0122 BB8B     		ldrh	r3, [r7, #28]
+ 1501 0124 4FEA1323 		lsr	r3, r3, #8
+ 1502 0128 9AB2     		uxth	r2, r3
+ 1503 012a BB8B     		ldrh	r3, [r7, #28]	@ movhi
+ 1504 012c D9B2     		uxtb	r1, r3
+ 1505 012e 7B69     		ldr	r3, [r7, #20]
+ 1506 0130 4FEA1323 		lsr	r3, r3, #8
+ 1507 0134 DBB2     		uxtb	r3, r3
+ 1508 0136 4B40     		eors	r3, r3, r1
+ 1509 0138 DBB2     		uxtb	r3, r3
+ 1510 013a 1946     		mov	r1, r3
+ 1511 013c 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1512 0140 C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1513 0144 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1514 0148 5340     		eors	r3, r3, r2
+ 1515 014a BB83     		strh	r3, [r7, #28]	@ movhi
+ 592:C:/StellarisWare/utils\crc.c ****         usCrcOdd = CRC16_ITER(usCrcOdd, ulTemp >> 24);
+ 1516              		.loc 1 592 0
+ 1517 014c BB8B     		ldrh	r3, [r7, #28]
+ 1518 014e 4FEA1323 		lsr	r3, r3, #8
+ 1519 0152 9AB2     		uxth	r2, r3
+ 1520 0154 BB8B     		ldrh	r3, [r7, #28]	@ movhi
+ 1521 0156 D9B2     		uxtb	r1, r3
+ 1522 0158 7B69     		ldr	r3, [r7, #20]
+ 1523 015a 4FEA1363 		lsr	r3, r3, #24
+ 1524 015e DBB2     		uxtb	r3, r3
+ 1525 0160 4B40     		eors	r3, r3, r1
+ 1526 0162 DBB2     		uxtb	r3, r3
+ 1527 0164 1946     		mov	r1, r3
+ 1528 0166 40F20003 		movw	r3, #:lower16:g_pusCrc16
+ 1529 016a C0F20003 		movt	r3, #:upper16:g_pusCrc16
+ 1530 016e 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 1531 0172 5340     		eors	r3, r3, r2
+ 1532 0174 BB83     		strh	r3, [r7, #28]	@ movhi
+ 1533              	.L17:
+ 567:C:/StellarisWare/utils\crc.c ****     while(ulWordLen--)
+ 1534              		.loc 1 567 0 discriminator 1
+ 1535 0176 FB68     		ldr	r3, [r7, #12]
+ 1536 0178 002B     		cmp	r3, #0
+ 1537 017a 0CBF     		ite	eq
+ 1538 017c 0023     		moveq	r3, #0
+ 1539 017e 0123     		movne	r3, #1
+ 1540 0180 DBB2     		uxtb	r3, r3
+ 1541 0182 FA68     		ldr	r2, [r7, #12]
+ 1542 0184 02F1FF32 		add	r2, r2, #-1
+ 1543 0188 FA60     		str	r2, [r7, #12]
+ 1544 018a 002B     		cmp	r3, #0
+ 1545 018c 7FF448AF 		bne	.L18
+ 593:C:/StellarisWare/utils\crc.c ****     }
+ 594:C:/StellarisWare/utils\crc.c **** 
+ 595:C:/StellarisWare/utils\crc.c ****     //
+ 596:C:/StellarisWare/utils\crc.c ****     // Return the resulting CRC-16 values.
+ 597:C:/StellarisWare/utils\crc.c ****     //
+ 598:C:/StellarisWare/utils\crc.c ****     pusCrc3[0] = usCrc;
+ 1546              		.loc 1 598 0
+ 1547 0190 7B68     		ldr	r3, [r7, #4]
+ 1548 0192 FA8B     		ldrh	r2, [r7, #30]	@ movhi
+ 1549 0194 1A80     		strh	r2, [r3, #0]	@ movhi
+ 599:C:/StellarisWare/utils\crc.c ****     pusCrc3[1] = usCrcEven;
+ 1550              		.loc 1 599 0
+ 1551 0196 7B68     		ldr	r3, [r7, #4]
+ 1552 0198 03F10203 		add	r3, r3, #2
+ 1553 019c 7A8B     		ldrh	r2, [r7, #26]	@ movhi
+ 1554 019e 1A80     		strh	r2, [r3, #0]	@ movhi
+ 600:C:/StellarisWare/utils\crc.c ****     pusCrc3[2] = usCrcOdd;
+ 1555              		.loc 1 600 0
+ 1556 01a0 7B68     		ldr	r3, [r7, #4]
+ 1557 01a2 03F10403 		add	r3, r3, #4
+ 1558 01a6 BA8B     		ldrh	r2, [r7, #28]	@ movhi
+ 1559 01a8 1A80     		strh	r2, [r3, #0]	@ movhi
+ 601:C:/StellarisWare/utils\crc.c **** }
+ 1560              		.loc 1 601 0
+ 1561 01aa 07F12407 		add	r7, r7, #36
+ 1562 01ae BD46     		mov	sp, r7
+ 1563 01b0 80BC     		pop	{r7}
+ 1564 01b2 7047     		bx	lr
+ 1565              		.cfi_endproc
+ 1566              	.LFE3:
+ 1568              		.section	.text.Crc32,"ax",%progbits
+ 1569              		.align	2
+ 1570              		.global	Crc32
+ 1571              		.thumb
+ 1572              		.thumb_func
+ 1574              	Crc32:
+ 1575              	.LFB4:
+ 602:C:/StellarisWare/utils\crc.c **** 
+ 603:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 604:C:/StellarisWare/utils\crc.c **** //
+ 605:C:/StellarisWare/utils\crc.c **** //! Calculates the CRC-32 of an array of bytes.
+ 606:C:/StellarisWare/utils\crc.c **** //!
+ 607:C:/StellarisWare/utils\crc.c **** //! \param ulCrc is the starting CRC-32 value.
+ 608:C:/StellarisWare/utils\crc.c **** //! \param pucData is a pointer to the data buffer.
+ 609:C:/StellarisWare/utils\crc.c **** //! \param ulCount is the number of bytes in the data buffer.
+ 610:C:/StellarisWare/utils\crc.c **** //!
+ 611:C:/StellarisWare/utils\crc.c **** //! This function is used to calculate the CRC-32 of the input buffer.  The
+ 612:C:/StellarisWare/utils\crc.c **** //! CRC-32 is computed in a running fashion, meaning that the entire data block
+ 613:C:/StellarisWare/utils\crc.c **** //! that is to have its CRC-32 computed does not need to be supplied all at
+ 614:C:/StellarisWare/utils\crc.c **** //! once.  If the input buffer contains the entire block of data, then \b ulCrc
+ 615:C:/StellarisWare/utils\crc.c **** //! should be set to 0xFFFFFFFF.  If, however, the entire block of data is not
+ 616:C:/StellarisWare/utils\crc.c **** //! available, then \b ulCrc should be set to 0xFFFFFFFF for the first portion
+ 617:C:/StellarisWare/utils\crc.c **** //! of the data, and then the returned value should be passed back in as \b
+ 618:C:/StellarisWare/utils\crc.c **** //! ulCrc for the next portion of the data.  Once all data has been passed
+ 619:C:/StellarisWare/utils\crc.c **** //! to the function, the final CRC-32 can be obtained by inverting the last
+ 620:C:/StellarisWare/utils\crc.c **** //! returned value.
+ 621:C:/StellarisWare/utils\crc.c **** //!
+ 622:C:/StellarisWare/utils\crc.c **** //! For example, to compute the CRC-32 of a block that has been split into
+ 623:C:/StellarisWare/utils\crc.c **** //! three pieces, use the following:
+ 624:C:/StellarisWare/utils\crc.c **** //!
+ 625:C:/StellarisWare/utils\crc.c **** //! \verbatim
+ 626:C:/StellarisWare/utils\crc.c **** //!     ulCrc = Crc32(0xFFFFFFFF, pucData1, ulLen1);
+ 627:C:/StellarisWare/utils\crc.c **** //!     ulCrc = Crc32(ulCrc, pucData2, ulLen2);
+ 628:C:/StellarisWare/utils\crc.c **** //!     ulCrc = Crc32(ulCrc, pucData3, ulLen3);
+ 629:C:/StellarisWare/utils\crc.c **** //!     ulCrc ^= 0xFFFFFFFF;
+ 630:C:/StellarisWare/utils\crc.c **** //! \endverbatim
+ 631:C:/StellarisWare/utils\crc.c **** //!
+ 632:C:/StellarisWare/utils\crc.c **** //! Computing a CRC-32 in a running fashion is useful in cases where the data
+ 633:C:/StellarisWare/utils\crc.c **** //! is arriving via a serial link (for example) and is therefore not all
+ 634:C:/StellarisWare/utils\crc.c **** //! available at one time.
+ 635:C:/StellarisWare/utils\crc.c **** //!
+ 636:C:/StellarisWare/utils\crc.c **** //! \return The accumulated CRC-32 of the input data.
+ 637:C:/StellarisWare/utils\crc.c **** //
+ 638:C:/StellarisWare/utils\crc.c **** //*****************************************************************************
+ 639:C:/StellarisWare/utils\crc.c **** unsigned long
+ 640:C:/StellarisWare/utils\crc.c **** Crc32(unsigned long ulCRC, const unsigned char *pucData, unsigned long ulCount)
+ 641:C:/StellarisWare/utils\crc.c **** {
+ 1576              		.loc 1 641 0
+ 1577              		.cfi_startproc
+ 1578              		@ args = 0, pretend = 0, frame = 24
+ 1579              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1580              		@ link register save eliminated.
+ 1581 0000 80B4     		push	{r7}
+ 1582              	.LCFI12:
+ 1583              		.cfi_def_cfa_offset 4
+ 1584              		.cfi_offset 7, -4
+ 1585 0002 87B0     		sub	sp, sp, #28
+ 1586              	.LCFI13:
+ 1587              		.cfi_def_cfa_offset 32
+ 1588 0004 00AF     		add	r7, sp, #0
+ 1589              	.LCFI14:
+ 1590              		.cfi_def_cfa_register 7
+ 1591 0006 F860     		str	r0, [r7, #12]
+ 1592 0008 B960     		str	r1, [r7, #8]
+ 1593 000a 7A60     		str	r2, [r7, #4]
+ 642:C:/StellarisWare/utils\crc.c ****     unsigned long ulTemp;
+ 643:C:/StellarisWare/utils\crc.c **** 
+ 644:C:/StellarisWare/utils\crc.c ****     //
+ 645:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not short-aligned, then perform a single step of
+ 646:C:/StellarisWare/utils\crc.c ****     // the CRC to make it short-aligned.
+ 647:C:/StellarisWare/utils\crc.c ****     //
+ 648:C:/StellarisWare/utils\crc.c ****     if((unsigned long)pucData & 1)
+ 1594              		.loc 1 648 0
+ 1595 000c BB68     		ldr	r3, [r7, #8]
+ 1596 000e 03F00103 		and	r3, r3, #1
+ 1597 0012 DBB2     		uxtb	r3, r3
+ 1598 0014 002B     		cmp	r3, #0
+ 1599 0016 19D0     		beq	.L20
+ 649:C:/StellarisWare/utils\crc.c ****     {
+ 650:C:/StellarisWare/utils\crc.c ****         //
+ 651:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on this input byte.
+ 652:C:/StellarisWare/utils\crc.c ****         //
+ 653:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, *pucData);
+ 1600              		.loc 1 653 0
+ 1601 0018 FB68     		ldr	r3, [r7, #12]
+ 1602 001a 4FEA1322 		lsr	r2, r3, #8
+ 1603 001e FB68     		ldr	r3, [r7, #12]
+ 1604 0020 D9B2     		uxtb	r1, r3
+ 1605 0022 BB68     		ldr	r3, [r7, #8]
+ 1606 0024 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1607 0026 4B40     		eors	r3, r3, r1
+ 1608 0028 DBB2     		uxtb	r3, r3
+ 1609 002a 1946     		mov	r1, r3
+ 1610 002c 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1611 0030 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1612 0034 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1613 0038 5340     		eors	r3, r3, r2
+ 1614 003a FB60     		str	r3, [r7, #12]
+ 654:C:/StellarisWare/utils\crc.c **** 
+ 655:C:/StellarisWare/utils\crc.c ****         //
+ 656:C:/StellarisWare/utils\crc.c ****         // Skip this input byte.
+ 657:C:/StellarisWare/utils\crc.c ****         //
+ 658:C:/StellarisWare/utils\crc.c ****         pucData++;
+ 1615              		.loc 1 658 0
+ 1616 003c BB68     		ldr	r3, [r7, #8]
+ 1617 003e 03F10103 		add	r3, r3, #1
+ 1618 0042 BB60     		str	r3, [r7, #8]
+ 659:C:/StellarisWare/utils\crc.c ****         ulCount--;
+ 1619              		.loc 1 659 0
+ 1620 0044 7B68     		ldr	r3, [r7, #4]
+ 1621 0046 03F1FF33 		add	r3, r3, #-1
+ 1622 004a 7B60     		str	r3, [r7, #4]
+ 1623              	.L20:
+ 660:C:/StellarisWare/utils\crc.c ****     }
+ 661:C:/StellarisWare/utils\crc.c **** 
+ 662:C:/StellarisWare/utils\crc.c ****     //
+ 663:C:/StellarisWare/utils\crc.c ****     // If the data buffer is not word-aligned and there are at least two bytes
+ 664:C:/StellarisWare/utils\crc.c ****     // of data left, then perform two steps of the CRC to make it word-aligned.
+ 665:C:/StellarisWare/utils\crc.c ****     //
+ 666:C:/StellarisWare/utils\crc.c ****     if(((unsigned long)pucData & 2) && (ulCount > 1))
+ 1624              		.loc 1 666 0
+ 1625 004c BB68     		ldr	r3, [r7, #8]
+ 1626 004e 03F00203 		and	r3, r3, #2
+ 1627 0052 002B     		cmp	r3, #0
+ 1628 0054 00F08F80 		beq	.L22
+ 1629              		.loc 1 666 0 is_stmt 0 discriminator 1
+ 1630 0058 7B68     		ldr	r3, [r7, #4]
+ 1631 005a 012B     		cmp	r3, #1
+ 1632 005c 40F28B80 		bls	.L22
+ 667:C:/StellarisWare/utils\crc.c ****     {
+ 668:C:/StellarisWare/utils\crc.c ****         //
+ 669:C:/StellarisWare/utils\crc.c ****         // Read the next short.
+ 670:C:/StellarisWare/utils\crc.c ****         //
+ 671:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 1633              		.loc 1 671 0 is_stmt 1
+ 1634 0060 BB68     		ldr	r3, [r7, #8]
+ 1635 0062 1B88     		ldrh	r3, [r3, #0]
+ 1636 0064 7B61     		str	r3, [r7, #20]
+ 672:C:/StellarisWare/utils\crc.c **** 
+ 673:C:/StellarisWare/utils\crc.c ****         //
+ 674:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 675:C:/StellarisWare/utils\crc.c ****         //
+ 676:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp);
+ 1637              		.loc 1 676 0
+ 1638 0066 FB68     		ldr	r3, [r7, #12]
+ 1639 0068 4FEA1322 		lsr	r2, r3, #8
+ 1640 006c FB68     		ldr	r3, [r7, #12]
+ 1641 006e D9B2     		uxtb	r1, r3
+ 1642 0070 7B69     		ldr	r3, [r7, #20]
+ 1643 0072 DBB2     		uxtb	r3, r3
+ 1644 0074 4B40     		eors	r3, r3, r1
+ 1645 0076 DBB2     		uxtb	r3, r3
+ 1646 0078 1946     		mov	r1, r3
+ 1647 007a 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1648 007e C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1649 0082 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1650 0086 5340     		eors	r3, r3, r2
+ 1651 0088 FB60     		str	r3, [r7, #12]
+ 677:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp >> 8);
+ 1652              		.loc 1 677 0
+ 1653 008a FB68     		ldr	r3, [r7, #12]
+ 1654 008c 4FEA1322 		lsr	r2, r3, #8
+ 1655 0090 FB68     		ldr	r3, [r7, #12]
+ 1656 0092 D9B2     		uxtb	r1, r3
+ 1657 0094 7B69     		ldr	r3, [r7, #20]
+ 1658 0096 4FEA1323 		lsr	r3, r3, #8
+ 1659 009a DBB2     		uxtb	r3, r3
+ 1660 009c 4B40     		eors	r3, r3, r1
+ 1661 009e DBB2     		uxtb	r3, r3
+ 1662 00a0 1946     		mov	r1, r3
+ 1663 00a2 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1664 00a6 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1665 00aa 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1666 00ae 5340     		eors	r3, r3, r2
+ 1667 00b0 FB60     		str	r3, [r7, #12]
+ 678:C:/StellarisWare/utils\crc.c **** 
+ 679:C:/StellarisWare/utils\crc.c ****         //
+ 680:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 681:C:/StellarisWare/utils\crc.c ****         //
+ 682:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 1668              		.loc 1 682 0
+ 1669 00b2 BB68     		ldr	r3, [r7, #8]
+ 1670 00b4 03F10203 		add	r3, r3, #2
+ 1671 00b8 BB60     		str	r3, [r7, #8]
+ 683:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 1672              		.loc 1 683 0
+ 1673 00ba 7B68     		ldr	r3, [r7, #4]
+ 1674 00bc A3F10203 		sub	r3, r3, #2
+ 1675 00c0 7B60     		str	r3, [r7, #4]
+ 684:C:/StellarisWare/utils\crc.c ****     }
+ 685:C:/StellarisWare/utils\crc.c **** 
+ 686:C:/StellarisWare/utils\crc.c ****     //
+ 687:C:/StellarisWare/utils\crc.c ****     // While there is at least a word remaining in the data buffer, perform
+ 688:C:/StellarisWare/utils\crc.c ****     // four steps of the CRC to consume a word.
+ 689:C:/StellarisWare/utils\crc.c ****     //
+ 690:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 1676              		.loc 1 690 0
+ 1677 00c2 58E0     		b	.L22
+ 1678              	.L23:
+ 691:C:/StellarisWare/utils\crc.c ****     {
+ 692:C:/StellarisWare/utils\crc.c ****         //
+ 693:C:/StellarisWare/utils\crc.c ****         // Read the next word.
+ 694:C:/StellarisWare/utils\crc.c ****         //
+ 695:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned long *)pucData;
+ 1679              		.loc 1 695 0
+ 1680 00c4 BB68     		ldr	r3, [r7, #8]
+ 1681 00c6 1B68     		ldr	r3, [r3, #0]
+ 1682 00c8 7B61     		str	r3, [r7, #20]
+ 696:C:/StellarisWare/utils\crc.c **** 
+ 697:C:/StellarisWare/utils\crc.c ****         //
+ 698:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these four bytes.
+ 699:C:/StellarisWare/utils\crc.c ****         //
+ 700:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp);
+ 1683              		.loc 1 700 0
+ 1684 00ca FB68     		ldr	r3, [r7, #12]
+ 1685 00cc 4FEA1322 		lsr	r2, r3, #8
+ 1686 00d0 FB68     		ldr	r3, [r7, #12]
+ 1687 00d2 D9B2     		uxtb	r1, r3
+ 1688 00d4 7B69     		ldr	r3, [r7, #20]
+ 1689 00d6 DBB2     		uxtb	r3, r3
+ 1690 00d8 4B40     		eors	r3, r3, r1
+ 1691 00da DBB2     		uxtb	r3, r3
+ 1692 00dc 1946     		mov	r1, r3
+ 1693 00de 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1694 00e2 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1695 00e6 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1696 00ea 5340     		eors	r3, r3, r2
+ 1697 00ec FB60     		str	r3, [r7, #12]
+ 701:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp >> 8);
+ 1698              		.loc 1 701 0
+ 1699 00ee FB68     		ldr	r3, [r7, #12]
+ 1700 00f0 4FEA1322 		lsr	r2, r3, #8
+ 1701 00f4 FB68     		ldr	r3, [r7, #12]
+ 1702 00f6 D9B2     		uxtb	r1, r3
+ 1703 00f8 7B69     		ldr	r3, [r7, #20]
+ 1704 00fa 4FEA1323 		lsr	r3, r3, #8
+ 1705 00fe DBB2     		uxtb	r3, r3
+ 1706 0100 4B40     		eors	r3, r3, r1
+ 1707 0102 DBB2     		uxtb	r3, r3
+ 1708 0104 1946     		mov	r1, r3
+ 1709 0106 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1710 010a C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1711 010e 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1712 0112 5340     		eors	r3, r3, r2
+ 1713 0114 FB60     		str	r3, [r7, #12]
+ 702:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp >> 16);
+ 1714              		.loc 1 702 0
+ 1715 0116 FB68     		ldr	r3, [r7, #12]
+ 1716 0118 4FEA1322 		lsr	r2, r3, #8
+ 1717 011c FB68     		ldr	r3, [r7, #12]
+ 1718 011e D9B2     		uxtb	r1, r3
+ 1719 0120 7B69     		ldr	r3, [r7, #20]
+ 1720 0122 4FEA1343 		lsr	r3, r3, #16
+ 1721 0126 DBB2     		uxtb	r3, r3
+ 1722 0128 4B40     		eors	r3, r3, r1
+ 1723 012a DBB2     		uxtb	r3, r3
+ 1724 012c 1946     		mov	r1, r3
+ 1725 012e 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1726 0132 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1727 0136 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1728 013a 5340     		eors	r3, r3, r2
+ 1729 013c FB60     		str	r3, [r7, #12]
+ 703:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp >> 24);
+ 1730              		.loc 1 703 0
+ 1731 013e FB68     		ldr	r3, [r7, #12]
+ 1732 0140 4FEA1322 		lsr	r2, r3, #8
+ 1733 0144 FB68     		ldr	r3, [r7, #12]
+ 1734 0146 D9B2     		uxtb	r1, r3
+ 1735 0148 7B69     		ldr	r3, [r7, #20]
+ 1736 014a 4FEA1363 		lsr	r3, r3, #24
+ 1737 014e DBB2     		uxtb	r3, r3
+ 1738 0150 4B40     		eors	r3, r3, r1
+ 1739 0152 DBB2     		uxtb	r3, r3
+ 1740 0154 1946     		mov	r1, r3
+ 1741 0156 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1742 015a C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1743 015e 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1744 0162 5340     		eors	r3, r3, r2
+ 1745 0164 FB60     		str	r3, [r7, #12]
+ 704:C:/StellarisWare/utils\crc.c **** 
+ 705:C:/StellarisWare/utils\crc.c ****         //
+ 706:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 707:C:/StellarisWare/utils\crc.c ****         //
+ 708:C:/StellarisWare/utils\crc.c ****         pucData += 4;
+ 1746              		.loc 1 708 0
+ 1747 0166 BB68     		ldr	r3, [r7, #8]
+ 1748 0168 03F10403 		add	r3, r3, #4
+ 1749 016c BB60     		str	r3, [r7, #8]
+ 709:C:/StellarisWare/utils\crc.c ****         ulCount -= 4;
+ 1750              		.loc 1 709 0
+ 1751 016e 7B68     		ldr	r3, [r7, #4]
+ 1752 0170 A3F10403 		sub	r3, r3, #4
+ 1753 0174 7B60     		str	r3, [r7, #4]
+ 1754              	.L22:
+ 690:C:/StellarisWare/utils\crc.c ****     while(ulCount > 3)
+ 1755              		.loc 1 690 0 discriminator 1
+ 1756 0176 7B68     		ldr	r3, [r7, #4]
+ 1757 0178 032B     		cmp	r3, #3
+ 1758 017a A3D8     		bhi	.L23
+ 710:C:/StellarisWare/utils\crc.c ****     }
+ 711:C:/StellarisWare/utils\crc.c **** 
+ 712:C:/StellarisWare/utils\crc.c ****     //
+ 713:C:/StellarisWare/utils\crc.c ****     // If there is a short left in the input buffer, then perform two steps of
+ 714:C:/StellarisWare/utils\crc.c ****     // the CRC.
+ 715:C:/StellarisWare/utils\crc.c ****     //
+ 716:C:/StellarisWare/utils\crc.c ****     if(ulCount > 1)
+ 1759              		.loc 1 716 0
+ 1760 017c 7B68     		ldr	r3, [r7, #4]
+ 1761 017e 012B     		cmp	r3, #1
+ 1762 0180 30D9     		bls	.L24
+ 717:C:/StellarisWare/utils\crc.c ****     {
+ 718:C:/StellarisWare/utils\crc.c ****         //
+ 719:C:/StellarisWare/utils\crc.c ****         // Read the short.
+ 720:C:/StellarisWare/utils\crc.c ****         //
+ 721:C:/StellarisWare/utils\crc.c ****         ulTemp = *(unsigned short *)pucData;
+ 1763              		.loc 1 721 0
+ 1764 0182 BB68     		ldr	r3, [r7, #8]
+ 1765 0184 1B88     		ldrh	r3, [r3, #0]
+ 1766 0186 7B61     		str	r3, [r7, #20]
+ 722:C:/StellarisWare/utils\crc.c **** 
+ 723:C:/StellarisWare/utils\crc.c ****         //
+ 724:C:/StellarisWare/utils\crc.c ****         // Perform the CRC on these two bytes.
+ 725:C:/StellarisWare/utils\crc.c ****         //
+ 726:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp);
+ 1767              		.loc 1 726 0
+ 1768 0188 FB68     		ldr	r3, [r7, #12]
+ 1769 018a 4FEA1322 		lsr	r2, r3, #8
+ 1770 018e FB68     		ldr	r3, [r7, #12]
+ 1771 0190 D9B2     		uxtb	r1, r3
+ 1772 0192 7B69     		ldr	r3, [r7, #20]
+ 1773 0194 DBB2     		uxtb	r3, r3
+ 1774 0196 4B40     		eors	r3, r3, r1
+ 1775 0198 DBB2     		uxtb	r3, r3
+ 1776 019a 1946     		mov	r1, r3
+ 1777 019c 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1778 01a0 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1779 01a4 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1780 01a8 5340     		eors	r3, r3, r2
+ 1781 01aa FB60     		str	r3, [r7, #12]
+ 727:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, ulTemp >> 8);
+ 1782              		.loc 1 727 0
+ 1783 01ac FB68     		ldr	r3, [r7, #12]
+ 1784 01ae 4FEA1322 		lsr	r2, r3, #8
+ 1785 01b2 FB68     		ldr	r3, [r7, #12]
+ 1786 01b4 D9B2     		uxtb	r1, r3
+ 1787 01b6 7B69     		ldr	r3, [r7, #20]
+ 1788 01b8 4FEA1323 		lsr	r3, r3, #8
+ 1789 01bc DBB2     		uxtb	r3, r3
+ 1790 01be 4B40     		eors	r3, r3, r1
+ 1791 01c0 DBB2     		uxtb	r3, r3
+ 1792 01c2 1946     		mov	r1, r3
+ 1793 01c4 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1794 01c8 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1795 01cc 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1796 01d0 5340     		eors	r3, r3, r2
+ 1797 01d2 FB60     		str	r3, [r7, #12]
+ 728:C:/StellarisWare/utils\crc.c **** 
+ 729:C:/StellarisWare/utils\crc.c ****         //
+ 730:C:/StellarisWare/utils\crc.c ****         // Skip these input bytes.
+ 731:C:/StellarisWare/utils\crc.c ****         //
+ 732:C:/StellarisWare/utils\crc.c ****         pucData += 2;
+ 1798              		.loc 1 732 0
+ 1799 01d4 BB68     		ldr	r3, [r7, #8]
+ 1800 01d6 03F10203 		add	r3, r3, #2
+ 1801 01da BB60     		str	r3, [r7, #8]
+ 733:C:/StellarisWare/utils\crc.c ****         ulCount -= 2;
+ 1802              		.loc 1 733 0
+ 1803 01dc 7B68     		ldr	r3, [r7, #4]
+ 1804 01de A3F10203 		sub	r3, r3, #2
+ 1805 01e2 7B60     		str	r3, [r7, #4]
+ 1806              	.L24:
+ 734:C:/StellarisWare/utils\crc.c ****     }
+ 735:C:/StellarisWare/utils\crc.c **** 
+ 736:C:/StellarisWare/utils\crc.c ****     //
+ 737:C:/StellarisWare/utils\crc.c ****     // If there is a final byte remaining in the input buffer, then perform a
+ 738:C:/StellarisWare/utils\crc.c ****     // single step of the CRC.
+ 739:C:/StellarisWare/utils\crc.c ****     //
+ 740:C:/StellarisWare/utils\crc.c ****     if(ulCount != 0)
+ 1807              		.loc 1 740 0
+ 1808 01e4 7B68     		ldr	r3, [r7, #4]
+ 1809 01e6 002B     		cmp	r3, #0
+ 1810 01e8 11D0     		beq	.L25
+ 741:C:/StellarisWare/utils\crc.c ****     {
+ 742:C:/StellarisWare/utils\crc.c ****         ulCRC = CRC32_ITER(ulCRC, *pucData);
+ 1811              		.loc 1 742 0
+ 1812 01ea FB68     		ldr	r3, [r7, #12]
+ 1813 01ec 4FEA1322 		lsr	r2, r3, #8
+ 1814 01f0 FB68     		ldr	r3, [r7, #12]
+ 1815 01f2 D9B2     		uxtb	r1, r3
+ 1816 01f4 BB68     		ldr	r3, [r7, #8]
+ 1817 01f6 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1818 01f8 4B40     		eors	r3, r3, r1
+ 1819 01fa DBB2     		uxtb	r3, r3
+ 1820 01fc 1946     		mov	r1, r3
+ 1821 01fe 40F20003 		movw	r3, #:lower16:g_pulCrc32
+ 1822 0202 C0F20003 		movt	r3, #:upper16:g_pulCrc32
+ 1823 0206 53F82130 		ldr	r3, [r3, r1, lsl #2]
+ 1824 020a 5340     		eors	r3, r3, r2
+ 1825 020c FB60     		str	r3, [r7, #12]
+ 1826              	.L25:
+ 743:C:/StellarisWare/utils\crc.c ****     }
+ 744:C:/StellarisWare/utils\crc.c **** 
+ 745:C:/StellarisWare/utils\crc.c ****     //
+ 746:C:/StellarisWare/utils\crc.c ****     // Return the resulting CRC-16 value.
+ 747:C:/StellarisWare/utils\crc.c ****     //
+ 748:C:/StellarisWare/utils\crc.c ****     return(ulCRC);
+ 1827              		.loc 1 748 0
+ 1828 020e FB68     		ldr	r3, [r7, #12]
+ 749:C:/StellarisWare/utils\crc.c **** }
+ 1829              		.loc 1 749 0
+ 1830 0210 1846     		mov	r0, r3
+ 1831 0212 07F11C07 		add	r7, r7, #28
+ 1832 0216 BD46     		mov	sp, r7
+ 1833 0218 80BC     		pop	{r7}
+ 1834 021a 7047     		bx	lr
+ 1835              		.cfi_endproc
+ 1836              	.LFE4:
+ 1838              		.text
+ 1839              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 crc.c
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:19     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:22     .rodata:00000000 g_pucCrc8CCITT
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:282    .rodata:00000100 g_pusCrc16
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:543    .rodata:00000300 g_pulCrc32
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:801    .text.Crc8CCITT:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:806    .text.Crc8CCITT:00000000 Crc8CCITT
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1033   .text.Crc16:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1038   .text.Crc16:00000000 Crc16
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1314   .text.Crc16Array:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1319   .text.Crc16Array:00000000 Crc16Array
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1355   .text.Crc16Array3:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1360   .text.Crc16Array3:00000000 Crc16Array3
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1569   .text.Crc32:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccA2AZST.s:1574   .text.Crc32:00000000 Crc32
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

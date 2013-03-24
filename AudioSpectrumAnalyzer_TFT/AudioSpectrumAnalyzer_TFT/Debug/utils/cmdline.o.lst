@@ -1,0 +1,358 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"cmdline.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.CmdLineProcess,"ax",%progbits
+  19              		.align	2
+  20              		.global	CmdLineProcess
+  21              		.thumb
+  22              		.thumb_func
+  24              	CmdLineProcess:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/utils/cmdline.c"
+   1:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\cmdline.c **** //
+   3:C:/StellarisWare/utils\cmdline.c **** // cmdline.c - Functions to help with processing command lines.
+   4:C:/StellarisWare/utils\cmdline.c **** //
+   5:C:/StellarisWare/utils\cmdline.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\cmdline.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\cmdline.c **** // 
+   8:C:/StellarisWare/utils\cmdline.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\cmdline.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\cmdline.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\cmdline.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\cmdline.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\cmdline.c **** // 
+  14:C:/StellarisWare/utils\cmdline.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\cmdline.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\cmdline.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\cmdline.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\cmdline.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\cmdline.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\cmdline.c **** // 
+  21:C:/StellarisWare/utils\cmdline.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\cmdline.c **** //
+  23:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\cmdline.c **** 
+  25:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  26:C:/StellarisWare/utils\cmdline.c **** //
+  27:C:/StellarisWare/utils\cmdline.c **** //! \addtogroup cmdline_api
+  28:C:/StellarisWare/utils\cmdline.c **** //! @{
+  29:C:/StellarisWare/utils\cmdline.c **** //
+  30:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  31:C:/StellarisWare/utils\cmdline.c **** 
+  32:C:/StellarisWare/utils\cmdline.c **** #include <string.h>
+  33:C:/StellarisWare/utils\cmdline.c **** #include "utils/cmdline.h"
+  34:C:/StellarisWare/utils\cmdline.c **** 
+  35:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  36:C:/StellarisWare/utils\cmdline.c **** //
+  37:C:/StellarisWare/utils\cmdline.c **** // Defines the maximum number of arguments that can be parsed.
+  38:C:/StellarisWare/utils\cmdline.c **** //
+  39:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  40:C:/StellarisWare/utils\cmdline.c **** #ifndef CMDLINE_MAX_ARGS
+  41:C:/StellarisWare/utils\cmdline.c **** #define CMDLINE_MAX_ARGS        8
+  42:C:/StellarisWare/utils\cmdline.c **** #endif
+  43:C:/StellarisWare/utils\cmdline.c **** 
+  44:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  45:C:/StellarisWare/utils\cmdline.c **** //
+  46:C:/StellarisWare/utils\cmdline.c **** //! Process a command line string into arguments and execute the command.
+  47:C:/StellarisWare/utils\cmdline.c **** //!
+  48:C:/StellarisWare/utils\cmdline.c **** //! \param pcCmdLine points to a string that contains a command line that was
+  49:C:/StellarisWare/utils\cmdline.c **** //! obtained by an application by some means.
+  50:C:/StellarisWare/utils\cmdline.c **** //!
+  51:C:/StellarisWare/utils\cmdline.c **** //! This function will take the supplied command line string and break it up
+  52:C:/StellarisWare/utils\cmdline.c **** //! into individual arguments.  The first argument is treated as a command and
+  53:C:/StellarisWare/utils\cmdline.c **** //! is searched for in the command table.  If the command is found, then the
+  54:C:/StellarisWare/utils\cmdline.c **** //! command function is called and all of the command line arguments are passed
+  55:C:/StellarisWare/utils\cmdline.c **** //! in the normal argc, argv form.
+  56:C:/StellarisWare/utils\cmdline.c **** //!
+  57:C:/StellarisWare/utils\cmdline.c **** //! The command table is contained in an array named <tt>g_sCmdTable</tt> which
+  58:C:/StellarisWare/utils\cmdline.c **** //! must be provided by the application.
+  59:C:/StellarisWare/utils\cmdline.c **** //!
+  60:C:/StellarisWare/utils\cmdline.c **** //! \return Returns \b CMDLINE_BAD_CMD if the command is not found,
+  61:C:/StellarisWare/utils\cmdline.c **** //! \b CMDLINE_TOO_MANY_ARGS if there are more arguments than can be parsed.
+  62:C:/StellarisWare/utils\cmdline.c **** //! Otherwise it returns the code that was returned by the command function.
+  63:C:/StellarisWare/utils\cmdline.c **** //
+  64:C:/StellarisWare/utils\cmdline.c **** //*****************************************************************************
+  65:C:/StellarisWare/utils\cmdline.c **** int
+  66:C:/StellarisWare/utils\cmdline.c **** CmdLineProcess(char *pcCmdLine)
+  67:C:/StellarisWare/utils\cmdline.c **** {
+  27              		.loc 1 67 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 14, -4
+  35              		.cfi_offset 7, -8
+  36 0002 86B0     		sub	sp, sp, #24
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 32
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  68:C:/StellarisWare/utils\cmdline.c ****     static char *argv[CMDLINE_MAX_ARGS + 1];
+  69:C:/StellarisWare/utils\cmdline.c ****     char *pcChar;
+  70:C:/StellarisWare/utils\cmdline.c ****     int argc;
+  71:C:/StellarisWare/utils\cmdline.c ****     int bFindArg = 1;
+  43              		.loc 1 71 0
+  44 0008 4FF00103 		mov	r3, #1
+  45 000c FB60     		str	r3, [r7, #12]
+  72:C:/StellarisWare/utils\cmdline.c ****     tCmdLineEntry *pCmdEntry;
+  73:C:/StellarisWare/utils\cmdline.c **** 
+  74:C:/StellarisWare/utils\cmdline.c ****     //
+  75:C:/StellarisWare/utils\cmdline.c ****     // Initialize the argument counter, and point to the beginning of the
+  76:C:/StellarisWare/utils\cmdline.c ****     // command line string.
+  77:C:/StellarisWare/utils\cmdline.c ****     //
+  78:C:/StellarisWare/utils\cmdline.c ****     argc = 0;
+  46              		.loc 1 78 0
+  47 000e 4FF00003 		mov	r3, #0
+  48 0012 3B61     		str	r3, [r7, #16]
+  79:C:/StellarisWare/utils\cmdline.c ****     pcChar = pcCmdLine;
+  49              		.loc 1 79 0
+  50 0014 7B68     		ldr	r3, [r7, #4]
+  51 0016 7B61     		str	r3, [r7, #20]
+  80:C:/StellarisWare/utils\cmdline.c **** 
+  81:C:/StellarisWare/utils\cmdline.c ****     //
+  82:C:/StellarisWare/utils\cmdline.c ****     // Advance through the command line until a zero character is found.
+  83:C:/StellarisWare/utils\cmdline.c ****     //
+  84:C:/StellarisWare/utils\cmdline.c ****     while(*pcChar)
+  52              		.loc 1 84 0
+  53 0018 28E0     		b	.L2
+  54              	.L7:
+  85:C:/StellarisWare/utils\cmdline.c ****     {
+  86:C:/StellarisWare/utils\cmdline.c ****         //
+  87:C:/StellarisWare/utils\cmdline.c ****         // If there is a space, then replace it with a zero, and set the flag
+  88:C:/StellarisWare/utils\cmdline.c ****         // to search for the next argument.
+  89:C:/StellarisWare/utils\cmdline.c ****         //
+  90:C:/StellarisWare/utils\cmdline.c ****         if(*pcChar == ' ')
+  55              		.loc 1 90 0
+  56 001a 7B69     		ldr	r3, [r7, #20]
+  57 001c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  58 001e 202B     		cmp	r3, #32
+  59 0020 07D1     		bne	.L3
+  91:C:/StellarisWare/utils\cmdline.c ****         {
+  92:C:/StellarisWare/utils\cmdline.c ****             *pcChar = 0;
+  60              		.loc 1 92 0
+  61 0022 7B69     		ldr	r3, [r7, #20]
+  62 0024 4FF00002 		mov	r2, #0
+  63 0028 1A70     		strb	r2, [r3, #0]
+  93:C:/StellarisWare/utils\cmdline.c ****             bFindArg = 1;
+  64              		.loc 1 93 0
+  65 002a 4FF00103 		mov	r3, #1
+  66 002e FB60     		str	r3, [r7, #12]
+  67 0030 18E0     		b	.L4
+  68              	.L3:
+  94:C:/StellarisWare/utils\cmdline.c ****         }
+  95:C:/StellarisWare/utils\cmdline.c **** 
+  96:C:/StellarisWare/utils\cmdline.c ****         //
+  97:C:/StellarisWare/utils\cmdline.c ****         // Otherwise it is not a space, so it must be a character that is part
+  98:C:/StellarisWare/utils\cmdline.c ****         // of an argument.
+  99:C:/StellarisWare/utils\cmdline.c ****         //
+ 100:C:/StellarisWare/utils\cmdline.c ****         else
+ 101:C:/StellarisWare/utils\cmdline.c ****         {
+ 102:C:/StellarisWare/utils\cmdline.c ****             //
+ 103:C:/StellarisWare/utils\cmdline.c ****             // If bFindArg is set, then that means we are looking for the start
+ 104:C:/StellarisWare/utils\cmdline.c ****             // of the next argument.
+ 105:C:/StellarisWare/utils\cmdline.c ****             //
+ 106:C:/StellarisWare/utils\cmdline.c ****             if(bFindArg)
+  69              		.loc 1 106 0
+  70 0032 FB68     		ldr	r3, [r7, #12]
+  71 0034 002B     		cmp	r3, #0
+  72 0036 15D0     		beq	.L4
+ 107:C:/StellarisWare/utils\cmdline.c ****             {
+ 108:C:/StellarisWare/utils\cmdline.c ****                 //
+ 109:C:/StellarisWare/utils\cmdline.c ****                 // As long as the maximum number of arguments has not been
+ 110:C:/StellarisWare/utils\cmdline.c ****                 // reached, then save the pointer to the start of this new arg
+ 111:C:/StellarisWare/utils\cmdline.c ****                 // in the argv array, and increment the count of args, argc.
+ 112:C:/StellarisWare/utils\cmdline.c ****                 //
+ 113:C:/StellarisWare/utils\cmdline.c ****                 if(argc < CMDLINE_MAX_ARGS)
+  73              		.loc 1 113 0
+  74 0038 3B69     		ldr	r3, [r7, #16]
+  75 003a 072B     		cmp	r3, #7
+  76 003c 0FDC     		bgt	.L5
+ 114:C:/StellarisWare/utils\cmdline.c ****                 {
+ 115:C:/StellarisWare/utils\cmdline.c ****                     argv[argc] = pcChar;
+  77              		.loc 1 115 0
+  78 003e 40F20003 		movw	r3, #:lower16:argv.4278
+  79 0042 C0F20003 		movt	r3, #:upper16:argv.4278
+  80 0046 3A69     		ldr	r2, [r7, #16]
+  81 0048 7969     		ldr	r1, [r7, #20]
+  82 004a 43F82210 		str	r1, [r3, r2, lsl #2]
+ 116:C:/StellarisWare/utils\cmdline.c ****                     argc++;
+  83              		.loc 1 116 0
+  84 004e 3B69     		ldr	r3, [r7, #16]
+  85 0050 03F10103 		add	r3, r3, #1
+  86 0054 3B61     		str	r3, [r7, #16]
+ 117:C:/StellarisWare/utils\cmdline.c ****                     bFindArg = 0;
+  87              		.loc 1 117 0
+  88 0056 4FF00003 		mov	r3, #0
+  89 005a FB60     		str	r3, [r7, #12]
+  90 005c 02E0     		b	.L4
+  91              	.L5:
+ 118:C:/StellarisWare/utils\cmdline.c ****                 }
+ 119:C:/StellarisWare/utils\cmdline.c **** 
+ 120:C:/StellarisWare/utils\cmdline.c ****                 //
+ 121:C:/StellarisWare/utils\cmdline.c ****                 // The maximum number of arguments has been reached so return
+ 122:C:/StellarisWare/utils\cmdline.c ****                 // the error.
+ 123:C:/StellarisWare/utils\cmdline.c ****                 //
+ 124:C:/StellarisWare/utils\cmdline.c ****                 else
+ 125:C:/StellarisWare/utils\cmdline.c ****                 {
+ 126:C:/StellarisWare/utils\cmdline.c ****                     return(CMDLINE_TOO_MANY_ARGS);
+  92              		.loc 1 126 0
+  93 005e 6FF00103 		mvn	r3, #1
+  94 0062 32E0     		b	.L6
+  95              	.L4:
+ 127:C:/StellarisWare/utils\cmdline.c ****                 }
+ 128:C:/StellarisWare/utils\cmdline.c ****             }
+ 129:C:/StellarisWare/utils\cmdline.c ****         }
+ 130:C:/StellarisWare/utils\cmdline.c **** 
+ 131:C:/StellarisWare/utils\cmdline.c ****         //
+ 132:C:/StellarisWare/utils\cmdline.c ****         // Advance to the next character in the command line.
+ 133:C:/StellarisWare/utils\cmdline.c ****         //
+ 134:C:/StellarisWare/utils\cmdline.c ****         pcChar++;
+  96              		.loc 1 134 0
+  97 0064 7B69     		ldr	r3, [r7, #20]
+  98 0066 03F10103 		add	r3, r3, #1
+  99 006a 7B61     		str	r3, [r7, #20]
+ 100              	.L2:
+  84:C:/StellarisWare/utils\cmdline.c ****     while(*pcChar)
+ 101              		.loc 1 84 0 discriminator 1
+ 102 006c 7B69     		ldr	r3, [r7, #20]
+ 103 006e 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 104 0070 002B     		cmp	r3, #0
+ 105 0072 D2D1     		bne	.L7
+ 135:C:/StellarisWare/utils\cmdline.c ****     }
+ 136:C:/StellarisWare/utils\cmdline.c **** 
+ 137:C:/StellarisWare/utils\cmdline.c ****     //
+ 138:C:/StellarisWare/utils\cmdline.c ****     // If one or more arguments was found, then process the command.
+ 139:C:/StellarisWare/utils\cmdline.c ****     //
+ 140:C:/StellarisWare/utils\cmdline.c ****     if(argc)
+ 106              		.loc 1 140 0
+ 107 0074 3B69     		ldr	r3, [r7, #16]
+ 108 0076 002B     		cmp	r3, #0
+ 109 0078 25D0     		beq	.L8
+ 141:C:/StellarisWare/utils\cmdline.c ****     {
+ 142:C:/StellarisWare/utils\cmdline.c ****         //
+ 143:C:/StellarisWare/utils\cmdline.c ****         // Start at the beginning of the command table, to look for a matching
+ 144:C:/StellarisWare/utils\cmdline.c ****         // command.
+ 145:C:/StellarisWare/utils\cmdline.c ****         //
+ 146:C:/StellarisWare/utils\cmdline.c ****         pCmdEntry = &g_sCmdTable[0];
+ 110              		.loc 1 146 0
+ 111 007a 40F20003 		movw	r3, #:lower16:g_sCmdTable
+ 112 007e C0F20003 		movt	r3, #:upper16:g_sCmdTable
+ 113 0082 BB60     		str	r3, [r7, #8]
+ 147:C:/StellarisWare/utils\cmdline.c **** 
+ 148:C:/StellarisWare/utils\cmdline.c ****         //
+ 149:C:/StellarisWare/utils\cmdline.c ****         // Search through the command table until a null command string is
+ 150:C:/StellarisWare/utils\cmdline.c ****         // found, which marks the end of the table.
+ 151:C:/StellarisWare/utils\cmdline.c ****         //
+ 152:C:/StellarisWare/utils\cmdline.c ****         while(pCmdEntry->pcCmd)
+ 114              		.loc 1 152 0
+ 115 0084 1BE0     		b	.L9
+ 116              	.L11:
+ 153:C:/StellarisWare/utils\cmdline.c ****         {
+ 154:C:/StellarisWare/utils\cmdline.c ****             //
+ 155:C:/StellarisWare/utils\cmdline.c ****             // If this command entry command string matches argv[0], then call
+ 156:C:/StellarisWare/utils\cmdline.c ****             // the function for this command, passing the command line
+ 157:C:/StellarisWare/utils\cmdline.c ****             // arguments.
+ 158:C:/StellarisWare/utils\cmdline.c ****             //
+ 159:C:/StellarisWare/utils\cmdline.c ****             if(!strcmp(argv[0], pCmdEntry->pcCmd))
+ 117              		.loc 1 159 0
+ 118 0086 40F20003 		movw	r3, #:lower16:argv.4278
+ 119 008a C0F20003 		movt	r3, #:upper16:argv.4278
+ 120 008e 1A68     		ldr	r2, [r3, #0]
+ 121 0090 BB68     		ldr	r3, [r7, #8]
+ 122 0092 1B68     		ldr	r3, [r3, #0]
+ 123 0094 1046     		mov	r0, r2
+ 124 0096 1946     		mov	r1, r3
+ 125 0098 FFF7FEFF 		bl	strcmp
+ 126 009c 0346     		mov	r3, r0
+ 127 009e 002B     		cmp	r3, #0
+ 128 00a0 09D1     		bne	.L10
+ 160:C:/StellarisWare/utils\cmdline.c ****             {
+ 161:C:/StellarisWare/utils\cmdline.c ****                 return(pCmdEntry->pfnCmd(argc, argv));
+ 129              		.loc 1 161 0
+ 130 00a2 BB68     		ldr	r3, [r7, #8]
+ 131 00a4 5B68     		ldr	r3, [r3, #4]
+ 132 00a6 3869     		ldr	r0, [r7, #16]
+ 133 00a8 40F20001 		movw	r1, #:lower16:argv.4278
+ 134 00ac C0F20001 		movt	r1, #:upper16:argv.4278
+ 135 00b0 9847     		blx	r3
+ 136 00b2 0346     		mov	r3, r0
+ 137 00b4 09E0     		b	.L6
+ 138              	.L10:
+ 162:C:/StellarisWare/utils\cmdline.c ****             }
+ 163:C:/StellarisWare/utils\cmdline.c **** 
+ 164:C:/StellarisWare/utils\cmdline.c ****             //
+ 165:C:/StellarisWare/utils\cmdline.c ****             // Not found, so advance to the next entry.
+ 166:C:/StellarisWare/utils\cmdline.c ****             //
+ 167:C:/StellarisWare/utils\cmdline.c ****             pCmdEntry++;
+ 139              		.loc 1 167 0
+ 140 00b6 BB68     		ldr	r3, [r7, #8]
+ 141 00b8 03F10C03 		add	r3, r3, #12
+ 142 00bc BB60     		str	r3, [r7, #8]
+ 143              	.L9:
+ 152:C:/StellarisWare/utils\cmdline.c ****         while(pCmdEntry->pcCmd)
+ 144              		.loc 1 152 0 discriminator 1
+ 145 00be BB68     		ldr	r3, [r7, #8]
+ 146 00c0 1B68     		ldr	r3, [r3, #0]
+ 147 00c2 002B     		cmp	r3, #0
+ 148 00c4 DFD1     		bne	.L11
+ 149              	.L8:
+ 168:C:/StellarisWare/utils\cmdline.c ****         }
+ 169:C:/StellarisWare/utils\cmdline.c ****     }
+ 170:C:/StellarisWare/utils\cmdline.c **** 
+ 171:C:/StellarisWare/utils\cmdline.c ****     //
+ 172:C:/StellarisWare/utils\cmdline.c ****     // Fall through to here means that no matching command was found, so return
+ 173:C:/StellarisWare/utils\cmdline.c ****     // an error.
+ 174:C:/StellarisWare/utils\cmdline.c ****     //
+ 175:C:/StellarisWare/utils\cmdline.c ****     return(CMDLINE_BAD_CMD);
+ 150              		.loc 1 175 0
+ 151 00c6 4FF0FF33 		mov	r3, #-1
+ 152              	.L6:
+ 176:C:/StellarisWare/utils\cmdline.c **** }
+ 153              		.loc 1 176 0
+ 154 00ca 1846     		mov	r0, r3
+ 155 00cc 07F11807 		add	r7, r7, #24
+ 156 00d0 BD46     		mov	sp, r7
+ 157 00d2 80BD     		pop	{r7, pc}
+ 158              		.cfi_endproc
+ 159              	.LFE0:
+ 161              		.bss
+ 162              		.align	2
+ 163              	argv.4278:
+ 164 0000 00000000 		.space	36
+ 164      00000000 
+ 164      00000000 
+ 164      00000000 
+ 164      00000000 
+ 165              		.text
+ 166              	.Letext0:
+ 167              		.file 2 "C:\\StellarisWare/utils/cmdline.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 cmdline.c
+C:\Users\Sarthak\AppData\Local\Temp\cc89pWEi.s:19     .text.CmdLineProcess:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc89pWEi.s:24     .text.CmdLineProcess:00000000 CmdLineProcess
+C:\Users\Sarthak\AppData\Local\Temp\cc89pWEi.s:163    .bss:00000000 argv.4278
+C:\Users\Sarthak\AppData\Local\Temp\cc89pWEi.s:162    .bss:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+g_sCmdTable
+strcmp

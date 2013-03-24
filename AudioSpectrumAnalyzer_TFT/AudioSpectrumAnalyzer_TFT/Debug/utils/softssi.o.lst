@@ -1,0 +1,3309 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"softssi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.SoftSSIConfigSet,"ax",%progbits
+  19              		.align	2
+  20              		.global	SoftSSIConfigSet
+  21              		.thumb
+  22              		.thumb_func
+  24              	SoftSSIConfigSet:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/utils/softssi.c"
+   1:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\softssi.c **** //
+   3:C:/StellarisWare/utils\softssi.c **** // softssi.c - Driver for the SoftSSI.
+   4:C:/StellarisWare/utils\softssi.c **** //
+   5:C:/StellarisWare/utils\softssi.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\softssi.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\softssi.c **** // 
+   8:C:/StellarisWare/utils\softssi.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\softssi.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\softssi.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\softssi.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\softssi.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\softssi.c **** // 
+  14:C:/StellarisWare/utils\softssi.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\softssi.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\softssi.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\softssi.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\softssi.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\softssi.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\softssi.c **** // 
+  21:C:/StellarisWare/utils\softssi.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\softssi.c **** //
+  23:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\softssi.c **** 
+  25:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  26:C:/StellarisWare/utils\softssi.c **** //
+  27:C:/StellarisWare/utils\softssi.c **** //! \addtogroup softssi_api
+  28:C:/StellarisWare/utils\softssi.c **** //! @{
+  29:C:/StellarisWare/utils\softssi.c **** //
+  30:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  31:C:/StellarisWare/utils\softssi.c **** 
+  32:C:/StellarisWare/utils\softssi.c **** #include "inc/hw_types.h"
+  33:C:/StellarisWare/utils\softssi.c **** #include "driverlib/gpio.h"
+  34:C:/StellarisWare/utils\softssi.c **** #include "driverlib/rom.h"
+  35:C:/StellarisWare/utils\softssi.c **** #include "driverlib/rom_map.h"
+  36:C:/StellarisWare/utils\softssi.c **** #include "utils/softssi.h"
+  37:C:/StellarisWare/utils\softssi.c **** 
+  38:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  39:C:/StellarisWare/utils\softssi.c **** //
+  40:C:/StellarisWare/utils\softssi.c **** // The states in the SoftSSI state machine.
+  41:C:/StellarisWare/utils\softssi.c **** //
+  42:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  43:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_IDLE      0
+  44:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_START     1
+  45:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_IN        2
+  46:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_OUT       3
+  47:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_STOP1     4
+  48:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_STATE_STOP2     5
+  49:C:/StellarisWare/utils\softssi.c **** 
+  50:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  51:C:/StellarisWare/utils\softssi.c **** //
+  52:C:/StellarisWare/utils\softssi.c **** // The flags in the SoftSSI ucFlags structure member.
+  53:C:/StellarisWare/utils\softssi.c **** //
+  54:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  55:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_FLAG_ENABLE     0x80
+  56:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_FLAG_SPH        0x02
+  57:C:/StellarisWare/utils\softssi.c **** #define SOFTSSI_FLAG_SPO        0x01
+  58:C:/StellarisWare/utils\softssi.c **** 
+  59:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  60:C:/StellarisWare/utils\softssi.c **** //
+  61:C:/StellarisWare/utils\softssi.c **** //! Sets the configuration of a SoftSSI module.
+  62:C:/StellarisWare/utils\softssi.c **** //!
+  63:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+  64:C:/StellarisWare/utils\softssi.c **** //! \param ucProtocol specifes the data transfer protocol.
+  65:C:/StellarisWare/utils\softssi.c **** //! \param ucBits specifies the number of bits transferred per frame.
+  66:C:/StellarisWare/utils\softssi.c **** //!
+  67:C:/StellarisWare/utils\softssi.c **** //! This function configures the data format of a SoftSSI module.  The
+  68:C:/StellarisWare/utils\softssi.c **** //! \e ucProtocol parameter can be one of the following values:
+  69:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_FRF_MOTO_MODE_0, \b SOFTSSI_FRF_MOTO_MODE_1,
+  70:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_FRF_MOTO_MODE_2, or \b SOFTSSI_FRF_MOTO_MODE_3.  These frame
+  71:C:/StellarisWare/utils\softssi.c **** //! formats imply the following polarity and phase configurations:
+  72:C:/StellarisWare/utils\softssi.c **** //!
+  73:C:/StellarisWare/utils\softssi.c **** //! <pre>
+  74:C:/StellarisWare/utils\softssi.c **** //! Polarity Phase         Mode
+  75:C:/StellarisWare/utils\softssi.c **** //!   0       0   SOFTSSI_FRF_MOTO_MODE_0
+  76:C:/StellarisWare/utils\softssi.c **** //!   0       1   SOFTSSI_FRF_MOTO_MODE_1
+  77:C:/StellarisWare/utils\softssi.c **** //!   1       0   SOFTSSI_FRF_MOTO_MODE_2
+  78:C:/StellarisWare/utils\softssi.c **** //!   1       1   SOFTSSI_FRF_MOTO_MODE_3
+  79:C:/StellarisWare/utils\softssi.c **** //! </pre>
+  80:C:/StellarisWare/utils\softssi.c **** //!
+  81:C:/StellarisWare/utils\softssi.c **** //! The \e ucBits parameter defines the width of the data transfers, and can be
+  82:C:/StellarisWare/utils\softssi.c **** //! a value between 4 and 16, inclusive.
+  83:C:/StellarisWare/utils\softssi.c **** //!
+  84:C:/StellarisWare/utils\softssi.c **** //! \return None.
+  85:C:/StellarisWare/utils\softssi.c **** //
+  86:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+  87:C:/StellarisWare/utils\softssi.c **** void
+  88:C:/StellarisWare/utils\softssi.c **** SoftSSIConfigSet(tSoftSSI *pSSI, unsigned char ucProtocol,
+  89:C:/StellarisWare/utils\softssi.c ****                  unsigned char ucBits)
+  90:C:/StellarisWare/utils\softssi.c **** {
+  27              		.loc 1 90 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 14, -4
+  35              		.cfi_offset 7, -8
+  36 0002 82B0     		sub	sp, sp, #8
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 1346     		mov	r3, r2
+  44 000a 0A46     		mov	r2, r1
+  45 000c FA70     		strb	r2, [r7, #3]
+  46 000e BB70     		strb	r3, [r7, #2]
+  91:C:/StellarisWare/utils\softssi.c ****     //
+  92:C:/StellarisWare/utils\softssi.c ****     // See if a GPIO pin has been set for Fss.
+  93:C:/StellarisWare/utils\softssi.c ****     //
+  94:C:/StellarisWare/utils\softssi.c ****     if(pSSI->ulFssGPIO != 0)
+  47              		.loc 1 94 0
+  48 0010 7B68     		ldr	r3, [r7, #4]
+  49 0012 5B68     		ldr	r3, [r3, #4]
+  50 0014 002B     		cmp	r3, #0
+  51 0016 17D0     		beq	.L2
+  95:C:/StellarisWare/utils\softssi.c ****     {
+  96:C:/StellarisWare/utils\softssi.c ****         //
+  97:C:/StellarisWare/utils\softssi.c ****         // Configure the Fss pin.
+  98:C:/StellarisWare/utils\softssi.c ****         //
+  99:C:/StellarisWare/utils\softssi.c ****         MAP_GPIOPinTypeGPIOOutput(pSSI->ulFssGPIO & 0xfffff000,
+  52              		.loc 1 99 0
+  53 0018 7B68     		ldr	r3, [r7, #4]
+  54 001a 5B68     		ldr	r3, [r3, #4]
+  55 001c 23F47E63 		bic	r3, r3, #4064
+  56 0020 23F01F03 		bic	r3, r3, #31
+ 100:C:/StellarisWare/utils\softssi.c ****                                   (pSSI->ulFssGPIO & 0x00000fff) >> 2);
+  57              		.loc 1 100 0
+  58 0024 7A68     		ldr	r2, [r7, #4]
+  59 0026 5268     		ldr	r2, [r2, #4]
+  60 0028 4FEA0252 		lsl	r2, r2, #20
+  61 002c 4FEA1252 		lsr	r2, r2, #20
+  62 0030 4FEA9202 		lsr	r2, r2, #2
+  99:C:/StellarisWare/utils\softssi.c ****         MAP_GPIOPinTypeGPIOOutput(pSSI->ulFssGPIO & 0xfffff000,
+  63              		.loc 1 99 0
+  64 0034 D2B2     		uxtb	r2, r2
+  65 0036 1846     		mov	r0, r3
+  66 0038 1146     		mov	r1, r2
+  67 003a FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 101:C:/StellarisWare/utils\softssi.c **** 
+ 102:C:/StellarisWare/utils\softssi.c ****         //
+ 103:C:/StellarisWare/utils\softssi.c ****         // Set the Fss pin high.
+ 104:C:/StellarisWare/utils\softssi.c ****         //
+ 105:C:/StellarisWare/utils\softssi.c ****         HWREG(pSSI->ulFssGPIO) = 255;
+  68              		.loc 1 105 0
+  69 003e 7B68     		ldr	r3, [r7, #4]
+  70 0040 5B68     		ldr	r3, [r3, #4]
+  71 0042 4FF0FF02 		mov	r2, #255
+  72 0046 1A60     		str	r2, [r3, #0]
+  73              	.L2:
+ 106:C:/StellarisWare/utils\softssi.c ****     }
+ 107:C:/StellarisWare/utils\softssi.c **** 
+ 108:C:/StellarisWare/utils\softssi.c ****     //
+ 109:C:/StellarisWare/utils\softssi.c ****     // Configure the Clk pin.
+ 110:C:/StellarisWare/utils\softssi.c ****     //
+ 111:C:/StellarisWare/utils\softssi.c ****     MAP_GPIOPinTypeGPIOOutput(pSSI->ulClkGPIO & 0xfffff000,
+  74              		.loc 1 111 0
+  75 0048 7B68     		ldr	r3, [r7, #4]
+  76 004a 9B68     		ldr	r3, [r3, #8]
+  77 004c 23F47E63 		bic	r3, r3, #4064
+  78 0050 23F01F03 		bic	r3, r3, #31
+ 112:C:/StellarisWare/utils\softssi.c ****                               (pSSI->ulClkGPIO & 0x00000fff) >> 2);
+  79              		.loc 1 112 0
+  80 0054 7A68     		ldr	r2, [r7, #4]
+  81 0056 9268     		ldr	r2, [r2, #8]
+  82 0058 4FEA0252 		lsl	r2, r2, #20
+  83 005c 4FEA1252 		lsr	r2, r2, #20
+  84 0060 4FEA9202 		lsr	r2, r2, #2
+ 111:C:/StellarisWare/utils\softssi.c ****     MAP_GPIOPinTypeGPIOOutput(pSSI->ulClkGPIO & 0xfffff000,
+  85              		.loc 1 111 0
+  86 0064 D2B2     		uxtb	r2, r2
+  87 0066 1846     		mov	r0, r3
+  88 0068 1146     		mov	r1, r2
+  89 006a FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 113:C:/StellarisWare/utils\softssi.c **** 
+ 114:C:/StellarisWare/utils\softssi.c ****     //
+ 115:C:/StellarisWare/utils\softssi.c ****     // Set the Clk pin high or low based on the configured clock polarity.
+ 116:C:/StellarisWare/utils\softssi.c ****     //
+ 117:C:/StellarisWare/utils\softssi.c ****     if((ucProtocol & SOFTSSI_FLAG_SPO) == 0)
+  90              		.loc 1 117 0
+  91 006e FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+  92 0070 03F00103 		and	r3, r3, #1
+  93 0074 002B     		cmp	r3, #0
+  94 0076 05D1     		bne	.L3
+ 118:C:/StellarisWare/utils\softssi.c ****     {
+ 119:C:/StellarisWare/utils\softssi.c ****         HWREG(pSSI->ulClkGPIO) = 0;
+  95              		.loc 1 119 0
+  96 0078 7B68     		ldr	r3, [r7, #4]
+  97 007a 9B68     		ldr	r3, [r3, #8]
+  98 007c 4FF00002 		mov	r2, #0
+  99 0080 1A60     		str	r2, [r3, #0]
+ 100 0082 04E0     		b	.L4
+ 101              	.L3:
+ 120:C:/StellarisWare/utils\softssi.c ****     }
+ 121:C:/StellarisWare/utils\softssi.c ****     else
+ 122:C:/StellarisWare/utils\softssi.c ****     {
+ 123:C:/StellarisWare/utils\softssi.c ****         HWREG(pSSI->ulClkGPIO) = 255;
+ 102              		.loc 1 123 0
+ 103 0084 7B68     		ldr	r3, [r7, #4]
+ 104 0086 9B68     		ldr	r3, [r3, #8]
+ 105 0088 4FF0FF02 		mov	r2, #255
+ 106 008c 1A60     		str	r2, [r3, #0]
+ 107              	.L4:
+ 124:C:/StellarisWare/utils\softssi.c ****     }
+ 125:C:/StellarisWare/utils\softssi.c **** 
+ 126:C:/StellarisWare/utils\softssi.c ****     //
+ 127:C:/StellarisWare/utils\softssi.c ****     // Configure the Tx pin and set it low.
+ 128:C:/StellarisWare/utils\softssi.c ****     //
+ 129:C:/StellarisWare/utils\softssi.c ****     MAP_GPIOPinTypeGPIOOutput(pSSI->ulTxGPIO & 0xfffff000,
+ 108              		.loc 1 129 0
+ 109 008e 7B68     		ldr	r3, [r7, #4]
+ 110 0090 DB68     		ldr	r3, [r3, #12]
+ 111 0092 23F47E63 		bic	r3, r3, #4064
+ 112 0096 23F01F03 		bic	r3, r3, #31
+ 130:C:/StellarisWare/utils\softssi.c ****                               (pSSI->ulTxGPIO & 0x00000fff) >> 2);
+ 113              		.loc 1 130 0
+ 114 009a 7A68     		ldr	r2, [r7, #4]
+ 115 009c D268     		ldr	r2, [r2, #12]
+ 116 009e 4FEA0252 		lsl	r2, r2, #20
+ 117 00a2 4FEA1252 		lsr	r2, r2, #20
+ 118 00a6 4FEA9202 		lsr	r2, r2, #2
+ 129:C:/StellarisWare/utils\softssi.c ****     MAP_GPIOPinTypeGPIOOutput(pSSI->ulTxGPIO & 0xfffff000,
+ 119              		.loc 1 129 0
+ 120 00aa D2B2     		uxtb	r2, r2
+ 121 00ac 1846     		mov	r0, r3
+ 122 00ae 1146     		mov	r1, r2
+ 123 00b0 FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 131:C:/StellarisWare/utils\softssi.c ****     HWREG(pSSI->ulTxGPIO) = 0;
+ 124              		.loc 1 131 0
+ 125 00b4 7B68     		ldr	r3, [r7, #4]
+ 126 00b6 DB68     		ldr	r3, [r3, #12]
+ 127 00b8 4FF00002 		mov	r2, #0
+ 128 00bc 1A60     		str	r2, [r3, #0]
+ 132:C:/StellarisWare/utils\softssi.c **** 
+ 133:C:/StellarisWare/utils\softssi.c ****     //
+ 134:C:/StellarisWare/utils\softssi.c ****     // See if a GPIO pin has been set for Rx.
+ 135:C:/StellarisWare/utils\softssi.c ****     //
+ 136:C:/StellarisWare/utils\softssi.c ****     if(pSSI->ulRxGPIO != 0)
+ 129              		.loc 1 136 0
+ 130 00be 7B68     		ldr	r3, [r7, #4]
+ 131 00c0 1B69     		ldr	r3, [r3, #16]
+ 132 00c2 002B     		cmp	r3, #0
+ 133 00c4 12D0     		beq	.L5
+ 137:C:/StellarisWare/utils\softssi.c ****     {
+ 138:C:/StellarisWare/utils\softssi.c ****         //
+ 139:C:/StellarisWare/utils\softssi.c ****         // Configure the Rx pin.
+ 140:C:/StellarisWare/utils\softssi.c ****         //
+ 141:C:/StellarisWare/utils\softssi.c ****         MAP_GPIOPinTypeGPIOInput(pSSI->ulRxGPIO & 0xfffff000,
+ 134              		.loc 1 141 0
+ 135 00c6 7B68     		ldr	r3, [r7, #4]
+ 136 00c8 1B69     		ldr	r3, [r3, #16]
+ 137 00ca 23F47E63 		bic	r3, r3, #4064
+ 138 00ce 23F01F03 		bic	r3, r3, #31
+ 142:C:/StellarisWare/utils\softssi.c ****                                  (pSSI->ulRxGPIO & 0x00000fff) >> 2);
+ 139              		.loc 1 142 0
+ 140 00d2 7A68     		ldr	r2, [r7, #4]
+ 141 00d4 1269     		ldr	r2, [r2, #16]
+ 142 00d6 4FEA0252 		lsl	r2, r2, #20
+ 143 00da 4FEA1252 		lsr	r2, r2, #20
+ 144 00de 4FEA9202 		lsr	r2, r2, #2
+ 141:C:/StellarisWare/utils\softssi.c ****         MAP_GPIOPinTypeGPIOInput(pSSI->ulRxGPIO & 0xfffff000,
+ 145              		.loc 1 141 0
+ 146 00e2 D2B2     		uxtb	r2, r2
+ 147 00e4 1846     		mov	r0, r3
+ 148 00e6 1146     		mov	r1, r2
+ 149 00e8 FFF7FEFF 		bl	GPIOPinTypeGPIOInput
+ 150              	.L5:
+ 143:C:/StellarisWare/utils\softssi.c ****     }
+ 144:C:/StellarisWare/utils\softssi.c **** 
+ 145:C:/StellarisWare/utils\softssi.c ****     //
+ 146:C:/StellarisWare/utils\softssi.c ****     // Make sure that the transmit and receive FIFOs are empty.
+ 147:C:/StellarisWare/utils\softssi.c ****     //
+ 148:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferRead = 0;
+ 151              		.loc 1 148 0
+ 152 00ec 7B68     		ldr	r3, [r7, #4]
+ 153 00ee 4FF00002 		mov	r2, #0
+ 154 00f2 DA83     		strh	r2, [r3, #30]	@ movhi
+ 149:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferWrite = 0;
+ 155              		.loc 1 149 0
+ 156 00f4 7B68     		ldr	r3, [r7, #4]
+ 157 00f6 4FF00002 		mov	r2, #0
+ 158 00fa 1A84     		strh	r2, [r3, #32]	@ movhi
+ 150:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferRead = 0;
+ 159              		.loc 1 150 0
+ 160 00fc 7B68     		ldr	r3, [r7, #4]
+ 161 00fe 4FF00002 		mov	r2, #0
+ 162 0102 9A84     		strh	r2, [r3, #36]	@ movhi
+ 151:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferWrite = 0;
+ 163              		.loc 1 151 0
+ 164 0104 7B68     		ldr	r3, [r7, #4]
+ 165 0106 4FF00002 		mov	r2, #0
+ 166 010a DA84     		strh	r2, [r3, #38]	@ movhi
+ 152:C:/StellarisWare/utils\softssi.c **** 
+ 153:C:/StellarisWare/utils\softssi.c ****     //
+ 154:C:/StellarisWare/utils\softssi.c ****     // Save the frame protocol.
+ 155:C:/StellarisWare/utils\softssi.c ****     //
+ 156:C:/StellarisWare/utils\softssi.c ****     pSSI->ucFlags = ucProtocol;
+ 167              		.loc 1 156 0
+ 168 010c 7B68     		ldr	r3, [r7, #4]
+ 169 010e FA78     		ldrb	r2, [r7, #3]
+ 170 0110 83F82C20 		strb	r2, [r3, #44]
+ 157:C:/StellarisWare/utils\softssi.c **** 
+ 158:C:/StellarisWare/utils\softssi.c ****     //
+ 159:C:/StellarisWare/utils\softssi.c ****     // Save the number of data bits.
+ 160:C:/StellarisWare/utils\softssi.c ****     //
+ 161:C:/StellarisWare/utils\softssi.c ****     pSSI->ucBits = ucBits;
+ 171              		.loc 1 161 0
+ 172 0114 7B68     		ldr	r3, [r7, #4]
+ 173 0116 BA78     		ldrb	r2, [r7, #2]
+ 174 0118 83F82D20 		strb	r2, [r3, #45]
+ 162:C:/StellarisWare/utils\softssi.c **** 
+ 163:C:/StellarisWare/utils\softssi.c ****     //
+ 164:C:/StellarisWare/utils\softssi.c ****     // Since the FIFOs are empty, the transmit FIFO "interrupt" is asserted.
+ 165:C:/StellarisWare/utils\softssi.c ****     //
+ 166:C:/StellarisWare/utils\softssi.c ****     pSSI->ucIntStatus = SOFTSSI_TXFF;
+ 175              		.loc 1 166 0
+ 176 011c 7B68     		ldr	r3, [r7, #4]
+ 177 011e 4FF00802 		mov	r2, #8
+ 178 0122 83F83120 		strb	r2, [r3, #49]
+ 167:C:/StellarisWare/utils\softssi.c **** 
+ 168:C:/StellarisWare/utils\softssi.c ****     //
+ 169:C:/StellarisWare/utils\softssi.c ****     // Reset the idle counter.
+ 170:C:/StellarisWare/utils\softssi.c ****     //
+ 171:C:/StellarisWare/utils\softssi.c ****     pSSI->ucIdleCount = 0;
+ 179              		.loc 1 171 0
+ 180 0126 7B68     		ldr	r3, [r7, #4]
+ 181 0128 4FF00002 		mov	r2, #0
+ 182 012c 83F83220 		strb	r2, [r3, #50]
+ 172:C:/StellarisWare/utils\softssi.c **** 
+ 173:C:/StellarisWare/utils\softssi.c ****     //
+ 174:C:/StellarisWare/utils\softssi.c ****     // Disable the SoftSSI module.
+ 175:C:/StellarisWare/utils\softssi.c ****     //
+ 176:C:/StellarisWare/utils\softssi.c ****     pSSI->ucFlags &= ~(SOFTSSI_FLAG_ENABLE);
+ 183              		.loc 1 176 0
+ 184 0130 7B68     		ldr	r3, [r7, #4]
+ 185 0132 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 186 0136 03F07F03 		and	r3, r3, #127
+ 187 013a DAB2     		uxtb	r2, r3
+ 188 013c 7B68     		ldr	r3, [r7, #4]
+ 189 013e 83F82C20 		strb	r2, [r3, #44]
+ 177:C:/StellarisWare/utils\softssi.c **** 
+ 178:C:/StellarisWare/utils\softssi.c ****     //
+ 179:C:/StellarisWare/utils\softssi.c ****     // Start the SoftSSI state machine in the idle state.
+ 180:C:/StellarisWare/utils\softssi.c ****     //
+ 181:C:/StellarisWare/utils\softssi.c ****     pSSI->ucState = SOFTSSI_STATE_IDLE;
+ 190              		.loc 1 181 0
+ 191 0142 7B68     		ldr	r3, [r7, #4]
+ 192 0144 4FF00002 		mov	r2, #0
+ 193 0148 83F82E20 		strb	r2, [r3, #46]
+ 182:C:/StellarisWare/utils\softssi.c **** }
+ 194              		.loc 1 182 0
+ 195 014c 07F10807 		add	r7, r7, #8
+ 196 0150 BD46     		mov	sp, r7
+ 197 0152 80BD     		pop	{r7, pc}
+ 198              		.cfi_endproc
+ 199              	.LFE0:
+ 201              		.section	.text.SoftSSITxInt,"ax",%progbits
+ 202              		.align	2
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	SoftSSITxInt:
+ 207              	.LFB1:
+ 183:C:/StellarisWare/utils\softssi.c **** 
+ 184:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 185:C:/StellarisWare/utils\softssi.c **** //
+ 186:C:/StellarisWare/utils\softssi.c **** //! Handles the assertion/deassertion of the transmit FIFO ``interrupt''.
+ 187:C:/StellarisWare/utils\softssi.c **** //!
+ 188:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 189:C:/StellarisWare/utils\softssi.c **** //!
+ 190:C:/StellarisWare/utils\softssi.c **** //! This function is used to determine when to assert or deassert the transmit
+ 191:C:/StellarisWare/utils\softssi.c **** //! FIFO ``interrupt''.
+ 192:C:/StellarisWare/utils\softssi.c **** //!
+ 193:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 194:C:/StellarisWare/utils\softssi.c **** //
+ 195:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 196:C:/StellarisWare/utils\softssi.c **** static void
+ 197:C:/StellarisWare/utils\softssi.c **** SoftSSITxInt(tSoftSSI *pSSI)
+ 198:C:/StellarisWare/utils\softssi.c **** {
+ 208              		.loc 1 198 0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 16
+ 211              		@ frame_needed = 1, uses_anonymous_args = 0
+ 212              		@ link register save eliminated.
+ 213 0000 80B4     		push	{r7}
+ 214              	.LCFI3:
+ 215              		.cfi_def_cfa_offset 4
+ 216              		.cfi_offset 7, -4
+ 217 0002 85B0     		sub	sp, sp, #20
+ 218              	.LCFI4:
+ 219              		.cfi_def_cfa_offset 24
+ 220 0004 00AF     		add	r7, sp, #0
+ 221              	.LCFI5:
+ 222              		.cfi_def_cfa_register 7
+ 223 0006 7860     		str	r0, [r7, #4]
+ 199:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 200:C:/StellarisWare/utils\softssi.c **** 
+ 201:C:/StellarisWare/utils\softssi.c ****     //
+ 202:C:/StellarisWare/utils\softssi.c ****     // Determine the number of words left in the transmit FIFO.
+ 203:C:/StellarisWare/utils\softssi.c ****     //
+ 204:C:/StellarisWare/utils\softssi.c ****     if(pSSI->usTxBufferRead > pSSI->usTxBufferWrite)
+ 224              		.loc 1 204 0
+ 225 0008 7B68     		ldr	r3, [r7, #4]
+ 226 000a DA8B     		ldrh	r2, [r3, #30]
+ 227 000c 7B68     		ldr	r3, [r7, #4]
+ 228 000e 1B8C     		ldrh	r3, [r3, #32]
+ 229 0010 9A42     		cmp	r2, r3
+ 230 0012 0AD9     		bls	.L7
+ 205:C:/StellarisWare/utils\softssi.c ****     {
+ 206:C:/StellarisWare/utils\softssi.c ****         usTemp = (pSSI->usTxBufferLen + pSSI->usTxBufferWrite -
+ 231              		.loc 1 206 0
+ 232 0014 7B68     		ldr	r3, [r7, #4]
+ 233 0016 9A8B     		ldrh	r2, [r3, #28]
+ 234 0018 7B68     		ldr	r3, [r7, #4]
+ 235 001a 1B8C     		ldrh	r3, [r3, #32]
+ 236 001c D318     		adds	r3, r2, r3
+ 237 001e 9AB2     		uxth	r2, r3
+ 207:C:/StellarisWare/utils\softssi.c ****                   pSSI->usTxBufferRead);
+ 238              		.loc 1 207 0
+ 239 0020 7B68     		ldr	r3, [r7, #4]
+ 240 0022 DB8B     		ldrh	r3, [r3, #30]
+ 206:C:/StellarisWare/utils\softssi.c ****         usTemp = (pSSI->usTxBufferLen + pSSI->usTxBufferWrite -
+ 241              		.loc 1 206 0
+ 242 0024 D31A     		subs	r3, r2, r3
+ 243 0026 FB81     		strh	r3, [r7, #14]	@ movhi
+ 244 0028 05E0     		b	.L8
+ 245              	.L7:
+ 208:C:/StellarisWare/utils\softssi.c ****     }
+ 209:C:/StellarisWare/utils\softssi.c ****     else
+ 210:C:/StellarisWare/utils\softssi.c ****     {
+ 211:C:/StellarisWare/utils\softssi.c ****         usTemp = pSSI->usTxBufferWrite - pSSI->usTxBufferRead;
+ 246              		.loc 1 211 0
+ 247 002a 7B68     		ldr	r3, [r7, #4]
+ 248 002c 1A8C     		ldrh	r2, [r3, #32]
+ 249 002e 7B68     		ldr	r3, [r7, #4]
+ 250 0030 DB8B     		ldrh	r3, [r3, #30]
+ 251 0032 D31A     		subs	r3, r2, r3
+ 252 0034 FB81     		strh	r3, [r7, #14]	@ movhi
+ 253              	.L8:
+ 212:C:/StellarisWare/utils\softssi.c ****     }
+ 213:C:/StellarisWare/utils\softssi.c **** 
+ 214:C:/StellarisWare/utils\softssi.c ****     //
+ 215:C:/StellarisWare/utils\softssi.c ****     // If the transmit FIFO is now half full or less, generate a transmit FIFO
+ 216:C:/StellarisWare/utils\softssi.c ****     // "interrupt".  Otherwise, clear the transmit FIFO "interrupt".
+ 217:C:/StellarisWare/utils\softssi.c ****     //
+ 218:C:/StellarisWare/utils\softssi.c ****     if(usTemp <= (pSSI->usTxBufferLen / 2))
+ 254              		.loc 1 218 0
+ 255 0036 7B68     		ldr	r3, [r7, #4]
+ 256 0038 9B8B     		ldrh	r3, [r3, #28]
+ 257 003a 4FEA5303 		lsr	r3, r3, #1
+ 258 003e 9BB2     		uxth	r3, r3
+ 259 0040 FA89     		ldrh	r2, [r7, #14]
+ 260 0042 9A42     		cmp	r2, r3
+ 261 0044 09D8     		bhi	.L9
+ 219:C:/StellarisWare/utils\softssi.c ****     {
+ 220:C:/StellarisWare/utils\softssi.c ****         pSSI->ucIntStatus |= SOFTSSI_TXFF;
+ 262              		.loc 1 220 0
+ 263 0046 7B68     		ldr	r3, [r7, #4]
+ 264 0048 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 265 004c 43F00803 		orr	r3, r3, #8
+ 266 0050 DAB2     		uxtb	r2, r3
+ 267 0052 7B68     		ldr	r3, [r7, #4]
+ 268 0054 83F83120 		strb	r2, [r3, #49]
+ 269 0058 08E0     		b	.L6
+ 270              	.L9:
+ 221:C:/StellarisWare/utils\softssi.c ****     }
+ 222:C:/StellarisWare/utils\softssi.c ****     else
+ 223:C:/StellarisWare/utils\softssi.c ****     {
+ 224:C:/StellarisWare/utils\softssi.c ****         pSSI->ucIntStatus &= ~(SOFTSSI_TXFF);
+ 271              		.loc 1 224 0
+ 272 005a 7B68     		ldr	r3, [r7, #4]
+ 273 005c 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 274 0060 23F00803 		bic	r3, r3, #8
+ 275 0064 DAB2     		uxtb	r2, r3
+ 276 0066 7B68     		ldr	r3, [r7, #4]
+ 277 0068 83F83120 		strb	r2, [r3, #49]
+ 278              	.L6:
+ 225:C:/StellarisWare/utils\softssi.c ****     }
+ 226:C:/StellarisWare/utils\softssi.c **** }
+ 279              		.loc 1 226 0
+ 280 006c 07F11407 		add	r7, r7, #20
+ 281 0070 BD46     		mov	sp, r7
+ 282 0072 80BC     		pop	{r7}
+ 283 0074 7047     		bx	lr
+ 284              		.cfi_endproc
+ 285              	.LFE1:
+ 287 0076 00BF     		.section	.text.SoftSSIRxInt,"ax",%progbits
+ 288              		.align	2
+ 289              		.thumb
+ 290              		.thumb_func
+ 292              	SoftSSIRxInt:
+ 293              	.LFB2:
+ 227:C:/StellarisWare/utils\softssi.c **** 
+ 228:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 229:C:/StellarisWare/utils\softssi.c **** //
+ 230:C:/StellarisWare/utils\softssi.c **** //! Handles the assertion/deassertion of the receive FIFO ``interrupt''.
+ 231:C:/StellarisWare/utils\softssi.c **** //!
+ 232:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 233:C:/StellarisWare/utils\softssi.c **** //!
+ 234:C:/StellarisWare/utils\softssi.c **** //! This function is used to determine when to assert or deassert the receive
+ 235:C:/StellarisWare/utils\softssi.c **** //! FIFO ``interrupt''.
+ 236:C:/StellarisWare/utils\softssi.c **** //!
+ 237:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 238:C:/StellarisWare/utils\softssi.c **** //
+ 239:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 240:C:/StellarisWare/utils\softssi.c **** static void
+ 241:C:/StellarisWare/utils\softssi.c **** SoftSSIRxInt(tSoftSSI *pSSI)
+ 242:C:/StellarisWare/utils\softssi.c **** {
+ 294              		.loc 1 242 0
+ 295              		.cfi_startproc
+ 296              		@ args = 0, pretend = 0, frame = 16
+ 297              		@ frame_needed = 1, uses_anonymous_args = 0
+ 298              		@ link register save eliminated.
+ 299 0000 80B4     		push	{r7}
+ 300              	.LCFI6:
+ 301              		.cfi_def_cfa_offset 4
+ 302              		.cfi_offset 7, -4
+ 303 0002 85B0     		sub	sp, sp, #20
+ 304              	.LCFI7:
+ 305              		.cfi_def_cfa_offset 24
+ 306 0004 00AF     		add	r7, sp, #0
+ 307              	.LCFI8:
+ 308              		.cfi_def_cfa_register 7
+ 309 0006 7860     		str	r0, [r7, #4]
+ 243:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 244:C:/StellarisWare/utils\softssi.c **** 
+ 245:C:/StellarisWare/utils\softssi.c ****     //
+ 246:C:/StellarisWare/utils\softssi.c ****     // Determine the number of words in the receive FIFO.
+ 247:C:/StellarisWare/utils\softssi.c ****     //
+ 248:C:/StellarisWare/utils\softssi.c ****     if(pSSI->usRxBufferRead > pSSI->usRxBufferWrite)
+ 310              		.loc 1 248 0
+ 311 0008 7B68     		ldr	r3, [r7, #4]
+ 312 000a 9A8C     		ldrh	r2, [r3, #36]
+ 313 000c 7B68     		ldr	r3, [r7, #4]
+ 314 000e DB8C     		ldrh	r3, [r3, #38]
+ 315 0010 9A42     		cmp	r2, r3
+ 316 0012 0AD9     		bls	.L12
+ 249:C:/StellarisWare/utils\softssi.c ****     {
+ 250:C:/StellarisWare/utils\softssi.c ****         usTemp = (pSSI->usRxBufferLen + pSSI->usRxBufferWrite -
+ 317              		.loc 1 250 0
+ 318 0014 7B68     		ldr	r3, [r7, #4]
+ 319 0016 5A8C     		ldrh	r2, [r3, #34]
+ 320 0018 7B68     		ldr	r3, [r7, #4]
+ 321 001a DB8C     		ldrh	r3, [r3, #38]
+ 322 001c D318     		adds	r3, r2, r3
+ 323 001e 9AB2     		uxth	r2, r3
+ 251:C:/StellarisWare/utils\softssi.c ****                   pSSI->usRxBufferRead);
+ 324              		.loc 1 251 0
+ 325 0020 7B68     		ldr	r3, [r7, #4]
+ 326 0022 9B8C     		ldrh	r3, [r3, #36]
+ 250:C:/StellarisWare/utils\softssi.c ****         usTemp = (pSSI->usRxBufferLen + pSSI->usRxBufferWrite -
+ 327              		.loc 1 250 0
+ 328 0024 D31A     		subs	r3, r2, r3
+ 329 0026 FB81     		strh	r3, [r7, #14]	@ movhi
+ 330 0028 05E0     		b	.L13
+ 331              	.L12:
+ 252:C:/StellarisWare/utils\softssi.c ****     }
+ 253:C:/StellarisWare/utils\softssi.c ****     else
+ 254:C:/StellarisWare/utils\softssi.c ****     {
+ 255:C:/StellarisWare/utils\softssi.c ****         usTemp = pSSI->usRxBufferWrite - pSSI->usRxBufferRead;
+ 332              		.loc 1 255 0
+ 333 002a 7B68     		ldr	r3, [r7, #4]
+ 334 002c DA8C     		ldrh	r2, [r3, #38]
+ 335 002e 7B68     		ldr	r3, [r7, #4]
+ 336 0030 9B8C     		ldrh	r3, [r3, #36]
+ 337 0032 D31A     		subs	r3, r2, r3
+ 338 0034 FB81     		strh	r3, [r7, #14]	@ movhi
+ 339              	.L13:
+ 256:C:/StellarisWare/utils\softssi.c ****     }
+ 257:C:/StellarisWare/utils\softssi.c **** 
+ 258:C:/StellarisWare/utils\softssi.c ****     //
+ 259:C:/StellarisWare/utils\softssi.c ****     // If the receive FIFO is now half full or more, generate a receive FIFO
+ 260:C:/StellarisWare/utils\softssi.c ****     // "interrupt".  Otherwise, clear the receive FIFO "interrupt".
+ 261:C:/StellarisWare/utils\softssi.c ****     //
+ 262:C:/StellarisWare/utils\softssi.c ****     if(usTemp >= (pSSI->usRxBufferLen / 2))
+ 340              		.loc 1 262 0
+ 341 0036 7B68     		ldr	r3, [r7, #4]
+ 342 0038 5B8C     		ldrh	r3, [r3, #34]
+ 343 003a 4FEA5303 		lsr	r3, r3, #1
+ 344 003e 9BB2     		uxth	r3, r3
+ 345 0040 FA89     		ldrh	r2, [r7, #14]
+ 346 0042 9A42     		cmp	r2, r3
+ 347 0044 09D3     		bcc	.L14
+ 263:C:/StellarisWare/utils\softssi.c ****     {
+ 264:C:/StellarisWare/utils\softssi.c ****         pSSI->ucIntStatus |= SOFTSSI_RXFF;
+ 348              		.loc 1 264 0
+ 349 0046 7B68     		ldr	r3, [r7, #4]
+ 350 0048 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 351 004c 43F00403 		orr	r3, r3, #4
+ 352 0050 DAB2     		uxtb	r2, r3
+ 353 0052 7B68     		ldr	r3, [r7, #4]
+ 354 0054 83F83120 		strb	r2, [r3, #49]
+ 355 0058 08E0     		b	.L11
+ 356              	.L14:
+ 265:C:/StellarisWare/utils\softssi.c ****     }
+ 266:C:/StellarisWare/utils\softssi.c ****     else
+ 267:C:/StellarisWare/utils\softssi.c ****     {
+ 268:C:/StellarisWare/utils\softssi.c ****         pSSI->ucIntStatus &= ~(SOFTSSI_RXFF);
+ 357              		.loc 1 268 0
+ 358 005a 7B68     		ldr	r3, [r7, #4]
+ 359 005c 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 360 0060 23F00403 		bic	r3, r3, #4
+ 361 0064 DAB2     		uxtb	r2, r3
+ 362 0066 7B68     		ldr	r3, [r7, #4]
+ 363 0068 83F83120 		strb	r2, [r3, #49]
+ 364              	.L11:
+ 269:C:/StellarisWare/utils\softssi.c ****     }
+ 270:C:/StellarisWare/utils\softssi.c **** }
+ 365              		.loc 1 270 0
+ 366 006c 07F11407 		add	r7, r7, #20
+ 367 0070 BD46     		mov	sp, r7
+ 368 0072 80BC     		pop	{r7}
+ 369 0074 7047     		bx	lr
+ 370              		.cfi_endproc
+ 371              	.LFE2:
+ 373 0076 00BF     		.section	.text.SoftSSITimerTick,"ax",%progbits
+ 374              		.align	2
+ 375              		.global	SoftSSITimerTick
+ 376              		.thumb
+ 377              		.thumb_func
+ 379              	SoftSSITimerTick:
+ 380              	.LFB3:
+ 271:C:/StellarisWare/utils\softssi.c **** 
+ 272:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 273:C:/StellarisWare/utils\softssi.c **** //
+ 274:C:/StellarisWare/utils\softssi.c **** //! Performs the periodic update of the SoftSSI module.
+ 275:C:/StellarisWare/utils\softssi.c **** //!
+ 276:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 277:C:/StellarisWare/utils\softssi.c **** //!
+ 278:C:/StellarisWare/utils\softssi.c **** //! This function performs the periodic, time-based updates to the SoftSSI
+ 279:C:/StellarisWare/utils\softssi.c **** //! module.  The transmission and reception of data over the SoftSSI link is
+ 280:C:/StellarisWare/utils\softssi.c **** //! performed by the state machine in this function.
+ 281:C:/StellarisWare/utils\softssi.c **** //!
+ 282:C:/StellarisWare/utils\softssi.c **** //! This function must be called at twice the desired SoftSSI clock rate.  For
+ 283:C:/StellarisWare/utils\softssi.c **** //! example, to run the SoftSSI clock at 10 KHz, this function must be called
+ 284:C:/StellarisWare/utils\softssi.c **** //! at a 20 KHz rate.
+ 285:C:/StellarisWare/utils\softssi.c **** //!
+ 286:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 287:C:/StellarisWare/utils\softssi.c **** //
+ 288:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 289:C:/StellarisWare/utils\softssi.c **** void
+ 290:C:/StellarisWare/utils\softssi.c **** SoftSSITimerTick(tSoftSSI *pSSI)
+ 291:C:/StellarisWare/utils\softssi.c **** {
+ 381              		.loc 1 291 0
+ 382              		.cfi_startproc
+ 383              		@ args = 0, pretend = 0, frame = 16
+ 384              		@ frame_needed = 1, uses_anonymous_args = 0
+ 385 0000 80B5     		push	{r7, lr}
+ 386              	.LCFI9:
+ 387              		.cfi_def_cfa_offset 8
+ 388              		.cfi_offset 14, -4
+ 389              		.cfi_offset 7, -8
+ 390 0002 84B0     		sub	sp, sp, #16
+ 391              	.LCFI10:
+ 392              		.cfi_def_cfa_offset 24
+ 393 0004 00AF     		add	r7, sp, #0
+ 394              	.LCFI11:
+ 395              		.cfi_def_cfa_register 7
+ 396 0006 7860     		str	r0, [r7, #4]
+ 292:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 293:C:/StellarisWare/utils\softssi.c **** 
+ 294:C:/StellarisWare/utils\softssi.c ****     //
+ 295:C:/StellarisWare/utils\softssi.c ****     // Determine the current state of the state machine.
+ 296:C:/StellarisWare/utils\softssi.c ****     //
+ 297:C:/StellarisWare/utils\softssi.c ****     switch(pSSI->ucState)
+ 397              		.loc 1 297 0
+ 398 0008 7B68     		ldr	r3, [r7, #4]
+ 399 000a 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 400 000e 052B     		cmp	r3, #5
+ 401 0010 00F2B381 		bhi	.L47
+ 402 0014 01A2     		adr	r2, .L24
+ 403 0016 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 404 001a 00BF     		.align	2
+ 405              	.L24:
+ 406 001c 35000000 		.word	.L18+1
+ 407 0020 B9000000 		.word	.L19+1
+ 408 0024 47010000 		.word	.L20+1
+ 409 0028 A9020000 		.word	.L21+1
+ 410 002c F1020000 		.word	.L22+1
+ 411 0030 25030000 		.word	.L23+1
+ 412              	.L18:
+ 298:C:/StellarisWare/utils\softssi.c ****     {
+ 299:C:/StellarisWare/utils\softssi.c ****         //
+ 300:C:/StellarisWare/utils\softssi.c ****         // The state machine is idle.
+ 301:C:/StellarisWare/utils\softssi.c ****         //
+ 302:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_IDLE:
+ 303:C:/StellarisWare/utils\softssi.c ****         {
+ 304:C:/StellarisWare/utils\softssi.c ****             //
+ 305:C:/StellarisWare/utils\softssi.c ****             // See if the SoftSSI module is enabled and there is data in the
+ 306:C:/StellarisWare/utils\softssi.c ****             // transmit FIFO.
+ 307:C:/StellarisWare/utils\softssi.c ****             //
+ 308:C:/StellarisWare/utils\softssi.c ****             if(((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) != 0) &&
+ 413              		.loc 1 308 0
+ 414 0034 7B68     		ldr	r3, [r7, #4]
+ 415 0036 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 416 003a DBB2     		uxtb	r3, r3
+ 417 003c 5BB2     		sxtb	r3, r3
+ 418 003e 002B     		cmp	r3, #0
+ 419 0040 14DA     		bge	.L25
+ 309:C:/StellarisWare/utils\softssi.c ****                (pSSI->usTxBufferRead != pSSI->usTxBufferWrite))
+ 420              		.loc 1 309 0 discriminator 1
+ 421 0042 7B68     		ldr	r3, [r7, #4]
+ 422 0044 DA8B     		ldrh	r2, [r3, #30]
+ 423 0046 7B68     		ldr	r3, [r7, #4]
+ 424 0048 1B8C     		ldrh	r3, [r3, #32]
+ 308:C:/StellarisWare/utils\softssi.c ****             if(((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) != 0) &&
+ 425              		.loc 1 308 0 discriminator 1
+ 426 004a 9A42     		cmp	r2, r3
+ 427 004c 0ED0     		beq	.L25
+ 310:C:/StellarisWare/utils\softssi.c ****             {
+ 311:C:/StellarisWare/utils\softssi.c ****                 //
+ 312:C:/StellarisWare/utils\softssi.c ****                 // Assert the Fss signal if it is configured.
+ 313:C:/StellarisWare/utils\softssi.c ****                 //
+ 314:C:/StellarisWare/utils\softssi.c ****                 if(pSSI->ulFssGPIO != 0)
+ 428              		.loc 1 314 0
+ 429 004e 7B68     		ldr	r3, [r7, #4]
+ 430 0050 5B68     		ldr	r3, [r3, #4]
+ 431 0052 002B     		cmp	r3, #0
+ 432 0054 04D0     		beq	.L26
+ 315:C:/StellarisWare/utils\softssi.c ****                 {
+ 316:C:/StellarisWare/utils\softssi.c ****                     HWREG(pSSI->ulFssGPIO) = 0;
+ 433              		.loc 1 316 0
+ 434 0056 7B68     		ldr	r3, [r7, #4]
+ 435 0058 5B68     		ldr	r3, [r3, #4]
+ 436 005a 4FF00002 		mov	r2, #0
+ 437 005e 1A60     		str	r2, [r3, #0]
+ 438              	.L26:
+ 317:C:/StellarisWare/utils\softssi.c ****                 }
+ 318:C:/StellarisWare/utils\softssi.c **** 
+ 319:C:/StellarisWare/utils\softssi.c ****                 //
+ 320:C:/StellarisWare/utils\softssi.c ****                 // Move to the start state.
+ 321:C:/StellarisWare/utils\softssi.c ****                 //
+ 322:C:/StellarisWare/utils\softssi.c ****                 pSSI->ucState = SOFTSSI_STATE_START;
+ 439              		.loc 1 322 0
+ 440 0060 7B68     		ldr	r3, [r7, #4]
+ 441 0062 4FF00102 		mov	r2, #1
+ 442 0066 83F82E20 		strb	r2, [r3, #46]
+ 323:C:/StellarisWare/utils\softssi.c ****             }
+ 324:C:/StellarisWare/utils\softssi.c **** 
+ 325:C:/StellarisWare/utils\softssi.c ****             //
+ 326:C:/StellarisWare/utils\softssi.c ****             // Otherwise, see if there is data in the receive FIFO.
+ 327:C:/StellarisWare/utils\softssi.c ****             //
+ 328:C:/StellarisWare/utils\softssi.c ****             else if((pSSI->usRxBufferRead != pSSI->usRxBufferWrite) &&
+ 329:C:/StellarisWare/utils\softssi.c ****                     (pSSI->ucIdleCount != 64))
+ 330:C:/StellarisWare/utils\softssi.c ****             {
+ 331:C:/StellarisWare/utils\softssi.c ****                 //
+ 332:C:/StellarisWare/utils\softssi.c ****                 // Increment the idle counter.
+ 333:C:/StellarisWare/utils\softssi.c ****                 //
+ 334:C:/StellarisWare/utils\softssi.c ****                 pSSI->ucIdleCount++;
+ 335:C:/StellarisWare/utils\softssi.c **** 
+ 336:C:/StellarisWare/utils\softssi.c ****                 //
+ 337:C:/StellarisWare/utils\softssi.c ****                 // See if the idle counter has become large enough to trigger
+ 338:C:/StellarisWare/utils\softssi.c ****                 // a timeout "interrupt".
+ 339:C:/StellarisWare/utils\softssi.c ****                 //
+ 340:C:/StellarisWare/utils\softssi.c ****                 if(pSSI->ucIdleCount == 64)
+ 341:C:/StellarisWare/utils\softssi.c ****                 {
+ 342:C:/StellarisWare/utils\softssi.c ****                     //
+ 343:C:/StellarisWare/utils\softssi.c ****                     // Trigger the receive timeout "interrupt".
+ 344:C:/StellarisWare/utils\softssi.c ****                     //
+ 345:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucIntStatus |= SOFTSSI_RXTO;
+ 346:C:/StellarisWare/utils\softssi.c ****                 }
+ 347:C:/StellarisWare/utils\softssi.c ****             }
+ 348:C:/StellarisWare/utils\softssi.c **** 
+ 349:C:/StellarisWare/utils\softssi.c ****             //
+ 350:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 351:C:/StellarisWare/utils\softssi.c ****             //
+ 352:C:/StellarisWare/utils\softssi.c ****             break;
+ 443              		.loc 1 352 0
+ 444 006a 7EE1     		b	.L48
+ 445              	.L25:
+ 328:C:/StellarisWare/utils\softssi.c ****             else if((pSSI->usRxBufferRead != pSSI->usRxBufferWrite) &&
+ 446              		.loc 1 328 0
+ 447 006c 7B68     		ldr	r3, [r7, #4]
+ 448 006e 9A8C     		ldrh	r2, [r3, #36]
+ 449 0070 7B68     		ldr	r3, [r7, #4]
+ 450 0072 DB8C     		ldrh	r3, [r3, #38]
+ 451 0074 9A42     		cmp	r2, r3
+ 452 0076 00F07881 		beq	.L48
+ 329:C:/StellarisWare/utils\softssi.c ****                     (pSSI->ucIdleCount != 64))
+ 453              		.loc 1 329 0 discriminator 1
+ 454 007a 7B68     		ldr	r3, [r7, #4]
+ 455 007c 93F83230 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 328:C:/StellarisWare/utils\softssi.c ****             else if((pSSI->usRxBufferRead != pSSI->usRxBufferWrite) &&
+ 456              		.loc 1 328 0 discriminator 1
+ 457 0080 402B     		cmp	r3, #64
+ 458 0082 00F07281 		beq	.L48
+ 334:C:/StellarisWare/utils\softssi.c ****                 pSSI->ucIdleCount++;
+ 459              		.loc 1 334 0
+ 460 0086 7B68     		ldr	r3, [r7, #4]
+ 461 0088 93F83230 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 462 008c 03F10103 		add	r3, r3, #1
+ 463 0090 DAB2     		uxtb	r2, r3
+ 464 0092 7B68     		ldr	r3, [r7, #4]
+ 465 0094 83F83220 		strb	r2, [r3, #50]
+ 340:C:/StellarisWare/utils\softssi.c ****                 if(pSSI->ucIdleCount == 64)
+ 466              		.loc 1 340 0
+ 467 0098 7B68     		ldr	r3, [r7, #4]
+ 468 009a 93F83230 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 469 009e 402B     		cmp	r3, #64
+ 470 00a0 40F06381 		bne	.L48
+ 345:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucIntStatus |= SOFTSSI_RXTO;
+ 471              		.loc 1 345 0
+ 472 00a4 7B68     		ldr	r3, [r7, #4]
+ 473 00a6 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 474 00aa 43F00203 		orr	r3, r3, #2
+ 475 00ae DAB2     		uxtb	r2, r3
+ 476 00b0 7B68     		ldr	r3, [r7, #4]
+ 477 00b2 83F83120 		strb	r2, [r3, #49]
+ 478              		.loc 1 352 0
+ 479 00b6 58E1     		b	.L48
+ 480              	.L19:
+ 353:C:/StellarisWare/utils\softssi.c ****         }
+ 354:C:/StellarisWare/utils\softssi.c **** 
+ 355:C:/StellarisWare/utils\softssi.c ****         //
+ 356:C:/StellarisWare/utils\softssi.c ****         // The start machine is in the transfer start state.
+ 357:C:/StellarisWare/utils\softssi.c ****         //
+ 358:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_START:
+ 359:C:/StellarisWare/utils\softssi.c ****         {
+ 360:C:/StellarisWare/utils\softssi.c ****             //
+ 361:C:/StellarisWare/utils\softssi.c ****             // Get the next word to transfer from the transmit FIFO.
+ 362:C:/StellarisWare/utils\softssi.c ****             //
+ 363:C:/StellarisWare/utils\softssi.c ****             pSSI->usTxData = (pSSI->pusTxBuffer[pSSI->usTxBufferRead] <<
+ 481              		.loc 1 363 0
+ 482 00b8 7B68     		ldr	r3, [r7, #4]
+ 483 00ba 5A69     		ldr	r2, [r3, #20]
+ 484 00bc 7B68     		ldr	r3, [r7, #4]
+ 485 00be DB8B     		ldrh	r3, [r3, #30]
+ 486 00c0 4FEA4303 		lsl	r3, r3, #1
+ 487 00c4 D318     		adds	r3, r2, r3
+ 488 00c6 1B88     		ldrh	r3, [r3, #0]
+ 489 00c8 1A46     		mov	r2, r3
+ 364:C:/StellarisWare/utils\softssi.c ****                               (16 - pSSI->ucBits));
+ 490              		.loc 1 364 0
+ 491 00ca 7B68     		ldr	r3, [r7, #4]
+ 492 00cc 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 493 00d0 C3F11003 		rsb	r3, r3, #16
+ 363:C:/StellarisWare/utils\softssi.c ****             pSSI->usTxData = (pSSI->pusTxBuffer[pSSI->usTxBufferRead] <<
+ 494              		.loc 1 363 0
+ 495 00d4 02FA03F3 		lsl	r3, r2, r3
+ 496 00d8 9AB2     		uxth	r2, r3
+ 497 00da 7B68     		ldr	r3, [r7, #4]
+ 498 00dc 1A85     		strh	r2, [r3, #40]	@ movhi
+ 365:C:/StellarisWare/utils\softssi.c **** 
+ 366:C:/StellarisWare/utils\softssi.c ****             //
+ 367:C:/StellarisWare/utils\softssi.c ****             // Initialize the receive buffer to zero.
+ 368:C:/StellarisWare/utils\softssi.c ****             //
+ 369:C:/StellarisWare/utils\softssi.c ****             pSSI->usRxData = 0;
+ 499              		.loc 1 369 0
+ 500 00de 7B68     		ldr	r3, [r7, #4]
+ 501 00e0 4FF00002 		mov	r2, #0
+ 502 00e4 5A85     		strh	r2, [r3, #42]	@ movhi
+ 370:C:/StellarisWare/utils\softssi.c **** 
+ 371:C:/StellarisWare/utils\softssi.c ****             //
+ 372:C:/StellarisWare/utils\softssi.c ****             // Initialize the count of bits tranferred.
+ 373:C:/StellarisWare/utils\softssi.c ****             //
+ 374:C:/StellarisWare/utils\softssi.c ****             pSSI->ucCurrentBit = 0;
+ 503              		.loc 1 374 0
+ 504 00e6 7B68     		ldr	r3, [r7, #4]
+ 505 00e8 4FF00002 		mov	r2, #0
+ 506 00ec 83F82F20 		strb	r2, [r3, #47]
+ 375:C:/StellarisWare/utils\softssi.c **** 
+ 376:C:/StellarisWare/utils\softssi.c ****             //
+ 377:C:/StellarisWare/utils\softssi.c ****             // Write the first bit of the transmit word to the Tx pin.
+ 378:C:/StellarisWare/utils\softssi.c ****             //
+ 379:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) =
+ 507              		.loc 1 379 0
+ 508 00f0 7B68     		ldr	r3, [r7, #4]
+ 509 00f2 DB68     		ldr	r3, [r3, #12]
+ 510 00f4 1A46     		mov	r2, r3
+ 380:C:/StellarisWare/utils\softssi.c ****                 (pSSI->usTxData & 0x8000) ? 255 : 0;
+ 511              		.loc 1 380 0
+ 512 00f6 7B68     		ldr	r3, [r7, #4]
+ 513 00f8 1B8D     		ldrh	r3, [r3, #40]
+ 514 00fa 9BB2     		uxth	r3, r3
+ 379:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) =
+ 515              		.loc 1 379 0
+ 516 00fc 1BB2     		sxth	r3, r3
+ 517 00fe 002B     		cmp	r3, #0
+ 518 0100 02DA     		bge	.L28
+ 379:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) =
+ 519              		.loc 1 379 0 is_stmt 0 discriminator 1
+ 520 0102 4FF0FF03 		mov	r3, #255
+ 521 0106 01E0     		b	.L29
+ 522              	.L28:
+ 379:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) =
+ 523              		.loc 1 379 0 discriminator 2
+ 524 0108 4FF00003 		mov	r3, #0
+ 525              	.L29:
+ 379:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) =
+ 526              		.loc 1 379 0 discriminator 3
+ 527 010c 1360     		str	r3, [r2, #0]
+ 381:C:/StellarisWare/utils\softssi.c **** 
+ 382:C:/StellarisWare/utils\softssi.c ****             //
+ 383:C:/StellarisWare/utils\softssi.c ****             // Shift to the next bit of the transmit word.
+ 384:C:/StellarisWare/utils\softssi.c ****             //
+ 385:C:/StellarisWare/utils\softssi.c ****             pSSI->usTxData <<= 1;
+ 528              		.loc 1 385 0 is_stmt 1 discriminator 3
+ 529 010e 7B68     		ldr	r3, [r7, #4]
+ 530 0110 1B8D     		ldrh	r3, [r3, #40]
+ 531 0112 4FEA4303 		lsl	r3, r3, #1
+ 532 0116 9AB2     		uxth	r2, r3
+ 533 0118 7B68     		ldr	r3, [r7, #4]
+ 534 011a 1A85     		strh	r2, [r3, #40]	@ movhi
+ 386:C:/StellarisWare/utils\softssi.c **** 
+ 387:C:/StellarisWare/utils\softssi.c ****             //
+ 388:C:/StellarisWare/utils\softssi.c ****             // If in SPI mode 1 or 3, then the Clk signal needs to be toggled.
+ 389:C:/StellarisWare/utils\softssi.c ****             //
+ 390:C:/StellarisWare/utils\softssi.c ****             if((pSSI->ucFlags & SOFTSSI_FLAG_SPH) != 0)
+ 535              		.loc 1 390 0 discriminator 3
+ 536 011c 7B68     		ldr	r3, [r7, #4]
+ 537 011e 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 538 0122 03F00203 		and	r3, r3, #2
+ 539 0126 002B     		cmp	r3, #0
+ 540 0128 07D0     		beq	.L30
+ 391:C:/StellarisWare/utils\softssi.c ****             {
+ 392:C:/StellarisWare/utils\softssi.c ****                 HWREG(pSSI->ulClkGPIO) ^= 255;
+ 541              		.loc 1 392 0
+ 542 012a 7B68     		ldr	r3, [r7, #4]
+ 543 012c 9B68     		ldr	r3, [r3, #8]
+ 544 012e 7A68     		ldr	r2, [r7, #4]
+ 545 0130 9268     		ldr	r2, [r2, #8]
+ 546 0132 1268     		ldr	r2, [r2, #0]
+ 547 0134 82F0FF02 		eor	r2, r2, #255
+ 548 0138 1A60     		str	r2, [r3, #0]
+ 549              	.L30:
+ 393:C:/StellarisWare/utils\softssi.c ****             }
+ 394:C:/StellarisWare/utils\softssi.c **** 
+ 395:C:/StellarisWare/utils\softssi.c ****             //
+ 396:C:/StellarisWare/utils\softssi.c ****             // Move to the data input state.
+ 397:C:/StellarisWare/utils\softssi.c ****             //
+ 398:C:/StellarisWare/utils\softssi.c ****             pSSI->ucState = SOFTSSI_STATE_IN;
+ 550              		.loc 1 398 0
+ 551 013a 7B68     		ldr	r3, [r7, #4]
+ 552 013c 4FF00202 		mov	r2, #2
+ 553 0140 83F82E20 		strb	r2, [r3, #46]
+ 399:C:/StellarisWare/utils\softssi.c **** 
+ 400:C:/StellarisWare/utils\softssi.c ****             //
+ 401:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 402:C:/StellarisWare/utils\softssi.c ****             //
+ 403:C:/StellarisWare/utils\softssi.c ****             break;
+ 554              		.loc 1 403 0
+ 555 0144 14E1     		b	.L17
+ 556              	.L20:
+ 404:C:/StellarisWare/utils\softssi.c ****         }
+ 405:C:/StellarisWare/utils\softssi.c **** 
+ 406:C:/StellarisWare/utils\softssi.c ****         //
+ 407:C:/StellarisWare/utils\softssi.c ****         // The state machine is in the data input state.
+ 408:C:/StellarisWare/utils\softssi.c ****         //
+ 409:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_IN:
+ 410:C:/StellarisWare/utils\softssi.c ****         {
+ 411:C:/StellarisWare/utils\softssi.c ****             //
+ 412:C:/StellarisWare/utils\softssi.c ****             // Read the next bit from the Rx signal if it is configured.
+ 413:C:/StellarisWare/utils\softssi.c ****             //
+ 414:C:/StellarisWare/utils\softssi.c ****             if(pSSI->ulRxGPIO != 0)
+ 557              		.loc 1 414 0
+ 558 0146 7B68     		ldr	r3, [r7, #4]
+ 559 0148 1B69     		ldr	r3, [r3, #16]
+ 560 014a 002B     		cmp	r3, #0
+ 561 014c 11D0     		beq	.L31
+ 415:C:/StellarisWare/utils\softssi.c ****             {
+ 416:C:/StellarisWare/utils\softssi.c ****                 pSSI->usRxData = ((pSSI->usRxData << 1) |
+ 562              		.loc 1 416 0
+ 563 014e 7B68     		ldr	r3, [r7, #4]
+ 564 0150 5B8D     		ldrh	r3, [r3, #42]
+ 565 0152 4FEA4303 		lsl	r3, r3, #1
+ 566 0156 9AB2     		uxth	r2, r3
+ 417:C:/StellarisWare/utils\softssi.c ****                                   (HWREG(pSSI->ulRxGPIO) ? 1 : 0));
+ 567              		.loc 1 417 0
+ 568 0158 7B68     		ldr	r3, [r7, #4]
+ 569 015a 1B69     		ldr	r3, [r3, #16]
+ 570 015c 1B68     		ldr	r3, [r3, #0]
+ 571 015e 002B     		cmp	r3, #0
+ 572 0160 0CBF     		ite	eq
+ 573 0162 0023     		moveq	r3, #0
+ 574 0164 0123     		movne	r3, #1
+ 575 0166 9BB2     		uxth	r3, r3
+ 416:C:/StellarisWare/utils\softssi.c ****                 pSSI->usRxData = ((pSSI->usRxData << 1) |
+ 576              		.loc 1 416 0
+ 577 0168 1343     		orrs	r3, r3, r2
+ 578 016a 9BB2     		uxth	r3, r3
+ 579 016c 9AB2     		uxth	r2, r3
+ 580 016e 7B68     		ldr	r3, [r7, #4]
+ 581 0170 5A85     		strh	r2, [r3, #42]	@ movhi
+ 582              	.L31:
+ 418:C:/StellarisWare/utils\softssi.c ****             }
+ 419:C:/StellarisWare/utils\softssi.c **** 
+ 420:C:/StellarisWare/utils\softssi.c ****             //
+ 421:C:/StellarisWare/utils\softssi.c ****             // Toggle the Clk signal.
+ 422:C:/StellarisWare/utils\softssi.c ****             //
+ 423:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulClkGPIO) ^= 255;
+ 583              		.loc 1 423 0
+ 584 0172 7B68     		ldr	r3, [r7, #4]
+ 585 0174 9B68     		ldr	r3, [r3, #8]
+ 586 0176 7A68     		ldr	r2, [r7, #4]
+ 587 0178 9268     		ldr	r2, [r2, #8]
+ 588 017a 1268     		ldr	r2, [r2, #0]
+ 589 017c 82F0FF02 		eor	r2, r2, #255
+ 590 0180 1A60     		str	r2, [r3, #0]
+ 424:C:/StellarisWare/utils\softssi.c **** 
+ 425:C:/StellarisWare/utils\softssi.c ****             //
+ 426:C:/StellarisWare/utils\softssi.c ****             // Increment the number of bits transferred.
+ 427:C:/StellarisWare/utils\softssi.c ****             //
+ 428:C:/StellarisWare/utils\softssi.c ****             pSSI->ucCurrentBit++;
+ 591              		.loc 1 428 0
+ 592 0182 7B68     		ldr	r3, [r7, #4]
+ 593 0184 93F82F30 		ldrb	r3, [r3, #47]	@ zero_extendqisi2
+ 594 0188 03F10103 		add	r3, r3, #1
+ 595 018c DAB2     		uxtb	r2, r3
+ 596 018e 7B68     		ldr	r3, [r7, #4]
+ 597 0190 83F82F20 		strb	r2, [r3, #47]
+ 429:C:/StellarisWare/utils\softssi.c **** 
+ 430:C:/StellarisWare/utils\softssi.c ****             //
+ 431:C:/StellarisWare/utils\softssi.c ****             // See if the entire word has been transferred.
+ 432:C:/StellarisWare/utils\softssi.c ****             //
+ 433:C:/StellarisWare/utils\softssi.c ****             if(pSSI->ucCurrentBit != pSSI->ucBits)
+ 598              		.loc 1 433 0
+ 599 0194 7B68     		ldr	r3, [r7, #4]
+ 600 0196 93F82F20 		ldrb	r2, [r3, #47]	@ zero_extendqisi2
+ 601 019a 7B68     		ldr	r3, [r7, #4]
+ 602 019c 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 603 01a0 9A42     		cmp	r2, r3
+ 604 01a2 05D0     		beq	.L32
+ 434:C:/StellarisWare/utils\softssi.c ****             {
+ 435:C:/StellarisWare/utils\softssi.c ****                 //
+ 436:C:/StellarisWare/utils\softssi.c ****                 // There are more bits to transfer, so move to the data output
+ 437:C:/StellarisWare/utils\softssi.c ****                 // state.
+ 438:C:/StellarisWare/utils\softssi.c ****                 //
+ 439:C:/StellarisWare/utils\softssi.c ****                 pSSI->ucState = SOFTSSI_STATE_OUT;
+ 605              		.loc 1 439 0
+ 606 01a4 7B68     		ldr	r3, [r7, #4]
+ 607 01a6 4FF00302 		mov	r2, #3
+ 608 01aa 83F82E20 		strb	r2, [r3, #46]
+ 440:C:/StellarisWare/utils\softssi.c ****             }
+ 441:C:/StellarisWare/utils\softssi.c ****             else
+ 442:C:/StellarisWare/utils\softssi.c ****             {
+ 443:C:/StellarisWare/utils\softssi.c ****                 //
+ 444:C:/StellarisWare/utils\softssi.c ****                 // Increment the transmit read pointer, removing the word that
+ 445:C:/StellarisWare/utils\softssi.c ****                 // was just transferred from the transmit FIFO.
+ 446:C:/StellarisWare/utils\softssi.c ****                 //
+ 447:C:/StellarisWare/utils\softssi.c ****                 pSSI->usTxBufferRead++;
+ 448:C:/StellarisWare/utils\softssi.c ****                 if(pSSI->usTxBufferRead == pSSI->usTxBufferLen)
+ 449:C:/StellarisWare/utils\softssi.c ****                 {
+ 450:C:/StellarisWare/utils\softssi.c ****                     pSSI->usTxBufferRead = 0;
+ 451:C:/StellarisWare/utils\softssi.c ****                 }
+ 452:C:/StellarisWare/utils\softssi.c **** 
+ 453:C:/StellarisWare/utils\softssi.c ****                 //
+ 454:C:/StellarisWare/utils\softssi.c ****                 // See if a transmit FIFO "interrupt" needs to be asserted.
+ 455:C:/StellarisWare/utils\softssi.c ****                 //
+ 456:C:/StellarisWare/utils\softssi.c ****                 SoftSSITxInt(pSSI);
+ 457:C:/StellarisWare/utils\softssi.c **** 
+ 458:C:/StellarisWare/utils\softssi.c ****                 //
+ 459:C:/StellarisWare/utils\softssi.c ****                 // Determine the new value for the receive FIFO write pointer.
+ 460:C:/StellarisWare/utils\softssi.c ****                 //
+ 461:C:/StellarisWare/utils\softssi.c ****                 usTemp = pSSI->usRxBufferWrite + 1;
+ 462:C:/StellarisWare/utils\softssi.c ****                 if(usTemp >= pSSI->usRxBufferLen)
+ 463:C:/StellarisWare/utils\softssi.c ****                 {
+ 464:C:/StellarisWare/utils\softssi.c ****                     usTemp = 0;
+ 465:C:/StellarisWare/utils\softssi.c ****                 }
+ 466:C:/StellarisWare/utils\softssi.c **** 
+ 467:C:/StellarisWare/utils\softssi.c ****                 //
+ 468:C:/StellarisWare/utils\softssi.c ****                 // See if there is space in the receive FIFO for the word that
+ 469:C:/StellarisWare/utils\softssi.c ****                 // was just received.
+ 470:C:/StellarisWare/utils\softssi.c ****                 //
+ 471:C:/StellarisWare/utils\softssi.c ****                 if(usTemp == pSSI->usRxBufferRead)
+ 472:C:/StellarisWare/utils\softssi.c ****                 {
+ 473:C:/StellarisWare/utils\softssi.c ****                     //
+ 474:C:/StellarisWare/utils\softssi.c ****                     // The receive FIFO is full, so generate a receive FIFO
+ 475:C:/StellarisWare/utils\softssi.c ****                     // overrun "interrupt".
+ 476:C:/StellarisWare/utils\softssi.c ****                     //
+ 477:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucIntStatus |= SOFTSSI_RXOR;
+ 478:C:/StellarisWare/utils\softssi.c ****                 }
+ 479:C:/StellarisWare/utils\softssi.c ****                 else
+ 480:C:/StellarisWare/utils\softssi.c ****                 {
+ 481:C:/StellarisWare/utils\softssi.c ****                     //
+ 482:C:/StellarisWare/utils\softssi.c ****                     // Store the new word into the receive FIFO.
+ 483:C:/StellarisWare/utils\softssi.c ****                     //
+ 484:C:/StellarisWare/utils\softssi.c ****                     pSSI->pusRxBuffer[pSSI->usRxBufferWrite] = pSSI->usRxData;
+ 485:C:/StellarisWare/utils\softssi.c **** 
+ 486:C:/StellarisWare/utils\softssi.c ****                     //
+ 487:C:/StellarisWare/utils\softssi.c ****                     // Save the new receive FIFO write pointer.
+ 488:C:/StellarisWare/utils\softssi.c ****                     //
+ 489:C:/StellarisWare/utils\softssi.c ****                     pSSI->usRxBufferWrite = usTemp;
+ 490:C:/StellarisWare/utils\softssi.c **** 
+ 491:C:/StellarisWare/utils\softssi.c ****                     //
+ 492:C:/StellarisWare/utils\softssi.c ****                     // See if a receive FIFO "interrupt" needs to be asserted.
+ 493:C:/StellarisWare/utils\softssi.c ****                     //
+ 494:C:/StellarisWare/utils\softssi.c ****                     SoftSSIRxInt(pSSI);
+ 495:C:/StellarisWare/utils\softssi.c ****                 }
+ 496:C:/StellarisWare/utils\softssi.c **** 
+ 497:C:/StellarisWare/utils\softssi.c ****                 //
+ 498:C:/StellarisWare/utils\softssi.c ****                 // See if the next word should be transmitted immediately.
+ 499:C:/StellarisWare/utils\softssi.c ****                 // This will occur when there is data in the transmit FIFO, the
+ 500:C:/StellarisWare/utils\softssi.c ****                 // SoftSSI module is enabled, and the SoftSSI module is in SPI
+ 501:C:/StellarisWare/utils\softssi.c ****                 // mode 1 or 3.
+ 502:C:/StellarisWare/utils\softssi.c ****                 //
+ 503:C:/StellarisWare/utils\softssi.c ****                 if(((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) != 0) &&
+ 504:C:/StellarisWare/utils\softssi.c ****                    ((pSSI->ucFlags & SOFTSSI_FLAG_SPH) != 0) &&
+ 505:C:/StellarisWare/utils\softssi.c ****                    (pSSI->usTxBufferRead != pSSI->usTxBufferWrite))
+ 506:C:/StellarisWare/utils\softssi.c ****                 {
+ 507:C:/StellarisWare/utils\softssi.c ****                     //
+ 508:C:/StellarisWare/utils\softssi.c ****                     // Get the next word to transfer from the transmit FIFO.
+ 509:C:/StellarisWare/utils\softssi.c ****                     //
+ 510:C:/StellarisWare/utils\softssi.c ****                     pSSI->usTxData =
+ 511:C:/StellarisWare/utils\softssi.c ****                         (pSSI->pusTxBuffer[pSSI->usTxBufferRead] <<
+ 512:C:/StellarisWare/utils\softssi.c ****                          (16 - pSSI->ucBits));
+ 513:C:/StellarisWare/utils\softssi.c **** 
+ 514:C:/StellarisWare/utils\softssi.c ****                     //
+ 515:C:/StellarisWare/utils\softssi.c ****                     // Initialize the receive buffer to zero.
+ 516:C:/StellarisWare/utils\softssi.c ****                     //
+ 517:C:/StellarisWare/utils\softssi.c ****                     pSSI->usRxData = 0;
+ 518:C:/StellarisWare/utils\softssi.c **** 
+ 519:C:/StellarisWare/utils\softssi.c ****                     //
+ 520:C:/StellarisWare/utils\softssi.c ****                     // Initialize the count of bits tranferred.
+ 521:C:/StellarisWare/utils\softssi.c ****                     //
+ 522:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucCurrentBit = 0;
+ 523:C:/StellarisWare/utils\softssi.c **** 
+ 524:C:/StellarisWare/utils\softssi.c ****                     //
+ 525:C:/StellarisWare/utils\softssi.c ****                     // Move to the data output state.
+ 526:C:/StellarisWare/utils\softssi.c ****                     //
+ 527:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucState = SOFTSSI_STATE_OUT;
+ 528:C:/StellarisWare/utils\softssi.c ****                 }
+ 529:C:/StellarisWare/utils\softssi.c ****                 else
+ 530:C:/StellarisWare/utils\softssi.c ****                 {
+ 531:C:/StellarisWare/utils\softssi.c ****                     //
+ 532:C:/StellarisWare/utils\softssi.c ****                     // The next word should not be transmitted immediately, so
+ 533:C:/StellarisWare/utils\softssi.c ****                     // move to the first step of the stop state.
+ 534:C:/StellarisWare/utils\softssi.c ****                     //
+ 535:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucState = SOFTSSI_STATE_STOP1;
+ 536:C:/StellarisWare/utils\softssi.c ****                 }
+ 537:C:/StellarisWare/utils\softssi.c ****             }
+ 538:C:/StellarisWare/utils\softssi.c **** 
+ 539:C:/StellarisWare/utils\softssi.c ****             //
+ 540:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 541:C:/StellarisWare/utils\softssi.c ****             //
+ 542:C:/StellarisWare/utils\softssi.c ****             break;
+ 609              		.loc 1 542 0
+ 610 01ae DFE0     		b	.L17
+ 611              	.L32:
+ 447:C:/StellarisWare/utils\softssi.c ****                 pSSI->usTxBufferRead++;
+ 612              		.loc 1 447 0
+ 613 01b0 7B68     		ldr	r3, [r7, #4]
+ 614 01b2 DB8B     		ldrh	r3, [r3, #30]
+ 615 01b4 03F10103 		add	r3, r3, #1
+ 616 01b8 9AB2     		uxth	r2, r3
+ 617 01ba 7B68     		ldr	r3, [r7, #4]
+ 618 01bc DA83     		strh	r2, [r3, #30]	@ movhi
+ 448:C:/StellarisWare/utils\softssi.c ****                 if(pSSI->usTxBufferRead == pSSI->usTxBufferLen)
+ 619              		.loc 1 448 0
+ 620 01be 7B68     		ldr	r3, [r7, #4]
+ 621 01c0 DA8B     		ldrh	r2, [r3, #30]
+ 622 01c2 7B68     		ldr	r3, [r7, #4]
+ 623 01c4 9B8B     		ldrh	r3, [r3, #28]
+ 624 01c6 9A42     		cmp	r2, r3
+ 625 01c8 03D1     		bne	.L34
+ 450:C:/StellarisWare/utils\softssi.c ****                     pSSI->usTxBufferRead = 0;
+ 626              		.loc 1 450 0
+ 627 01ca 7B68     		ldr	r3, [r7, #4]
+ 628 01cc 4FF00002 		mov	r2, #0
+ 629 01d0 DA83     		strh	r2, [r3, #30]	@ movhi
+ 630              	.L34:
+ 456:C:/StellarisWare/utils\softssi.c ****                 SoftSSITxInt(pSSI);
+ 631              		.loc 1 456 0
+ 632 01d2 7868     		ldr	r0, [r7, #4]
+ 633 01d4 FFF7FEFF 		bl	SoftSSITxInt
+ 461:C:/StellarisWare/utils\softssi.c ****                 usTemp = pSSI->usRxBufferWrite + 1;
+ 634              		.loc 1 461 0
+ 635 01d8 7B68     		ldr	r3, [r7, #4]
+ 636 01da DB8C     		ldrh	r3, [r3, #38]
+ 637 01dc 03F10103 		add	r3, r3, #1
+ 638 01e0 FB81     		strh	r3, [r7, #14]	@ movhi
+ 462:C:/StellarisWare/utils\softssi.c ****                 if(usTemp >= pSSI->usRxBufferLen)
+ 639              		.loc 1 462 0
+ 640 01e2 7B68     		ldr	r3, [r7, #4]
+ 641 01e4 5B8C     		ldrh	r3, [r3, #34]
+ 642 01e6 FA89     		ldrh	r2, [r7, #14]
+ 643 01e8 9A42     		cmp	r2, r3
+ 644 01ea 02D3     		bcc	.L35
+ 464:C:/StellarisWare/utils\softssi.c ****                     usTemp = 0;
+ 645              		.loc 1 464 0
+ 646 01ec 4FF00003 		mov	r3, #0
+ 647 01f0 FB81     		strh	r3, [r7, #14]	@ movhi
+ 648              	.L35:
+ 471:C:/StellarisWare/utils\softssi.c ****                 if(usTemp == pSSI->usRxBufferRead)
+ 649              		.loc 1 471 0
+ 650 01f2 7B68     		ldr	r3, [r7, #4]
+ 651 01f4 9B8C     		ldrh	r3, [r3, #36]
+ 652 01f6 FA89     		ldrh	r2, [r7, #14]
+ 653 01f8 9A42     		cmp	r2, r3
+ 654 01fa 09D1     		bne	.L36
+ 477:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucIntStatus |= SOFTSSI_RXOR;
+ 655              		.loc 1 477 0
+ 656 01fc 7B68     		ldr	r3, [r7, #4]
+ 657 01fe 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 658 0202 43F00103 		orr	r3, r3, #1
+ 659 0206 DAB2     		uxtb	r2, r3
+ 660 0208 7B68     		ldr	r3, [r7, #4]
+ 661 020a 83F83120 		strb	r2, [r3, #49]
+ 662 020e 0FE0     		b	.L37
+ 663              	.L36:
+ 484:C:/StellarisWare/utils\softssi.c ****                     pSSI->pusRxBuffer[pSSI->usRxBufferWrite] = pSSI->usRxData;
+ 664              		.loc 1 484 0
+ 665 0210 7B68     		ldr	r3, [r7, #4]
+ 666 0212 9A69     		ldr	r2, [r3, #24]
+ 667 0214 7B68     		ldr	r3, [r7, #4]
+ 668 0216 DB8C     		ldrh	r3, [r3, #38]
+ 669 0218 4FEA4303 		lsl	r3, r3, #1
+ 670 021c D318     		adds	r3, r2, r3
+ 671 021e 7A68     		ldr	r2, [r7, #4]
+ 672 0220 528D     		ldrh	r2, [r2, #42]
+ 673 0222 1A80     		strh	r2, [r3, #0]	@ movhi
+ 489:C:/StellarisWare/utils\softssi.c ****                     pSSI->usRxBufferWrite = usTemp;
+ 674              		.loc 1 489 0
+ 675 0224 7B68     		ldr	r3, [r7, #4]
+ 676 0226 FA89     		ldrh	r2, [r7, #14]	@ movhi
+ 677 0228 DA84     		strh	r2, [r3, #38]	@ movhi
+ 494:C:/StellarisWare/utils\softssi.c ****                     SoftSSIRxInt(pSSI);
+ 678              		.loc 1 494 0
+ 679 022a 7868     		ldr	r0, [r7, #4]
+ 680 022c FFF7FEFF 		bl	SoftSSIRxInt
+ 681              	.L37:
+ 503:C:/StellarisWare/utils\softssi.c ****                 if(((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) != 0) &&
+ 682              		.loc 1 503 0
+ 683 0230 7B68     		ldr	r3, [r7, #4]
+ 684 0232 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 685 0236 DBB2     		uxtb	r3, r3
+ 686 0238 5BB2     		sxtb	r3, r3
+ 687 023a 002B     		cmp	r3, #0
+ 688 023c 2EDA     		bge	.L38
+ 504:C:/StellarisWare/utils\softssi.c ****                    ((pSSI->ucFlags & SOFTSSI_FLAG_SPH) != 0) &&
+ 689              		.loc 1 504 0 discriminator 1
+ 690 023e 7B68     		ldr	r3, [r7, #4]
+ 691 0240 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 692 0244 03F00203 		and	r3, r3, #2
+ 503:C:/StellarisWare/utils\softssi.c ****                 if(((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) != 0) &&
+ 693              		.loc 1 503 0 discriminator 1
+ 694 0248 002B     		cmp	r3, #0
+ 695 024a 27D0     		beq	.L38
+ 505:C:/StellarisWare/utils\softssi.c ****                    (pSSI->usTxBufferRead != pSSI->usTxBufferWrite))
+ 696              		.loc 1 505 0
+ 697 024c 7B68     		ldr	r3, [r7, #4]
+ 698 024e DA8B     		ldrh	r2, [r3, #30]
+ 699 0250 7B68     		ldr	r3, [r7, #4]
+ 700 0252 1B8C     		ldrh	r3, [r3, #32]
+ 504:C:/StellarisWare/utils\softssi.c ****                    ((pSSI->ucFlags & SOFTSSI_FLAG_SPH) != 0) &&
+ 701              		.loc 1 504 0
+ 702 0254 9A42     		cmp	r2, r3
+ 703 0256 21D0     		beq	.L38
+ 511:C:/StellarisWare/utils\softssi.c ****                         (pSSI->pusTxBuffer[pSSI->usTxBufferRead] <<
+ 704              		.loc 1 511 0
+ 705 0258 7B68     		ldr	r3, [r7, #4]
+ 706 025a 5A69     		ldr	r2, [r3, #20]
+ 707 025c 7B68     		ldr	r3, [r7, #4]
+ 708 025e DB8B     		ldrh	r3, [r3, #30]
+ 709 0260 4FEA4303 		lsl	r3, r3, #1
+ 710 0264 D318     		adds	r3, r2, r3
+ 711 0266 1B88     		ldrh	r3, [r3, #0]
+ 712 0268 1A46     		mov	r2, r3
+ 512:C:/StellarisWare/utils\softssi.c ****                          (16 - pSSI->ucBits));
+ 713              		.loc 1 512 0
+ 714 026a 7B68     		ldr	r3, [r7, #4]
+ 715 026c 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 716 0270 C3F11003 		rsb	r3, r3, #16
+ 511:C:/StellarisWare/utils\softssi.c ****                         (pSSI->pusTxBuffer[pSSI->usTxBufferRead] <<
+ 717              		.loc 1 511 0
+ 718 0274 02FA03F3 		lsl	r3, r2, r3
+ 510:C:/StellarisWare/utils\softssi.c ****                     pSSI->usTxData =
+ 719              		.loc 1 510 0
+ 720 0278 9AB2     		uxth	r2, r3
+ 721 027a 7B68     		ldr	r3, [r7, #4]
+ 722 027c 1A85     		strh	r2, [r3, #40]	@ movhi
+ 517:C:/StellarisWare/utils\softssi.c ****                     pSSI->usRxData = 0;
+ 723              		.loc 1 517 0
+ 724 027e 7B68     		ldr	r3, [r7, #4]
+ 725 0280 4FF00002 		mov	r2, #0
+ 726 0284 5A85     		strh	r2, [r3, #42]	@ movhi
+ 522:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucCurrentBit = 0;
+ 727              		.loc 1 522 0
+ 728 0286 7B68     		ldr	r3, [r7, #4]
+ 729 0288 4FF00002 		mov	r2, #0
+ 730 028c 83F82F20 		strb	r2, [r3, #47]
+ 527:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucState = SOFTSSI_STATE_OUT;
+ 731              		.loc 1 527 0
+ 732 0290 7B68     		ldr	r3, [r7, #4]
+ 733 0292 4FF00302 		mov	r2, #3
+ 734 0296 83F82E20 		strb	r2, [r3, #46]
+ 735              		.loc 1 542 0
+ 736 029a 69E0     		b	.L17
+ 737              	.L38:
+ 535:C:/StellarisWare/utils\softssi.c ****                     pSSI->ucState = SOFTSSI_STATE_STOP1;
+ 738              		.loc 1 535 0
+ 739 029c 7B68     		ldr	r3, [r7, #4]
+ 740 029e 4FF00402 		mov	r2, #4
+ 741 02a2 83F82E20 		strb	r2, [r3, #46]
+ 742              		.loc 1 542 0
+ 743 02a6 63E0     		b	.L17
+ 744              	.L21:
+ 543:C:/StellarisWare/utils\softssi.c ****         }
+ 544:C:/StellarisWare/utils\softssi.c **** 
+ 545:C:/StellarisWare/utils\softssi.c ****         //
+ 546:C:/StellarisWare/utils\softssi.c ****         // The state machine is in the data output state.
+ 547:C:/StellarisWare/utils\softssi.c ****         //
+ 548:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_OUT:
+ 549:C:/StellarisWare/utils\softssi.c ****         {
+ 550:C:/StellarisWare/utils\softssi.c ****             //
+ 551:C:/StellarisWare/utils\softssi.c ****             // Write the next bit of the transmit word to the Tx pin.
+ 552:C:/StellarisWare/utils\softssi.c ****             //
+ 553:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) = (pSSI->usTxData & 0x8000) ? 255 : 0;
+ 745              		.loc 1 553 0
+ 746 02a8 7B68     		ldr	r3, [r7, #4]
+ 747 02aa DB68     		ldr	r3, [r3, #12]
+ 748 02ac 1A46     		mov	r2, r3
+ 749 02ae 7B68     		ldr	r3, [r7, #4]
+ 750 02b0 1B8D     		ldrh	r3, [r3, #40]
+ 751 02b2 9BB2     		uxth	r3, r3
+ 752 02b4 1BB2     		sxth	r3, r3
+ 753 02b6 002B     		cmp	r3, #0
+ 754 02b8 02DA     		bge	.L39
+ 755              		.loc 1 553 0 is_stmt 0 discriminator 1
+ 756 02ba 4FF0FF03 		mov	r3, #255
+ 757 02be 01E0     		b	.L40
+ 758              	.L39:
+ 759              		.loc 1 553 0 discriminator 2
+ 760 02c0 4FF00003 		mov	r3, #0
+ 761              	.L40:
+ 762              		.loc 1 553 0 discriminator 3
+ 763 02c4 1360     		str	r3, [r2, #0]
+ 554:C:/StellarisWare/utils\softssi.c **** 
+ 555:C:/StellarisWare/utils\softssi.c ****             //
+ 556:C:/StellarisWare/utils\softssi.c ****             // Toggle the Clk signal.
+ 557:C:/StellarisWare/utils\softssi.c ****             //
+ 558:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulClkGPIO) ^= 255;
+ 764              		.loc 1 558 0 is_stmt 1 discriminator 3
+ 765 02c6 7B68     		ldr	r3, [r7, #4]
+ 766 02c8 9B68     		ldr	r3, [r3, #8]
+ 767 02ca 7A68     		ldr	r2, [r7, #4]
+ 768 02cc 9268     		ldr	r2, [r2, #8]
+ 769 02ce 1268     		ldr	r2, [r2, #0]
+ 770 02d0 82F0FF02 		eor	r2, r2, #255
+ 771 02d4 1A60     		str	r2, [r3, #0]
+ 559:C:/StellarisWare/utils\softssi.c **** 
+ 560:C:/StellarisWare/utils\softssi.c ****             //
+ 561:C:/StellarisWare/utils\softssi.c ****             // Shift to the next bit of the transmit word.
+ 562:C:/StellarisWare/utils\softssi.c ****             //
+ 563:C:/StellarisWare/utils\softssi.c ****             pSSI->usTxData <<= 1;
+ 772              		.loc 1 563 0 discriminator 3
+ 773 02d6 7B68     		ldr	r3, [r7, #4]
+ 774 02d8 1B8D     		ldrh	r3, [r3, #40]
+ 775 02da 4FEA4303 		lsl	r3, r3, #1
+ 776 02de 9AB2     		uxth	r2, r3
+ 777 02e0 7B68     		ldr	r3, [r7, #4]
+ 778 02e2 1A85     		strh	r2, [r3, #40]	@ movhi
+ 564:C:/StellarisWare/utils\softssi.c **** 
+ 565:C:/StellarisWare/utils\softssi.c ****             //
+ 566:C:/StellarisWare/utils\softssi.c ****             // Move to the data input state.
+ 567:C:/StellarisWare/utils\softssi.c ****             //
+ 568:C:/StellarisWare/utils\softssi.c ****             pSSI->ucState = SOFTSSI_STATE_IN;
+ 779              		.loc 1 568 0 discriminator 3
+ 780 02e4 7B68     		ldr	r3, [r7, #4]
+ 781 02e6 4FF00202 		mov	r2, #2
+ 782 02ea 83F82E20 		strb	r2, [r3, #46]
+ 569:C:/StellarisWare/utils\softssi.c **** 
+ 570:C:/StellarisWare/utils\softssi.c ****             //
+ 571:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 572:C:/StellarisWare/utils\softssi.c ****             //
+ 573:C:/StellarisWare/utils\softssi.c ****             break;
+ 783              		.loc 1 573 0 discriminator 3
+ 784 02ee 3FE0     		b	.L17
+ 785              	.L22:
+ 574:C:/StellarisWare/utils\softssi.c ****         }
+ 575:C:/StellarisWare/utils\softssi.c **** 
+ 576:C:/StellarisWare/utils\softssi.c ****         //
+ 577:C:/StellarisWare/utils\softssi.c ****         // The state machine is in the first step of the stop state.
+ 578:C:/StellarisWare/utils\softssi.c ****         //
+ 579:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_STOP1:
+ 580:C:/StellarisWare/utils\softssi.c ****         {
+ 581:C:/StellarisWare/utils\softssi.c ****             //
+ 582:C:/StellarisWare/utils\softssi.c ****             // Set the Tx pin low.
+ 583:C:/StellarisWare/utils\softssi.c ****             //
+ 584:C:/StellarisWare/utils\softssi.c ****             HWREG(pSSI->ulTxGPIO) = 0;
+ 786              		.loc 1 584 0
+ 787 02f0 7B68     		ldr	r3, [r7, #4]
+ 788 02f2 DB68     		ldr	r3, [r3, #12]
+ 789 02f4 4FF00002 		mov	r2, #0
+ 790 02f8 1A60     		str	r2, [r3, #0]
+ 585:C:/StellarisWare/utils\softssi.c **** 
+ 586:C:/StellarisWare/utils\softssi.c ****             //
+ 587:C:/StellarisWare/utils\softssi.c ****             // If in SPI mode 1 or 3, then the Clk signal needs to be toggled.
+ 588:C:/StellarisWare/utils\softssi.c ****             //
+ 589:C:/StellarisWare/utils\softssi.c ****             if((pSSI->ucFlags & SOFTSSI_FLAG_SPH) == 0)
+ 791              		.loc 1 589 0
+ 792 02fa 7B68     		ldr	r3, [r7, #4]
+ 793 02fc 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 794 0300 03F00203 		and	r3, r3, #2
+ 795 0304 002B     		cmp	r3, #0
+ 796 0306 07D1     		bne	.L41
+ 590:C:/StellarisWare/utils\softssi.c ****             {
+ 591:C:/StellarisWare/utils\softssi.c ****                 HWREG(pSSI->ulClkGPIO) ^= 255;
+ 797              		.loc 1 591 0
+ 798 0308 7B68     		ldr	r3, [r7, #4]
+ 799 030a 9B68     		ldr	r3, [r3, #8]
+ 800 030c 7A68     		ldr	r2, [r7, #4]
+ 801 030e 9268     		ldr	r2, [r2, #8]
+ 802 0310 1268     		ldr	r2, [r2, #0]
+ 803 0312 82F0FF02 		eor	r2, r2, #255
+ 804 0316 1A60     		str	r2, [r3, #0]
+ 805              	.L41:
+ 592:C:/StellarisWare/utils\softssi.c ****             }
+ 593:C:/StellarisWare/utils\softssi.c **** 
+ 594:C:/StellarisWare/utils\softssi.c ****             //
+ 595:C:/StellarisWare/utils\softssi.c ****             // Move to the second step of the stop state.
+ 596:C:/StellarisWare/utils\softssi.c ****             //
+ 597:C:/StellarisWare/utils\softssi.c ****             pSSI->ucState = SOFTSSI_STATE_STOP2;
+ 806              		.loc 1 597 0
+ 807 0318 7B68     		ldr	r3, [r7, #4]
+ 808 031a 4FF00502 		mov	r2, #5
+ 809 031e 83F82E20 		strb	r2, [r3, #46]
+ 598:C:/StellarisWare/utils\softssi.c **** 
+ 599:C:/StellarisWare/utils\softssi.c ****             //
+ 600:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 601:C:/StellarisWare/utils\softssi.c ****             //
+ 602:C:/StellarisWare/utils\softssi.c ****             break;
+ 810              		.loc 1 602 0
+ 811 0322 25E0     		b	.L17
+ 812              	.L23:
+ 603:C:/StellarisWare/utils\softssi.c ****         }
+ 604:C:/StellarisWare/utils\softssi.c **** 
+ 605:C:/StellarisWare/utils\softssi.c ****         //
+ 606:C:/StellarisWare/utils\softssi.c ****         // The state machine is in the second step of the stop state.
+ 607:C:/StellarisWare/utils\softssi.c ****         //
+ 608:C:/StellarisWare/utils\softssi.c ****         case SOFTSSI_STATE_STOP2:
+ 609:C:/StellarisWare/utils\softssi.c ****         {
+ 610:C:/StellarisWare/utils\softssi.c ****             //
+ 611:C:/StellarisWare/utils\softssi.c ****             // Deassert the Fss signal if it is configured.
+ 612:C:/StellarisWare/utils\softssi.c ****             //
+ 613:C:/StellarisWare/utils\softssi.c ****             if(pSSI->ulFssGPIO != 0)
+ 813              		.loc 1 613 0
+ 814 0324 7B68     		ldr	r3, [r7, #4]
+ 815 0326 5B68     		ldr	r3, [r3, #4]
+ 816 0328 002B     		cmp	r3, #0
+ 817 032a 04D0     		beq	.L42
+ 614:C:/StellarisWare/utils\softssi.c ****             {
+ 615:C:/StellarisWare/utils\softssi.c ****                 HWREG(pSSI->ulFssGPIO) = 255;
+ 818              		.loc 1 615 0
+ 819 032c 7B68     		ldr	r3, [r7, #4]
+ 820 032e 5B68     		ldr	r3, [r3, #4]
+ 821 0330 4FF0FF02 		mov	r2, #255
+ 822 0334 1A60     		str	r2, [r3, #0]
+ 823              	.L42:
+ 616:C:/StellarisWare/utils\softssi.c ****             }
+ 617:C:/StellarisWare/utils\softssi.c **** 
+ 618:C:/StellarisWare/utils\softssi.c ****             //
+ 619:C:/StellarisWare/utils\softssi.c ****             // Move to the idle state.
+ 620:C:/StellarisWare/utils\softssi.c ****             //
+ 621:C:/StellarisWare/utils\softssi.c ****             pSSI->ucState = SOFTSSI_STATE_IDLE;
+ 824              		.loc 1 621 0
+ 825 0336 7B68     		ldr	r3, [r7, #4]
+ 826 0338 4FF00002 		mov	r2, #0
+ 827 033c 83F82E20 		strb	r2, [r3, #46]
+ 622:C:/StellarisWare/utils\softssi.c **** 
+ 623:C:/StellarisWare/utils\softssi.c ****             //
+ 624:C:/StellarisWare/utils\softssi.c ****             // Reset the idle counter.
+ 625:C:/StellarisWare/utils\softssi.c ****             //
+ 626:C:/StellarisWare/utils\softssi.c ****             pSSI->ucIdleCount = 0;
+ 828              		.loc 1 626 0
+ 829 0340 7B68     		ldr	r3, [r7, #4]
+ 830 0342 4FF00002 		mov	r2, #0
+ 831 0346 83F83220 		strb	r2, [r3, #50]
+ 627:C:/StellarisWare/utils\softssi.c **** 
+ 628:C:/StellarisWare/utils\softssi.c ****             //
+ 629:C:/StellarisWare/utils\softssi.c ****             // See if the end of transfer "interrupt" should be generated.
+ 630:C:/StellarisWare/utils\softssi.c ****             //
+ 631:C:/StellarisWare/utils\softssi.c ****             if(pSSI->usTxBufferRead == pSSI->usTxBufferWrite)
+ 832              		.loc 1 631 0
+ 833 034a 7B68     		ldr	r3, [r7, #4]
+ 834 034c DA8B     		ldrh	r2, [r3, #30]
+ 835 034e 7B68     		ldr	r3, [r7, #4]
+ 836 0350 1B8C     		ldrh	r3, [r3, #32]
+ 837 0352 9A42     		cmp	r2, r3
+ 838 0354 0BD1     		bne	.L49
+ 632:C:/StellarisWare/utils\softssi.c ****             {
+ 633:C:/StellarisWare/utils\softssi.c ****                 pSSI->ucIntStatus |= SOFTSSI_TXEOT;
+ 839              		.loc 1 633 0
+ 840 0356 7B68     		ldr	r3, [r7, #4]
+ 841 0358 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 842 035c 43F01003 		orr	r3, r3, #16
+ 843 0360 DAB2     		uxtb	r2, r3
+ 844 0362 7B68     		ldr	r3, [r7, #4]
+ 845 0364 83F83120 		strb	r2, [r3, #49]
+ 634:C:/StellarisWare/utils\softssi.c ****             }
+ 635:C:/StellarisWare/utils\softssi.c **** 
+ 636:C:/StellarisWare/utils\softssi.c ****             //
+ 637:C:/StellarisWare/utils\softssi.c ****             // This state has been handled.
+ 638:C:/StellarisWare/utils\softssi.c ****             //
+ 639:C:/StellarisWare/utils\softssi.c ****             break;
+ 846              		.loc 1 639 0
+ 847 0368 01E0     		b	.L49
+ 848              	.L48:
+ 352:C:/StellarisWare/utils\softssi.c ****             break;
+ 849              		.loc 1 352 0
+ 850 036a 00BF     		nop
+ 851 036c 00E0     		b	.L17
+ 852              	.L49:
+ 853              		.loc 1 639 0
+ 854 036e 00BF     		nop
+ 855              	.L17:
+ 640:C:/StellarisWare/utils\softssi.c ****         }
+ 641:C:/StellarisWare/utils\softssi.c ****     }
+ 642:C:/StellarisWare/utils\softssi.c **** 
+ 643:C:/StellarisWare/utils\softssi.c ****     //
+ 644:C:/StellarisWare/utils\softssi.c ****     // Call the "interrupt" callback while there are enabled "interrupts"
+ 645:C:/StellarisWare/utils\softssi.c ****     // asserted.  By calling in a loop until the "interrupts" are no longer
+ 646:C:/StellarisWare/utils\softssi.c ****     // asserted, this mimics the behavior of a real hardware implementation of
+ 647:C:/StellarisWare/utils\softssi.c ****     // the SSI peripheral.
+ 648:C:/StellarisWare/utils\softssi.c ****     //
+ 649:C:/StellarisWare/utils\softssi.c ****     while(((pSSI->ucIntStatus & pSSI->ucIntMask) != 0) &&
+ 856              		.loc 1 649 0
+ 857 0370 03E0     		b	.L47
+ 858              	.L46:
+ 650:C:/StellarisWare/utils\softssi.c ****           (pSSI->pfnIntCallback != 0))
+ 651:C:/StellarisWare/utils\softssi.c ****     {
+ 652:C:/StellarisWare/utils\softssi.c ****         //
+ 653:C:/StellarisWare/utils\softssi.c ****         // Call the callback function.
+ 654:C:/StellarisWare/utils\softssi.c ****         //
+ 655:C:/StellarisWare/utils\softssi.c ****         pSSI->pfnIntCallback();
+ 859              		.loc 1 655 0
+ 860 0372 7B68     		ldr	r3, [r7, #4]
+ 861 0374 1B68     		ldr	r3, [r3, #0]
+ 862 0376 9847     		blx	r3
+ 863 0378 00E0     		b	.L44
+ 864              	.L47:
+ 649:C:/StellarisWare/utils\softssi.c ****     while(((pSSI->ucIntStatus & pSSI->ucIntMask) != 0) &&
+ 865              		.loc 1 649 0
+ 866 037a 00BF     		nop
+ 867              	.L44:
+ 649:C:/StellarisWare/utils\softssi.c ****     while(((pSSI->ucIntStatus & pSSI->ucIntMask) != 0) &&
+ 868              		.loc 1 649 0 is_stmt 0 discriminator 1
+ 869 037c 7B68     		ldr	r3, [r7, #4]
+ 870 037e 93F83120 		ldrb	r2, [r3, #49]	@ zero_extendqisi2
+ 871 0382 7B68     		ldr	r3, [r7, #4]
+ 872 0384 93F83030 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 873 0388 1340     		ands	r3, r3, r2
+ 874 038a DBB2     		uxtb	r3, r3
+ 875 038c 002B     		cmp	r3, #0
+ 876 038e 03D0     		beq	.L16
+ 650:C:/StellarisWare/utils\softssi.c ****           (pSSI->pfnIntCallback != 0))
+ 877              		.loc 1 650 0 is_stmt 1 discriminator 2
+ 878 0390 7B68     		ldr	r3, [r7, #4]
+ 879 0392 1B68     		ldr	r3, [r3, #0]
+ 649:C:/StellarisWare/utils\softssi.c ****     while(((pSSI->ucIntStatus & pSSI->ucIntMask) != 0) &&
+ 880              		.loc 1 649 0 discriminator 2
+ 881 0394 002B     		cmp	r3, #0
+ 882 0396 ECD1     		bne	.L46
+ 883              	.L16:
+ 656:C:/StellarisWare/utils\softssi.c ****     }
+ 657:C:/StellarisWare/utils\softssi.c **** }
+ 884              		.loc 1 657 0
+ 885 0398 07F11007 		add	r7, r7, #16
+ 886 039c BD46     		mov	sp, r7
+ 887 039e 80BD     		pop	{r7, pc}
+ 888              		.cfi_endproc
+ 889              	.LFE3:
+ 891              		.section	.text.SoftSSIEnable,"ax",%progbits
+ 892              		.align	2
+ 893              		.global	SoftSSIEnable
+ 894              		.thumb
+ 895              		.thumb_func
+ 897              	SoftSSIEnable:
+ 898              	.LFB4:
+ 658:C:/StellarisWare/utils\softssi.c **** 
+ 659:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 660:C:/StellarisWare/utils\softssi.c **** //
+ 661:C:/StellarisWare/utils\softssi.c **** //! Enables the SoftSSI module.
+ 662:C:/StellarisWare/utils\softssi.c **** //!
+ 663:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 664:C:/StellarisWare/utils\softssi.c **** //!
+ 665:C:/StellarisWare/utils\softssi.c **** //! This function enables operation of the SoftSSI module.  The SoftSSI module
+ 666:C:/StellarisWare/utils\softssi.c **** //! must be configured before it is enabled.
+ 667:C:/StellarisWare/utils\softssi.c **** //!
+ 668:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 669:C:/StellarisWare/utils\softssi.c **** //
+ 670:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 671:C:/StellarisWare/utils\softssi.c **** void
+ 672:C:/StellarisWare/utils\softssi.c **** SoftSSIEnable(tSoftSSI *pSSI)
+ 673:C:/StellarisWare/utils\softssi.c **** {
+ 899              		.loc 1 673 0
+ 900              		.cfi_startproc
+ 901              		@ args = 0, pretend = 0, frame = 8
+ 902              		@ frame_needed = 1, uses_anonymous_args = 0
+ 903              		@ link register save eliminated.
+ 904 0000 80B4     		push	{r7}
+ 905              	.LCFI12:
+ 906              		.cfi_def_cfa_offset 4
+ 907              		.cfi_offset 7, -4
+ 908 0002 83B0     		sub	sp, sp, #12
+ 909              	.LCFI13:
+ 910              		.cfi_def_cfa_offset 16
+ 911 0004 00AF     		add	r7, sp, #0
+ 912              	.LCFI14:
+ 913              		.cfi_def_cfa_register 7
+ 914 0006 7860     		str	r0, [r7, #4]
+ 674:C:/StellarisWare/utils\softssi.c ****     //
+ 675:C:/StellarisWare/utils\softssi.c ****     // Enable the SoftSSI module.
+ 676:C:/StellarisWare/utils\softssi.c ****     //
+ 677:C:/StellarisWare/utils\softssi.c ****     pSSI->ucFlags |= SOFTSSI_FLAG_ENABLE;
+ 915              		.loc 1 677 0
+ 916 0008 7B68     		ldr	r3, [r7, #4]
+ 917 000a 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 918 000e 63F07F03 		orn	r3, r3, #127
+ 919 0012 DAB2     		uxtb	r2, r3
+ 920 0014 7B68     		ldr	r3, [r7, #4]
+ 921 0016 83F82C20 		strb	r2, [r3, #44]
+ 678:C:/StellarisWare/utils\softssi.c **** }
+ 922              		.loc 1 678 0
+ 923 001a 07F10C07 		add	r7, r7, #12
+ 924 001e BD46     		mov	sp, r7
+ 925 0020 80BC     		pop	{r7}
+ 926 0022 7047     		bx	lr
+ 927              		.cfi_endproc
+ 928              	.LFE4:
+ 930              		.section	.text.SoftSSIDisable,"ax",%progbits
+ 931              		.align	2
+ 932              		.global	SoftSSIDisable
+ 933              		.thumb
+ 934              		.thumb_func
+ 936              	SoftSSIDisable:
+ 937              	.LFB5:
+ 679:C:/StellarisWare/utils\softssi.c **** 
+ 680:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 681:C:/StellarisWare/utils\softssi.c **** //
+ 682:C:/StellarisWare/utils\softssi.c **** //! Disables the SoftSSI module.
+ 683:C:/StellarisWare/utils\softssi.c **** //!
+ 684:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 685:C:/StellarisWare/utils\softssi.c **** //!
+ 686:C:/StellarisWare/utils\softssi.c **** //! This function disables operation of the SoftSSI module.  If a data transfer
+ 687:C:/StellarisWare/utils\softssi.c **** //! is in progress, it is finished before the module is fully disabled.
+ 688:C:/StellarisWare/utils\softssi.c **** //!
+ 689:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 690:C:/StellarisWare/utils\softssi.c **** //
+ 691:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 692:C:/StellarisWare/utils\softssi.c **** void
+ 693:C:/StellarisWare/utils\softssi.c **** SoftSSIDisable(tSoftSSI *pSSI)
+ 694:C:/StellarisWare/utils\softssi.c **** {
+ 938              		.loc 1 694 0
+ 939              		.cfi_startproc
+ 940              		@ args = 0, pretend = 0, frame = 8
+ 941              		@ frame_needed = 1, uses_anonymous_args = 0
+ 942              		@ link register save eliminated.
+ 943 0000 80B4     		push	{r7}
+ 944              	.LCFI15:
+ 945              		.cfi_def_cfa_offset 4
+ 946              		.cfi_offset 7, -4
+ 947 0002 83B0     		sub	sp, sp, #12
+ 948              	.LCFI16:
+ 949              		.cfi_def_cfa_offset 16
+ 950 0004 00AF     		add	r7, sp, #0
+ 951              	.LCFI17:
+ 952              		.cfi_def_cfa_register 7
+ 953 0006 7860     		str	r0, [r7, #4]
+ 695:C:/StellarisWare/utils\softssi.c ****     //
+ 696:C:/StellarisWare/utils\softssi.c ****     // Disable the SoftSSI module.
+ 697:C:/StellarisWare/utils\softssi.c ****     //
+ 698:C:/StellarisWare/utils\softssi.c ****     pSSI->ucFlags &= ~(SOFTSSI_FLAG_ENABLE);
+ 954              		.loc 1 698 0
+ 955 0008 7B68     		ldr	r3, [r7, #4]
+ 956 000a 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 957 000e 03F07F03 		and	r3, r3, #127
+ 958 0012 DAB2     		uxtb	r2, r3
+ 959 0014 7B68     		ldr	r3, [r7, #4]
+ 960 0016 83F82C20 		strb	r2, [r3, #44]
+ 699:C:/StellarisWare/utils\softssi.c **** }
+ 961              		.loc 1 699 0
+ 962 001a 07F10C07 		add	r7, r7, #12
+ 963 001e BD46     		mov	sp, r7
+ 964 0020 80BC     		pop	{r7}
+ 965 0022 7047     		bx	lr
+ 966              		.cfi_endproc
+ 967              	.LFE5:
+ 969              		.section	.text.SoftSSIIntEnable,"ax",%progbits
+ 970              		.align	2
+ 971              		.global	SoftSSIIntEnable
+ 972              		.thumb
+ 973              		.thumb_func
+ 975              	SoftSSIIntEnable:
+ 976              	.LFB6:
+ 700:C:/StellarisWare/utils\softssi.c **** 
+ 701:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 702:C:/StellarisWare/utils\softssi.c **** //
+ 703:C:/StellarisWare/utils\softssi.c **** //! Enables individual SoftSSI ``interrupt'' sources.
+ 704:C:/StellarisWare/utils\softssi.c **** //!
+ 705:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 706:C:/StellarisWare/utils\softssi.c **** //! \param ulIntFlags is a bit mask of the ``interrupt'' sources to be enabled.
+ 707:C:/StellarisWare/utils\softssi.c **** //!
+ 708:C:/StellarisWare/utils\softssi.c **** //! Enables the indicated SoftSSI ``interrupt'' sources.  Only the sources that
+ 709:C:/StellarisWare/utils\softssi.c **** //! are enabled can be reflected to the callback function; disabled sources do
+ 710:C:/StellarisWare/utils\softssi.c **** //! not result in a callback.  The \e ulIntFlags parameter can be any of the
+ 711:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_TXEOT, \b SOFTSSI_TXFF, \b SOFTSSI_RXFF, \b SOFTSSI_RXTO, or
+ 712:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_RXOR values.
+ 713:C:/StellarisWare/utils\softssi.c **** //!
+ 714:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 715:C:/StellarisWare/utils\softssi.c **** //
+ 716:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 717:C:/StellarisWare/utils\softssi.c **** void
+ 718:C:/StellarisWare/utils\softssi.c **** SoftSSIIntEnable(tSoftSSI *pSSI, unsigned long ulIntFlags)
+ 719:C:/StellarisWare/utils\softssi.c **** {
+ 977              		.loc 1 719 0
+ 978              		.cfi_startproc
+ 979              		@ args = 0, pretend = 0, frame = 8
+ 980              		@ frame_needed = 1, uses_anonymous_args = 0
+ 981              		@ link register save eliminated.
+ 982 0000 80B4     		push	{r7}
+ 983              	.LCFI18:
+ 984              		.cfi_def_cfa_offset 4
+ 985              		.cfi_offset 7, -4
+ 986 0002 83B0     		sub	sp, sp, #12
+ 987              	.LCFI19:
+ 988              		.cfi_def_cfa_offset 16
+ 989 0004 00AF     		add	r7, sp, #0
+ 990              	.LCFI20:
+ 991              		.cfi_def_cfa_register 7
+ 992 0006 7860     		str	r0, [r7, #4]
+ 993 0008 3960     		str	r1, [r7, #0]
+ 720:C:/StellarisWare/utils\softssi.c ****     //
+ 721:C:/StellarisWare/utils\softssi.c ****     // Enable the specified "interrupts".
+ 722:C:/StellarisWare/utils\softssi.c ****     //
+ 723:C:/StellarisWare/utils\softssi.c ****     pSSI->ucIntMask |= ulIntFlags;
+ 994              		.loc 1 723 0
+ 995 000a 7B68     		ldr	r3, [r7, #4]
+ 996 000c 93F83020 		ldrb	r2, [r3, #48]	@ zero_extendqisi2
+ 997 0010 3B68     		ldr	r3, [r7, #0]
+ 998 0012 DBB2     		uxtb	r3, r3
+ 999 0014 1343     		orrs	r3, r3, r2
+ 1000 0016 DAB2     		uxtb	r2, r3
+ 1001 0018 7B68     		ldr	r3, [r7, #4]
+ 1002 001a 83F83020 		strb	r2, [r3, #48]
+ 724:C:/StellarisWare/utils\softssi.c **** }
+ 1003              		.loc 1 724 0
+ 1004 001e 07F10C07 		add	r7, r7, #12
+ 1005 0022 BD46     		mov	sp, r7
+ 1006 0024 80BC     		pop	{r7}
+ 1007 0026 7047     		bx	lr
+ 1008              		.cfi_endproc
+ 1009              	.LFE6:
+ 1011              		.section	.text.SoftSSIIntDisable,"ax",%progbits
+ 1012              		.align	2
+ 1013              		.global	SoftSSIIntDisable
+ 1014              		.thumb
+ 1015              		.thumb_func
+ 1017              	SoftSSIIntDisable:
+ 1018              	.LFB7:
+ 725:C:/StellarisWare/utils\softssi.c **** 
+ 726:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 727:C:/StellarisWare/utils\softssi.c **** //
+ 728:C:/StellarisWare/utils\softssi.c **** //! Disables individual SoftSSI ``interrupt'' sources.
+ 729:C:/StellarisWare/utils\softssi.c **** //!
+ 730:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 731:C:/StellarisWare/utils\softssi.c **** //! \param ulIntFlags is a bit mask of the ``interrupt'' sources to be
+ 732:C:/StellarisWare/utils\softssi.c **** //! disabled.
+ 733:C:/StellarisWare/utils\softssi.c **** //!
+ 734:C:/StellarisWare/utils\softssi.c **** //! Disables the indicated SoftSSI ``interrupt'' sources.  The \e ulIntFlags
+ 735:C:/StellarisWare/utils\softssi.c **** //! parameter can be any of the \b SOFTSSI_TXEOT, \b SOFTSSI_TXFF,
+ 736:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_RXFF, \b SOFTSSI_RXTO, or \b SOFTSSI_RXOR values.
+ 737:C:/StellarisWare/utils\softssi.c **** //!
+ 738:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 739:C:/StellarisWare/utils\softssi.c **** //
+ 740:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 741:C:/StellarisWare/utils\softssi.c **** void
+ 742:C:/StellarisWare/utils\softssi.c **** SoftSSIIntDisable(tSoftSSI *pSSI, unsigned long ulIntFlags)
+ 743:C:/StellarisWare/utils\softssi.c **** {
+ 1019              		.loc 1 743 0
+ 1020              		.cfi_startproc
+ 1021              		@ args = 0, pretend = 0, frame = 8
+ 1022              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1023              		@ link register save eliminated.
+ 1024 0000 80B4     		push	{r7}
+ 1025              	.LCFI21:
+ 1026              		.cfi_def_cfa_offset 4
+ 1027              		.cfi_offset 7, -4
+ 1028 0002 83B0     		sub	sp, sp, #12
+ 1029              	.LCFI22:
+ 1030              		.cfi_def_cfa_offset 16
+ 1031 0004 00AF     		add	r7, sp, #0
+ 1032              	.LCFI23:
+ 1033              		.cfi_def_cfa_register 7
+ 1034 0006 7860     		str	r0, [r7, #4]
+ 1035 0008 3960     		str	r1, [r7, #0]
+ 744:C:/StellarisWare/utils\softssi.c ****     //
+ 745:C:/StellarisWare/utils\softssi.c ****     // Disable the specified "interrupts".
+ 746:C:/StellarisWare/utils\softssi.c ****     //
+ 747:C:/StellarisWare/utils\softssi.c ****     pSSI->ucIntMask &= ~(ulIntFlags);
+ 1036              		.loc 1 747 0
+ 1037 000a 7B68     		ldr	r3, [r7, #4]
+ 1038 000c 93F83020 		ldrb	r2, [r3, #48]	@ zero_extendqisi2
+ 1039 0010 3B68     		ldr	r3, [r7, #0]
+ 1040 0012 DBB2     		uxtb	r3, r3
+ 1041 0014 6FEA0303 		mvn	r3, r3
+ 1042 0018 DBB2     		uxtb	r3, r3
+ 1043 001a 1340     		ands	r3, r3, r2
+ 1044 001c DAB2     		uxtb	r2, r3
+ 1045 001e 7B68     		ldr	r3, [r7, #4]
+ 1046 0020 83F83020 		strb	r2, [r3, #48]
+ 748:C:/StellarisWare/utils\softssi.c **** }
+ 1047              		.loc 1 748 0
+ 1048 0024 07F10C07 		add	r7, r7, #12
+ 1049 0028 BD46     		mov	sp, r7
+ 1050 002a 80BC     		pop	{r7}
+ 1051 002c 7047     		bx	lr
+ 1052              		.cfi_endproc
+ 1053              	.LFE7:
+ 1055 002e 00BF     		.section	.text.SoftSSIIntStatus,"ax",%progbits
+ 1056              		.align	2
+ 1057              		.global	SoftSSIIntStatus
+ 1058              		.thumb
+ 1059              		.thumb_func
+ 1061              	SoftSSIIntStatus:
+ 1062              	.LFB8:
+ 749:C:/StellarisWare/utils\softssi.c **** 
+ 750:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 751:C:/StellarisWare/utils\softssi.c **** //
+ 752:C:/StellarisWare/utils\softssi.c **** //! Gets the current ``interrupt'' status.
+ 753:C:/StellarisWare/utils\softssi.c **** //!
+ 754:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 755:C:/StellarisWare/utils\softssi.c **** //! \param bMasked is \b false if the raw ``interrupt'' status is required or
+ 756:C:/StellarisWare/utils\softssi.c **** //! \b true if the masked ``interrupt'' status is required.
+ 757:C:/StellarisWare/utils\softssi.c **** //!
+ 758:C:/StellarisWare/utils\softssi.c **** //! This function returns the ``interrupt'' status for the SoftSSI module.
+ 759:C:/StellarisWare/utils\softssi.c **** //! Either the raw ``interrupt'' status or the status of ``interrupts'' that
+ 760:C:/StellarisWare/utils\softssi.c **** //! are allowed to reflect to the callback can be returned.
+ 761:C:/StellarisWare/utils\softssi.c **** //!
+ 762:C:/StellarisWare/utils\softssi.c **** //! \return The current ``interrupt'' status, enumerated as a bit field of
+ 763:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_TXEOT, \b SOFTSSI_TXFF, \b SOFTSSI_RXFF, \b SOFTSSI_RXTO, and
+ 764:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_RXOR.
+ 765:C:/StellarisWare/utils\softssi.c **** //
+ 766:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 767:C:/StellarisWare/utils\softssi.c **** unsigned long
+ 768:C:/StellarisWare/utils\softssi.c **** SoftSSIIntStatus(tSoftSSI *pSSI, tBoolean bMasked)
+ 769:C:/StellarisWare/utils\softssi.c **** {
+ 1063              		.loc 1 769 0
+ 1064              		.cfi_startproc
+ 1065              		@ args = 0, pretend = 0, frame = 8
+ 1066              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1067              		@ link register save eliminated.
+ 1068 0000 80B4     		push	{r7}
+ 1069              	.LCFI24:
+ 1070              		.cfi_def_cfa_offset 4
+ 1071              		.cfi_offset 7, -4
+ 1072 0002 83B0     		sub	sp, sp, #12
+ 1073              	.LCFI25:
+ 1074              		.cfi_def_cfa_offset 16
+ 1075 0004 00AF     		add	r7, sp, #0
+ 1076              	.LCFI26:
+ 1077              		.cfi_def_cfa_register 7
+ 1078 0006 7860     		str	r0, [r7, #4]
+ 1079 0008 0B46     		mov	r3, r1
+ 1080 000a FB70     		strb	r3, [r7, #3]
+ 770:C:/StellarisWare/utils\softssi.c ****     //
+ 771:C:/StellarisWare/utils\softssi.c ****     // Return either the "interrupt" status or the raw "interrupt" status as
+ 772:C:/StellarisWare/utils\softssi.c ****     // requested.
+ 773:C:/StellarisWare/utils\softssi.c ****     //
+ 774:C:/StellarisWare/utils\softssi.c ****     if(bMasked)
+ 1081              		.loc 1 774 0
+ 1082 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1083 000e 002B     		cmp	r3, #0
+ 1084 0010 08D0     		beq	.L55
+ 775:C:/StellarisWare/utils\softssi.c ****     {
+ 776:C:/StellarisWare/utils\softssi.c ****         return(pSSI->ucIntStatus & pSSI->ucIntMask);
+ 1085              		.loc 1 776 0
+ 1086 0012 7B68     		ldr	r3, [r7, #4]
+ 1087 0014 93F83120 		ldrb	r2, [r3, #49]	@ zero_extendqisi2
+ 1088 0018 7B68     		ldr	r3, [r7, #4]
+ 1089 001a 93F83030 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 1090 001e 1340     		ands	r3, r3, r2
+ 1091 0020 DBB2     		uxtb	r3, r3
+ 1092 0022 02E0     		b	.L56
+ 1093              	.L55:
+ 777:C:/StellarisWare/utils\softssi.c ****     }
+ 778:C:/StellarisWare/utils\softssi.c ****     else
+ 779:C:/StellarisWare/utils\softssi.c ****     {
+ 780:C:/StellarisWare/utils\softssi.c ****         return(pSSI->ucIntStatus);
+ 1094              		.loc 1 780 0
+ 1095 0024 7B68     		ldr	r3, [r7, #4]
+ 1096 0026 93F83130 		ldrb	r3, [r3, #49]	@ zero_extendqisi2
+ 1097              	.L56:
+ 781:C:/StellarisWare/utils\softssi.c ****     }
+ 782:C:/StellarisWare/utils\softssi.c **** }
+ 1098              		.loc 1 782 0
+ 1099 002a 1846     		mov	r0, r3
+ 1100 002c 07F10C07 		add	r7, r7, #12
+ 1101 0030 BD46     		mov	sp, r7
+ 1102 0032 80BC     		pop	{r7}
+ 1103 0034 7047     		bx	lr
+ 1104              		.cfi_endproc
+ 1105              	.LFE8:
+ 1107 0036 00BF     		.section	.text.SoftSSIIntClear,"ax",%progbits
+ 1108              		.align	2
+ 1109              		.global	SoftSSIIntClear
+ 1110              		.thumb
+ 1111              		.thumb_func
+ 1113              	SoftSSIIntClear:
+ 1114              	.LFB9:
+ 783:C:/StellarisWare/utils\softssi.c **** 
+ 784:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 785:C:/StellarisWare/utils\softssi.c **** //
+ 786:C:/StellarisWare/utils\softssi.c **** //! Clears SoftSSI ``interrupt'' sources.
+ 787:C:/StellarisWare/utils\softssi.c **** //!
+ 788:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 789:C:/StellarisWare/utils\softssi.c **** //! \param ulIntFlags is a bit mask of the ``interrupt'' sources to be cleared.
+ 790:C:/StellarisWare/utils\softssi.c **** //!
+ 791:C:/StellarisWare/utils\softssi.c **** //! The specified SoftSSI ``interrupt'' sources are cleared so that they no
+ 792:C:/StellarisWare/utils\softssi.c **** //! longer assert.  This function must be called in the ``interrupt'' handler
+ 793:C:/StellarisWare/utils\softssi.c **** //! to keep the ``interrupt'' from being recognized again immediately upon
+ 794:C:/StellarisWare/utils\softssi.c **** //! exit.  The \e ulIntFlags parameter is the logical OR of any of the
+ 795:C:/StellarisWare/utils\softssi.c **** //! \b SOFTSSI_TXEOT, \b SOFTSSI_RXTO, and \b SOFTSSI_RXOR values.
+ 796:C:/StellarisWare/utils\softssi.c **** //!
+ 797:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 798:C:/StellarisWare/utils\softssi.c **** //
+ 799:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 800:C:/StellarisWare/utils\softssi.c **** void
+ 801:C:/StellarisWare/utils\softssi.c **** SoftSSIIntClear(tSoftSSI *pSSI, unsigned long ulIntFlags)
+ 802:C:/StellarisWare/utils\softssi.c **** {
+ 1115              		.loc 1 802 0
+ 1116              		.cfi_startproc
+ 1117              		@ args = 0, pretend = 0, frame = 8
+ 1118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1119              		@ link register save eliminated.
+ 1120 0000 80B4     		push	{r7}
+ 1121              	.LCFI27:
+ 1122              		.cfi_def_cfa_offset 4
+ 1123              		.cfi_offset 7, -4
+ 1124 0002 83B0     		sub	sp, sp, #12
+ 1125              	.LCFI28:
+ 1126              		.cfi_def_cfa_offset 16
+ 1127 0004 00AF     		add	r7, sp, #0
+ 1128              	.LCFI29:
+ 1129              		.cfi_def_cfa_register 7
+ 1130 0006 7860     		str	r0, [r7, #4]
+ 1131 0008 3960     		str	r1, [r7, #0]
+ 803:C:/StellarisWare/utils\softssi.c ****     //
+ 804:C:/StellarisWare/utils\softssi.c ****     // Clear the requested "interrupt" sources.
+ 805:C:/StellarisWare/utils\softssi.c ****     //
+ 806:C:/StellarisWare/utils\softssi.c ****     pSSI->ucIntStatus &= ~(ulIntFlags) | SOFTSSI_TXFF | SOFTSSI_RXFF;
+ 1132              		.loc 1 806 0
+ 1133 000a 7B68     		ldr	r3, [r7, #4]
+ 1134 000c 93F83120 		ldrb	r2, [r3, #49]	@ zero_extendqisi2
+ 1135 0010 3B68     		ldr	r3, [r7, #0]
+ 1136 0012 DBB2     		uxtb	r3, r3
+ 1137 0014 6FEA0303 		mvn	r3, r3
+ 1138 0018 DBB2     		uxtb	r3, r3
+ 1139 001a 43F00C03 		orr	r3, r3, #12
+ 1140 001e DBB2     		uxtb	r3, r3
+ 1141 0020 1340     		ands	r3, r3, r2
+ 1142 0022 DAB2     		uxtb	r2, r3
+ 1143 0024 7B68     		ldr	r3, [r7, #4]
+ 1144 0026 83F83120 		strb	r2, [r3, #49]
+ 807:C:/StellarisWare/utils\softssi.c **** }
+ 1145              		.loc 1 807 0
+ 1146 002a 07F10C07 		add	r7, r7, #12
+ 1147 002e BD46     		mov	sp, r7
+ 1148 0030 80BC     		pop	{r7}
+ 1149 0032 7047     		bx	lr
+ 1150              		.cfi_endproc
+ 1151              	.LFE9:
+ 1153              		.section	.text.SoftSSIDataAvail,"ax",%progbits
+ 1154              		.align	2
+ 1155              		.global	SoftSSIDataAvail
+ 1156              		.thumb
+ 1157              		.thumb_func
+ 1159              	SoftSSIDataAvail:
+ 1160              	.LFB10:
+ 808:C:/StellarisWare/utils\softssi.c **** 
+ 809:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 810:C:/StellarisWare/utils\softssi.c **** //
+ 811:C:/StellarisWare/utils\softssi.c **** //! Determines if there is any data in the receive FIFO.
+ 812:C:/StellarisWare/utils\softssi.c **** //!
+ 813:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 814:C:/StellarisWare/utils\softssi.c **** //!
+ 815:C:/StellarisWare/utils\softssi.c **** //! This function determines if there is any data available to be read from the
+ 816:C:/StellarisWare/utils\softssi.c **** //! receive FIFO.
+ 817:C:/StellarisWare/utils\softssi.c **** //!
+ 818:C:/StellarisWare/utils\softssi.c **** //! \return Returns \b true if there is data in the receive FIFO or \b false
+ 819:C:/StellarisWare/utils\softssi.c **** //! if there is no data in the receive FIFO.
+ 820:C:/StellarisWare/utils\softssi.c **** //
+ 821:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 822:C:/StellarisWare/utils\softssi.c **** tBoolean
+ 823:C:/StellarisWare/utils\softssi.c **** SoftSSIDataAvail(tSoftSSI *pSSI)
+ 824:C:/StellarisWare/utils\softssi.c **** {
+ 1161              		.loc 1 824 0
+ 1162              		.cfi_startproc
+ 1163              		@ args = 0, pretend = 0, frame = 8
+ 1164              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1165              		@ link register save eliminated.
+ 1166 0000 80B4     		push	{r7}
+ 1167              	.LCFI30:
+ 1168              		.cfi_def_cfa_offset 4
+ 1169              		.cfi_offset 7, -4
+ 1170 0002 83B0     		sub	sp, sp, #12
+ 1171              	.LCFI31:
+ 1172              		.cfi_def_cfa_offset 16
+ 1173 0004 00AF     		add	r7, sp, #0
+ 1174              	.LCFI32:
+ 1175              		.cfi_def_cfa_register 7
+ 1176 0006 7860     		str	r0, [r7, #4]
+ 825:C:/StellarisWare/utils\softssi.c ****     //
+ 826:C:/StellarisWare/utils\softssi.c ****     // Return the availability of data.
+ 827:C:/StellarisWare/utils\softssi.c ****     //
+ 828:C:/StellarisWare/utils\softssi.c ****     return((pSSI->usRxBufferRead == pSSI->usRxBufferWrite) ? false : true);
+ 1177              		.loc 1 828 0
+ 1178 0008 7B68     		ldr	r3, [r7, #4]
+ 1179 000a 9A8C     		ldrh	r2, [r3, #36]
+ 1180 000c 7B68     		ldr	r3, [r7, #4]
+ 1181 000e DB8C     		ldrh	r3, [r3, #38]
+ 1182 0010 9A42     		cmp	r2, r3
+ 1183 0012 0CBF     		ite	eq
+ 1184 0014 0023     		moveq	r3, #0
+ 1185 0016 0123     		movne	r3, #1
+ 1186 0018 DBB2     		uxtb	r3, r3
+ 829:C:/StellarisWare/utils\softssi.c **** }
+ 1187              		.loc 1 829 0
+ 1188 001a 1846     		mov	r0, r3
+ 1189 001c 07F10C07 		add	r7, r7, #12
+ 1190 0020 BD46     		mov	sp, r7
+ 1191 0022 80BC     		pop	{r7}
+ 1192 0024 7047     		bx	lr
+ 1193              		.cfi_endproc
+ 1194              	.LFE10:
+ 1196 0026 00BF     		.section	.text.SoftSSISpaceAvail,"ax",%progbits
+ 1197              		.align	2
+ 1198              		.global	SoftSSISpaceAvail
+ 1199              		.thumb
+ 1200              		.thumb_func
+ 1202              	SoftSSISpaceAvail:
+ 1203              	.LFB11:
+ 830:C:/StellarisWare/utils\softssi.c **** 
+ 831:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 832:C:/StellarisWare/utils\softssi.c **** //
+ 833:C:/StellarisWare/utils\softssi.c **** //! Determines if there is any space in the transmit FIFO.
+ 834:C:/StellarisWare/utils\softssi.c **** //!
+ 835:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 836:C:/StellarisWare/utils\softssi.c **** //!
+ 837:C:/StellarisWare/utils\softssi.c **** //! This function determines if there is space available in the transmit FIFO.
+ 838:C:/StellarisWare/utils\softssi.c **** //!
+ 839:C:/StellarisWare/utils\softssi.c **** //! \return Returns \b true if there is space available in the transmit FIFO or
+ 840:C:/StellarisWare/utils\softssi.c **** //! \b false if there is no space available in the transmit FIFO.
+ 841:C:/StellarisWare/utils\softssi.c **** //
+ 842:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 843:C:/StellarisWare/utils\softssi.c **** tBoolean
+ 844:C:/StellarisWare/utils\softssi.c **** SoftSSISpaceAvail(tSoftSSI *pSSI)
+ 845:C:/StellarisWare/utils\softssi.c **** {
+ 1204              		.loc 1 845 0
+ 1205              		.cfi_startproc
+ 1206              		@ args = 0, pretend = 0, frame = 16
+ 1207              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1208              		@ link register save eliminated.
+ 1209 0000 80B4     		push	{r7}
+ 1210              	.LCFI33:
+ 1211              		.cfi_def_cfa_offset 4
+ 1212              		.cfi_offset 7, -4
+ 1213 0002 85B0     		sub	sp, sp, #20
+ 1214              	.LCFI34:
+ 1215              		.cfi_def_cfa_offset 24
+ 1216 0004 00AF     		add	r7, sp, #0
+ 1217              	.LCFI35:
+ 1218              		.cfi_def_cfa_register 7
+ 1219 0006 7860     		str	r0, [r7, #4]
+ 846:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 847:C:/StellarisWare/utils\softssi.c **** 
+ 848:C:/StellarisWare/utils\softssi.c ****     //
+ 849:C:/StellarisWare/utils\softssi.c ****     // Determine the values of the write pointer once incremented.
+ 850:C:/StellarisWare/utils\softssi.c ****     //
+ 851:C:/StellarisWare/utils\softssi.c ****     usTemp = pSSI->usTxBufferWrite + 1;
+ 1220              		.loc 1 851 0
+ 1221 0008 7B68     		ldr	r3, [r7, #4]
+ 1222 000a 1B8C     		ldrh	r3, [r3, #32]
+ 1223 000c 03F10103 		add	r3, r3, #1
+ 1224 0010 FB81     		strh	r3, [r7, #14]	@ movhi
+ 852:C:/StellarisWare/utils\softssi.c ****     if(usTemp == pSSI->usTxBufferLen)
+ 1225              		.loc 1 852 0
+ 1226 0012 7B68     		ldr	r3, [r7, #4]
+ 1227 0014 9B8B     		ldrh	r3, [r3, #28]
+ 1228 0016 FA89     		ldrh	r2, [r7, #14]
+ 1229 0018 9A42     		cmp	r2, r3
+ 1230 001a 02D1     		bne	.L60
+ 853:C:/StellarisWare/utils\softssi.c ****     {
+ 854:C:/StellarisWare/utils\softssi.c ****         usTemp = 0;
+ 1231              		.loc 1 854 0
+ 1232 001c 4FF00003 		mov	r3, #0
+ 1233 0020 FB81     		strh	r3, [r7, #14]	@ movhi
+ 1234              	.L60:
+ 855:C:/StellarisWare/utils\softssi.c ****     }
+ 856:C:/StellarisWare/utils\softssi.c **** 
+ 857:C:/StellarisWare/utils\softssi.c ****     //
+ 858:C:/StellarisWare/utils\softssi.c ****     // Return the availability of space.
+ 859:C:/StellarisWare/utils\softssi.c ****     //
+ 860:C:/StellarisWare/utils\softssi.c ****     return((pSSI->usTxBufferRead == usTemp) ? false : true);
+ 1235              		.loc 1 860 0
+ 1236 0022 7B68     		ldr	r3, [r7, #4]
+ 1237 0024 DB8B     		ldrh	r3, [r3, #30]
+ 1238 0026 FA89     		ldrh	r2, [r7, #14]
+ 1239 0028 9A42     		cmp	r2, r3
+ 1240 002a 0CBF     		ite	eq
+ 1241 002c 0023     		moveq	r3, #0
+ 1242 002e 0123     		movne	r3, #1
+ 1243 0030 DBB2     		uxtb	r3, r3
+ 861:C:/StellarisWare/utils\softssi.c **** }
+ 1244              		.loc 1 861 0
+ 1245 0032 1846     		mov	r0, r3
+ 1246 0034 07F11407 		add	r7, r7, #20
+ 1247 0038 BD46     		mov	sp, r7
+ 1248 003a 80BC     		pop	{r7}
+ 1249 003c 7047     		bx	lr
+ 1250              		.cfi_endproc
+ 1251              	.LFE11:
+ 1253 003e 00BF     		.section	.text.SoftSSIDataPut,"ax",%progbits
+ 1254              		.align	2
+ 1255              		.global	SoftSSIDataPut
+ 1256              		.thumb
+ 1257              		.thumb_func
+ 1259              	SoftSSIDataPut:
+ 1260              	.LFB12:
+ 862:C:/StellarisWare/utils\softssi.c **** 
+ 863:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 864:C:/StellarisWare/utils\softssi.c **** //
+ 865:C:/StellarisWare/utils\softssi.c **** //! Puts a data element into the SoftSSI transmit FIFO.
+ 866:C:/StellarisWare/utils\softssi.c **** //!
+ 867:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 868:C:/StellarisWare/utils\softssi.c **** //! \param ulData is the data to be transmitted over the SoftSSI interface.
+ 869:C:/StellarisWare/utils\softssi.c **** //!
+ 870:C:/StellarisWare/utils\softssi.c **** //! This function places the supplied data into the transmit FIFO of the
+ 871:C:/StellarisWare/utils\softssi.c **** //! specified SoftSSI module.
+ 872:C:/StellarisWare/utils\softssi.c **** //!
+ 873:C:/StellarisWare/utils\softssi.c **** //! \note The upper 32 - N bits of the \e ulData are discarded, where N is the
+ 874:C:/StellarisWare/utils\softssi.c **** //! data width as configured by SoftSSIConfigSet().  For example, if the
+ 875:C:/StellarisWare/utils\softssi.c **** //! interface is configured for 8-bit data width, the upper 24 bits of
+ 876:C:/StellarisWare/utils\softssi.c **** //! \e ulData are discarded.
+ 877:C:/StellarisWare/utils\softssi.c **** //!
+ 878:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 879:C:/StellarisWare/utils\softssi.c **** //
+ 880:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 881:C:/StellarisWare/utils\softssi.c **** void
+ 882:C:/StellarisWare/utils\softssi.c **** SoftSSIDataPut(tSoftSSI *pSSI, unsigned long ulData)
+ 883:C:/StellarisWare/utils\softssi.c **** {
+ 1261              		.loc 1 883 0
+ 1262              		.cfi_startproc
+ 1263              		@ args = 0, pretend = 0, frame = 16
+ 1264              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1265 0000 80B5     		push	{r7, lr}
+ 1266              	.LCFI36:
+ 1267              		.cfi_def_cfa_offset 8
+ 1268              		.cfi_offset 14, -4
+ 1269              		.cfi_offset 7, -8
+ 1270 0002 84B0     		sub	sp, sp, #16
+ 1271              	.LCFI37:
+ 1272              		.cfi_def_cfa_offset 24
+ 1273 0004 00AF     		add	r7, sp, #0
+ 1274              	.LCFI38:
+ 1275              		.cfi_def_cfa_register 7
+ 1276 0006 7860     		str	r0, [r7, #4]
+ 1277 0008 3960     		str	r1, [r7, #0]
+ 884:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 885:C:/StellarisWare/utils\softssi.c **** 
+ 886:C:/StellarisWare/utils\softssi.c ****     //
+ 887:C:/StellarisWare/utils\softssi.c ****     // Wait until there is space.
+ 888:C:/StellarisWare/utils\softssi.c ****     //
+ 889:C:/StellarisWare/utils\softssi.c ****     usTemp = pSSI->usTxBufferWrite + 1;
+ 1278              		.loc 1 889 0
+ 1279 000a 7B68     		ldr	r3, [r7, #4]
+ 1280 000c 1B8C     		ldrh	r3, [r3, #32]
+ 1281 000e 03F10103 		add	r3, r3, #1
+ 1282 0012 FB81     		strh	r3, [r7, #14]	@ movhi
+ 890:C:/StellarisWare/utils\softssi.c ****     if(usTemp == pSSI->usTxBufferLen)
+ 1283              		.loc 1 890 0
+ 1284 0014 7B68     		ldr	r3, [r7, #4]
+ 1285 0016 9B8B     		ldrh	r3, [r3, #28]
+ 1286 0018 FA89     		ldrh	r2, [r7, #14]
+ 1287 001a 9A42     		cmp	r2, r3
+ 1288 001c 02D1     		bne	.L64
+ 891:C:/StellarisWare/utils\softssi.c ****     {
+ 892:C:/StellarisWare/utils\softssi.c ****         usTemp = 0;
+ 1289              		.loc 1 892 0
+ 1290 001e 4FF00003 		mov	r3, #0
+ 1291 0022 FB81     		strh	r3, [r7, #14]	@ movhi
+ 1292              	.L64:
+ 893:C:/StellarisWare/utils\softssi.c ****     }
+ 894:C:/StellarisWare/utils\softssi.c ****     while(usTemp == *(volatile unsigned short *)(&(pSSI->usTxBufferRead)))
+ 1293              		.loc 1 894 0
+ 1294 0024 00BF     		nop
+ 1295              	.L63:
+ 1296              		.loc 1 894 0 is_stmt 0 discriminator 1
+ 1297 0026 7B68     		ldr	r3, [r7, #4]
+ 1298 0028 03F11E03 		add	r3, r3, #30
+ 1299 002c 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 1300 002e 9BB2     		uxth	r3, r3
+ 1301 0030 FA89     		ldrh	r2, [r7, #14]
+ 1302 0032 9A42     		cmp	r2, r3
+ 1303 0034 F7D0     		beq	.L63
+ 895:C:/StellarisWare/utils\softssi.c ****     {
+ 896:C:/StellarisWare/utils\softssi.c ****     }
+ 897:C:/StellarisWare/utils\softssi.c **** 
+ 898:C:/StellarisWare/utils\softssi.c ****     //
+ 899:C:/StellarisWare/utils\softssi.c ****     // Write the data to the SoftSSI.
+ 900:C:/StellarisWare/utils\softssi.c ****     //
+ 901:C:/StellarisWare/utils\softssi.c ****     pSSI->pusTxBuffer[pSSI->usTxBufferWrite] = ulData;
+ 1304              		.loc 1 901 0 is_stmt 1
+ 1305 0036 7B68     		ldr	r3, [r7, #4]
+ 1306 0038 5A69     		ldr	r2, [r3, #20]
+ 1307 003a 7B68     		ldr	r3, [r7, #4]
+ 1308 003c 1B8C     		ldrh	r3, [r3, #32]
+ 1309 003e 4FEA4303 		lsl	r3, r3, #1
+ 1310 0042 D318     		adds	r3, r2, r3
+ 1311 0044 3A68     		ldr	r2, [r7, #0]
+ 1312 0046 92B2     		uxth	r2, r2
+ 1313 0048 1A80     		strh	r2, [r3, #0]	@ movhi
+ 902:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferWrite = usTemp;
+ 1314              		.loc 1 902 0
+ 1315 004a 7B68     		ldr	r3, [r7, #4]
+ 1316 004c FA89     		ldrh	r2, [r7, #14]	@ movhi
+ 1317 004e 1A84     		strh	r2, [r3, #32]	@ movhi
+ 903:C:/StellarisWare/utils\softssi.c **** 
+ 904:C:/StellarisWare/utils\softssi.c ****     //
+ 905:C:/StellarisWare/utils\softssi.c ****     // See if a transmit FIFO "interrupt" needs to be cleared.
+ 906:C:/StellarisWare/utils\softssi.c ****     //
+ 907:C:/StellarisWare/utils\softssi.c ****     SoftSSITxInt(pSSI);
+ 1318              		.loc 1 907 0
+ 1319 0050 7868     		ldr	r0, [r7, #4]
+ 1320 0052 FFF7FEFF 		bl	SoftSSITxInt
+ 908:C:/StellarisWare/utils\softssi.c **** }
+ 1321              		.loc 1 908 0
+ 1322 0056 07F11007 		add	r7, r7, #16
+ 1323 005a BD46     		mov	sp, r7
+ 1324 005c 80BD     		pop	{r7, pc}
+ 1325              		.cfi_endproc
+ 1326              	.LFE12:
+ 1328 005e 00BF     		.section	.text.SoftSSIDataPutNonBlocking,"ax",%progbits
+ 1329              		.align	2
+ 1330              		.global	SoftSSIDataPutNonBlocking
+ 1331              		.thumb
+ 1332              		.thumb_func
+ 1334              	SoftSSIDataPutNonBlocking:
+ 1335              	.LFB13:
+ 909:C:/StellarisWare/utils\softssi.c **** 
+ 910:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 911:C:/StellarisWare/utils\softssi.c **** //
+ 912:C:/StellarisWare/utils\softssi.c **** //! Puts a data element into the SoftSSI transmit FIFO.
+ 913:C:/StellarisWare/utils\softssi.c **** //!
+ 914:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 915:C:/StellarisWare/utils\softssi.c **** //! \param ulData is the data to be transmitted over the SoftSSI interface.
+ 916:C:/StellarisWare/utils\softssi.c **** //!
+ 917:C:/StellarisWare/utils\softssi.c **** //! This function places the supplied data into the transmit FIFO of the
+ 918:C:/StellarisWare/utils\softssi.c **** //! specified SoftSSI module.  If there is no space in the FIFO, then this
+ 919:C:/StellarisWare/utils\softssi.c **** //! function returns a zero.
+ 920:C:/StellarisWare/utils\softssi.c **** //!
+ 921:C:/StellarisWare/utils\softssi.c **** //! \note The upper 32 - N bits of the \e ulData are discarded, where N is the
+ 922:C:/StellarisWare/utils\softssi.c **** //! data width as configured by SoftSSIConfigSet().  For example, if the
+ 923:C:/StellarisWare/utils\softssi.c **** //! interface is configured for 8-bit data width, the upper 24 bits of
+ 924:C:/StellarisWare/utils\softssi.c **** //! \e ulData are discarded.
+ 925:C:/StellarisWare/utils\softssi.c **** //!
+ 926:C:/StellarisWare/utils\softssi.c **** //! \return Returns the number of elements written to the SSI transmit FIFO.
+ 927:C:/StellarisWare/utils\softssi.c **** //
+ 928:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 929:C:/StellarisWare/utils\softssi.c **** long
+ 930:C:/StellarisWare/utils\softssi.c **** SoftSSIDataPutNonBlocking(tSoftSSI *pSSI, unsigned long ulData)
+ 931:C:/StellarisWare/utils\softssi.c **** {
+ 1336              		.loc 1 931 0
+ 1337              		.cfi_startproc
+ 1338              		@ args = 0, pretend = 0, frame = 16
+ 1339              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1340 0000 80B5     		push	{r7, lr}
+ 1341              	.LCFI39:
+ 1342              		.cfi_def_cfa_offset 8
+ 1343              		.cfi_offset 14, -4
+ 1344              		.cfi_offset 7, -8
+ 1345 0002 84B0     		sub	sp, sp, #16
+ 1346              	.LCFI40:
+ 1347              		.cfi_def_cfa_offset 24
+ 1348 0004 00AF     		add	r7, sp, #0
+ 1349              	.LCFI41:
+ 1350              		.cfi_def_cfa_register 7
+ 1351 0006 7860     		str	r0, [r7, #4]
+ 1352 0008 3960     		str	r1, [r7, #0]
+ 932:C:/StellarisWare/utils\softssi.c ****     unsigned short usTemp;
+ 933:C:/StellarisWare/utils\softssi.c **** 
+ 934:C:/StellarisWare/utils\softssi.c ****     //
+ 935:C:/StellarisWare/utils\softssi.c ****     // Determine the values of the write pointer once incremented.
+ 936:C:/StellarisWare/utils\softssi.c ****     //
+ 937:C:/StellarisWare/utils\softssi.c ****     usTemp = pSSI->usTxBufferWrite + 1;
+ 1353              		.loc 1 937 0
+ 1354 000a 7B68     		ldr	r3, [r7, #4]
+ 1355 000c 1B8C     		ldrh	r3, [r3, #32]
+ 1356 000e 03F10103 		add	r3, r3, #1
+ 1357 0012 FB81     		strh	r3, [r7, #14]	@ movhi
+ 938:C:/StellarisWare/utils\softssi.c ****     if(usTemp == pSSI->usTxBufferLen)
+ 1358              		.loc 1 938 0
+ 1359 0014 7B68     		ldr	r3, [r7, #4]
+ 1360 0016 9B8B     		ldrh	r3, [r3, #28]
+ 1361 0018 FA89     		ldrh	r2, [r7, #14]
+ 1362 001a 9A42     		cmp	r2, r3
+ 1363 001c 02D1     		bne	.L66
+ 939:C:/StellarisWare/utils\softssi.c ****     {
+ 940:C:/StellarisWare/utils\softssi.c ****         usTemp = 0;
+ 1364              		.loc 1 940 0
+ 1365 001e 4FF00003 		mov	r3, #0
+ 1366 0022 FB81     		strh	r3, [r7, #14]	@ movhi
+ 1367              	.L66:
+ 941:C:/StellarisWare/utils\softssi.c ****     }
+ 942:C:/StellarisWare/utils\softssi.c **** 
+ 943:C:/StellarisWare/utils\softssi.c ****     //
+ 944:C:/StellarisWare/utils\softssi.c ****     // Check for space to write.
+ 945:C:/StellarisWare/utils\softssi.c ****     //
+ 946:C:/StellarisWare/utils\softssi.c ****     if(usTemp != pSSI->usTxBufferRead)
+ 1368              		.loc 1 946 0
+ 1369 0024 7B68     		ldr	r3, [r7, #4]
+ 1370 0026 DB8B     		ldrh	r3, [r3, #30]
+ 1371 0028 FA89     		ldrh	r2, [r7, #14]
+ 1372 002a 9A42     		cmp	r2, r3
+ 1373 002c 12D0     		beq	.L67
+ 947:C:/StellarisWare/utils\softssi.c ****     {
+ 948:C:/StellarisWare/utils\softssi.c ****         pSSI->pusTxBuffer[pSSI->usTxBufferWrite] = ulData;
+ 1374              		.loc 1 948 0
+ 1375 002e 7B68     		ldr	r3, [r7, #4]
+ 1376 0030 5A69     		ldr	r2, [r3, #20]
+ 1377 0032 7B68     		ldr	r3, [r7, #4]
+ 1378 0034 1B8C     		ldrh	r3, [r3, #32]
+ 1379 0036 4FEA4303 		lsl	r3, r3, #1
+ 1380 003a D318     		adds	r3, r2, r3
+ 1381 003c 3A68     		ldr	r2, [r7, #0]
+ 1382 003e 92B2     		uxth	r2, r2
+ 1383 0040 1A80     		strh	r2, [r3, #0]	@ movhi
+ 949:C:/StellarisWare/utils\softssi.c ****         pSSI->usTxBufferWrite = usTemp;
+ 1384              		.loc 1 949 0
+ 1385 0042 7B68     		ldr	r3, [r7, #4]
+ 1386 0044 FA89     		ldrh	r2, [r7, #14]	@ movhi
+ 1387 0046 1A84     		strh	r2, [r3, #32]	@ movhi
+ 950:C:/StellarisWare/utils\softssi.c ****         SoftSSITxInt(pSSI);
+ 1388              		.loc 1 950 0
+ 1389 0048 7868     		ldr	r0, [r7, #4]
+ 1390 004a FFF7FEFF 		bl	SoftSSITxInt
+ 951:C:/StellarisWare/utils\softssi.c ****         return(1);
+ 1391              		.loc 1 951 0
+ 1392 004e 4FF00103 		mov	r3, #1
+ 1393 0052 01E0     		b	.L68
+ 1394              	.L67:
+ 952:C:/StellarisWare/utils\softssi.c ****     }
+ 953:C:/StellarisWare/utils\softssi.c ****     else
+ 954:C:/StellarisWare/utils\softssi.c ****     {
+ 955:C:/StellarisWare/utils\softssi.c ****         return(0);
+ 1395              		.loc 1 955 0
+ 1396 0054 4FF00003 		mov	r3, #0
+ 1397              	.L68:
+ 956:C:/StellarisWare/utils\softssi.c ****     }
+ 957:C:/StellarisWare/utils\softssi.c **** }
+ 1398              		.loc 1 957 0
+ 1399 0058 1846     		mov	r0, r3
+ 1400 005a 07F11007 		add	r7, r7, #16
+ 1401 005e BD46     		mov	sp, r7
+ 1402 0060 80BD     		pop	{r7, pc}
+ 1403              		.cfi_endproc
+ 1404              	.LFE13:
+ 1406 0062 00BF     		.section	.text.SoftSSIDataGet,"ax",%progbits
+ 1407              		.align	2
+ 1408              		.global	SoftSSIDataGet
+ 1409              		.thumb
+ 1410              		.thumb_func
+ 1412              	SoftSSIDataGet:
+ 1413              	.LFB14:
+ 958:C:/StellarisWare/utils\softssi.c **** 
+ 959:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 960:C:/StellarisWare/utils\softssi.c **** //
+ 961:C:/StellarisWare/utils\softssi.c **** //! Gets a data element from the SoftSSI receive FIFO.
+ 962:C:/StellarisWare/utils\softssi.c **** //!
+ 963:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+ 964:C:/StellarisWare/utils\softssi.c **** //! \param pulData is a pointer to a storage location for data that was
+ 965:C:/StellarisWare/utils\softssi.c **** //! received over the SoftSSI interface.
+ 966:C:/StellarisWare/utils\softssi.c **** //!
+ 967:C:/StellarisWare/utils\softssi.c **** //! This function gets received data from the receive FIFO of the specified
+ 968:C:/StellarisWare/utils\softssi.c **** //! SoftSSI module and places that data into the location specified by the
+ 969:C:/StellarisWare/utils\softssi.c **** //! \e pulData parameter.
+ 970:C:/StellarisWare/utils\softssi.c **** //!
+ 971:C:/StellarisWare/utils\softssi.c **** //! \note Only the lower N bits of the value written to \e pulData contain
+ 972:C:/StellarisWare/utils\softssi.c **** //! valid data, where N is the data width as configured by SoftSSIConfigSet().
+ 973:C:/StellarisWare/utils\softssi.c **** //! For example, if the interface is configured for 8-bit data width, only the
+ 974:C:/StellarisWare/utils\softssi.c **** //! lower 8 bits of the value written to \e pulData contain valid data.
+ 975:C:/StellarisWare/utils\softssi.c **** //!
+ 976:C:/StellarisWare/utils\softssi.c **** //! \return None.
+ 977:C:/StellarisWare/utils\softssi.c **** //
+ 978:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+ 979:C:/StellarisWare/utils\softssi.c **** void
+ 980:C:/StellarisWare/utils\softssi.c **** SoftSSIDataGet(tSoftSSI *pSSI, unsigned long *pulData)
+ 981:C:/StellarisWare/utils\softssi.c **** {
+ 1414              		.loc 1 981 0
+ 1415              		.cfi_startproc
+ 1416              		@ args = 0, pretend = 0, frame = 8
+ 1417              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1418 0000 80B5     		push	{r7, lr}
+ 1419              	.LCFI42:
+ 1420              		.cfi_def_cfa_offset 8
+ 1421              		.cfi_offset 14, -4
+ 1422              		.cfi_offset 7, -8
+ 1423 0002 82B0     		sub	sp, sp, #8
+ 1424              	.LCFI43:
+ 1425              		.cfi_def_cfa_offset 16
+ 1426 0004 00AF     		add	r7, sp, #0
+ 1427              	.LCFI44:
+ 1428              		.cfi_def_cfa_register 7
+ 1429 0006 7860     		str	r0, [r7, #4]
+ 1430 0008 3960     		str	r1, [r7, #0]
+ 982:C:/StellarisWare/utils\softssi.c ****     //
+ 983:C:/StellarisWare/utils\softssi.c ****     // Wait until there is data to be read.
+ 984:C:/StellarisWare/utils\softssi.c ****     //
+ 985:C:/StellarisWare/utils\softssi.c ****     while(pSSI->usRxBufferRead ==
+ 1431              		.loc 1 985 0
+ 1432 000a 00BF     		nop
+ 1433              	.L70:
+ 1434              		.loc 1 985 0 is_stmt 0 discriminator 1
+ 1435 000c 7B68     		ldr	r3, [r7, #4]
+ 1436 000e 9A8C     		ldrh	r2, [r3, #36]
+ 986:C:/StellarisWare/utils\softssi.c ****           *(volatile unsigned short *)(&(pSSI->usRxBufferWrite)))
+ 1437              		.loc 1 986 0 is_stmt 1 discriminator 1
+ 1438 0010 7B68     		ldr	r3, [r7, #4]
+ 1439 0012 03F12603 		add	r3, r3, #38
+ 1440 0016 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 1441 0018 9BB2     		uxth	r3, r3
+ 985:C:/StellarisWare/utils\softssi.c ****     while(pSSI->usRxBufferRead ==
+ 1442              		.loc 1 985 0 discriminator 1
+ 1443 001a 9A42     		cmp	r2, r3
+ 1444 001c F6D0     		beq	.L70
+ 987:C:/StellarisWare/utils\softssi.c ****     {
+ 988:C:/StellarisWare/utils\softssi.c ****     }
+ 989:C:/StellarisWare/utils\softssi.c **** 
+ 990:C:/StellarisWare/utils\softssi.c ****     //
+ 991:C:/StellarisWare/utils\softssi.c ****     // Read data from SoftSSI.
+ 992:C:/StellarisWare/utils\softssi.c ****     //
+ 993:C:/StellarisWare/utils\softssi.c ****     *pulData = pSSI->pusRxBuffer[pSSI->usRxBufferRead];
+ 1445              		.loc 1 993 0
+ 1446 001e 7B68     		ldr	r3, [r7, #4]
+ 1447 0020 9A69     		ldr	r2, [r3, #24]
+ 1448 0022 7B68     		ldr	r3, [r7, #4]
+ 1449 0024 9B8C     		ldrh	r3, [r3, #36]
+ 1450 0026 4FEA4303 		lsl	r3, r3, #1
+ 1451 002a D318     		adds	r3, r2, r3
+ 1452 002c 1B88     		ldrh	r3, [r3, #0]
+ 1453 002e 1A46     		mov	r2, r3
+ 1454 0030 3B68     		ldr	r3, [r7, #0]
+ 1455 0032 1A60     		str	r2, [r3, #0]
+ 994:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferRead++;
+ 1456              		.loc 1 994 0
+ 1457 0034 7B68     		ldr	r3, [r7, #4]
+ 1458 0036 9B8C     		ldrh	r3, [r3, #36]
+ 1459 0038 03F10103 		add	r3, r3, #1
+ 1460 003c 9AB2     		uxth	r2, r3
+ 1461 003e 7B68     		ldr	r3, [r7, #4]
+ 1462 0040 9A84     		strh	r2, [r3, #36]	@ movhi
+ 995:C:/StellarisWare/utils\softssi.c ****     if(pSSI->usRxBufferRead == pSSI->usRxBufferLen)
+ 1463              		.loc 1 995 0
+ 1464 0042 7B68     		ldr	r3, [r7, #4]
+ 1465 0044 9A8C     		ldrh	r2, [r3, #36]
+ 1466 0046 7B68     		ldr	r3, [r7, #4]
+ 1467 0048 5B8C     		ldrh	r3, [r3, #34]
+ 1468 004a 9A42     		cmp	r2, r3
+ 1469 004c 03D1     		bne	.L71
+ 996:C:/StellarisWare/utils\softssi.c ****     {
+ 997:C:/StellarisWare/utils\softssi.c ****         pSSI->usRxBufferRead = 0;
+ 1470              		.loc 1 997 0
+ 1471 004e 7B68     		ldr	r3, [r7, #4]
+ 1472 0050 4FF00002 		mov	r2, #0
+ 1473 0054 9A84     		strh	r2, [r3, #36]	@ movhi
+ 1474              	.L71:
+ 998:C:/StellarisWare/utils\softssi.c ****     }
+ 999:C:/StellarisWare/utils\softssi.c **** 
+1000:C:/StellarisWare/utils\softssi.c ****     //
+1001:C:/StellarisWare/utils\softssi.c ****     // See if a receive FIFO "interrupt" needs to be cleared.
+1002:C:/StellarisWare/utils\softssi.c ****     //
+1003:C:/StellarisWare/utils\softssi.c ****     SoftSSIRxInt(pSSI);
+ 1475              		.loc 1 1003 0
+ 1476 0056 7868     		ldr	r0, [r7, #4]
+ 1477 0058 FFF7FEFF 		bl	SoftSSIRxInt
+1004:C:/StellarisWare/utils\softssi.c **** }
+ 1478              		.loc 1 1004 0
+ 1479 005c 07F10807 		add	r7, r7, #8
+ 1480 0060 BD46     		mov	sp, r7
+ 1481 0062 80BD     		pop	{r7, pc}
+ 1482              		.cfi_endproc
+ 1483              	.LFE14:
+ 1485              		.section	.text.SoftSSIDataGetNonBlocking,"ax",%progbits
+ 1486              		.align	2
+ 1487              		.global	SoftSSIDataGetNonBlocking
+ 1488              		.thumb
+ 1489              		.thumb_func
+ 1491              	SoftSSIDataGetNonBlocking:
+ 1492              	.LFB15:
+1005:C:/StellarisWare/utils\softssi.c **** 
+1006:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1007:C:/StellarisWare/utils\softssi.c **** //
+1008:C:/StellarisWare/utils\softssi.c **** //! Gets a data element from the SoftSSI receive FIFO.
+1009:C:/StellarisWare/utils\softssi.c **** //!
+1010:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1011:C:/StellarisWare/utils\softssi.c **** //! \param pulData is a pointer to a storage location for data that was
+1012:C:/StellarisWare/utils\softssi.c **** //! received over the SoftSSI interface.
+1013:C:/StellarisWare/utils\softssi.c **** //!
+1014:C:/StellarisWare/utils\softssi.c **** //! This function gets received data from the receive FIFO of the specified
+1015:C:/StellarisWare/utils\softssi.c **** //! SoftSSI module and places that data into the location specified by the
+1016:C:/StellarisWare/utils\softssi.c **** //! \e ulData parameter.  If there is no data in the FIFO, then this function
+1017:C:/StellarisWare/utils\softssi.c **** //! returns a zero.
+1018:C:/StellarisWare/utils\softssi.c **** //!
+1019:C:/StellarisWare/utils\softssi.c **** //! \note Only the lower N bits of the value written to \e pulData contain
+1020:C:/StellarisWare/utils\softssi.c **** //! valid data, where N is the data width as configured by SoftSSIConfigSet().
+1021:C:/StellarisWare/utils\softssi.c **** //! For example, if the interface is configured for 8-bit data width, only the
+1022:C:/StellarisWare/utils\softssi.c **** //! lower 8 bits of the value written to \e pulData contain valid data.
+1023:C:/StellarisWare/utils\softssi.c **** //!
+1024:C:/StellarisWare/utils\softssi.c **** //! \return Returns the number of elements read from the SoftSSI receive FIFO.
+1025:C:/StellarisWare/utils\softssi.c **** //
+1026:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1027:C:/StellarisWare/utils\softssi.c **** long
+1028:C:/StellarisWare/utils\softssi.c **** SoftSSIDataGetNonBlocking(tSoftSSI *pSSI, unsigned long *pulData)
+1029:C:/StellarisWare/utils\softssi.c **** {
+ 1493              		.loc 1 1029 0
+ 1494              		.cfi_startproc
+ 1495              		@ args = 0, pretend = 0, frame = 8
+ 1496              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1497 0000 80B5     		push	{r7, lr}
+ 1498              	.LCFI45:
+ 1499              		.cfi_def_cfa_offset 8
+ 1500              		.cfi_offset 14, -4
+ 1501              		.cfi_offset 7, -8
+ 1502 0002 82B0     		sub	sp, sp, #8
+ 1503              	.LCFI46:
+ 1504              		.cfi_def_cfa_offset 16
+ 1505 0004 00AF     		add	r7, sp, #0
+ 1506              	.LCFI47:
+ 1507              		.cfi_def_cfa_register 7
+ 1508 0006 7860     		str	r0, [r7, #4]
+ 1509 0008 3960     		str	r1, [r7, #0]
+1030:C:/StellarisWare/utils\softssi.c ****     //
+1031:C:/StellarisWare/utils\softssi.c ****     // Check for data to read.
+1032:C:/StellarisWare/utils\softssi.c ****     //
+1033:C:/StellarisWare/utils\softssi.c ****     if(pSSI->usRxBufferRead != pSSI->usRxBufferWrite)
+ 1510              		.loc 1 1033 0
+ 1511 000a 7B68     		ldr	r3, [r7, #4]
+ 1512 000c 9A8C     		ldrh	r2, [r3, #36]
+ 1513 000e 7B68     		ldr	r3, [r7, #4]
+ 1514 0010 DB8C     		ldrh	r3, [r3, #38]
+ 1515 0012 9A42     		cmp	r2, r3
+ 1516 0014 21D0     		beq	.L73
+1034:C:/StellarisWare/utils\softssi.c ****     {
+1035:C:/StellarisWare/utils\softssi.c ****         *pulData = pSSI->pusRxBuffer[pSSI->usRxBufferRead];
+ 1517              		.loc 1 1035 0
+ 1518 0016 7B68     		ldr	r3, [r7, #4]
+ 1519 0018 9A69     		ldr	r2, [r3, #24]
+ 1520 001a 7B68     		ldr	r3, [r7, #4]
+ 1521 001c 9B8C     		ldrh	r3, [r3, #36]
+ 1522 001e 4FEA4303 		lsl	r3, r3, #1
+ 1523 0022 D318     		adds	r3, r2, r3
+ 1524 0024 1B88     		ldrh	r3, [r3, #0]
+ 1525 0026 1A46     		mov	r2, r3
+ 1526 0028 3B68     		ldr	r3, [r7, #0]
+ 1527 002a 1A60     		str	r2, [r3, #0]
+1036:C:/StellarisWare/utils\softssi.c ****         pSSI->usRxBufferRead++;
+ 1528              		.loc 1 1036 0
+ 1529 002c 7B68     		ldr	r3, [r7, #4]
+ 1530 002e 9B8C     		ldrh	r3, [r3, #36]
+ 1531 0030 03F10103 		add	r3, r3, #1
+ 1532 0034 9AB2     		uxth	r2, r3
+ 1533 0036 7B68     		ldr	r3, [r7, #4]
+ 1534 0038 9A84     		strh	r2, [r3, #36]	@ movhi
+1037:C:/StellarisWare/utils\softssi.c ****         if(pSSI->usRxBufferRead == pSSI->usRxBufferLen)
+ 1535              		.loc 1 1037 0
+ 1536 003a 7B68     		ldr	r3, [r7, #4]
+ 1537 003c 9A8C     		ldrh	r2, [r3, #36]
+ 1538 003e 7B68     		ldr	r3, [r7, #4]
+ 1539 0040 5B8C     		ldrh	r3, [r3, #34]
+ 1540 0042 9A42     		cmp	r2, r3
+ 1541 0044 03D1     		bne	.L74
+1038:C:/StellarisWare/utils\softssi.c ****         {
+1039:C:/StellarisWare/utils\softssi.c ****             pSSI->usRxBufferRead = 0;
+ 1542              		.loc 1 1039 0
+ 1543 0046 7B68     		ldr	r3, [r7, #4]
+ 1544 0048 4FF00002 		mov	r2, #0
+ 1545 004c 9A84     		strh	r2, [r3, #36]	@ movhi
+ 1546              	.L74:
+1040:C:/StellarisWare/utils\softssi.c ****         }
+1041:C:/StellarisWare/utils\softssi.c ****         SoftSSIRxInt(pSSI);
+ 1547              		.loc 1 1041 0
+ 1548 004e 7868     		ldr	r0, [r7, #4]
+ 1549 0050 FFF7FEFF 		bl	SoftSSIRxInt
+1042:C:/StellarisWare/utils\softssi.c ****         return(1);
+ 1550              		.loc 1 1042 0
+ 1551 0054 4FF00103 		mov	r3, #1
+ 1552 0058 01E0     		b	.L75
+ 1553              	.L73:
+1043:C:/StellarisWare/utils\softssi.c ****     }
+1044:C:/StellarisWare/utils\softssi.c ****     else
+1045:C:/StellarisWare/utils\softssi.c ****     {
+1046:C:/StellarisWare/utils\softssi.c ****         return(0);
+ 1554              		.loc 1 1046 0
+ 1555 005a 4FF00003 		mov	r3, #0
+ 1556              	.L75:
+1047:C:/StellarisWare/utils\softssi.c ****     }
+1048:C:/StellarisWare/utils\softssi.c **** }
+ 1557              		.loc 1 1048 0
+ 1558 005e 1846     		mov	r0, r3
+ 1559 0060 07F10807 		add	r7, r7, #8
+ 1560 0064 BD46     		mov	sp, r7
+ 1561 0066 80BD     		pop	{r7, pc}
+ 1562              		.cfi_endproc
+ 1563              	.LFE15:
+ 1565              		.section	.text.SoftSSIBusy,"ax",%progbits
+ 1566              		.align	2
+ 1567              		.global	SoftSSIBusy
+ 1568              		.thumb
+ 1569              		.thumb_func
+ 1571              	SoftSSIBusy:
+ 1572              	.LFB16:
+1049:C:/StellarisWare/utils\softssi.c **** 
+1050:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1051:C:/StellarisWare/utils\softssi.c **** //
+1052:C:/StellarisWare/utils\softssi.c **** //! Determines whether the SoftSSI transmitter is busy or not.
+1053:C:/StellarisWare/utils\softssi.c **** //!
+1054:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1055:C:/StellarisWare/utils\softssi.c **** //!
+1056:C:/StellarisWare/utils\softssi.c **** //! Allows the caller to determine whether all transmitted bytes have cleared
+1057:C:/StellarisWare/utils\softssi.c **** //! the transmitter.  If \b false is returned, then the transmit FIFO is empty
+1058:C:/StellarisWare/utils\softssi.c **** //! and all bits of the last transmitted word have left the shift register.
+1059:C:/StellarisWare/utils\softssi.c **** //!
+1060:C:/StellarisWare/utils\softssi.c **** //! \return Returns \b true if the SoftSSI is transmitting or \b false if all
+1061:C:/StellarisWare/utils\softssi.c **** //! transmissions are complete.
+1062:C:/StellarisWare/utils\softssi.c **** //
+1063:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1064:C:/StellarisWare/utils\softssi.c **** tBoolean
+1065:C:/StellarisWare/utils\softssi.c **** SoftSSIBusy(tSoftSSI *pSSI)
+1066:C:/StellarisWare/utils\softssi.c **** {
+ 1573              		.loc 1 1066 0
+ 1574              		.cfi_startproc
+ 1575              		@ args = 0, pretend = 0, frame = 8
+ 1576              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1577              		@ link register save eliminated.
+ 1578 0000 80B4     		push	{r7}
+ 1579              	.LCFI48:
+ 1580              		.cfi_def_cfa_offset 4
+ 1581              		.cfi_offset 7, -4
+ 1582 0002 83B0     		sub	sp, sp, #12
+ 1583              	.LCFI49:
+ 1584              		.cfi_def_cfa_offset 16
+ 1585 0004 00AF     		add	r7, sp, #0
+ 1586              	.LCFI50:
+ 1587              		.cfi_def_cfa_register 7
+ 1588 0006 7860     		str	r0, [r7, #4]
+1067:C:/StellarisWare/utils\softssi.c ****     //
+1068:C:/StellarisWare/utils\softssi.c ****     // Determine if the SSI is busy.
+1069:C:/StellarisWare/utils\softssi.c ****     //
+1070:C:/StellarisWare/utils\softssi.c ****     return(((pSSI->ucState == SOFTSSI_STATE_IDLE) &&
+ 1589              		.loc 1 1070 0
+ 1590 0008 7B68     		ldr	r3, [r7, #4]
+ 1591 000a 93F82E30 		ldrb	r3, [r3, #46]	@ zero_extendqisi2
+ 1592 000e 002B     		cmp	r3, #0
+ 1593 0010 0CD1     		bne	.L77
+1071:C:/StellarisWare/utils\softssi.c ****             (((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) == 0) ||
+ 1594              		.loc 1 1071 0
+ 1595 0012 7B68     		ldr	r3, [r7, #4]
+ 1596 0014 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 1597 0018 DBB2     		uxtb	r3, r3
+1072:C:/StellarisWare/utils\softssi.c ****              (pSSI->usTxBufferRead == pSSI->usTxBufferWrite))) ? false : true);
+ 1598              		.loc 1 1072 0
+ 1599 001a 5BB2     		sxtb	r3, r3
+ 1600 001c 002B     		cmp	r3, #0
+ 1601 001e 08DA     		bge	.L78
+ 1602              		.loc 1 1072 0 is_stmt 0 discriminator 1
+ 1603 0020 7B68     		ldr	r3, [r7, #4]
+ 1604 0022 DA8B     		ldrh	r2, [r3, #30]
+ 1605 0024 7B68     		ldr	r3, [r7, #4]
+ 1606 0026 1B8C     		ldrh	r3, [r3, #32]
+1071:C:/StellarisWare/utils\softssi.c ****             (((pSSI->ucFlags & SOFTSSI_FLAG_ENABLE) == 0) ||
+ 1607              		.loc 1 1071 0 is_stmt 1 discriminator 1
+ 1608 0028 9A42     		cmp	r2, r3
+ 1609 002a 02D0     		beq	.L78
+ 1610              	.L77:
+1070:C:/StellarisWare/utils\softssi.c ****     return(((pSSI->ucState == SOFTSSI_STATE_IDLE) &&
+ 1611              		.loc 1 1070 0 discriminator 1
+ 1612 002c 4FF00103 		mov	r3, #1
+ 1613 0030 01E0     		b	.L79
+ 1614              	.L78:
+1070:C:/StellarisWare/utils\softssi.c ****     return(((pSSI->ucState == SOFTSSI_STATE_IDLE) &&
+ 1615              		.loc 1 1070 0 is_stmt 0
+ 1616 0032 4FF00003 		mov	r3, #0
+ 1617              	.L79:
+1070:C:/StellarisWare/utils\softssi.c ****     return(((pSSI->ucState == SOFTSSI_STATE_IDLE) &&
+ 1618              		.loc 1 1070 0 discriminator 2
+ 1619 0036 DBB2     		uxtb	r3, r3
+1073:C:/StellarisWare/utils\softssi.c **** }
+ 1620              		.loc 1 1073 0 is_stmt 1 discriminator 2
+ 1621 0038 1846     		mov	r0, r3
+ 1622 003a 07F10C07 		add	r7, r7, #12
+ 1623 003e BD46     		mov	sp, r7
+ 1624 0040 80BC     		pop	{r7}
+ 1625 0042 7047     		bx	lr
+ 1626              		.cfi_endproc
+ 1627              	.LFE16:
+ 1629              		.section	.text.SoftSSICallbackSet,"ax",%progbits
+ 1630              		.align	2
+ 1631              		.global	SoftSSICallbackSet
+ 1632              		.thumb
+ 1633              		.thumb_func
+ 1635              	SoftSSICallbackSet:
+ 1636              	.LFB17:
+1074:C:/StellarisWare/utils\softssi.c **** 
+1075:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1076:C:/StellarisWare/utils\softssi.c **** //
+1077:C:/StellarisWare/utils\softssi.c **** //! Sets the callback used by the SoftSSI module.
+1078:C:/StellarisWare/utils\softssi.c **** //!
+1079:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1080:C:/StellarisWare/utils\softssi.c **** //! \param pfnCallback is a pointer to the callback function.
+1081:C:/StellarisWare/utils\softssi.c **** //!
+1082:C:/StellarisWare/utils\softssi.c **** //! This function sets the address of the callback function that is called when
+1083:C:/StellarisWare/utils\softssi.c **** //! there is an ``interrupt'' produced by the SoftSSI module.
+1084:C:/StellarisWare/utils\softssi.c **** //!
+1085:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1086:C:/StellarisWare/utils\softssi.c **** //
+1087:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1088:C:/StellarisWare/utils\softssi.c **** void
+1089:C:/StellarisWare/utils\softssi.c **** SoftSSICallbackSet(tSoftSSI *pSSI, void (*pfnCallback)(void))
+1090:C:/StellarisWare/utils\softssi.c **** {
+ 1637              		.loc 1 1090 0
+ 1638              		.cfi_startproc
+ 1639              		@ args = 0, pretend = 0, frame = 8
+ 1640              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1641              		@ link register save eliminated.
+ 1642 0000 80B4     		push	{r7}
+ 1643              	.LCFI51:
+ 1644              		.cfi_def_cfa_offset 4
+ 1645              		.cfi_offset 7, -4
+ 1646 0002 83B0     		sub	sp, sp, #12
+ 1647              	.LCFI52:
+ 1648              		.cfi_def_cfa_offset 16
+ 1649 0004 00AF     		add	r7, sp, #0
+ 1650              	.LCFI53:
+ 1651              		.cfi_def_cfa_register 7
+ 1652 0006 7860     		str	r0, [r7, #4]
+ 1653 0008 3960     		str	r1, [r7, #0]
+1091:C:/StellarisWare/utils\softssi.c ****     //
+1092:C:/StellarisWare/utils\softssi.c ****     // Save the callback function address.
+1093:C:/StellarisWare/utils\softssi.c ****     //
+1094:C:/StellarisWare/utils\softssi.c ****     pSSI->pfnIntCallback = pfnCallback;
+ 1654              		.loc 1 1094 0
+ 1655 000a 7B68     		ldr	r3, [r7, #4]
+ 1656 000c 3A68     		ldr	r2, [r7, #0]
+ 1657 000e 1A60     		str	r2, [r3, #0]
+1095:C:/StellarisWare/utils\softssi.c **** }
+ 1658              		.loc 1 1095 0
+ 1659 0010 07F10C07 		add	r7, r7, #12
+ 1660 0014 BD46     		mov	sp, r7
+ 1661 0016 80BC     		pop	{r7}
+ 1662 0018 7047     		bx	lr
+ 1663              		.cfi_endproc
+ 1664              	.LFE17:
+ 1666 001a 00BF     		.section	.text.SoftSSIFssGPIOSet,"ax",%progbits
+ 1667              		.align	2
+ 1668              		.global	SoftSSIFssGPIOSet
+ 1669              		.thumb
+ 1670              		.thumb_func
+ 1672              	SoftSSIFssGPIOSet:
+ 1673              	.LFB18:
+1096:C:/StellarisWare/utils\softssi.c **** 
+1097:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1098:C:/StellarisWare/utils\softssi.c **** //
+1099:C:/StellarisWare/utils\softssi.c **** //! Sets the GPIO pin to be used as the SoftSSI Fss signal.
+1100:C:/StellarisWare/utils\softssi.c **** //!
+1101:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1102:C:/StellarisWare/utils\softssi.c **** //! \param ulBase is the base address of the GPIO module.
+1103:C:/StellarisWare/utils\softssi.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+1104:C:/StellarisWare/utils\softssi.c **** //!
+1105:C:/StellarisWare/utils\softssi.c **** //! This function sets the GPIO pin that is used for the SoftSSI Fss signal.
+1106:C:/StellarisWare/utils\softssi.c **** //! If there is not a GPIO pin allocated for Fss, the SoftSSI module does not
+1107:C:/StellarisWare/utils\softssi.c **** //! assert/deassert the Fss signal, leaving it to the application either to do
+1108:C:/StellarisWare/utils\softssi.c **** //! manually or to not do at all if the slave device has Fss tied to ground.
+1109:C:/StellarisWare/utils\softssi.c **** //!
+1110:C:/StellarisWare/utils\softssi.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+1111:C:/StellarisWare/utils\softssi.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+1112:C:/StellarisWare/utils\softssi.c **** //!
+1113:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1114:C:/StellarisWare/utils\softssi.c **** //
+1115:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1116:C:/StellarisWare/utils\softssi.c **** void
+1117:C:/StellarisWare/utils\softssi.c **** SoftSSIFssGPIOSet(tSoftSSI *pSSI, unsigned long ulBase, unsigned char ucPin)
+1118:C:/StellarisWare/utils\softssi.c **** {
+ 1674              		.loc 1 1118 0
+ 1675              		.cfi_startproc
+ 1676              		@ args = 0, pretend = 0, frame = 16
+ 1677              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1678              		@ link register save eliminated.
+ 1679 0000 80B4     		push	{r7}
+ 1680              	.LCFI54:
+ 1681              		.cfi_def_cfa_offset 4
+ 1682              		.cfi_offset 7, -4
+ 1683 0002 85B0     		sub	sp, sp, #20
+ 1684              	.LCFI55:
+ 1685              		.cfi_def_cfa_offset 24
+ 1686 0004 00AF     		add	r7, sp, #0
+ 1687              	.LCFI56:
+ 1688              		.cfi_def_cfa_register 7
+ 1689 0006 F860     		str	r0, [r7, #12]
+ 1690 0008 B960     		str	r1, [r7, #8]
+ 1691 000a 1346     		mov	r3, r2
+ 1692 000c FB71     		strb	r3, [r7, #7]
+1119:C:/StellarisWare/utils\softssi.c ****     //
+1120:C:/StellarisWare/utils\softssi.c ****     // Save the base address and pin for the Fss signal.
+1121:C:/StellarisWare/utils\softssi.c ****     //
+1122:C:/StellarisWare/utils\softssi.c ****     if(ulBase == 0)
+ 1693              		.loc 1 1122 0
+ 1694 000e BB68     		ldr	r3, [r7, #8]
+ 1695 0010 002B     		cmp	r3, #0
+ 1696 0012 04D1     		bne	.L82
+1123:C:/StellarisWare/utils\softssi.c ****     {
+1124:C:/StellarisWare/utils\softssi.c ****         pSSI->ulFssGPIO = 0;
+ 1697              		.loc 1 1124 0
+ 1698 0014 FB68     		ldr	r3, [r7, #12]
+ 1699 0016 4FF00002 		mov	r2, #0
+ 1700 001a 5A60     		str	r2, [r3, #4]
+ 1701 001c 07E0     		b	.L81
+ 1702              	.L82:
+1125:C:/StellarisWare/utils\softssi.c ****     }
+1126:C:/StellarisWare/utils\softssi.c ****     else
+1127:C:/StellarisWare/utils\softssi.c ****     {
+1128:C:/StellarisWare/utils\softssi.c ****         pSSI->ulFssGPIO = ulBase + (ucPin << 2);
+ 1703              		.loc 1 1128 0
+ 1704 001e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1705 0020 4FEA8303 		lsl	r3, r3, #2
+ 1706 0024 1A46     		mov	r2, r3
+ 1707 0026 BB68     		ldr	r3, [r7, #8]
+ 1708 0028 D218     		adds	r2, r2, r3
+ 1709 002a FB68     		ldr	r3, [r7, #12]
+ 1710 002c 5A60     		str	r2, [r3, #4]
+ 1711              	.L81:
+1129:C:/StellarisWare/utils\softssi.c ****     }
+1130:C:/StellarisWare/utils\softssi.c **** }
+ 1712              		.loc 1 1130 0
+ 1713 002e 07F11407 		add	r7, r7, #20
+ 1714 0032 BD46     		mov	sp, r7
+ 1715 0034 80BC     		pop	{r7}
+ 1716 0036 7047     		bx	lr
+ 1717              		.cfi_endproc
+ 1718              	.LFE18:
+ 1720              		.section	.text.SoftSSIClkGPIOSet,"ax",%progbits
+ 1721              		.align	2
+ 1722              		.global	SoftSSIClkGPIOSet
+ 1723              		.thumb
+ 1724              		.thumb_func
+ 1726              	SoftSSIClkGPIOSet:
+ 1727              	.LFB19:
+1131:C:/StellarisWare/utils\softssi.c **** 
+1132:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1133:C:/StellarisWare/utils\softssi.c **** //
+1134:C:/StellarisWare/utils\softssi.c **** //! Sets the GPIO pin to be used as the SoftSSI Clk signal.
+1135:C:/StellarisWare/utils\softssi.c **** //!
+1136:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1137:C:/StellarisWare/utils\softssi.c **** //! \param ulBase is the base address of the GPIO module.
+1138:C:/StellarisWare/utils\softssi.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+1139:C:/StellarisWare/utils\softssi.c **** //!
+1140:C:/StellarisWare/utils\softssi.c **** //! This function sets the GPIO pin that is used for the SoftSSI Clk signal.
+1141:C:/StellarisWare/utils\softssi.c **** //!
+1142:C:/StellarisWare/utils\softssi.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+1143:C:/StellarisWare/utils\softssi.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+1144:C:/StellarisWare/utils\softssi.c **** //!
+1145:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1146:C:/StellarisWare/utils\softssi.c **** //
+1147:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1148:C:/StellarisWare/utils\softssi.c **** void
+1149:C:/StellarisWare/utils\softssi.c **** SoftSSIClkGPIOSet(tSoftSSI *pSSI, unsigned long ulBase, unsigned char ucPin)
+1150:C:/StellarisWare/utils\softssi.c **** {
+ 1728              		.loc 1 1150 0
+ 1729              		.cfi_startproc
+ 1730              		@ args = 0, pretend = 0, frame = 16
+ 1731              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1732              		@ link register save eliminated.
+ 1733 0000 80B4     		push	{r7}
+ 1734              	.LCFI57:
+ 1735              		.cfi_def_cfa_offset 4
+ 1736              		.cfi_offset 7, -4
+ 1737 0002 85B0     		sub	sp, sp, #20
+ 1738              	.LCFI58:
+ 1739              		.cfi_def_cfa_offset 24
+ 1740 0004 00AF     		add	r7, sp, #0
+ 1741              	.LCFI59:
+ 1742              		.cfi_def_cfa_register 7
+ 1743 0006 F860     		str	r0, [r7, #12]
+ 1744 0008 B960     		str	r1, [r7, #8]
+ 1745 000a 1346     		mov	r3, r2
+ 1746 000c FB71     		strb	r3, [r7, #7]
+1151:C:/StellarisWare/utils\softssi.c ****     //
+1152:C:/StellarisWare/utils\softssi.c ****     // Save the base address and pin for the Clk signal.
+1153:C:/StellarisWare/utils\softssi.c ****     //
+1154:C:/StellarisWare/utils\softssi.c ****     pSSI->ulClkGPIO = ulBase + (ucPin << 2);
+ 1747              		.loc 1 1154 0
+ 1748 000e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1749 0010 4FEA8303 		lsl	r3, r3, #2
+ 1750 0014 1A46     		mov	r2, r3
+ 1751 0016 BB68     		ldr	r3, [r7, #8]
+ 1752 0018 D218     		adds	r2, r2, r3
+ 1753 001a FB68     		ldr	r3, [r7, #12]
+ 1754 001c 9A60     		str	r2, [r3, #8]
+1155:C:/StellarisWare/utils\softssi.c **** }
+ 1755              		.loc 1 1155 0
+ 1756 001e 07F11407 		add	r7, r7, #20
+ 1757 0022 BD46     		mov	sp, r7
+ 1758 0024 80BC     		pop	{r7}
+ 1759 0026 7047     		bx	lr
+ 1760              		.cfi_endproc
+ 1761              	.LFE19:
+ 1763              		.section	.text.SoftSSITxGPIOSet,"ax",%progbits
+ 1764              		.align	2
+ 1765              		.global	SoftSSITxGPIOSet
+ 1766              		.thumb
+ 1767              		.thumb_func
+ 1769              	SoftSSITxGPIOSet:
+ 1770              	.LFB20:
+1156:C:/StellarisWare/utils\softssi.c **** 
+1157:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1158:C:/StellarisWare/utils\softssi.c **** //
+1159:C:/StellarisWare/utils\softssi.c **** //! Sets the GPIO pin to be used as the SoftSSI Tx signal.
+1160:C:/StellarisWare/utils\softssi.c **** //!
+1161:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1162:C:/StellarisWare/utils\softssi.c **** //! \param ulBase is the base address of the GPIO module.
+1163:C:/StellarisWare/utils\softssi.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+1164:C:/StellarisWare/utils\softssi.c **** //!
+1165:C:/StellarisWare/utils\softssi.c **** //! This function sets the GPIO pin that is used for the SoftSSI Tx signal.
+1166:C:/StellarisWare/utils\softssi.c **** //!
+1167:C:/StellarisWare/utils\softssi.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+1168:C:/StellarisWare/utils\softssi.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+1169:C:/StellarisWare/utils\softssi.c **** //!
+1170:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1171:C:/StellarisWare/utils\softssi.c **** //
+1172:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1173:C:/StellarisWare/utils\softssi.c **** void
+1174:C:/StellarisWare/utils\softssi.c **** SoftSSITxGPIOSet(tSoftSSI *pSSI, unsigned long ulBase, unsigned char ucPin)
+1175:C:/StellarisWare/utils\softssi.c **** {
+ 1771              		.loc 1 1175 0
+ 1772              		.cfi_startproc
+ 1773              		@ args = 0, pretend = 0, frame = 16
+ 1774              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1775              		@ link register save eliminated.
+ 1776 0000 80B4     		push	{r7}
+ 1777              	.LCFI60:
+ 1778              		.cfi_def_cfa_offset 4
+ 1779              		.cfi_offset 7, -4
+ 1780 0002 85B0     		sub	sp, sp, #20
+ 1781              	.LCFI61:
+ 1782              		.cfi_def_cfa_offset 24
+ 1783 0004 00AF     		add	r7, sp, #0
+ 1784              	.LCFI62:
+ 1785              		.cfi_def_cfa_register 7
+ 1786 0006 F860     		str	r0, [r7, #12]
+ 1787 0008 B960     		str	r1, [r7, #8]
+ 1788 000a 1346     		mov	r3, r2
+ 1789 000c FB71     		strb	r3, [r7, #7]
+1176:C:/StellarisWare/utils\softssi.c ****     //
+1177:C:/StellarisWare/utils\softssi.c ****     // Save the base address and pin for the Tx signal.
+1178:C:/StellarisWare/utils\softssi.c ****     //
+1179:C:/StellarisWare/utils\softssi.c ****     pSSI->ulTxGPIO = ulBase + (ucPin << 2);
+ 1790              		.loc 1 1179 0
+ 1791 000e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1792 0010 4FEA8303 		lsl	r3, r3, #2
+ 1793 0014 1A46     		mov	r2, r3
+ 1794 0016 BB68     		ldr	r3, [r7, #8]
+ 1795 0018 D218     		adds	r2, r2, r3
+ 1796 001a FB68     		ldr	r3, [r7, #12]
+ 1797 001c DA60     		str	r2, [r3, #12]
+1180:C:/StellarisWare/utils\softssi.c **** }
+ 1798              		.loc 1 1180 0
+ 1799 001e 07F11407 		add	r7, r7, #20
+ 1800 0022 BD46     		mov	sp, r7
+ 1801 0024 80BC     		pop	{r7}
+ 1802 0026 7047     		bx	lr
+ 1803              		.cfi_endproc
+ 1804              	.LFE20:
+ 1806              		.section	.text.SoftSSIRxGPIOSet,"ax",%progbits
+ 1807              		.align	2
+ 1808              		.global	SoftSSIRxGPIOSet
+ 1809              		.thumb
+ 1810              		.thumb_func
+ 1812              	SoftSSIRxGPIOSet:
+ 1813              	.LFB21:
+1181:C:/StellarisWare/utils\softssi.c **** 
+1182:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1183:C:/StellarisWare/utils\softssi.c **** //
+1184:C:/StellarisWare/utils\softssi.c **** //! Sets the GPIO pin to be used as the SoftSSI Rx signal.
+1185:C:/StellarisWare/utils\softssi.c **** //!
+1186:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1187:C:/StellarisWare/utils\softssi.c **** //! \param ulBase is the base address of the GPIO module.
+1188:C:/StellarisWare/utils\softssi.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+1189:C:/StellarisWare/utils\softssi.c **** //!
+1190:C:/StellarisWare/utils\softssi.c **** //! This function sets the GPIO pin that is used for the SoftSSI Rx signal.  If
+1191:C:/StellarisWare/utils\softssi.c **** //! there is not a GPIO pin allocated for Rx, the SoftSSI module does not read
+1192:C:/StellarisWare/utils\softssi.c **** //! data from the slave device.
+1193:C:/StellarisWare/utils\softssi.c **** //!
+1194:C:/StellarisWare/utils\softssi.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+1195:C:/StellarisWare/utils\softssi.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+1196:C:/StellarisWare/utils\softssi.c **** //!
+1197:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1198:C:/StellarisWare/utils\softssi.c **** //
+1199:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1200:C:/StellarisWare/utils\softssi.c **** void
+1201:C:/StellarisWare/utils\softssi.c **** SoftSSIRxGPIOSet(tSoftSSI *pSSI, unsigned long ulBase, unsigned char ucPin)
+1202:C:/StellarisWare/utils\softssi.c **** {
+ 1814              		.loc 1 1202 0
+ 1815              		.cfi_startproc
+ 1816              		@ args = 0, pretend = 0, frame = 16
+ 1817              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1818              		@ link register save eliminated.
+ 1819 0000 80B4     		push	{r7}
+ 1820              	.LCFI63:
+ 1821              		.cfi_def_cfa_offset 4
+ 1822              		.cfi_offset 7, -4
+ 1823 0002 85B0     		sub	sp, sp, #20
+ 1824              	.LCFI64:
+ 1825              		.cfi_def_cfa_offset 24
+ 1826 0004 00AF     		add	r7, sp, #0
+ 1827              	.LCFI65:
+ 1828              		.cfi_def_cfa_register 7
+ 1829 0006 F860     		str	r0, [r7, #12]
+ 1830 0008 B960     		str	r1, [r7, #8]
+ 1831 000a 1346     		mov	r3, r2
+ 1832 000c FB71     		strb	r3, [r7, #7]
+1203:C:/StellarisWare/utils\softssi.c ****     //
+1204:C:/StellarisWare/utils\softssi.c ****     // Save the base address and pin for the Rx signal.
+1205:C:/StellarisWare/utils\softssi.c ****     //
+1206:C:/StellarisWare/utils\softssi.c ****     if(ulBase == 0)
+ 1833              		.loc 1 1206 0
+ 1834 000e BB68     		ldr	r3, [r7, #8]
+ 1835 0010 002B     		cmp	r3, #0
+ 1836 0012 04D1     		bne	.L87
+1207:C:/StellarisWare/utils\softssi.c ****     {
+1208:C:/StellarisWare/utils\softssi.c ****         pSSI->ulRxGPIO = 0;
+ 1837              		.loc 1 1208 0
+ 1838 0014 FB68     		ldr	r3, [r7, #12]
+ 1839 0016 4FF00002 		mov	r2, #0
+ 1840 001a 1A61     		str	r2, [r3, #16]
+ 1841 001c 07E0     		b	.L86
+ 1842              	.L87:
+1209:C:/StellarisWare/utils\softssi.c ****     }
+1210:C:/StellarisWare/utils\softssi.c ****     else
+1211:C:/StellarisWare/utils\softssi.c ****     {
+1212:C:/StellarisWare/utils\softssi.c ****         pSSI->ulRxGPIO = ulBase + (ucPin << 2);
+ 1843              		.loc 1 1212 0
+ 1844 001e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1845 0020 4FEA8303 		lsl	r3, r3, #2
+ 1846 0024 1A46     		mov	r2, r3
+ 1847 0026 BB68     		ldr	r3, [r7, #8]
+ 1848 0028 D218     		adds	r2, r2, r3
+ 1849 002a FB68     		ldr	r3, [r7, #12]
+ 1850 002c 1A61     		str	r2, [r3, #16]
+ 1851              	.L86:
+1213:C:/StellarisWare/utils\softssi.c ****     }
+1214:C:/StellarisWare/utils\softssi.c **** }
+ 1852              		.loc 1 1214 0
+ 1853 002e 07F11407 		add	r7, r7, #20
+ 1854 0032 BD46     		mov	sp, r7
+ 1855 0034 80BC     		pop	{r7}
+ 1856 0036 7047     		bx	lr
+ 1857              		.cfi_endproc
+ 1858              	.LFE21:
+ 1860              		.section	.text.SoftSSITxBufferSet,"ax",%progbits
+ 1861              		.align	2
+ 1862              		.global	SoftSSITxBufferSet
+ 1863              		.thumb
+ 1864              		.thumb_func
+ 1866              	SoftSSITxBufferSet:
+ 1867              	.LFB22:
+1215:C:/StellarisWare/utils\softssi.c **** 
+1216:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1217:C:/StellarisWare/utils\softssi.c **** //
+1218:C:/StellarisWare/utils\softssi.c **** //! Sets the transmit FIFO buffer for a SoftSSI module.
+1219:C:/StellarisWare/utils\softssi.c **** //!
+1220:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1221:C:/StellarisWare/utils\softssi.c **** //! \param pusTxBuffer is the address of the transmit FIFO buffer.
+1222:C:/StellarisWare/utils\softssi.c **** //! \param usLen is the size, in 16-bit half-words, of the transmit FIFO
+1223:C:/StellarisWare/utils\softssi.c **** //! buffer.
+1224:C:/StellarisWare/utils\softssi.c **** //!
+1225:C:/StellarisWare/utils\softssi.c **** //! This function sets the address and size of the transmit FIFO buffer and
+1226:C:/StellarisWare/utils\softssi.c **** //! also resets the read and write pointers, marking the transmit FIFO as
+1227:C:/StellarisWare/utils\softssi.c **** //! empty.
+1228:C:/StellarisWare/utils\softssi.c **** //!
+1229:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1230:C:/StellarisWare/utils\softssi.c **** //
+1231:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1232:C:/StellarisWare/utils\softssi.c **** void
+1233:C:/StellarisWare/utils\softssi.c **** SoftSSITxBufferSet(tSoftSSI *pSSI, unsigned short *pusTxBuffer,
+1234:C:/StellarisWare/utils\softssi.c ****                    unsigned short usLen)
+1235:C:/StellarisWare/utils\softssi.c **** {
+ 1868              		.loc 1 1235 0
+ 1869              		.cfi_startproc
+ 1870              		@ args = 0, pretend = 0, frame = 16
+ 1871              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1872              		@ link register save eliminated.
+ 1873 0000 80B4     		push	{r7}
+ 1874              	.LCFI66:
+ 1875              		.cfi_def_cfa_offset 4
+ 1876              		.cfi_offset 7, -4
+ 1877 0002 85B0     		sub	sp, sp, #20
+ 1878              	.LCFI67:
+ 1879              		.cfi_def_cfa_offset 24
+ 1880 0004 00AF     		add	r7, sp, #0
+ 1881              	.LCFI68:
+ 1882              		.cfi_def_cfa_register 7
+ 1883 0006 F860     		str	r0, [r7, #12]
+ 1884 0008 B960     		str	r1, [r7, #8]
+ 1885 000a 1346     		mov	r3, r2
+ 1886 000c FB80     		strh	r3, [r7, #6]	@ movhi
+1236:C:/StellarisWare/utils\softssi.c ****     //
+1237:C:/StellarisWare/utils\softssi.c ****     // Save the transmit FIFO buffer address and length.
+1238:C:/StellarisWare/utils\softssi.c ****     //
+1239:C:/StellarisWare/utils\softssi.c ****     pSSI->pusTxBuffer = pusTxBuffer;
+ 1887              		.loc 1 1239 0
+ 1888 000e FB68     		ldr	r3, [r7, #12]
+ 1889 0010 BA68     		ldr	r2, [r7, #8]
+ 1890 0012 5A61     		str	r2, [r3, #20]
+1240:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferLen = usLen;
+ 1891              		.loc 1 1240 0
+ 1892 0014 FB68     		ldr	r3, [r7, #12]
+ 1893 0016 FA88     		ldrh	r2, [r7, #6]	@ movhi
+ 1894 0018 9A83     		strh	r2, [r3, #28]	@ movhi
+1241:C:/StellarisWare/utils\softssi.c **** 
+1242:C:/StellarisWare/utils\softssi.c ****     //
+1243:C:/StellarisWare/utils\softssi.c ****     // Reset the transmit FIFO read and write pointers.
+1244:C:/StellarisWare/utils\softssi.c ****     //
+1245:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferRead = 0;
+ 1895              		.loc 1 1245 0
+ 1896 001a FB68     		ldr	r3, [r7, #12]
+ 1897 001c 4FF00002 		mov	r2, #0
+ 1898 0020 DA83     		strh	r2, [r3, #30]	@ movhi
+1246:C:/StellarisWare/utils\softssi.c ****     pSSI->usTxBufferWrite = 0;
+ 1899              		.loc 1 1246 0
+ 1900 0022 FB68     		ldr	r3, [r7, #12]
+ 1901 0024 4FF00002 		mov	r2, #0
+ 1902 0028 1A84     		strh	r2, [r3, #32]	@ movhi
+1247:C:/StellarisWare/utils\softssi.c **** }
+ 1903              		.loc 1 1247 0
+ 1904 002a 07F11407 		add	r7, r7, #20
+ 1905 002e BD46     		mov	sp, r7
+ 1906 0030 80BC     		pop	{r7}
+ 1907 0032 7047     		bx	lr
+ 1908              		.cfi_endproc
+ 1909              	.LFE22:
+ 1911              		.section	.text.SoftSSIRxBufferSet,"ax",%progbits
+ 1912              		.align	2
+ 1913              		.global	SoftSSIRxBufferSet
+ 1914              		.thumb
+ 1915              		.thumb_func
+ 1917              	SoftSSIRxBufferSet:
+ 1918              	.LFB23:
+1248:C:/StellarisWare/utils\softssi.c **** 
+1249:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1250:C:/StellarisWare/utils\softssi.c **** //
+1251:C:/StellarisWare/utils\softssi.c **** //! Sets the receive FIFO buffer for a SoftSSI module.
+1252:C:/StellarisWare/utils\softssi.c **** //!
+1253:C:/StellarisWare/utils\softssi.c **** //! \param pSSI specifies the SoftSSI data structure.
+1254:C:/StellarisWare/utils\softssi.c **** //! \param pusRxBuffer is the address of the receive FIFO buffer.
+1255:C:/StellarisWare/utils\softssi.c **** //! \param usLen is the size, in 16-bit half-words, of the receive FIFO buffer.
+1256:C:/StellarisWare/utils\softssi.c **** //!
+1257:C:/StellarisWare/utils\softssi.c **** //! This function sets the address and size of the receive FIFO buffer and also
+1258:C:/StellarisWare/utils\softssi.c **** //! resets the read and write pointers, marking the receive FIFO as empty.
+1259:C:/StellarisWare/utils\softssi.c **** //! When the buffer pointer and length are configured as zero, all data
+1260:C:/StellarisWare/utils\softssi.c **** //! received from the slave device is discarded.  This capability is useful
+1261:C:/StellarisWare/utils\softssi.c **** //! when there is no GPIO pin allocated for the Rx signal.
+1262:C:/StellarisWare/utils\softssi.c **** //!
+1263:C:/StellarisWare/utils\softssi.c **** //! \return None.
+1264:C:/StellarisWare/utils\softssi.c **** //
+1265:C:/StellarisWare/utils\softssi.c **** //*****************************************************************************
+1266:C:/StellarisWare/utils\softssi.c **** void
+1267:C:/StellarisWare/utils\softssi.c **** SoftSSIRxBufferSet(tSoftSSI *pSSI, unsigned short *pusRxBuffer,
+1268:C:/StellarisWare/utils\softssi.c ****                    unsigned short usLen)
+1269:C:/StellarisWare/utils\softssi.c **** {
+ 1919              		.loc 1 1269 0
+ 1920              		.cfi_startproc
+ 1921              		@ args = 0, pretend = 0, frame = 16
+ 1922              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1923              		@ link register save eliminated.
+ 1924 0000 80B4     		push	{r7}
+ 1925              	.LCFI69:
+ 1926              		.cfi_def_cfa_offset 4
+ 1927              		.cfi_offset 7, -4
+ 1928 0002 85B0     		sub	sp, sp, #20
+ 1929              	.LCFI70:
+ 1930              		.cfi_def_cfa_offset 24
+ 1931 0004 00AF     		add	r7, sp, #0
+ 1932              	.LCFI71:
+ 1933              		.cfi_def_cfa_register 7
+ 1934 0006 F860     		str	r0, [r7, #12]
+ 1935 0008 B960     		str	r1, [r7, #8]
+ 1936 000a 1346     		mov	r3, r2
+ 1937 000c FB80     		strh	r3, [r7, #6]	@ movhi
+1270:C:/StellarisWare/utils\softssi.c ****     //
+1271:C:/StellarisWare/utils\softssi.c ****     // Save the receive FIFO buffer address and length.
+1272:C:/StellarisWare/utils\softssi.c ****     //
+1273:C:/StellarisWare/utils\softssi.c ****     pSSI->pusRxBuffer = pusRxBuffer;
+ 1938              		.loc 1 1273 0
+ 1939 000e FB68     		ldr	r3, [r7, #12]
+ 1940 0010 BA68     		ldr	r2, [r7, #8]
+ 1941 0012 9A61     		str	r2, [r3, #24]
+1274:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferLen = usLen;
+ 1942              		.loc 1 1274 0
+ 1943 0014 FB68     		ldr	r3, [r7, #12]
+ 1944 0016 FA88     		ldrh	r2, [r7, #6]	@ movhi
+ 1945 0018 5A84     		strh	r2, [r3, #34]	@ movhi
+1275:C:/StellarisWare/utils\softssi.c **** 
+1276:C:/StellarisWare/utils\softssi.c ****     //
+1277:C:/StellarisWare/utils\softssi.c ****     // Reset the receive FIFO read and write pointers.
+1278:C:/StellarisWare/utils\softssi.c ****     //
+1279:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferRead = 0;
+ 1946              		.loc 1 1279 0
+ 1947 001a FB68     		ldr	r3, [r7, #12]
+ 1948 001c 4FF00002 		mov	r2, #0
+ 1949 0020 9A84     		strh	r2, [r3, #36]	@ movhi
+1280:C:/StellarisWare/utils\softssi.c ****     pSSI->usRxBufferWrite = 0;
+ 1950              		.loc 1 1280 0
+ 1951 0022 FB68     		ldr	r3, [r7, #12]
+ 1952 0024 4FF00002 		mov	r2, #0
+ 1953 0028 DA84     		strh	r2, [r3, #38]	@ movhi
+1281:C:/StellarisWare/utils\softssi.c **** }
+ 1954              		.loc 1 1281 0
+ 1955 002a 07F11407 		add	r7, r7, #20
+ 1956 002e BD46     		mov	sp, r7
+ 1957 0030 80BC     		pop	{r7}
+ 1958 0032 7047     		bx	lr
+ 1959              		.cfi_endproc
+ 1960              	.LFE23:
+ 1962              		.text
+ 1963              	.Letext0:
+ 1964              		.file 2 "C:\\StellarisWare/utils/softssi.h"
+ 1965              		.file 3 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 softssi.c
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:19     .text.SoftSSIConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:24     .text.SoftSSIConfigSet:00000000 SoftSSIConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:202    .text.SoftSSITxInt:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:206    .text.SoftSSITxInt:00000000 SoftSSITxInt
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:288    .text.SoftSSIRxInt:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:292    .text.SoftSSIRxInt:00000000 SoftSSIRxInt
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:374    .text.SoftSSITimerTick:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:379    .text.SoftSSITimerTick:00000000 SoftSSITimerTick
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:406    .text.SoftSSITimerTick:0000001c $d
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:414    .text.SoftSSITimerTick:00000034 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:892    .text.SoftSSIEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:897    .text.SoftSSIEnable:00000000 SoftSSIEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:931    .text.SoftSSIDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:936    .text.SoftSSIDisable:00000000 SoftSSIDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:970    .text.SoftSSIIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:975    .text.SoftSSIIntEnable:00000000 SoftSSIIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1012   .text.SoftSSIIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1017   .text.SoftSSIIntDisable:00000000 SoftSSIIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1056   .text.SoftSSIIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1061   .text.SoftSSIIntStatus:00000000 SoftSSIIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1108   .text.SoftSSIIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1113   .text.SoftSSIIntClear:00000000 SoftSSIIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1154   .text.SoftSSIDataAvail:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1159   .text.SoftSSIDataAvail:00000000 SoftSSIDataAvail
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1197   .text.SoftSSISpaceAvail:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1202   .text.SoftSSISpaceAvail:00000000 SoftSSISpaceAvail
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1254   .text.SoftSSIDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1259   .text.SoftSSIDataPut:00000000 SoftSSIDataPut
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1329   .text.SoftSSIDataPutNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1334   .text.SoftSSIDataPutNonBlocking:00000000 SoftSSIDataPutNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1407   .text.SoftSSIDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1412   .text.SoftSSIDataGet:00000000 SoftSSIDataGet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1486   .text.SoftSSIDataGetNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1491   .text.SoftSSIDataGetNonBlocking:00000000 SoftSSIDataGetNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1566   .text.SoftSSIBusy:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1571   .text.SoftSSIBusy:00000000 SoftSSIBusy
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1630   .text.SoftSSICallbackSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1635   .text.SoftSSICallbackSet:00000000 SoftSSICallbackSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1667   .text.SoftSSIFssGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1672   .text.SoftSSIFssGPIOSet:00000000 SoftSSIFssGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1721   .text.SoftSSIClkGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1726   .text.SoftSSIClkGPIOSet:00000000 SoftSSIClkGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1764   .text.SoftSSITxGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1769   .text.SoftSSITxGPIOSet:00000000 SoftSSITxGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1807   .text.SoftSSIRxGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1812   .text.SoftSSIRxGPIOSet:00000000 SoftSSIRxGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1861   .text.SoftSSITxBufferSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1866   .text.SoftSSITxBufferSet:00000000 SoftSSITxBufferSet
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1912   .text.SoftSSIRxBufferSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccm2wVna.s:1917   .text.SoftSSIRxBufferSet:00000000 SoftSSIRxBufferSet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+GPIOPinTypeGPIOOutput
+GPIOPinTypeGPIOInput

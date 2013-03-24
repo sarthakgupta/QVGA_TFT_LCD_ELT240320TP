@@ -1,0 +1,2197 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"peci.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.PECIConfigSet,"ax",%progbits
+  19              		.align	2
+  20              		.global	PECIConfigSet
+  21              		.thumb
+  22              		.thumb_func
+  24              	PECIConfigSet:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/peci.c"
+   1:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\peci.c **** //
+   3:C:/StellarisWare/driverlib\peci.c **** // peci.c - Driver for the Platform Environment Control Interface (PECI)
+   4:C:/StellarisWare/driverlib\peci.c **** //          module.
+   5:C:/StellarisWare/driverlib\peci.c **** //
+   6:C:/StellarisWare/driverlib\peci.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   7:C:/StellarisWare/driverlib\peci.c **** // Software License Agreement
+   8:C:/StellarisWare/driverlib\peci.c **** // 
+   9:C:/StellarisWare/driverlib\peci.c **** //   Redistribution and use in source and binary forms, with or without
+  10:C:/StellarisWare/driverlib\peci.c **** //   modification, are permitted provided that the following conditions
+  11:C:/StellarisWare/driverlib\peci.c **** //   are met:
+  12:C:/StellarisWare/driverlib\peci.c **** // 
+  13:C:/StellarisWare/driverlib\peci.c **** //   Redistributions of source code must retain the above copyright
+  14:C:/StellarisWare/driverlib\peci.c **** //   notice, this list of conditions and the following disclaimer.
+  15:C:/StellarisWare/driverlib\peci.c **** // 
+  16:C:/StellarisWare/driverlib\peci.c **** //   Redistributions in binary form must reproduce the above copyright
+  17:C:/StellarisWare/driverlib\peci.c **** //   notice, this list of conditions and the following disclaimer in the
+  18:C:/StellarisWare/driverlib\peci.c **** //   documentation and/or other materials provided with the  
+  19:C:/StellarisWare/driverlib\peci.c **** //   distribution.
+  20:C:/StellarisWare/driverlib\peci.c **** // 
+  21:C:/StellarisWare/driverlib\peci.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  22:C:/StellarisWare/driverlib\peci.c **** //   its contributors may be used to endorse or promote products derived
+  23:C:/StellarisWare/driverlib\peci.c **** //   from this software without specific prior written permission.
+  24:C:/StellarisWare/driverlib\peci.c **** // 
+  25:C:/StellarisWare/driverlib\peci.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  26:C:/StellarisWare/driverlib\peci.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  27:C:/StellarisWare/driverlib\peci.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  28:C:/StellarisWare/driverlib\peci.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  29:C:/StellarisWare/driverlib\peci.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  30:C:/StellarisWare/driverlib\peci.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  31:C:/StellarisWare/driverlib\peci.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  32:C:/StellarisWare/driverlib\peci.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  33:C:/StellarisWare/driverlib\peci.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  34:C:/StellarisWare/driverlib\peci.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  35:C:/StellarisWare/driverlib\peci.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  36:C:/StellarisWare/driverlib\peci.c **** // 
+  37:C:/StellarisWare/driverlib\peci.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  38:C:/StellarisWare/driverlib\peci.c **** //
+  39:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  40:C:/StellarisWare/driverlib\peci.c **** 
+  41:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  42:C:/StellarisWare/driverlib\peci.c **** //
+  43:C:/StellarisWare/driverlib\peci.c **** //! \addtogroup peci_api
+  44:C:/StellarisWare/driverlib\peci.c **** //! @{
+  45:C:/StellarisWare/driverlib\peci.c **** //
+  46:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  47:C:/StellarisWare/driverlib\peci.c **** 
+  48:C:/StellarisWare/driverlib\peci.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\peci.c **** #include "inc/hw_memmap.h"
+  50:C:/StellarisWare/driverlib\peci.c **** #include "inc/hw_peci.h"
+  51:C:/StellarisWare/driverlib\peci.c **** #include "inc/hw_sysctl.h"
+  52:C:/StellarisWare/driverlib\peci.c **** #include "inc/hw_types.h"
+  53:C:/StellarisWare/driverlib\peci.c **** #include "driverlib/debug.h"
+  54:C:/StellarisWare/driverlib\peci.c **** #include "driverlib/interrupt.h"
+  55:C:/StellarisWare/driverlib\peci.c **** #include "driverlib/peci.h"
+  56:C:/StellarisWare/driverlib\peci.c **** 
+  57:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  58:C:/StellarisWare/driverlib\peci.c **** //
+  59:C:/StellarisWare/driverlib\peci.c **** // The following defines provide characteristics of the PECI module that are
+  60:C:/StellarisWare/driverlib\peci.c **** // important to the driver but which can not be gleaned from the register
+  61:C:/StellarisWare/driverlib\peci.c **** // definitions.
+  62:C:/StellarisWare/driverlib\peci.c **** //
+  63:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  64:C:/StellarisWare/driverlib\peci.c **** #define PECI_MAX_BAUD      1000000                      // Max baud rate
+  65:C:/StellarisWare/driverlib\peci.c **** #define PECI_MIN_BAUD      2000                         // Min baud rate
+  66:C:/StellarisWare/driverlib\peci.c **** #define PECI_MIN_RATIO     (CLASS_IS_BLIZZARD ? 10 : 2) // Min baud rate divider
+  67:C:/StellarisWare/driverlib\peci.c **** #define PECI_MAX_RATIO     65535                        // Max baud rate divider
+  68:C:/StellarisWare/driverlib\peci.c **** #define PECI_POLL_PRESCALE 4096                    // Polling timer prescaler
+  69:C:/StellarisWare/driverlib\peci.c **** #define PECI_MIN_POLL      2                       // Min polling interval (ms)
+  70:C:/StellarisWare/driverlib\peci.c **** #define PECI_MAX_POLL      1000                    // Max polling interval (ms)
+  71:C:/StellarisWare/driverlib\peci.c **** 
+  72:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  73:C:/StellarisWare/driverlib\peci.c **** //
+  74:C:/StellarisWare/driverlib\peci.c **** //! \internal
+  75:C:/StellarisWare/driverlib\peci.c **** //! Checks a PECI domain.
+  76:C:/StellarisWare/driverlib\peci.c **** //!
+  77:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain identifier.
+  78:C:/StellarisWare/driverlib\peci.c **** //!
+  79:C:/StellarisWare/driverlib\peci.c **** //! This function determines if a domain identifier is valid.
+  80:C:/StellarisWare/driverlib\peci.c **** //!
+  81:C:/StellarisWare/driverlib\peci.c **** //! \return Returns \b true if the domain identifier is valid and \b false
+  82:C:/StellarisWare/driverlib\peci.c **** //! otherwise.
+  83:C:/StellarisWare/driverlib\peci.c **** //
+  84:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  85:C:/StellarisWare/driverlib\peci.c **** #ifdef DEBUG
+  86:C:/StellarisWare/driverlib\peci.c **** static tBoolean
+  87:C:/StellarisWare/driverlib\peci.c **** PECIDomainValid(unsigned long ulDomain)
+  88:C:/StellarisWare/driverlib\peci.c **** {
+  89:C:/StellarisWare/driverlib\peci.c ****     return((ulDomain == PECI_DOMAIN_M0D0) ||
+  90:C:/StellarisWare/driverlib\peci.c ****            (ulDomain == PECI_DOMAIN_M0D1) ||
+  91:C:/StellarisWare/driverlib\peci.c ****            (ulDomain == PECI_DOMAIN_M1D0) ||
+  92:C:/StellarisWare/driverlib\peci.c ****            (ulDomain == PECI_DOMAIN_M1D1));
+  93:C:/StellarisWare/driverlib\peci.c **** }
+  94:C:/StellarisWare/driverlib\peci.c **** #endif
+  95:C:/StellarisWare/driverlib\peci.c **** 
+  96:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+  97:C:/StellarisWare/driverlib\peci.c **** //
+  98:C:/StellarisWare/driverlib\peci.c **** //! Sets the configuration of the PECI module.
+  99:C:/StellarisWare/driverlib\peci.c **** //!
+ 100:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 101:C:/StellarisWare/driverlib\peci.c **** //! \param ulPECIClk is the rate of the clock supplied to the PECI module.
+ 102:C:/StellarisWare/driverlib\peci.c **** //! \param ulBaud is the bit rate that should be used for the PECI transfers.
+ 103:C:/StellarisWare/driverlib\peci.c **** //! \param ulPoll is the polling rate, in ms, that should be used for the
+ 104:C:/StellarisWare/driverlib\peci.c **** //! time between PECI polls.
+ 105:C:/StellarisWare/driverlib\peci.c **** //! \param ulOffset is the offset to be applied to all temperature values to
+ 106:C:/StellarisWare/driverlib\peci.c **** //! convert from relative to absolute.
+ 107:C:/StellarisWare/driverlib\peci.c **** //! \param ulRetry is the number of retry attempts for a PECI transaction.
+ 108:C:/StellarisWare/driverlib\peci.c **** //!
+ 109:C:/StellarisWare/driverlib\peci.c **** //! This function initializes operation of the PECI block.  It programs the bit
+ 110:C:/StellarisWare/driverlib\peci.c **** //! rate, polling rate and retry counts for PECI transactions.  It also
+ 111:C:/StellarisWare/driverlib\peci.c **** //! programs the offset value to be used to translate relative temperature
+ 112:C:/StellarisWare/driverlib\peci.c **** //! values from PECI transactions to absolute values.  At the end of this
+ 113:C:/StellarisWare/driverlib\peci.c **** //! function, no host/domain combinations are enabled.  Each desired
+ 114:C:/StellarisWare/driverlib\peci.c **** //! host/domain combination can be configured/enabled with a call to
+ 115:C:/StellarisWare/driverlib\peci.c **** //! PECIDomainEnable().
+ 116:C:/StellarisWare/driverlib\peci.c **** //!
+ 117:C:/StellarisWare/driverlib\peci.c **** //! The peripheral clock is the same as the processor clock.  This value is
+ 118:C:/StellarisWare/driverlib\peci.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard coded if it is
+ 119:C:/StellarisWare/driverlib\peci.c **** //! constant and known (to save the code/execution overhead of a call to
+ 120:C:/StellarisWare/driverlib\peci.c **** //! SysCtlClockGet()).
+ 121:C:/StellarisWare/driverlib\peci.c **** //!
+ 122:C:/StellarisWare/driverlib\peci.c **** //! The \e ulBaud parameter defines the starting bit rate for the PECI
+ 123:C:/StellarisWare/driverlib\peci.c **** //! transactions.  This value is used to calculate a divisor value based on
+ 124:C:/StellarisWare/driverlib\peci.c **** //! the specified \e ulPECIClk.  If the exact baud rate cannot be achieved
+ 125:C:/StellarisWare/driverlib\peci.c **** //! (due to rounding), the baud rate is programmed to the nearest value that
+ 126:C:/StellarisWare/driverlib\peci.c **** //! is less than the specified value.  Note that, due to client clock
+ 127:C:/StellarisWare/driverlib\peci.c **** //! stretching and delays through external components, the actual baud rate
+ 128:C:/StellarisWare/driverlib\peci.c **** //! observed on the PECI bus will always be lower than the value specified in
+ 129:C:/StellarisWare/driverlib\peci.c **** //! this parameter.
+ 130:C:/StellarisWare/driverlib\peci.c **** //!
+ 131:C:/StellarisWare/driverlib\peci.c **** //! The \e ulPoll parameter defines the polling rate, in milliseconds, used
+ 132:C:/StellarisWare/driverlib\peci.c **** //! for PECI transactions.  For generation of the polling rate, the \e
+ 133:C:/StellarisWare/driverlib\peci.c **** //! ulPECIClk is pre-divided by \b 4096.  A value of 0 disables the polling
+ 134:C:/StellarisWare/driverlib\peci.c **** //! feature.  If the exact polling rate cannot be achieved (due to rounding),
+ 135:C:/StellarisWare/driverlib\peci.c **** //! the polling rate is programmed to the nearest value that is greater than
+ 136:C:/StellarisWare/driverlib\peci.c **** //! the specified value.
+ 137:C:/StellarisWare/driverlib\peci.c **** //!
+ 138:C:/StellarisWare/driverlib\peci.c **** //! The \e ulRetry parameter defines the number of PECI transactions that are
+ 139:C:/StellarisWare/driverlib\peci.c **** //! attempted before indicating an error condition.
+ 140:C:/StellarisWare/driverlib\peci.c **** //!
+ 141:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 142:C:/StellarisWare/driverlib\peci.c **** //
+ 143:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 144:C:/StellarisWare/driverlib\peci.c **** void
+ 145:C:/StellarisWare/driverlib\peci.c **** PECIConfigSet(unsigned long ulBase, unsigned long ulPECIClk,
+ 146:C:/StellarisWare/driverlib\peci.c ****               unsigned long ulBaud, unsigned long ulPoll,
+ 147:C:/StellarisWare/driverlib\peci.c ****               unsigned long ulOffset, unsigned long ulRetry)
+ 148:C:/StellarisWare/driverlib\peci.c **** {
+  27              		.loc 1 148 0
+  28              		.cfi_startproc
+  29              		@ args = 8, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 87B0     		sub	sp, sp, #28
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 32
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 F860     		str	r0, [r7, #12]
+  43 0008 B960     		str	r1, [r7, #8]
+  44 000a 7A60     		str	r2, [r7, #4]
+  45 000c 3B60     		str	r3, [r7, #0]
+ 149:C:/StellarisWare/driverlib\peci.c ****     unsigned long ulTemp, ulDiv;
+ 150:C:/StellarisWare/driverlib\peci.c **** 
+ 151:C:/StellarisWare/driverlib\peci.c ****     //
+ 152:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 153:C:/StellarisWare/driverlib\peci.c ****     //
+ 154:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 155:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulPECIClk != 0);
+ 156:C:/StellarisWare/driverlib\peci.c ****     ASSERT((ulBaud != 0) && (ulBaud <= PECI_MAX_BAUD) &&
+ 157:C:/StellarisWare/driverlib\peci.c ****            (ulBaud >= PECI_MIN_BAUD) &&
+ 158:C:/StellarisWare/driverlib\peci.c ****            ((ulBaud * 4 * PECI_MIN_RATIO) < ulPECIClk));
+ 159:C:/StellarisWare/driverlib\peci.c ****     ASSERT((ulPoll == 0) ||
+ 160:C:/StellarisWare/driverlib\peci.c ****            ((ulPoll >= PECI_MIN_POLL) && (ulPoll <= PECI_MAX_POLL)));
+ 161:C:/StellarisWare/driverlib\peci.c **** 
+ 162:C:/StellarisWare/driverlib\peci.c ****     //
+ 163:C:/StellarisWare/driverlib\peci.c ****     // Generate value for the PECI Control Register.
+ 164:C:/StellarisWare/driverlib\peci.c ****     //
+ 165:C:/StellarisWare/driverlib\peci.c ****     ulTemp = ((ulOffset << PECI_CTL_OFFSET_S) & PECI_CTL_OFFSET_M);
+  46              		.loc 1 165 0
+  47 000e 3B6A     		ldr	r3, [r7, #32]
+  48 0010 4FEA0343 		lsl	r3, r3, #16
+  49 0014 7B61     		str	r3, [r7, #20]
+ 166:C:/StellarisWare/driverlib\peci.c ****     ulTemp |= ((ulRetry << PECI_CTL_CRETRY_S) & PECI_CTL_CRETRY_M);
+  50              		.loc 1 166 0
+  51 0016 7B6A     		ldr	r3, [r7, #36]
+  52 0018 4FEA0333 		lsl	r3, r3, #12
+  53 001c 03F4E043 		and	r3, r3, #28672
+  54 0020 7A69     		ldr	r2, [r7, #20]
+  55 0022 1343     		orrs	r3, r3, r2
+  56 0024 7B61     		str	r3, [r7, #20]
+ 167:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_CTL) = ulTemp;
+  57              		.loc 1 167 0
+  58 0026 FB68     		ldr	r3, [r7, #12]
+  59 0028 7A69     		ldr	r2, [r7, #20]
+  60 002a 1A60     		str	r2, [r3, #0]
+ 168:C:/StellarisWare/driverlib\peci.c **** 
+ 169:C:/StellarisWare/driverlib\peci.c ****     //
+ 170:C:/StellarisWare/driverlib\peci.c ****     // Compute the divisor for the PECI baud rate clock.
+ 171:C:/StellarisWare/driverlib\peci.c ****     // Round up, to ensure programmed baud rate is <= specified rate.
+ 172:C:/StellarisWare/driverlib\peci.c ****     // Ensure that proper ratio is maintained for clock:baud.
+ 173:C:/StellarisWare/driverlib\peci.c ****     //
+ 174:C:/StellarisWare/driverlib\peci.c ****     ulDiv = (ulPECIClk + (4 * ulBaud) - 1) / (4 * ulBaud);
+  61              		.loc 1 174 0
+  62 002c 7B68     		ldr	r3, [r7, #4]
+  63 002e 4FEA8302 		lsl	r2, r3, #2
+  64 0032 BB68     		ldr	r3, [r7, #8]
+  65 0034 D318     		adds	r3, r2, r3
+  66 0036 03F1FF32 		add	r2, r3, #-1
+  67 003a 7B68     		ldr	r3, [r7, #4]
+  68 003c 4FEA8303 		lsl	r3, r3, #2
+  69 0040 B2FBF3F3 		udiv	r3, r2, r3
+  70 0044 3B61     		str	r3, [r7, #16]
+ 175:C:/StellarisWare/driverlib\peci.c ****     ulDiv = (ulDiv < PECI_MIN_RATIO) ? PECI_MIN_RATIO : ulDiv;
+  71              		.loc 1 175 0
+  72 0046 4FF46043 		mov	r3, #57344
+  73 004a C4F20F03 		movt	r3, 16399
+  74 004e 1A68     		ldr	r2, [r3, #0]
+  75 0050 4FF00003 		mov	r3, #0
+  76 0054 C7F2FF03 		movt	r3, 28927
+  77 0058 1340     		ands	r3, r3, r2
+  78 005a 4FF00002 		mov	r2, #0
+  79 005e C1F20502 		movt	r2, 4101
+  80 0062 9342     		cmp	r3, r2
+  81 0064 02D1     		bne	.L2
+  82              		.loc 1 175 0 is_stmt 0 discriminator 1
+  83 0066 4FF00A03 		mov	r3, #10
+  84 006a 01E0     		b	.L3
+  85              	.L2:
+  86              		.loc 1 175 0 discriminator 2
+  87 006c 4FF00203 		mov	r3, #2
+  88              	.L3:
+  89              		.loc 1 175 0 discriminator 3
+  90 0070 3A69     		ldr	r2, [r7, #16]
+  91 0072 9342     		cmp	r3, r2
+  92 0074 15D9     		bls	.L4
+  93              		.loc 1 175 0 discriminator 1
+  94 0076 4FF46043 		mov	r3, #57344
+  95 007a C4F20F03 		movt	r3, 16399
+  96 007e 1A68     		ldr	r2, [r3, #0]
+  97 0080 4FF00003 		mov	r3, #0
+  98 0084 C7F2FF03 		movt	r3, 28927
+  99 0088 1340     		ands	r3, r3, r2
+ 100 008a 4FF00002 		mov	r2, #0
+ 101 008e C1F20502 		movt	r2, 4101
+ 102 0092 9342     		cmp	r3, r2
+ 103 0094 02D1     		bne	.L5
+ 104              		.loc 1 175 0 discriminator 3
+ 105 0096 4FF00A03 		mov	r3, #10
+ 106 009a 01E0     		b	.L6
+ 107              	.L5:
+ 108              		.loc 1 175 0 discriminator 4
+ 109 009c 4FF00203 		mov	r3, #2
+ 110              	.L6:
+ 111 00a0 00E0     		b	.L7
+ 112              	.L4:
+ 113              		.loc 1 175 0 discriminator 2
+ 114 00a2 3B69     		ldr	r3, [r7, #16]
+ 115              	.L7:
+ 116              		.loc 1 175 0 discriminator 6
+ 117 00a4 3B61     		str	r3, [r7, #16]
+ 176:C:/StellarisWare/driverlib\peci.c ****     ulDiv = (ulDiv > PECI_MAX_RATIO) ? PECI_MAX_RATIO : ulDiv;
+ 118              		.loc 1 176 0 is_stmt 1 discriminator 6
+ 119 00a6 3A69     		ldr	r2, [r7, #16]
+ 120 00a8 4FF6FF73 		movw	r3, #65535
+ 121 00ac 9A42     		cmp	r2, r3
+ 122 00ae 38BF     		it	cc
+ 123 00b0 1346     		movcc	r3, r2
+ 124 00b2 3B61     		str	r3, [r7, #16]
+ 177:C:/StellarisWare/driverlib\peci.c ****     ulTemp = ((ulDiv << PECI_DIV_BAUD_S) & PECI_DIV_BAUD_M);
+ 125              		.loc 1 177 0 discriminator 6
+ 126 00b4 3B69     		ldr	r3, [r7, #16]
+ 127 00b6 4FEA0343 		lsl	r3, r3, #16
+ 128 00ba 7B61     		str	r3, [r7, #20]
+ 178:C:/StellarisWare/driverlib\peci.c **** 
+ 179:C:/StellarisWare/driverlib\peci.c ****     //
+ 180:C:/StellarisWare/driverlib\peci.c ****     // Compute the divisor for the PECI polling rate.
+ 181:C:/StellarisWare/driverlib\peci.c ****     // Round up, to ensure programmed polling rate is >= specified rate.
+ 182:C:/StellarisWare/driverlib\peci.c ****     // Note that the order of calculation is important here since ulPECIClk is
+ 183:C:/StellarisWare/driverlib\peci.c ****     // in the 10s of MHz range and ulPoll can be several thousand for slow
+ 184:C:/StellarisWare/driverlib\peci.c ****     // polling rates.  If we change the order, the calculation can overflow
+ 185:C:/StellarisWare/driverlib\peci.c ****     // resulting in incorrect polling rates.
+ 186:C:/StellarisWare/driverlib\peci.c ****     //
+ 187:C:/StellarisWare/driverlib\peci.c ****     ulDiv = ((ulPoll == 0) ? 0 : ((((ulPECIClk / 1000) * ulPoll) +
+ 129              		.loc 1 187 0 discriminator 6
+ 130 00bc 3B68     		ldr	r3, [r7, #0]
+ 131 00be 002B     		cmp	r3, #0
+ 132 00c0 12D0     		beq	.L8
+ 133              		.loc 1 187 0 is_stmt 0 discriminator 1
+ 134 00c2 BA68     		ldr	r2, [r7, #8]
+ 135 00c4 44F6D353 		movw	r3, #19923
+ 136 00c8 C1F26203 		movt	r3, 4194
+ 137 00cc A3FB0213 		umull	r1, r3, r3, r2
+ 138 00d0 4FEA9313 		lsr	r3, r3, #6
+ 139 00d4 3A68     		ldr	r2, [r7, #0]
+ 140 00d6 02FB03F3 		mul	r3, r2, r3
+ 141 00da 03F57E63 		add	r3, r3, #4064
+ 142 00de 03F11F03 		add	r3, r3, #31
+ 143 00e2 4FEA1333 		lsr	r3, r3, #12
+ 144 00e6 01E0     		b	.L9
+ 145              	.L8:
+ 146              		.loc 1 187 0 discriminator 2
+ 147 00e8 4FF00003 		mov	r3, #0
+ 148              	.L9:
+ 149              		.loc 1 187 0 discriminator 3
+ 150 00ec 3B61     		str	r3, [r7, #16]
+ 188:C:/StellarisWare/driverlib\peci.c ****                                    (PECI_POLL_PRESCALE - 1)) /
+ 189:C:/StellarisWare/driverlib\peci.c ****                                   PECI_POLL_PRESCALE));
+ 190:C:/StellarisWare/driverlib\peci.c ****     ulTemp |= ((ulDiv << PECI_DIV_POLL_S) & PECI_DIV_POLL_M);;
+ 151              		.loc 1 190 0 is_stmt 1 discriminator 3
+ 152 00ee 3B69     		ldr	r3, [r7, #16]
+ 153 00f0 4FEA0343 		lsl	r3, r3, #16
+ 154 00f4 4FEA1343 		lsr	r3, r3, #16
+ 155 00f8 7A69     		ldr	r2, [r7, #20]
+ 156 00fa 1343     		orrs	r3, r3, r2
+ 157 00fc 7B61     		str	r3, [r7, #20]
+ 191:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_DIV) = ulTemp;
+ 158              		.loc 1 191 0 discriminator 3
+ 159 00fe FB68     		ldr	r3, [r7, #12]
+ 160 0100 03F10403 		add	r3, r3, #4
+ 161 0104 7A69     		ldr	r2, [r7, #20]
+ 162 0106 1A60     		str	r2, [r3, #0]
+ 192:C:/StellarisWare/driverlib\peci.c **** }
+ 163              		.loc 1 192 0 discriminator 3
+ 164 0108 07F11C07 		add	r7, r7, #28
+ 165 010c BD46     		mov	sp, r7
+ 166 010e 80BC     		pop	{r7}
+ 167 0110 7047     		bx	lr
+ 168              		.cfi_endproc
+ 169              	.LFE0:
+ 171 0112 00BF     		.section	.text.PECIConfigGet,"ax",%progbits
+ 172              		.align	2
+ 173              		.global	PECIConfigGet
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	PECIConfigGet:
+ 178              	.LFB1:
+ 193:C:/StellarisWare/driverlib\peci.c **** 
+ 194:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 195:C:/StellarisWare/driverlib\peci.c **** //
+ 196:C:/StellarisWare/driverlib\peci.c **** //! Gets the current configuration of the PECI module.
+ 197:C:/StellarisWare/driverlib\peci.c **** //!
+ 198:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 199:C:/StellarisWare/driverlib\peci.c **** //! \param ulPECIClk is the rate of the clock supplied to the PECI module.
+ 200:C:/StellarisWare/driverlib\peci.c **** //! \param pulBaud is a pointer to storage for the bit rate.
+ 201:C:/StellarisWare/driverlib\peci.c **** //! \param pulPoll is a pointer to storage for the polling rate.
+ 202:C:/StellarisWare/driverlib\peci.c **** //! \param pulOffset is a pointer to storage for the offset.
+ 203:C:/StellarisWare/driverlib\peci.c **** //! \param pulRetry is a pointer to storage for the retry count.
+ 204:C:/StellarisWare/driverlib\peci.c **** //!
+ 205:C:/StellarisWare/driverlib\peci.c **** //! The baud rate and poll rate for the PECI module are determined, given an
+ 206:C:/StellarisWare/driverlib\peci.c **** //! explicitly provided peripheral clock.  The returned rates are the actual
+ 207:C:/StellarisWare/driverlib\peci.c **** //! rates being used; they may not be the same as the requested rates, due to
+ 208:C:/StellarisWare/driverlib\peci.c **** //! rounding in the calculations.
+ 209:C:/StellarisWare/driverlib\peci.c **** //!
+ 210:C:/StellarisWare/driverlib\peci.c **** //! The peripheral clock is the same as the processor clock.  This value is
+ 211:C:/StellarisWare/driverlib\peci.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard coded if it is
+ 212:C:/StellarisWare/driverlib\peci.c **** //! constant and known (to save the code/execution overhead of a call to
+ 213:C:/StellarisWare/driverlib\peci.c **** //! SysCtlClockGet()).
+ 214:C:/StellarisWare/driverlib\peci.c **** //!
+ 215:C:/StellarisWare/driverlib\peci.c **** //! The baud rate returned in \e *pulBaud represents the rate at which the
+ 216:C:/StellarisWare/driverlib\peci.c **** //! peripheral starts PECI transactions.  Due to client clock stretching and
+ 217:C:/StellarisWare/driverlib\peci.c **** //! delays associated with external components, the actual baud rate observed
+ 218:C:/StellarisWare/driverlib\peci.c **** //! will always be lower than this value.
+ 219:C:/StellarisWare/driverlib\peci.c **** //!
+ 220:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 221:C:/StellarisWare/driverlib\peci.c **** //
+ 222:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 223:C:/StellarisWare/driverlib\peci.c **** void
+ 224:C:/StellarisWare/driverlib\peci.c **** PECIConfigGet(unsigned long ulBase, unsigned long ulPECIClk,
+ 225:C:/StellarisWare/driverlib\peci.c ****               unsigned long *pulBaud, unsigned long *pulPoll,
+ 226:C:/StellarisWare/driverlib\peci.c ****               unsigned long *pulOffset, unsigned long *pulRetry)
+ 227:C:/StellarisWare/driverlib\peci.c **** {
+ 179              		.loc 1 227 0
+ 180              		.cfi_startproc
+ 181              		@ args = 8, pretend = 0, frame = 24
+ 182              		@ frame_needed = 1, uses_anonymous_args = 0
+ 183              		@ link register save eliminated.
+ 184 0000 80B4     		push	{r7}
+ 185              	.LCFI3:
+ 186              		.cfi_def_cfa_offset 4
+ 187              		.cfi_offset 7, -4
+ 188 0002 87B0     		sub	sp, sp, #28
+ 189              	.LCFI4:
+ 190              		.cfi_def_cfa_offset 32
+ 191 0004 00AF     		add	r7, sp, #0
+ 192              	.LCFI5:
+ 193              		.cfi_def_cfa_register 7
+ 194 0006 F860     		str	r0, [r7, #12]
+ 195 0008 B960     		str	r1, [r7, #8]
+ 196 000a 7A60     		str	r2, [r7, #4]
+ 197 000c 3B60     		str	r3, [r7, #0]
+ 228:C:/StellarisWare/driverlib\peci.c ****     unsigned long ulTemp;
+ 229:C:/StellarisWare/driverlib\peci.c **** 
+ 230:C:/StellarisWare/driverlib\peci.c ****     //
+ 231:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 232:C:/StellarisWare/driverlib\peci.c ****     //
+ 233:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 234:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulPECIClk != 0);
+ 235:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulBaud != 0);
+ 236:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulPoll != 0);
+ 237:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulOffset != 0);
+ 238:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulRetry != 0);
+ 239:C:/StellarisWare/driverlib\peci.c **** 
+ 240:C:/StellarisWare/driverlib\peci.c ****     //
+ 241:C:/StellarisWare/driverlib\peci.c ****     // Retrieve the Offset and Retry values
+ 242:C:/StellarisWare/driverlib\peci.c ****     //
+ 243:C:/StellarisWare/driverlib\peci.c ****     ulTemp = HWREG(ulBase + PECI_O_CTL);
+ 198              		.loc 1 243 0
+ 199 000e FB68     		ldr	r3, [r7, #12]
+ 200 0010 1B68     		ldr	r3, [r3, #0]
+ 201 0012 7B61     		str	r3, [r7, #20]
+ 244:C:/StellarisWare/driverlib\peci.c ****     *pulOffset = ((ulTemp & PECI_CTL_OFFSET_M) >> PECI_CTL_OFFSET_S);
+ 202              		.loc 1 244 0
+ 203 0014 7B69     		ldr	r3, [r7, #20]
+ 204 0016 4FEA1342 		lsr	r2, r3, #16
+ 205 001a 3B6A     		ldr	r3, [r7, #32]
+ 206 001c 1A60     		str	r2, [r3, #0]
+ 245:C:/StellarisWare/driverlib\peci.c ****     *pulRetry = ((ulTemp & PECI_CTL_CRETRY_M) >> PECI_CTL_CRETRY_S);
+ 207              		.loc 1 245 0
+ 208 001e 7B69     		ldr	r3, [r7, #20]
+ 209 0020 03F4E043 		and	r3, r3, #28672
+ 210 0024 4FEA1332 		lsr	r2, r3, #12
+ 211 0028 7B6A     		ldr	r3, [r7, #36]
+ 212 002a 1A60     		str	r2, [r3, #0]
+ 246:C:/StellarisWare/driverlib\peci.c **** 
+ 247:C:/StellarisWare/driverlib\peci.c ****     //
+ 248:C:/StellarisWare/driverlib\peci.c ****     // Calculate the baud rate.
+ 249:C:/StellarisWare/driverlib\peci.c ****     //
+ 250:C:/StellarisWare/driverlib\peci.c ****     ulTemp = HWREG(ulBase + PECI_O_DIV);
+ 213              		.loc 1 250 0
+ 214 002c FB68     		ldr	r3, [r7, #12]
+ 215 002e 03F10403 		add	r3, r3, #4
+ 216 0032 1B68     		ldr	r3, [r3, #0]
+ 217 0034 7B61     		str	r3, [r7, #20]
+ 251:C:/StellarisWare/driverlib\peci.c ****     *pulBaud = ulPECIClk / (4 * ((ulTemp & PECI_DIV_BAUD_M) >>
+ 218              		.loc 1 251 0
+ 219 0036 7B69     		ldr	r3, [r7, #20]
+ 220 0038 4FEA1343 		lsr	r3, r3, #16
+ 221 003c 4FEA8303 		lsl	r3, r3, #2
+ 222 0040 BA68     		ldr	r2, [r7, #8]
+ 223 0042 B2FBF3F2 		udiv	r2, r2, r3
+ 224 0046 7B68     		ldr	r3, [r7, #4]
+ 225 0048 1A60     		str	r2, [r3, #0]
+ 252:C:/StellarisWare/driverlib\peci.c ****                PECI_DIV_BAUD_S));
+ 253:C:/StellarisWare/driverlib\peci.c **** 
+ 254:C:/StellarisWare/driverlib\peci.c ****     //
+ 255:C:/StellarisWare/driverlib\peci.c ****     // Compute the divisor for the PECI polling rate.
+ 256:C:/StellarisWare/driverlib\peci.c ****     // Round up, to ensure programmed polling rate is >= specified rate.
+ 257:C:/StellarisWare/driverlib\peci.c ****     //
+ 258:C:/StellarisWare/driverlib\peci.c ****     *pulPoll = ((((ulTemp & PECI_DIV_POLL_M) >> PECI_DIV_POLL_S) * 1000) /
+ 226              		.loc 1 258 0
+ 227 004a 7B69     		ldr	r3, [r7, #20]
+ 228 004c 4FEA0343 		lsl	r3, r3, #16
+ 229 0050 4FEA1343 		lsr	r3, r3, #16
+ 230 0054 4FF47A72 		mov	r2, #1000
+ 231 0058 02FB03F2 		mul	r2, r2, r3
+ 259:C:/StellarisWare/driverlib\peci.c ****         (ulPECIClk / PECI_POLL_PRESCALE));
+ 232              		.loc 1 259 0
+ 233 005c BB68     		ldr	r3, [r7, #8]
+ 234 005e 4FEA1333 		lsr	r3, r3, #12
+ 258:C:/StellarisWare/driverlib\peci.c ****     *pulPoll = ((((ulTemp & PECI_DIV_POLL_M) >> PECI_DIV_POLL_S) * 1000) /
+ 235              		.loc 1 258 0
+ 236 0062 B2FBF3F2 		udiv	r2, r2, r3
+ 237 0066 3B68     		ldr	r3, [r7, #0]
+ 238 0068 1A60     		str	r2, [r3, #0]
+ 260:C:/StellarisWare/driverlib\peci.c **** }
+ 239              		.loc 1 260 0
+ 240 006a 07F11C07 		add	r7, r7, #28
+ 241 006e BD46     		mov	sp, r7
+ 242 0070 80BC     		pop	{r7}
+ 243 0072 7047     		bx	lr
+ 244              		.cfi_endproc
+ 245              	.LFE1:
+ 247              		.section	.text.PECIBypassEnable,"ax",%progbits
+ 248              		.align	2
+ 249              		.global	PECIBypassEnable
+ 250              		.thumb
+ 251              		.thumb_func
+ 253              	PECIBypassEnable:
+ 254              	.LFB2:
+ 261:C:/StellarisWare/driverlib\peci.c **** 
+ 262:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 263:C:/StellarisWare/driverlib\peci.c **** //
+ 264:C:/StellarisWare/driverlib\peci.c **** //! Enables bypassing of negotiation errors.
+ 265:C:/StellarisWare/driverlib\peci.c **** //!
+ 266:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 267:C:/StellarisWare/driverlib\peci.c **** //!
+ 268:C:/StellarisWare/driverlib\peci.c **** //! This function enables bypassing of negotiation errors that might occur
+ 269:C:/StellarisWare/driverlib\peci.c **** //! during a PECI transaction.  When enabled, negotiation errors are ignored.
+ 270:C:/StellarisWare/driverlib\peci.c **** //!
+ 271:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 272:C:/StellarisWare/driverlib\peci.c **** //
+ 273:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 274:C:/StellarisWare/driverlib\peci.c **** void
+ 275:C:/StellarisWare/driverlib\peci.c **** PECIBypassEnable(unsigned long ulBase)
+ 276:C:/StellarisWare/driverlib\peci.c **** {
+ 255              		.loc 1 276 0
+ 256              		.cfi_startproc
+ 257              		@ args = 0, pretend = 0, frame = 8
+ 258              		@ frame_needed = 1, uses_anonymous_args = 0
+ 259              		@ link register save eliminated.
+ 260 0000 80B4     		push	{r7}
+ 261              	.LCFI6:
+ 262              		.cfi_def_cfa_offset 4
+ 263              		.cfi_offset 7, -4
+ 264 0002 83B0     		sub	sp, sp, #12
+ 265              	.LCFI7:
+ 266              		.cfi_def_cfa_offset 16
+ 267 0004 00AF     		add	r7, sp, #0
+ 268              	.LCFI8:
+ 269              		.cfi_def_cfa_register 7
+ 270 0006 7860     		str	r0, [r7, #4]
+ 277:C:/StellarisWare/driverlib\peci.c ****     //
+ 278:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 279:C:/StellarisWare/driverlib\peci.c ****     //
+ 280:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 281:C:/StellarisWare/driverlib\peci.c **** 
+ 282:C:/StellarisWare/driverlib\peci.c ****     //
+ 283:C:/StellarisWare/driverlib\peci.c ****     // Enable bypass.
+ 284:C:/StellarisWare/driverlib\peci.c ****     //
+ 285:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_CTL) |= PECI_CTL_BYERR;
+ 271              		.loc 1 285 0
+ 272 0008 7B68     		ldr	r3, [r7, #4]
+ 273 000a 7A68     		ldr	r2, [r7, #4]
+ 274 000c 1268     		ldr	r2, [r2, #0]
+ 275 000e 42F40062 		orr	r2, r2, #2048
+ 276 0012 1A60     		str	r2, [r3, #0]
+ 286:C:/StellarisWare/driverlib\peci.c **** }
+ 277              		.loc 1 286 0
+ 278 0014 07F10C07 		add	r7, r7, #12
+ 279 0018 BD46     		mov	sp, r7
+ 280 001a 80BC     		pop	{r7}
+ 281 001c 7047     		bx	lr
+ 282              		.cfi_endproc
+ 283              	.LFE2:
+ 285 001e 00BF     		.section	.text.PECIBypassDisable,"ax",%progbits
+ 286              		.align	2
+ 287              		.global	PECIBypassDisable
+ 288              		.thumb
+ 289              		.thumb_func
+ 291              	PECIBypassDisable:
+ 292              	.LFB3:
+ 287:C:/StellarisWare/driverlib\peci.c **** 
+ 288:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 289:C:/StellarisWare/driverlib\peci.c **** //
+ 290:C:/StellarisWare/driverlib\peci.c **** //! Disables bypassing of negotiation errors.
+ 291:C:/StellarisWare/driverlib\peci.c **** //!
+ 292:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 293:C:/StellarisWare/driverlib\peci.c **** //!
+ 294:C:/StellarisWare/driverlib\peci.c **** //! This function disables bypassing of negotiation errors that might occur
+ 295:C:/StellarisWare/driverlib\peci.c **** //! during a PECI transaction.  When disabled, negotiation errors are reported
+ 296:C:/StellarisWare/driverlib\peci.c **** //! and the remainder of the transaction is aborted.
+ 297:C:/StellarisWare/driverlib\peci.c **** //!
+ 298:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 299:C:/StellarisWare/driverlib\peci.c **** //
+ 300:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 301:C:/StellarisWare/driverlib\peci.c **** void
+ 302:C:/StellarisWare/driverlib\peci.c **** PECIBypassDisable(unsigned long ulBase)
+ 303:C:/StellarisWare/driverlib\peci.c **** {
+ 293              		.loc 1 303 0
+ 294              		.cfi_startproc
+ 295              		@ args = 0, pretend = 0, frame = 8
+ 296              		@ frame_needed = 1, uses_anonymous_args = 0
+ 297              		@ link register save eliminated.
+ 298 0000 80B4     		push	{r7}
+ 299              	.LCFI9:
+ 300              		.cfi_def_cfa_offset 4
+ 301              		.cfi_offset 7, -4
+ 302 0002 83B0     		sub	sp, sp, #12
+ 303              	.LCFI10:
+ 304              		.cfi_def_cfa_offset 16
+ 305 0004 00AF     		add	r7, sp, #0
+ 306              	.LCFI11:
+ 307              		.cfi_def_cfa_register 7
+ 308 0006 7860     		str	r0, [r7, #4]
+ 304:C:/StellarisWare/driverlib\peci.c ****     //
+ 305:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 306:C:/StellarisWare/driverlib\peci.c ****     //
+ 307:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 308:C:/StellarisWare/driverlib\peci.c **** 
+ 309:C:/StellarisWare/driverlib\peci.c ****     //
+ 310:C:/StellarisWare/driverlib\peci.c ****     // Disable bypass.
+ 311:C:/StellarisWare/driverlib\peci.c ****     //
+ 312:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_CTL) &= ~PECI_CTL_BYERR;
+ 309              		.loc 1 312 0
+ 310 0008 7B68     		ldr	r3, [r7, #4]
+ 311 000a 7A68     		ldr	r2, [r7, #4]
+ 312 000c 1268     		ldr	r2, [r2, #0]
+ 313 000e 22F40062 		bic	r2, r2, #2048
+ 314 0012 1A60     		str	r2, [r3, #0]
+ 313:C:/StellarisWare/driverlib\peci.c **** }
+ 315              		.loc 1 313 0
+ 316 0014 07F10C07 		add	r7, r7, #12
+ 317 0018 BD46     		mov	sp, r7
+ 318 001a 80BC     		pop	{r7}
+ 319 001c 7047     		bx	lr
+ 320              		.cfi_endproc
+ 321              	.LFE3:
+ 323 001e 00BF     		.section	.text.PECIDomainConfigSet,"ax",%progbits
+ 324              		.align	2
+ 325              		.global	PECIDomainConfigSet
+ 326              		.thumb
+ 327              		.thumb_func
+ 329              	PECIDomainConfigSet:
+ 330              	.LFB4:
+ 314:C:/StellarisWare/driverlib\peci.c **** 
+ 315:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 316:C:/StellarisWare/driverlib\peci.c **** //
+ 317:C:/StellarisWare/driverlib\peci.c **** //! Sets the configuration of the specified PECI domain.
+ 318:C:/StellarisWare/driverlib\peci.c **** //!
+ 319:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 320:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be configured.
+ 321:C:/StellarisWare/driverlib\peci.c **** //! \param ulHigh is the high temperature threshold value.
+ 322:C:/StellarisWare/driverlib\peci.c **** //! \param ulLow is the low temperature threshold value.
+ 323:C:/StellarisWare/driverlib\peci.c **** //!
+ 324:C:/StellarisWare/driverlib\peci.c **** //! This function configures the specified PECI domain for temperature
+ 325:C:/StellarisWare/driverlib\peci.c **** //! monitoring  operations.  The values for \e ulHigh and \e ulLow can be
+ 326:C:/StellarisWare/driverlib\peci.c **** //! specified as values relative to the maximum temperature allowed, or they
+ 327:C:/StellarisWare/driverlib\peci.c **** //! can be specified as absolute temperatures if an offset was programmed
+ 328:C:/StellarisWare/driverlib\peci.c **** //! in the PECIConfigSet() function.
+ 329:C:/StellarisWare/driverlib\peci.c **** //!
+ 330:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 331:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 332:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 333:C:/StellarisWare/driverlib\peci.c **** //!
+ 334:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 335:C:/StellarisWare/driverlib\peci.c **** //
+ 336:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 337:C:/StellarisWare/driverlib\peci.c **** void
+ 338:C:/StellarisWare/driverlib\peci.c **** PECIDomainConfigSet(unsigned long ulBase, unsigned long ulDomain,
+ 339:C:/StellarisWare/driverlib\peci.c ****                     unsigned long ulHigh, unsigned long ulLow)
+ 340:C:/StellarisWare/driverlib\peci.c **** {
+ 331              		.loc 1 340 0
+ 332              		.cfi_startproc
+ 333              		@ args = 0, pretend = 0, frame = 16
+ 334              		@ frame_needed = 1, uses_anonymous_args = 0
+ 335              		@ link register save eliminated.
+ 336 0000 80B4     		push	{r7}
+ 337              	.LCFI12:
+ 338              		.cfi_def_cfa_offset 4
+ 339              		.cfi_offset 7, -4
+ 340 0002 85B0     		sub	sp, sp, #20
+ 341              	.LCFI13:
+ 342              		.cfi_def_cfa_offset 24
+ 343 0004 00AF     		add	r7, sp, #0
+ 344              	.LCFI14:
+ 345              		.cfi_def_cfa_register 7
+ 346 0006 F860     		str	r0, [r7, #12]
+ 347 0008 B960     		str	r1, [r7, #8]
+ 348 000a 7A60     		str	r2, [r7, #4]
+ 349 000c 3B60     		str	r3, [r7, #0]
+ 341:C:/StellarisWare/driverlib\peci.c ****     //
+ 342:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 343:C:/StellarisWare/driverlib\peci.c ****     //
+ 344:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 345:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 346:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulHigh <= 0xFFFF);
+ 347:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulLow <= 0xFFFF);
+ 348:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulHigh > ulLow);
+ 349:C:/StellarisWare/driverlib\peci.c **** 
+ 350:C:/StellarisWare/driverlib\peci.c ****     //
+ 351:C:/StellarisWare/driverlib\peci.c ****     // Set the HTHRESH and LTHRESH fields in the domain control/status
+ 352:C:/StellarisWare/driverlib\peci.c ****     // register.
+ 353:C:/StellarisWare/driverlib\peci.c ****     //
+ 354:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_M0D0C + (ulDomain * 4)) =
+ 350              		.loc 1 354 0
+ 351 000e BB68     		ldr	r3, [r7, #8]
+ 352 0010 4FEA8302 		lsl	r2, r3, #2
+ 353 0014 FB68     		ldr	r3, [r7, #12]
+ 354 0016 D318     		adds	r3, r2, r3
+ 355 0018 03F11003 		add	r3, r3, #16
+ 356 001c 1A46     		mov	r2, r3
+ 355:C:/StellarisWare/driverlib\peci.c ****         (((ulHigh << PECI_M0D0C_HITHR_S) & PECI_M0D0C_HITHR_M) |
+ 357              		.loc 1 355 0
+ 358 001e 7B68     		ldr	r3, [r7, #4]
+ 359 0020 4FEA0341 		lsl	r1, r3, #16
+ 356:C:/StellarisWare/driverlib\peci.c ****          ((ulLow << PECI_M0D0C_LOTHR_S) & PECI_M0D0C_LOTHR_M));
+ 360              		.loc 1 356 0
+ 361 0024 3B68     		ldr	r3, [r7, #0]
+ 362 0026 4FEA0343 		lsl	r3, r3, #16
+ 363 002a 4FEA1343 		lsr	r3, r3, #16
+ 355:C:/StellarisWare/driverlib\peci.c ****         (((ulHigh << PECI_M0D0C_HITHR_S) & PECI_M0D0C_HITHR_M) |
+ 364              		.loc 1 355 0
+ 365 002e 0B43     		orrs	r3, r3, r1
+ 354:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_M0D0C + (ulDomain * 4)) =
+ 366              		.loc 1 354 0
+ 367 0030 1360     		str	r3, [r2, #0]
+ 357:C:/StellarisWare/driverlib\peci.c **** }
+ 368              		.loc 1 357 0
+ 369 0032 07F11407 		add	r7, r7, #20
+ 370 0036 BD46     		mov	sp, r7
+ 371 0038 80BC     		pop	{r7}
+ 372 003a 7047     		bx	lr
+ 373              		.cfi_endproc
+ 374              	.LFE4:
+ 376              		.section	.text.PECIDomainConfigGet,"ax",%progbits
+ 377              		.align	2
+ 378              		.global	PECIDomainConfigGet
+ 379              		.thumb
+ 380              		.thumb_func
+ 382              	PECIDomainConfigGet:
+ 383              	.LFB5:
+ 358:C:/StellarisWare/driverlib\peci.c **** 
+ 359:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 360:C:/StellarisWare/driverlib\peci.c **** //
+ 361:C:/StellarisWare/driverlib\peci.c **** //! Gets the configuration of the specified PECI domain.
+ 362:C:/StellarisWare/driverlib\peci.c **** //!
+ 363:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 364:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be configured.
+ 365:C:/StellarisWare/driverlib\peci.c **** //! \param pulHigh is a pointer to storage for the high threshold.
+ 366:C:/StellarisWare/driverlib\peci.c **** //! \param pulLow is a pointer to storage for the low threshold.
+ 367:C:/StellarisWare/driverlib\peci.c **** //!
+ 368:C:/StellarisWare/driverlib\peci.c **** //! This function configures the specified PECI domain for temperature
+ 369:C:/StellarisWare/driverlib\peci.c **** //! monitoring  operations.  The values for \e ulHigh and \e ulLow can be
+ 370:C:/StellarisWare/driverlib\peci.c **** //! specified as values relative to the maximum temperature allowed, or they
+ 371:C:/StellarisWare/driverlib\peci.c **** //! can be specified as absolute temperatures if an offset was programmed
+ 372:C:/StellarisWare/driverlib\peci.c **** //! in the PECIConfigSet() function.
+ 373:C:/StellarisWare/driverlib\peci.c **** //!
+ 374:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 375:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 376:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 377:C:/StellarisWare/driverlib\peci.c **** //!
+ 378:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 379:C:/StellarisWare/driverlib\peci.c **** //
+ 380:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 381:C:/StellarisWare/driverlib\peci.c **** void
+ 382:C:/StellarisWare/driverlib\peci.c **** PECIDomainConfigGet(unsigned long ulBase, unsigned long ulDomain,
+ 383:C:/StellarisWare/driverlib\peci.c ****                     unsigned long *pulHigh, unsigned long *pulLow)
+ 384:C:/StellarisWare/driverlib\peci.c **** {
+ 384              		.loc 1 384 0
+ 385              		.cfi_startproc
+ 386              		@ args = 0, pretend = 0, frame = 24
+ 387              		@ frame_needed = 1, uses_anonymous_args = 0
+ 388              		@ link register save eliminated.
+ 389 0000 80B4     		push	{r7}
+ 390              	.LCFI15:
+ 391              		.cfi_def_cfa_offset 4
+ 392              		.cfi_offset 7, -4
+ 393 0002 87B0     		sub	sp, sp, #28
+ 394              	.LCFI16:
+ 395              		.cfi_def_cfa_offset 32
+ 396 0004 00AF     		add	r7, sp, #0
+ 397              	.LCFI17:
+ 398              		.cfi_def_cfa_register 7
+ 399 0006 F860     		str	r0, [r7, #12]
+ 400 0008 B960     		str	r1, [r7, #8]
+ 401 000a 7A60     		str	r2, [r7, #4]
+ 402 000c 3B60     		str	r3, [r7, #0]
+ 385:C:/StellarisWare/driverlib\peci.c ****     unsigned long ulTemp;
+ 386:C:/StellarisWare/driverlib\peci.c **** 
+ 387:C:/StellarisWare/driverlib\peci.c ****     //
+ 388:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 389:C:/StellarisWare/driverlib\peci.c ****     //
+ 390:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 391:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 392:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulHigh != 0);
+ 393:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pulLow != 0);
+ 394:C:/StellarisWare/driverlib\peci.c **** 
+ 395:C:/StellarisWare/driverlib\peci.c ****     //
+ 396:C:/StellarisWare/driverlib\peci.c ****     // Get the HTHRESH and LTHRESH fields in the domain control/status
+ 397:C:/StellarisWare/driverlib\peci.c ****     // register.
+ 398:C:/StellarisWare/driverlib\peci.c ****     //
+ 399:C:/StellarisWare/driverlib\peci.c ****     ulTemp = HWREG(ulBase + PECI_O_M0D0C + (ulDomain * 4));
+ 403              		.loc 1 399 0
+ 404 000e BB68     		ldr	r3, [r7, #8]
+ 405 0010 4FEA8302 		lsl	r2, r3, #2
+ 406 0014 FB68     		ldr	r3, [r7, #12]
+ 407 0016 D318     		adds	r3, r2, r3
+ 408 0018 03F11003 		add	r3, r3, #16
+ 409 001c 1B68     		ldr	r3, [r3, #0]
+ 410 001e 7B61     		str	r3, [r7, #20]
+ 400:C:/StellarisWare/driverlib\peci.c ****     *pulHigh = ((ulTemp && PECI_M0D0C_HITHR_M) >> PECI_M0D0C_HITHR_S);
+ 411              		.loc 1 400 0
+ 412 0020 7B68     		ldr	r3, [r7, #4]
+ 413 0022 4FF00002 		mov	r2, #0
+ 414 0026 1A60     		str	r2, [r3, #0]
+ 401:C:/StellarisWare/driverlib\peci.c ****     *pulLow = ((ulTemp && PECI_M0D0C_LOTHR_M) >> PECI_M0D0C_LOTHR_S);
+ 415              		.loc 1 401 0
+ 416 0028 7B69     		ldr	r3, [r7, #20]
+ 417 002a 002B     		cmp	r3, #0
+ 418 002c 0CBF     		ite	eq
+ 419 002e 0022     		moveq	r2, #0
+ 420 0030 0122     		movne	r2, #1
+ 421 0032 3B68     		ldr	r3, [r7, #0]
+ 422 0034 1A60     		str	r2, [r3, #0]
+ 402:C:/StellarisWare/driverlib\peci.c **** }
+ 423              		.loc 1 402 0
+ 424 0036 07F11C07 		add	r7, r7, #28
+ 425 003a BD46     		mov	sp, r7
+ 426 003c 80BC     		pop	{r7}
+ 427 003e 7047     		bx	lr
+ 428              		.cfi_endproc
+ 429              	.LFE5:
+ 431              		.section	.text.PECIDomainEnable,"ax",%progbits
+ 432              		.align	2
+ 433              		.global	PECIDomainEnable
+ 434              		.thumb
+ 435              		.thumb_func
+ 437              	PECIDomainEnable:
+ 438              	.LFB6:
+ 403:C:/StellarisWare/driverlib\peci.c **** 
+ 404:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 405:C:/StellarisWare/driverlib\peci.c **** //
+ 406:C:/StellarisWare/driverlib\peci.c **** //! Enables a domain within the PECI module.
+ 407:C:/StellarisWare/driverlib\peci.c **** //!
+ 408:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 409:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be enabled.
+ 410:C:/StellarisWare/driverlib\peci.c **** //!
+ 411:C:/StellarisWare/driverlib\peci.c **** //! This function enables the specified PECI domain for temperature monitoring
+ 412:C:/StellarisWare/driverlib\peci.c **** //! operations.
+ 413:C:/StellarisWare/driverlib\peci.c **** //!
+ 414:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 415:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 416:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 417:C:/StellarisWare/driverlib\peci.c **** //!
+ 418:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 419:C:/StellarisWare/driverlib\peci.c **** //
+ 420:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 421:C:/StellarisWare/driverlib\peci.c **** void
+ 422:C:/StellarisWare/driverlib\peci.c **** PECIDomainEnable(unsigned long ulBase, unsigned long ulDomain)
+ 423:C:/StellarisWare/driverlib\peci.c **** {
+ 439              		.loc 1 423 0
+ 440              		.cfi_startproc
+ 441              		@ args = 0, pretend = 0, frame = 8
+ 442              		@ frame_needed = 1, uses_anonymous_args = 0
+ 443              		@ link register save eliminated.
+ 444 0000 80B4     		push	{r7}
+ 445              	.LCFI18:
+ 446              		.cfi_def_cfa_offset 4
+ 447              		.cfi_offset 7, -4
+ 448 0002 83B0     		sub	sp, sp, #12
+ 449              	.LCFI19:
+ 450              		.cfi_def_cfa_offset 16
+ 451 0004 00AF     		add	r7, sp, #0
+ 452              	.LCFI20:
+ 453              		.cfi_def_cfa_register 7
+ 454 0006 7860     		str	r0, [r7, #4]
+ 455 0008 3960     		str	r1, [r7, #0]
+ 424:C:/StellarisWare/driverlib\peci.c ****     //
+ 425:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 426:C:/StellarisWare/driverlib\peci.c ****     //
+ 427:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 428:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 429:C:/StellarisWare/driverlib\peci.c **** 
+ 430:C:/StellarisWare/driverlib\peci.c ****     //
+ 431:C:/StellarisWare/driverlib\peci.c ****     // Enable the specified domain.
+ 432:C:/StellarisWare/driverlib\peci.c ****     //
+ 433:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_CTL) |= (1 << ulDomain);
+ 456              		.loc 1 433 0
+ 457 000a 7B68     		ldr	r3, [r7, #4]
+ 458 000c 7A68     		ldr	r2, [r7, #4]
+ 459 000e 1168     		ldr	r1, [r2, #0]
+ 460 0010 3A68     		ldr	r2, [r7, #0]
+ 461 0012 4FF00100 		mov	r0, #1
+ 462 0016 00FA02F2 		lsl	r2, r0, r2
+ 463 001a 0A43     		orrs	r2, r2, r1
+ 464 001c 1A60     		str	r2, [r3, #0]
+ 434:C:/StellarisWare/driverlib\peci.c **** }
+ 465              		.loc 1 434 0
+ 466 001e 07F10C07 		add	r7, r7, #12
+ 467 0022 BD46     		mov	sp, r7
+ 468 0024 80BC     		pop	{r7}
+ 469 0026 7047     		bx	lr
+ 470              		.cfi_endproc
+ 471              	.LFE6:
+ 473              		.section	.text.PECIDomainDisable,"ax",%progbits
+ 474              		.align	2
+ 475              		.global	PECIDomainDisable
+ 476              		.thumb
+ 477              		.thumb_func
+ 479              	PECIDomainDisable:
+ 480              	.LFB7:
+ 435:C:/StellarisWare/driverlib\peci.c **** 
+ 436:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 437:C:/StellarisWare/driverlib\peci.c **** //
+ 438:C:/StellarisWare/driverlib\peci.c **** //! Disables a domain within the PECI module.
+ 439:C:/StellarisWare/driverlib\peci.c **** //!
+ 440:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 441:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be disabled.
+ 442:C:/StellarisWare/driverlib\peci.c **** //!
+ 443:C:/StellarisWare/driverlib\peci.c **** //! This function disables the specified PECI domain.
+ 444:C:/StellarisWare/driverlib\peci.c **** //!
+ 445:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 446:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 447:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 448:C:/StellarisWare/driverlib\peci.c **** //!
+ 449:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 450:C:/StellarisWare/driverlib\peci.c **** //
+ 451:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 452:C:/StellarisWare/driverlib\peci.c **** void
+ 453:C:/StellarisWare/driverlib\peci.c **** PECIDomainDisable(unsigned long ulBase, unsigned long ulDomain)
+ 454:C:/StellarisWare/driverlib\peci.c **** {
+ 481              		.loc 1 454 0
+ 482              		.cfi_startproc
+ 483              		@ args = 0, pretend = 0, frame = 8
+ 484              		@ frame_needed = 1, uses_anonymous_args = 0
+ 485              		@ link register save eliminated.
+ 486 0000 80B4     		push	{r7}
+ 487              	.LCFI21:
+ 488              		.cfi_def_cfa_offset 4
+ 489              		.cfi_offset 7, -4
+ 490 0002 83B0     		sub	sp, sp, #12
+ 491              	.LCFI22:
+ 492              		.cfi_def_cfa_offset 16
+ 493 0004 00AF     		add	r7, sp, #0
+ 494              	.LCFI23:
+ 495              		.cfi_def_cfa_register 7
+ 496 0006 7860     		str	r0, [r7, #4]
+ 497 0008 3960     		str	r1, [r7, #0]
+ 455:C:/StellarisWare/driverlib\peci.c ****     //
+ 456:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 457:C:/StellarisWare/driverlib\peci.c ****     //
+ 458:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 459:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 460:C:/StellarisWare/driverlib\peci.c **** 
+ 461:C:/StellarisWare/driverlib\peci.c ****     //
+ 462:C:/StellarisWare/driverlib\peci.c ****     // Disable the specified domain.
+ 463:C:/StellarisWare/driverlib\peci.c ****     //
+ 464:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_CTL) &= ~(1 << ulDomain);
+ 498              		.loc 1 464 0
+ 499 000a 7B68     		ldr	r3, [r7, #4]
+ 500 000c 7A68     		ldr	r2, [r7, #4]
+ 501 000e 1168     		ldr	r1, [r2, #0]
+ 502 0010 3A68     		ldr	r2, [r7, #0]
+ 503 0012 4FF00100 		mov	r0, #1
+ 504 0016 00FA02F2 		lsl	r2, r0, r2
+ 505 001a 6FEA0202 		mvn	r2, r2
+ 506 001e 0A40     		ands	r2, r2, r1
+ 507 0020 1A60     		str	r2, [r3, #0]
+ 465:C:/StellarisWare/driverlib\peci.c **** }
+ 508              		.loc 1 465 0
+ 509 0022 07F10C07 		add	r7, r7, #12
+ 510 0026 BD46     		mov	sp, r7
+ 511 0028 80BC     		pop	{r7}
+ 512 002a 7047     		bx	lr
+ 513              		.cfi_endproc
+ 514              	.LFE7:
+ 516              		.section	.text.PECIDomainValueGet,"ax",%progbits
+ 517              		.align	2
+ 518              		.global	PECIDomainValueGet
+ 519              		.thumb
+ 520              		.thumb_func
+ 522              	PECIDomainValueGet:
+ 523              	.LFB8:
+ 466:C:/StellarisWare/driverlib\peci.c **** 
+ 467:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 468:C:/StellarisWare/driverlib\peci.c **** //
+ 469:C:/StellarisWare/driverlib\peci.c **** //! Reads the current temperature value for the specified domain.
+ 470:C:/StellarisWare/driverlib\peci.c **** //!
+ 471:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 472:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be disabled.
+ 473:C:/StellarisWare/driverlib\peci.c **** //!
+ 474:C:/StellarisWare/driverlib\peci.c **** //! This function returns the most recently read temperature value from the
+ 475:C:/StellarisWare/driverlib\peci.c **** //! specified domain.
+ 476:C:/StellarisWare/driverlib\peci.c **** //!
+ 477:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 478:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 479:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 480:C:/StellarisWare/driverlib\peci.c **** //!
+ 481:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 482:C:/StellarisWare/driverlib\peci.c **** //
+ 483:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 484:C:/StellarisWare/driverlib\peci.c **** unsigned long
+ 485:C:/StellarisWare/driverlib\peci.c **** PECIDomainValueGet(unsigned long ulBase, unsigned long ulDomain)
+ 486:C:/StellarisWare/driverlib\peci.c **** {
+ 524              		.loc 1 486 0
+ 525              		.cfi_startproc
+ 526              		@ args = 0, pretend = 0, frame = 8
+ 527              		@ frame_needed = 1, uses_anonymous_args = 0
+ 528              		@ link register save eliminated.
+ 529 0000 80B4     		push	{r7}
+ 530              	.LCFI24:
+ 531              		.cfi_def_cfa_offset 4
+ 532              		.cfi_offset 7, -4
+ 533 0002 83B0     		sub	sp, sp, #12
+ 534              	.LCFI25:
+ 535              		.cfi_def_cfa_offset 16
+ 536 0004 00AF     		add	r7, sp, #0
+ 537              	.LCFI26:
+ 538              		.cfi_def_cfa_register 7
+ 539 0006 7860     		str	r0, [r7, #4]
+ 540 0008 3960     		str	r1, [r7, #0]
+ 487:C:/StellarisWare/driverlib\peci.c ****     //
+ 488:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 489:C:/StellarisWare/driverlib\peci.c ****     //
+ 490:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 491:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 492:C:/StellarisWare/driverlib\peci.c **** 
+ 493:C:/StellarisWare/driverlib\peci.c ****     //
+ 494:C:/StellarisWare/driverlib\peci.c ****     // Return the most recently polled temperature value
+ 495:C:/StellarisWare/driverlib\peci.c ****     //
+ 496:C:/StellarisWare/driverlib\peci.c ****     return(((HWREG(ulBase + PECI_O_M0D0 + (ulDomain * 4)) &
+ 541              		.loc 1 496 0
+ 542 000a 3B68     		ldr	r3, [r7, #0]
+ 543 000c 4FEA8302 		lsl	r2, r3, #2
+ 544 0010 7B68     		ldr	r3, [r7, #4]
+ 545 0012 D318     		adds	r3, r2, r3
+ 546 0014 03F14003 		add	r3, r3, #64
+ 547 0018 1B68     		ldr	r3, [r3, #0]
+ 548 001a 4FEA0343 		lsl	r3, r3, #16
+ 549 001e 4FEA1343 		lsr	r3, r3, #16
+ 497:C:/StellarisWare/driverlib\peci.c ****              PECI_M0D0_VALUE_M)));
+ 498:C:/StellarisWare/driverlib\peci.c **** }
+ 550              		.loc 1 498 0
+ 551 0022 1846     		mov	r0, r3
+ 552 0024 07F10C07 		add	r7, r7, #12
+ 553 0028 BD46     		mov	sp, r7
+ 554 002a 80BC     		pop	{r7}
+ 555 002c 7047     		bx	lr
+ 556              		.cfi_endproc
+ 557              	.LFE8:
+ 559 002e 00BF     		.section	.text.PECIDomainMaxReadGet,"ax",%progbits
+ 560              		.align	2
+ 561              		.global	PECIDomainMaxReadGet
+ 562              		.thumb
+ 563              		.thumb_func
+ 565              	PECIDomainMaxReadGet:
+ 566              	.LFB9:
+ 499:C:/StellarisWare/driverlib\peci.c **** 
+ 500:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 501:C:/StellarisWare/driverlib\peci.c **** //
+ 502:C:/StellarisWare/driverlib\peci.c **** //! Reads the maximum/error value for the specified domain.
+ 503:C:/StellarisWare/driverlib\peci.c **** //!
+ 504:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 505:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be disabled.
+ 506:C:/StellarisWare/driverlib\peci.c **** //!
+ 507:C:/StellarisWare/driverlib\peci.c **** //! This function returns the maximum temperature value for the specified
+ 508:C:/StellarisWare/driverlib\peci.c **** //! domain.
+ 509:C:/StellarisWare/driverlib\peci.c **** //!
+ 510:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 511:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 512:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 513:C:/StellarisWare/driverlib\peci.c **** //!
+ 514:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 515:C:/StellarisWare/driverlib\peci.c **** //
+ 516:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 517:C:/StellarisWare/driverlib\peci.c **** unsigned long
+ 518:C:/StellarisWare/driverlib\peci.c **** PECIDomainMaxReadGet(unsigned long ulBase, unsigned long ulDomain)
+ 519:C:/StellarisWare/driverlib\peci.c **** {
+ 567              		.loc 1 519 0
+ 568              		.cfi_startproc
+ 569              		@ args = 0, pretend = 0, frame = 8
+ 570              		@ frame_needed = 1, uses_anonymous_args = 0
+ 571              		@ link register save eliminated.
+ 572 0000 80B4     		push	{r7}
+ 573              	.LCFI27:
+ 574              		.cfi_def_cfa_offset 4
+ 575              		.cfi_offset 7, -4
+ 576 0002 83B0     		sub	sp, sp, #12
+ 577              	.LCFI28:
+ 578              		.cfi_def_cfa_offset 16
+ 579 0004 00AF     		add	r7, sp, #0
+ 580              	.LCFI29:
+ 581              		.cfi_def_cfa_register 7
+ 582 0006 7860     		str	r0, [r7, #4]
+ 583 0008 3960     		str	r1, [r7, #0]
+ 520:C:/StellarisWare/driverlib\peci.c ****     //
+ 521:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 522:C:/StellarisWare/driverlib\peci.c ****     //
+ 523:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 524:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 525:C:/StellarisWare/driverlib\peci.c **** 
+ 526:C:/StellarisWare/driverlib\peci.c ****     //
+ 527:C:/StellarisWare/driverlib\peci.c ****     // Return the most recently polled temperature value
+ 528:C:/StellarisWare/driverlib\peci.c ****     //
+ 529:C:/StellarisWare/driverlib\peci.c ****     return(((HWREG(ulBase + PECI_O_M0D0 + (ulDomain * 4)) &
+ 584              		.loc 1 529 0
+ 585 000a 3B68     		ldr	r3, [r7, #0]
+ 586 000c 4FEA8302 		lsl	r2, r3, #2
+ 587 0010 7B68     		ldr	r3, [r7, #4]
+ 588 0012 D318     		adds	r3, r2, r3
+ 589 0014 03F14003 		add	r3, r3, #64
+ 590 0018 1B68     		ldr	r3, [r3, #0]
+ 591 001a 4FEA1343 		lsr	r3, r3, #16
+ 530:C:/StellarisWare/driverlib\peci.c ****              PECI_M0D0_MAXREAD_M) >> PECI_M0D0_MAXREAD_S));
+ 531:C:/StellarisWare/driverlib\peci.c **** }
+ 592              		.loc 1 531 0
+ 593 001e 1846     		mov	r0, r3
+ 594 0020 07F10C07 		add	r7, r7, #12
+ 595 0024 BD46     		mov	sp, r7
+ 596 0026 80BC     		pop	{r7}
+ 597 0028 7047     		bx	lr
+ 598              		.cfi_endproc
+ 599              	.LFE9:
+ 601 002a 00BF     		.section	.text.PECIDomainValueClear,"ax",%progbits
+ 602              		.align	2
+ 603              		.global	PECIDomainValueClear
+ 604              		.thumb
+ 605              		.thumb_func
+ 607              	PECIDomainValueClear:
+ 608              	.LFB10:
+ 532:C:/StellarisWare/driverlib\peci.c **** 
+ 533:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 534:C:/StellarisWare/driverlib\peci.c **** //
+ 535:C:/StellarisWare/driverlib\peci.c **** //! Clears the current temperature value for the specified domain.
+ 536:C:/StellarisWare/driverlib\peci.c **** //!
+ 537:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 538:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be disabled.
+ 539:C:/StellarisWare/driverlib\peci.c **** //!
+ 540:C:/StellarisWare/driverlib\peci.c **** //! This function clears the current temperature value for the specified
+ 541:C:/StellarisWare/driverlib\peci.c **** //! domain.
+ 542:C:/StellarisWare/driverlib\peci.c **** //!
+ 543:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 544:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 545:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 546:C:/StellarisWare/driverlib\peci.c **** //!
+ 547:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 548:C:/StellarisWare/driverlib\peci.c **** //
+ 549:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 550:C:/StellarisWare/driverlib\peci.c **** void
+ 551:C:/StellarisWare/driverlib\peci.c **** PECIDomainValueClear(unsigned long ulBase, unsigned long ulDomain)
+ 552:C:/StellarisWare/driverlib\peci.c **** {
+ 609              		.loc 1 552 0
+ 610              		.cfi_startproc
+ 611              		@ args = 0, pretend = 0, frame = 8
+ 612              		@ frame_needed = 1, uses_anonymous_args = 0
+ 613              		@ link register save eliminated.
+ 614 0000 80B4     		push	{r7}
+ 615              	.LCFI30:
+ 616              		.cfi_def_cfa_offset 4
+ 617              		.cfi_offset 7, -4
+ 618 0002 83B0     		sub	sp, sp, #12
+ 619              	.LCFI31:
+ 620              		.cfi_def_cfa_offset 16
+ 621 0004 00AF     		add	r7, sp, #0
+ 622              	.LCFI32:
+ 623              		.cfi_def_cfa_register 7
+ 624 0006 7860     		str	r0, [r7, #4]
+ 625 0008 3960     		str	r1, [r7, #0]
+ 553:C:/StellarisWare/driverlib\peci.c ****     //
+ 554:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 555:C:/StellarisWare/driverlib\peci.c ****     //
+ 556:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 557:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 558:C:/StellarisWare/driverlib\peci.c **** 
+ 559:C:/StellarisWare/driverlib\peci.c ****     //
+ 560:C:/StellarisWare/driverlib\peci.c ****     // Clear the temperature value.
+ 561:C:/StellarisWare/driverlib\peci.c ****     //
+ 562:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_M0D0 + (ulDomain * 4) ) &= ~PECI_M0D0_VALUE_M;
+ 626              		.loc 1 562 0
+ 627 000a 3B68     		ldr	r3, [r7, #0]
+ 628 000c 4FEA8302 		lsl	r2, r3, #2
+ 629 0010 7B68     		ldr	r3, [r7, #4]
+ 630 0012 D318     		adds	r3, r2, r3
+ 631 0014 03F14003 		add	r3, r3, #64
+ 632 0018 1A46     		mov	r2, r3
+ 633 001a 3B68     		ldr	r3, [r7, #0]
+ 634 001c 4FEA8301 		lsl	r1, r3, #2
+ 635 0020 7B68     		ldr	r3, [r7, #4]
+ 636 0022 CB18     		adds	r3, r1, r3
+ 637 0024 03F14003 		add	r3, r3, #64
+ 638 0028 1B68     		ldr	r3, [r3, #0]
+ 639 002a 4FEA1343 		lsr	r3, r3, #16
+ 640 002e 4FEA0343 		lsl	r3, r3, #16
+ 641 0032 1360     		str	r3, [r2, #0]
+ 563:C:/StellarisWare/driverlib\peci.c **** }
+ 642              		.loc 1 563 0
+ 643 0034 07F10C07 		add	r7, r7, #12
+ 644 0038 BD46     		mov	sp, r7
+ 645 003a 80BC     		pop	{r7}
+ 646 003c 7047     		bx	lr
+ 647              		.cfi_endproc
+ 648              	.LFE10:
+ 650              		.section	.text.PECIDomainMaxReadClear,"ax",%progbits
+ 651              		.align	2
+ 652              		.global	PECIDomainMaxReadClear
+ 653              		.thumb
+ 654              		.thumb_func
+ 656              	PECIDomainMaxReadClear:
+ 657              	.LFB11:
+ 564:C:/StellarisWare/driverlib\peci.c **** 
+ 565:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 566:C:/StellarisWare/driverlib\peci.c **** //
+ 567:C:/StellarisWare/driverlib\peci.c **** //! Clears the maximum/error value for the specified domain.
+ 568:C:/StellarisWare/driverlib\peci.c **** //!
+ 569:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase is the base address of the PECI module.
+ 570:C:/StellarisWare/driverlib\peci.c **** //! \param ulDomain is the PECI domain that should be disabled.
+ 571:C:/StellarisWare/driverlib\peci.c **** //!
+ 572:C:/StellarisWare/driverlib\peci.c **** //! This function clears the maximum temperature measurement value for the
+ 573:C:/StellarisWare/driverlib\peci.c **** //! specified domain.
+ 574:C:/StellarisWare/driverlib\peci.c **** //!
+ 575:C:/StellarisWare/driverlib\peci.c **** //! The \e ulDomain parameter can be one of the following values:
+ 576:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M0D0, \b PECI_DOMAIN_M0D1, \b PECI_DOMAIN_M1D0, or
+ 577:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_DOMAIN_M1D1.
+ 578:C:/StellarisWare/driverlib\peci.c **** //!
+ 579:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 580:C:/StellarisWare/driverlib\peci.c **** //
+ 581:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 582:C:/StellarisWare/driverlib\peci.c **** void
+ 583:C:/StellarisWare/driverlib\peci.c **** PECIDomainMaxReadClear(unsigned long ulBase, unsigned long ulDomain)
+ 584:C:/StellarisWare/driverlib\peci.c **** {
+ 658              		.loc 1 584 0
+ 659              		.cfi_startproc
+ 660              		@ args = 0, pretend = 0, frame = 8
+ 661              		@ frame_needed = 1, uses_anonymous_args = 0
+ 662              		@ link register save eliminated.
+ 663 0000 80B4     		push	{r7}
+ 664              	.LCFI33:
+ 665              		.cfi_def_cfa_offset 4
+ 666              		.cfi_offset 7, -4
+ 667 0002 83B0     		sub	sp, sp, #12
+ 668              	.LCFI34:
+ 669              		.cfi_def_cfa_offset 16
+ 670 0004 00AF     		add	r7, sp, #0
+ 671              	.LCFI35:
+ 672              		.cfi_def_cfa_register 7
+ 673 0006 7860     		str	r0, [r7, #4]
+ 674 0008 3960     		str	r1, [r7, #0]
+ 585:C:/StellarisWare/driverlib\peci.c ****     //
+ 586:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 587:C:/StellarisWare/driverlib\peci.c ****     //
+ 588:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 589:C:/StellarisWare/driverlib\peci.c ****     ASSERT(PECIDomainValid(ulDomain));
+ 590:C:/StellarisWare/driverlib\peci.c **** 
+ 591:C:/StellarisWare/driverlib\peci.c ****     //
+ 592:C:/StellarisWare/driverlib\peci.c ****     // Clear the maximum/error value.
+ 593:C:/StellarisWare/driverlib\peci.c ****     //
+ 594:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_M0D0 + (ulDomain * 4) ) &= ~PECI_M0D0_MAXREAD_M;
+ 675              		.loc 1 594 0
+ 676 000a 3B68     		ldr	r3, [r7, #0]
+ 677 000c 4FEA8302 		lsl	r2, r3, #2
+ 678 0010 7B68     		ldr	r3, [r7, #4]
+ 679 0012 D318     		adds	r3, r2, r3
+ 680 0014 03F14003 		add	r3, r3, #64
+ 681 0018 1A46     		mov	r2, r3
+ 682 001a 3B68     		ldr	r3, [r7, #0]
+ 683 001c 4FEA8301 		lsl	r1, r3, #2
+ 684 0020 7B68     		ldr	r3, [r7, #4]
+ 685 0022 CB18     		adds	r3, r1, r3
+ 686 0024 03F14003 		add	r3, r3, #64
+ 687 0028 1B68     		ldr	r3, [r3, #0]
+ 688 002a 4FEA0343 		lsl	r3, r3, #16
+ 689 002e 4FEA1343 		lsr	r3, r3, #16
+ 690 0032 1360     		str	r3, [r2, #0]
+ 595:C:/StellarisWare/driverlib\peci.c **** }
+ 691              		.loc 1 595 0
+ 692 0034 07F10C07 		add	r7, r7, #12
+ 693 0038 BD46     		mov	sp, r7
+ 694 003a 80BC     		pop	{r7}
+ 695 003c 7047     		bx	lr
+ 696              		.cfi_endproc
+ 697              	.LFE11:
+ 699              		.section	.text.PECIIntRegister,"ax",%progbits
+ 700              		.align	2
+ 701              		.global	PECIIntRegister
+ 702              		.thumb
+ 703              		.thumb_func
+ 705              	PECIIntRegister:
+ 706              	.LFB12:
+ 596:C:/StellarisWare/driverlib\peci.c **** 
+ 597:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 598:C:/StellarisWare/driverlib\peci.c **** //
+ 599:C:/StellarisWare/driverlib\peci.c **** //! Registers an interrupt handler for the PECI module.
+ 600:C:/StellarisWare/driverlib\peci.c **** //!
+ 601:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 602:C:/StellarisWare/driverlib\peci.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 603:C:/StellarisWare/driverlib\peci.c **** //! PECI interrupt occurs.
+ 604:C:/StellarisWare/driverlib\peci.c **** //!
+ 605:C:/StellarisWare/driverlib\peci.c **** //! This function registers the handler to be called when an PECI interrupt
+ 606:C:/StellarisWare/driverlib\peci.c **** //! occurs. This function enables the global interrupt in the interrupt
+ 607:C:/StellarisWare/driverlib\peci.c **** //! controller; specific PECI interrupts must be enabled via PECIIntEnable().
+ 608:C:/StellarisWare/driverlib\peci.c **** //! If necessary, it is the interrupt handler's responsibility to clear the
+ 609:C:/StellarisWare/driverlib\peci.c **** //! interrupt source via PECIIntClear().
+ 610:C:/StellarisWare/driverlib\peci.c **** //!
+ 611:C:/StellarisWare/driverlib\peci.c **** //! \sa IntRegister() for important information about registering interrupt
+ 612:C:/StellarisWare/driverlib\peci.c **** //! handlers.
+ 613:C:/StellarisWare/driverlib\peci.c **** //!
+ 614:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 615:C:/StellarisWare/driverlib\peci.c **** //
+ 616:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 617:C:/StellarisWare/driverlib\peci.c **** void
+ 618:C:/StellarisWare/driverlib\peci.c **** PECIIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 619:C:/StellarisWare/driverlib\peci.c **** {
+ 707              		.loc 1 619 0
+ 708              		.cfi_startproc
+ 709              		@ args = 0, pretend = 0, frame = 8
+ 710              		@ frame_needed = 1, uses_anonymous_args = 0
+ 711 0000 80B5     		push	{r7, lr}
+ 712              	.LCFI36:
+ 713              		.cfi_def_cfa_offset 8
+ 714              		.cfi_offset 14, -4
+ 715              		.cfi_offset 7, -8
+ 716 0002 82B0     		sub	sp, sp, #8
+ 717              	.LCFI37:
+ 718              		.cfi_def_cfa_offset 16
+ 719 0004 00AF     		add	r7, sp, #0
+ 720              	.LCFI38:
+ 721              		.cfi_def_cfa_register 7
+ 722 0006 7860     		str	r0, [r7, #4]
+ 723 0008 3960     		str	r1, [r7, #0]
+ 620:C:/StellarisWare/driverlib\peci.c ****     //
+ 621:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 622:C:/StellarisWare/driverlib\peci.c ****     //
+ 623:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 624:C:/StellarisWare/driverlib\peci.c ****     ASSERT(pfnHandler != 0);
+ 625:C:/StellarisWare/driverlib\peci.c **** 
+ 626:C:/StellarisWare/driverlib\peci.c ****     //
+ 627:C:/StellarisWare/driverlib\peci.c ****     // Register the interrupt handler.
+ 628:C:/StellarisWare/driverlib\peci.c ****     //
+ 629:C:/StellarisWare/driverlib\peci.c ****     IntRegister(INT_PECI0, pfnHandler);
+ 724              		.loc 1 629 0
+ 725 000a 4FF07B00 		mov	r0, #123
+ 726 000e 3968     		ldr	r1, [r7, #0]
+ 727 0010 FFF7FEFF 		bl	IntRegister
+ 630:C:/StellarisWare/driverlib\peci.c **** 
+ 631:C:/StellarisWare/driverlib\peci.c ****     //
+ 632:C:/StellarisWare/driverlib\peci.c ****     // Enable the PECI interrupt.
+ 633:C:/StellarisWare/driverlib\peci.c ****     //
+ 634:C:/StellarisWare/driverlib\peci.c ****     IntEnable(INT_PECI0);
+ 728              		.loc 1 634 0
+ 729 0014 4FF07B00 		mov	r0, #123
+ 730 0018 FFF7FEFF 		bl	IntEnable
+ 635:C:/StellarisWare/driverlib\peci.c **** }
+ 731              		.loc 1 635 0
+ 732 001c 07F10807 		add	r7, r7, #8
+ 733 0020 BD46     		mov	sp, r7
+ 734 0022 80BD     		pop	{r7, pc}
+ 735              		.cfi_endproc
+ 736              	.LFE12:
+ 738              		.section	.text.PECIIntUnregister,"ax",%progbits
+ 739              		.align	2
+ 740              		.global	PECIIntUnregister
+ 741              		.thumb
+ 742              		.thumb_func
+ 744              	PECIIntUnregister:
+ 745              	.LFB13:
+ 636:C:/StellarisWare/driverlib\peci.c **** 
+ 637:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 638:C:/StellarisWare/driverlib\peci.c **** //
+ 639:C:/StellarisWare/driverlib\peci.c **** //! Unregisters an interrupt handler for the PECI module.
+ 640:C:/StellarisWare/driverlib\peci.c **** //!
+ 641:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 642:C:/StellarisWare/driverlib\peci.c **** //!
+ 643:C:/StellarisWare/driverlib\peci.c **** //! This function unregisters the handler to be called when a PECI interrupt
+ 644:C:/StellarisWare/driverlib\peci.c **** //! occurs.  This function also masks off the interrupt in the interrupt
+ 645:C:/StellarisWare/driverlib\peci.c **** //! controller so that the interrupt handler no longer is called.
+ 646:C:/StellarisWare/driverlib\peci.c **** //!
+ 647:C:/StellarisWare/driverlib\peci.c **** //! \sa IntRegister() for important information about registering interrupt
+ 648:C:/StellarisWare/driverlib\peci.c **** //! handlers.
+ 649:C:/StellarisWare/driverlib\peci.c **** //!
+ 650:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 651:C:/StellarisWare/driverlib\peci.c **** //
+ 652:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 653:C:/StellarisWare/driverlib\peci.c **** void
+ 654:C:/StellarisWare/driverlib\peci.c **** PECIIntUnregister(unsigned long ulBase)
+ 655:C:/StellarisWare/driverlib\peci.c **** {
+ 746              		.loc 1 655 0
+ 747              		.cfi_startproc
+ 748              		@ args = 0, pretend = 0, frame = 8
+ 749              		@ frame_needed = 1, uses_anonymous_args = 0
+ 750 0000 80B5     		push	{r7, lr}
+ 751              	.LCFI39:
+ 752              		.cfi_def_cfa_offset 8
+ 753              		.cfi_offset 14, -4
+ 754              		.cfi_offset 7, -8
+ 755 0002 82B0     		sub	sp, sp, #8
+ 756              	.LCFI40:
+ 757              		.cfi_def_cfa_offset 16
+ 758 0004 00AF     		add	r7, sp, #0
+ 759              	.LCFI41:
+ 760              		.cfi_def_cfa_register 7
+ 761 0006 7860     		str	r0, [r7, #4]
+ 656:C:/StellarisWare/driverlib\peci.c ****     //
+ 657:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 658:C:/StellarisWare/driverlib\peci.c ****     //
+ 659:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 660:C:/StellarisWare/driverlib\peci.c **** 
+ 661:C:/StellarisWare/driverlib\peci.c ****     //
+ 662:C:/StellarisWare/driverlib\peci.c ****     // Disable the PECI interrupt.
+ 663:C:/StellarisWare/driverlib\peci.c ****     //
+ 664:C:/StellarisWare/driverlib\peci.c ****     IntDisable(INT_PECI0);
+ 762              		.loc 1 664 0
+ 763 0008 4FF07B00 		mov	r0, #123
+ 764 000c FFF7FEFF 		bl	IntDisable
+ 665:C:/StellarisWare/driverlib\peci.c **** 
+ 666:C:/StellarisWare/driverlib\peci.c ****     //
+ 667:C:/StellarisWare/driverlib\peci.c ****     // Unregister the interrupt handler.
+ 668:C:/StellarisWare/driverlib\peci.c ****     //
+ 669:C:/StellarisWare/driverlib\peci.c ****     IntUnregister(INT_PECI0);
+ 765              		.loc 1 669 0
+ 766 0010 4FF07B00 		mov	r0, #123
+ 767 0014 FFF7FEFF 		bl	IntUnregister
+ 670:C:/StellarisWare/driverlib\peci.c **** }
+ 768              		.loc 1 670 0
+ 769 0018 07F10807 		add	r7, r7, #8
+ 770 001c BD46     		mov	sp, r7
+ 771 001e 80BD     		pop	{r7, pc}
+ 772              		.cfi_endproc
+ 773              	.LFE13:
+ 775              		.section	.text.PECIIntEnable,"ax",%progbits
+ 776              		.align	2
+ 777              		.global	PECIIntEnable
+ 778              		.thumb
+ 779              		.thumb_func
+ 781              	PECIIntEnable:
+ 782              	.LFB14:
+ 671:C:/StellarisWare/driverlib\peci.c **** 
+ 672:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 673:C:/StellarisWare/driverlib\peci.c **** //
+ 674:C:/StellarisWare/driverlib\peci.c **** //! Enables individual PECI interrupt sources.
+ 675:C:/StellarisWare/driverlib\peci.c **** //!
+ 676:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 677:C:/StellarisWare/driverlib\peci.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 678:C:/StellarisWare/driverlib\peci.c **** //! \param ulIntMode is the mode for the PECI domain interrupts.
+ 679:C:/StellarisWare/driverlib\peci.c **** //!
+ 680:C:/StellarisWare/driverlib\peci.c **** //! This function enables the indicated PECI interrupt sources.  Only the
+ 681:C:/StellarisWare/driverlib\peci.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 682:C:/StellarisWare/driverlib\peci.c **** //! disabled sources have no effect on the processor.
+ 683:C:/StellarisWare/driverlib\peci.c **** //!
+ 684:C:/StellarisWare/driverlib\peci.c **** //! The \e ulIntFlags parameter can be any of the following values:
+ 685:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_READ, \b PECI_ERR, \b PECI_AC, \b PECI_M0D0, \b PECI_M0D1,
+ 686:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D0, or \b PECI_M1D1.
+ 687:C:/StellarisWare/driverlib\peci.c **** //!
+ 688:C:/StellarisWare/driverlib\peci.c **** //! The \e ulIntMode parameter is used to configure the interrupt mode for
+ 689:C:/StellarisWare/driverlib\peci.c **** //! the corresponding \b PECI_DOMAIN_MnDm field, and can be any of the
+ 690:C:/StellarisWare/driverlib\peci.c **** //! following values:  \b PECI_M0D0_MODE1, \b PECI_M0D0_MODE2,
+ 691:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M0D0_MODE3, \b PECI_M0D1_MODE1, \b PECI_M0D1_MODE2,
+ 692:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M0D1_MODE3. \b PECI_M1D0_MODE1, \b PECI_M1D0_MODE2,
+ 693:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D0_MODE3, \b PECI_M1D1_MODE1, \b PECI_M1D1_MODE2, or
+ 694:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D1_MODE3.
+ 695:C:/StellarisWare/driverlib\peci.c **** //!
+ 696:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 697:C:/StellarisWare/driverlib\peci.c **** //
+ 698:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 699:C:/StellarisWare/driverlib\peci.c **** void
+ 700:C:/StellarisWare/driverlib\peci.c **** PECIIntEnable(unsigned long ulBase, unsigned long ulIntFlags,
+ 701:C:/StellarisWare/driverlib\peci.c ****               unsigned long ulIntMode)
+ 702:C:/StellarisWare/driverlib\peci.c **** {
+ 783              		.loc 1 702 0
+ 784              		.cfi_startproc
+ 785              		@ args = 0, pretend = 0, frame = 24
+ 786              		@ frame_needed = 1, uses_anonymous_args = 0
+ 787              		@ link register save eliminated.
+ 788 0000 80B4     		push	{r7}
+ 789              	.LCFI42:
+ 790              		.cfi_def_cfa_offset 4
+ 791              		.cfi_offset 7, -4
+ 792 0002 87B0     		sub	sp, sp, #28
+ 793              	.LCFI43:
+ 794              		.cfi_def_cfa_offset 32
+ 795 0004 00AF     		add	r7, sp, #0
+ 796              	.LCFI44:
+ 797              		.cfi_def_cfa_register 7
+ 798 0006 F860     		str	r0, [r7, #12]
+ 799 0008 B960     		str	r1, [r7, #8]
+ 800 000a 7A60     		str	r2, [r7, #4]
+ 703:C:/StellarisWare/driverlib\peci.c ****     unsigned long ulTemp;
+ 704:C:/StellarisWare/driverlib\peci.c **** 
+ 705:C:/StellarisWare/driverlib\peci.c ****     //
+ 706:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 707:C:/StellarisWare/driverlib\peci.c ****     //
+ 708:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 709:C:/StellarisWare/driverlib\peci.c **** 
+ 710:C:/StellarisWare/driverlib\peci.c ****     //
+ 711:C:/StellarisWare/driverlib\peci.c ****     // Get the current mask value.
+ 712:C:/StellarisWare/driverlib\peci.c ****     //
+ 713:C:/StellarisWare/driverlib\peci.c ****     ulTemp = HWREG(ulBase + PECI_O_IM);
+ 801              		.loc 1 713 0
+ 802 000c FB68     		ldr	r3, [r7, #12]
+ 803 000e 03F18003 		add	r3, r3, #128
+ 804 0012 1B68     		ldr	r3, [r3, #0]
+ 805 0014 7B61     		str	r3, [r7, #20]
+ 714:C:/StellarisWare/driverlib\peci.c **** 
+ 715:C:/StellarisWare/driverlib\peci.c ****     //
+ 716:C:/StellarisWare/driverlib\peci.c ****     // Clear the bit/bit-fields that are configured, based on the value
+ 717:C:/StellarisWare/driverlib\peci.c ****     // in the flags parameter.
+ 718:C:/StellarisWare/driverlib\peci.c ****     //
+ 719:C:/StellarisWare/driverlib\peci.c ****     ulTemp &= ~ulIntFlags;
+ 806              		.loc 1 719 0
+ 807 0016 BB68     		ldr	r3, [r7, #8]
+ 808 0018 6FEA0303 		mvn	r3, r3
+ 809 001c 7A69     		ldr	r2, [r7, #20]
+ 810 001e 1340     		ands	r3, r3, r2
+ 811 0020 7B61     		str	r3, [r7, #20]
+ 720:C:/StellarisWare/driverlib\peci.c **** 
+ 721:C:/StellarisWare/driverlib\peci.c ****     //
+ 722:C:/StellarisWare/driverlib\peci.c ****     // Set/Enable the bit/bit-fields based on the value in the flags and mode
+ 723:C:/StellarisWare/driverlib\peci.c ****     // parameter.  The flags parameter alters the bits in the lower half
+ 724:C:/StellarisWare/driverlib\peci.c ****     // of the mask, while the mode alters the bit fields in the upper
+ 725:C:/StellarisWare/driverlib\peci.c ****     // half of the mask.
+ 726:C:/StellarisWare/driverlib\peci.c ****     //
+ 727:C:/StellarisWare/driverlib\peci.c ****     ulTemp |= (0x0000FFFF & ulIntFlags);
+ 812              		.loc 1 727 0
+ 813 0022 BB68     		ldr	r3, [r7, #8]
+ 814 0024 4FEA0343 		lsl	r3, r3, #16
+ 815 0028 4FEA1343 		lsr	r3, r3, #16
+ 816 002c 7A69     		ldr	r2, [r7, #20]
+ 817 002e 1343     		orrs	r3, r3, r2
+ 818 0030 7B61     		str	r3, [r7, #20]
+ 728:C:/StellarisWare/driverlib\peci.c ****     ulTemp |= (0xFFFF0000 & ulIntMode);
+ 819              		.loc 1 728 0
+ 820 0032 7B68     		ldr	r3, [r7, #4]
+ 821 0034 4FEA1343 		lsr	r3, r3, #16
+ 822 0038 4FEA0343 		lsl	r3, r3, #16
+ 823 003c 7A69     		ldr	r2, [r7, #20]
+ 824 003e 1343     		orrs	r3, r3, r2
+ 825 0040 7B61     		str	r3, [r7, #20]
+ 729:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_IM) = ulTemp;
+ 826              		.loc 1 729 0
+ 827 0042 FB68     		ldr	r3, [r7, #12]
+ 828 0044 03F18003 		add	r3, r3, #128
+ 829 0048 7A69     		ldr	r2, [r7, #20]
+ 830 004a 1A60     		str	r2, [r3, #0]
+ 730:C:/StellarisWare/driverlib\peci.c **** }
+ 831              		.loc 1 730 0
+ 832 004c 07F11C07 		add	r7, r7, #28
+ 833 0050 BD46     		mov	sp, r7
+ 834 0052 80BC     		pop	{r7}
+ 835 0054 7047     		bx	lr
+ 836              		.cfi_endproc
+ 837              	.LFE14:
+ 839 0056 00BF     		.section	.text.PECIIntDisable,"ax",%progbits
+ 840              		.align	2
+ 841              		.global	PECIIntDisable
+ 842              		.thumb
+ 843              		.thumb_func
+ 845              	PECIIntDisable:
+ 846              	.LFB15:
+ 731:C:/StellarisWare/driverlib\peci.c **** 
+ 732:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 733:C:/StellarisWare/driverlib\peci.c **** //
+ 734:C:/StellarisWare/driverlib\peci.c **** //! Disables individual PECI interrupt sources.
+ 735:C:/StellarisWare/driverlib\peci.c **** //!
+ 736:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 737:C:/StellarisWare/driverlib\peci.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 738:C:/StellarisWare/driverlib\peci.c **** //!
+ 739:C:/StellarisWare/driverlib\peci.c **** //! This function disables the indicated PECI interrupt sources.  Only the
+ 740:C:/StellarisWare/driverlib\peci.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 741:C:/StellarisWare/driverlib\peci.c **** //! disabled sources have no effect on the processor.
+ 742:C:/StellarisWare/driverlib\peci.c **** //!
+ 743:C:/StellarisWare/driverlib\peci.c **** //! The \e ulIntFlags parameter can be any of the following values:
+ 744:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_READ, \b PECI_ERR, \b PECI_AC, \b PECI_M0D0, \b PECI_M0D1,
+ 745:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D0, or \b PECI_M1D1.
+ 746:C:/StellarisWare/driverlib\peci.c **** //!
+ 747:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 748:C:/StellarisWare/driverlib\peci.c **** //
+ 749:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 750:C:/StellarisWare/driverlib\peci.c **** void
+ 751:C:/StellarisWare/driverlib\peci.c **** PECIIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 752:C:/StellarisWare/driverlib\peci.c **** {
+ 847              		.loc 1 752 0
+ 848              		.cfi_startproc
+ 849              		@ args = 0, pretend = 0, frame = 8
+ 850              		@ frame_needed = 1, uses_anonymous_args = 0
+ 851              		@ link register save eliminated.
+ 852 0000 80B4     		push	{r7}
+ 853              	.LCFI45:
+ 854              		.cfi_def_cfa_offset 4
+ 855              		.cfi_offset 7, -4
+ 856 0002 83B0     		sub	sp, sp, #12
+ 857              	.LCFI46:
+ 858              		.cfi_def_cfa_offset 16
+ 859 0004 00AF     		add	r7, sp, #0
+ 860              	.LCFI47:
+ 861              		.cfi_def_cfa_register 7
+ 862 0006 7860     		str	r0, [r7, #4]
+ 863 0008 3960     		str	r1, [r7, #0]
+ 753:C:/StellarisWare/driverlib\peci.c ****     //
+ 754:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 755:C:/StellarisWare/driverlib\peci.c ****     //
+ 756:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 757:C:/StellarisWare/driverlib\peci.c **** 
+ 758:C:/StellarisWare/driverlib\peci.c ****     //
+ 759:C:/StellarisWare/driverlib\peci.c ****     // Disable the specified interrupts.
+ 760:C:/StellarisWare/driverlib\peci.c ****     //
+ 761:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_IM) &= ~ulIntFlags;
+ 864              		.loc 1 761 0
+ 865 000a 7B68     		ldr	r3, [r7, #4]
+ 866 000c 03F18003 		add	r3, r3, #128
+ 867 0010 7A68     		ldr	r2, [r7, #4]
+ 868 0012 02F18002 		add	r2, r2, #128
+ 869 0016 1168     		ldr	r1, [r2, #0]
+ 870 0018 3A68     		ldr	r2, [r7, #0]
+ 871 001a 6FEA0202 		mvn	r2, r2
+ 872 001e 0A40     		ands	r2, r2, r1
+ 873 0020 1A60     		str	r2, [r3, #0]
+ 762:C:/StellarisWare/driverlib\peci.c **** }
+ 874              		.loc 1 762 0
+ 875 0022 07F10C07 		add	r7, r7, #12
+ 876 0026 BD46     		mov	sp, r7
+ 877 0028 80BC     		pop	{r7}
+ 878 002a 7047     		bx	lr
+ 879              		.cfi_endproc
+ 880              	.LFE15:
+ 882              		.section	.text.PECIIntStatus,"ax",%progbits
+ 883              		.align	2
+ 884              		.global	PECIIntStatus
+ 885              		.thumb
+ 886              		.thumb_func
+ 888              	PECIIntStatus:
+ 889              	.LFB16:
+ 763:C:/StellarisWare/driverlib\peci.c **** 
+ 764:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 765:C:/StellarisWare/driverlib\peci.c **** //
+ 766:C:/StellarisWare/driverlib\peci.c **** //! Gets the current interrupt status.
+ 767:C:/StellarisWare/driverlib\peci.c **** //!
+ 768:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 769:C:/StellarisWare/driverlib\peci.c **** //! \param bMasked is \b false if the raw interrupt status is required or
+ 770:C:/StellarisWare/driverlib\peci.c **** //! \b true if the masked interrupt status is required.
+ 771:C:/StellarisWare/driverlib\peci.c **** //!
+ 772:C:/StellarisWare/driverlib\peci.c **** //! This function returns the interrupt status for the PECI module.  Either the
+ 773:C:/StellarisWare/driverlib\peci.c **** //! raw interrupt status or the status of interrupts that are allowed to
+ 774:C:/StellarisWare/driverlib\peci.c **** //! reflect to the processor can be returned.
+ 775:C:/StellarisWare/driverlib\peci.c **** //!
+ 776:C:/StellarisWare/driverlib\peci.c **** //! The interpretation of the PECI_DOMAIN_MnDm fields vary based on the mode
+ 777:C:/StellarisWare/driverlib\peci.c **** //! value programed using the PECIIntEnable() function for the field.  Each
+ 778:C:/StellarisWare/driverlib\peci.c **** //! field may take on one of the following values:
+ 779:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_MnDm_MODE1_HIGH, \b PECI_MnDm_MODE2_MID, \b PECI_MnDm_MODE2_HIGH,
+ 780:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_MnDm_MODE3_LOW, \b PECI_MnDm_MODE3_MID, or \b PECI_MnDm_MODE3_HIGH.
+ 781:C:/StellarisWare/driverlib\peci.c **** //!
+ 782:C:/StellarisWare/driverlib\peci.c **** //! \return The current interrupt status, enumerated as a bit field of
+ 783:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_READ, \b PECI_ERR, \b PECI_AC, \b PECI_M0D0, \b PECI_M0D1,
+ 784:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D0, or \b PECI_M1D1.
+ 785:C:/StellarisWare/driverlib\peci.c **** //
+ 786:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 787:C:/StellarisWare/driverlib\peci.c **** unsigned long
+ 788:C:/StellarisWare/driverlib\peci.c **** PECIIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 789:C:/StellarisWare/driverlib\peci.c **** {
+ 890              		.loc 1 789 0
+ 891              		.cfi_startproc
+ 892              		@ args = 0, pretend = 0, frame = 8
+ 893              		@ frame_needed = 1, uses_anonymous_args = 0
+ 894              		@ link register save eliminated.
+ 895 0000 80B4     		push	{r7}
+ 896              	.LCFI48:
+ 897              		.cfi_def_cfa_offset 4
+ 898              		.cfi_offset 7, -4
+ 899 0002 83B0     		sub	sp, sp, #12
+ 900              	.LCFI49:
+ 901              		.cfi_def_cfa_offset 16
+ 902 0004 00AF     		add	r7, sp, #0
+ 903              	.LCFI50:
+ 904              		.cfi_def_cfa_register 7
+ 905 0006 7860     		str	r0, [r7, #4]
+ 906 0008 0B46     		mov	r3, r1
+ 907 000a FB70     		strb	r3, [r7, #3]
+ 790:C:/StellarisWare/driverlib\peci.c ****     //
+ 791:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 792:C:/StellarisWare/driverlib\peci.c ****     //
+ 793:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 794:C:/StellarisWare/driverlib\peci.c **** 
+ 795:C:/StellarisWare/driverlib\peci.c ****     //
+ 796:C:/StellarisWare/driverlib\peci.c ****     // Return either the interrupt status or the raw interrupt status as
+ 797:C:/StellarisWare/driverlib\peci.c ****     // requested.
+ 798:C:/StellarisWare/driverlib\peci.c ****     //
+ 799:C:/StellarisWare/driverlib\peci.c ****     if(bMasked)
+ 908              		.loc 1 799 0
+ 909 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 910 000e 002B     		cmp	r3, #0
+ 911 0010 04D0     		beq	.L26
+ 800:C:/StellarisWare/driverlib\peci.c ****     {
+ 801:C:/StellarisWare/driverlib\peci.c ****         return(HWREG(ulBase + PECI_O_MIS));
+ 912              		.loc 1 801 0
+ 913 0012 7B68     		ldr	r3, [r7, #4]
+ 914 0014 03F18803 		add	r3, r3, #136
+ 915 0018 1B68     		ldr	r3, [r3, #0]
+ 916 001a 03E0     		b	.L27
+ 917              	.L26:
+ 802:C:/StellarisWare/driverlib\peci.c ****     }
+ 803:C:/StellarisWare/driverlib\peci.c ****     else
+ 804:C:/StellarisWare/driverlib\peci.c ****     {
+ 805:C:/StellarisWare/driverlib\peci.c ****         return(HWREG(ulBase + PECI_O_RIS));
+ 918              		.loc 1 805 0
+ 919 001c 7B68     		ldr	r3, [r7, #4]
+ 920 001e 03F18403 		add	r3, r3, #132
+ 921 0022 1B68     		ldr	r3, [r3, #0]
+ 922              	.L27:
+ 806:C:/StellarisWare/driverlib\peci.c ****     }
+ 807:C:/StellarisWare/driverlib\peci.c **** }
+ 923              		.loc 1 807 0
+ 924 0024 1846     		mov	r0, r3
+ 925 0026 07F10C07 		add	r7, r7, #12
+ 926 002a BD46     		mov	sp, r7
+ 927 002c 80BC     		pop	{r7}
+ 928 002e 7047     		bx	lr
+ 929              		.cfi_endproc
+ 930              	.LFE16:
+ 932              		.section	.text.PECIIntClear,"ax",%progbits
+ 933              		.align	2
+ 934              		.global	PECIIntClear
+ 935              		.thumb
+ 936              		.thumb_func
+ 938              	PECIIntClear:
+ 939              	.LFB17:
+ 808:C:/StellarisWare/driverlib\peci.c **** 
+ 809:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 810:C:/StellarisWare/driverlib\peci.c **** //
+ 811:C:/StellarisWare/driverlib\peci.c **** //! Clears PECI interrupt sources.
+ 812:C:/StellarisWare/driverlib\peci.c **** //!
+ 813:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 814:C:/StellarisWare/driverlib\peci.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 815:C:/StellarisWare/driverlib\peci.c **** //!
+ 816:C:/StellarisWare/driverlib\peci.c **** //! This function clears the specified PECI interrupt sources so that they no
+ 817:C:/StellarisWare/driverlib\peci.c **** //! longer assert.  This function must be called in the interrupt handler to
+ 818:C:/StellarisWare/driverlib\peci.c **** //! keep the interrupts from being recognized again immediately upon exit.
+ 819:C:/StellarisWare/driverlib\peci.c **** //! The \e ulIntFlags parameter can consist of any combination of the
+ 820:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_READ, \b PECI_ERR, \b PECI_AC, \b PECI_M0D0, \b PECI_M0D1,
+ 821:C:/StellarisWare/driverlib\peci.c **** //! \b PECI_M1D0, or \b PECI_M1D1 values.
+ 822:C:/StellarisWare/driverlib\peci.c **** //!
+ 823:C:/StellarisWare/driverlib\peci.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 824:C:/StellarisWare/driverlib\peci.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 825:C:/StellarisWare/driverlib\peci.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 826:C:/StellarisWare/driverlib\peci.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 827:C:/StellarisWare/driverlib\peci.c **** //! returning from the interrupt handler before the interrupt source is
+ 828:C:/StellarisWare/driverlib\peci.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 829:C:/StellarisWare/driverlib\peci.c **** //! being immediately reentered (because the interrupt controller still sees
+ 830:C:/StellarisWare/driverlib\peci.c **** //! the interrupt source asserted).
+ 831:C:/StellarisWare/driverlib\peci.c **** //!
+ 832:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 833:C:/StellarisWare/driverlib\peci.c **** //
+ 834:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 835:C:/StellarisWare/driverlib\peci.c **** void
+ 836:C:/StellarisWare/driverlib\peci.c **** PECIIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+ 837:C:/StellarisWare/driverlib\peci.c **** {
+ 940              		.loc 1 837 0
+ 941              		.cfi_startproc
+ 942              		@ args = 0, pretend = 0, frame = 8
+ 943              		@ frame_needed = 1, uses_anonymous_args = 0
+ 944              		@ link register save eliminated.
+ 945 0000 80B4     		push	{r7}
+ 946              	.LCFI51:
+ 947              		.cfi_def_cfa_offset 4
+ 948              		.cfi_offset 7, -4
+ 949 0002 83B0     		sub	sp, sp, #12
+ 950              	.LCFI52:
+ 951              		.cfi_def_cfa_offset 16
+ 952 0004 00AF     		add	r7, sp, #0
+ 953              	.LCFI53:
+ 954              		.cfi_def_cfa_register 7
+ 955 0006 7860     		str	r0, [r7, #4]
+ 956 0008 3960     		str	r1, [r7, #0]
+ 838:C:/StellarisWare/driverlib\peci.c ****     //
+ 839:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 840:C:/StellarisWare/driverlib\peci.c ****     //
+ 841:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 842:C:/StellarisWare/driverlib\peci.c **** 
+ 843:C:/StellarisWare/driverlib\peci.c ****     //
+ 844:C:/StellarisWare/driverlib\peci.c ****     // Clear the requested interrupt sources.
+ 845:C:/StellarisWare/driverlib\peci.c ****     //
+ 846:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_IC) = ulIntFlags;
+ 957              		.loc 1 846 0
+ 958 000a 7B68     		ldr	r3, [r7, #4]
+ 959 000c 03F18C03 		add	r3, r3, #140
+ 960 0010 3A68     		ldr	r2, [r7, #0]
+ 961 0012 1A60     		str	r2, [r3, #0]
+ 847:C:/StellarisWare/driverlib\peci.c **** }
+ 962              		.loc 1 847 0
+ 963 0014 07F10C07 		add	r7, r7, #12
+ 964 0018 BD46     		mov	sp, r7
+ 965 001a 80BC     		pop	{r7}
+ 966 001c 7047     		bx	lr
+ 967              		.cfi_endproc
+ 968              	.LFE17:
+ 970 001e 00BF     		.section	.text.PECIAdvCmdSend,"ax",%progbits
+ 971              		.align	2
+ 972              		.global	PECIAdvCmdSend
+ 973              		.thumb
+ 974              		.thumb_func
+ 976              	PECIAdvCmdSend:
+ 977              	.LFB18:
+ 848:C:/StellarisWare/driverlib\peci.c **** 
+ 849:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 850:C:/StellarisWare/driverlib\peci.c **** //
+ 851:C:/StellarisWare/driverlib\peci.c **** //! Sends a PECI Advanced Command.
+ 852:C:/StellarisWare/driverlib\peci.c **** //!
+ 853:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 854:C:/StellarisWare/driverlib\peci.c **** //!
+ 855:C:/StellarisWare/driverlib\peci.c **** //! This function sends a PECI Advanced Command.  If the interface is not IDLE,
+ 856:C:/StellarisWare/driverlib\peci.c **** //! it waits for the interface to become IDLE then sends the command.  The
+ 857:C:/StellarisWare/driverlib\peci.c **** //! function parameters are used to populate the message control fields before
+ 858:C:/StellarisWare/driverlib\peci.c **** //! activating the command.
+ 859:C:/StellarisWare/driverlib\peci.c **** //!
+ 860:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 861:C:/StellarisWare/driverlib\peci.c **** //
+ 862:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 863:C:/StellarisWare/driverlib\peci.c **** void
+ 864:C:/StellarisWare/driverlib\peci.c **** PECIAdvCmdSend(unsigned long ulBase, unsigned char ucCmd,
+ 865:C:/StellarisWare/driverlib\peci.c ****                unsigned char ucHidRe, unsigned char ucDomain,
+ 866:C:/StellarisWare/driverlib\peci.c ****                unsigned char ucProcAdd, unsigned long ulArg,
+ 867:C:/StellarisWare/driverlib\peci.c ****                unsigned char ucSize, unsigned long ulData0,
+ 868:C:/StellarisWare/driverlib\peci.c ****                unsigned long ulData1)
+ 869:C:/StellarisWare/driverlib\peci.c **** {
+ 978              		.loc 1 869 0
+ 979              		.cfi_startproc
+ 980              		@ args = 20, pretend = 0, frame = 8
+ 981              		@ frame_needed = 1, uses_anonymous_args = 0
+ 982              		@ link register save eliminated.
+ 983 0000 80B4     		push	{r7}
+ 984              	.LCFI54:
+ 985              		.cfi_def_cfa_offset 4
+ 986              		.cfi_offset 7, -4
+ 987 0002 83B0     		sub	sp, sp, #12
+ 988              	.LCFI55:
+ 989              		.cfi_def_cfa_offset 16
+ 990 0004 00AF     		add	r7, sp, #0
+ 991              	.LCFI56:
+ 992              		.cfi_def_cfa_register 7
+ 993 0006 7860     		str	r0, [r7, #4]
+ 994 0008 F970     		strb	r1, [r7, #3]
+ 995 000a BA70     		strb	r2, [r7, #2]
+ 996 000c 7B70     		strb	r3, [r7, #1]
+ 870:C:/StellarisWare/driverlib\peci.c ****     //
+ 871:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 872:C:/StellarisWare/driverlib\peci.c ****     //
+ 873:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 874:C:/StellarisWare/driverlib\peci.c **** 
+ 875:C:/StellarisWare/driverlib\peci.c ****     //
+ 876:C:/StellarisWare/driverlib\peci.c ****     // Wait for the interface to be idle.
+ 877:C:/StellarisWare/driverlib\peci.c ****     //
+ 878:C:/StellarisWare/driverlib\peci.c ****     while(HWREG(ulBase + PECI_O_ACCODE) == 0xFFFFFFFF)
+ 997              		.loc 1 878 0
+ 998 000e 00BF     		nop
+ 999              	.L30:
+ 1000              		.loc 1 878 0 is_stmt 0 discriminator 1
+ 1001 0010 7B68     		ldr	r3, [r7, #4]
+ 1002 0012 03F58A73 		add	r3, r3, #276
+ 1003 0016 1B68     		ldr	r3, [r3, #0]
+ 1004 0018 B3F1FF3F 		cmp	r3, #-1
+ 1005 001c F8D0     		beq	.L30
+ 879:C:/StellarisWare/driverlib\peci.c ****     {
+ 880:C:/StellarisWare/driverlib\peci.c ****     }
+ 881:C:/StellarisWare/driverlib\peci.c **** 
+ 882:C:/StellarisWare/driverlib\peci.c ****     //
+ 883:C:/StellarisWare/driverlib\peci.c ****     // Fill in the registers for the advanced command.
+ 884:C:/StellarisWare/driverlib\peci.c ****     //
+ 885:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACARG) = ulArg;
+ 1006              		.loc 1 885 0 is_stmt 1
+ 1007 001e 7B68     		ldr	r3, [r7, #4]
+ 1008 0020 03F58273 		add	r3, r3, #260
+ 1009 0024 7A69     		ldr	r2, [r7, #20]
+ 1010 0026 1A60     		str	r2, [r3, #0]
+ 886:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACRDWR0) = ulData0;
+ 1011              		.loc 1 886 0
+ 1012 0028 7B68     		ldr	r3, [r7, #4]
+ 1013 002a 03F58473 		add	r3, r3, #264
+ 1014 002e FA69     		ldr	r2, [r7, #28]
+ 1015 0030 1A60     		str	r2, [r3, #0]
+ 887:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACRDWR1) = ulData1;
+ 1016              		.loc 1 887 0
+ 1017 0032 7B68     		ldr	r3, [r7, #4]
+ 1018 0034 03F58673 		add	r3, r3, #268
+ 1019 0038 3A6A     		ldr	r2, [r7, #32]
+ 1020 003a 1A60     		str	r2, [r3, #0]
+ 888:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACADDR) = (ucHidRe << 24) |
+ 1021              		.loc 1 888 0
+ 1022 003c 7B68     		ldr	r3, [r7, #4]
+ 1023 003e 03F58073 		add	r3, r3, #256
+ 1024 0042 BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 1025 0044 4FEA0261 		lsl	r1, r2, #24
+ 889:C:/StellarisWare/driverlib\peci.c ****                                     (ucSize  << 16) |
+ 1026              		.loc 1 889 0
+ 1027 0048 3A7E     		ldrb	r2, [r7, #24]	@ zero_extendqisi2
+ 1028 004a 4FEA0242 		lsl	r2, r2, #16
+ 888:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACADDR) = (ucHidRe << 24) |
+ 1029              		.loc 1 888 0
+ 1030 004e 1143     		orrs	r1, r1, r2
+ 890:C:/StellarisWare/driverlib\peci.c ****                                     (ucDomain << 8) |
+ 1031              		.loc 1 890 0
+ 1032 0050 7A78     		ldrb	r2, [r7, #1]	@ zero_extendqisi2
+ 1033 0052 4FEA0222 		lsl	r2, r2, #8
+ 889:C:/StellarisWare/driverlib\peci.c ****                                     (ucSize  << 16) |
+ 1034              		.loc 1 889 0
+ 1035 0056 1143     		orrs	r1, r1, r2
+ 891:C:/StellarisWare/driverlib\peci.c ****                                     (ucProcAdd << 0);
+ 1036              		.loc 1 891 0
+ 1037 0058 3A7C     		ldrb	r2, [r7, #16]	@ zero_extendqisi2
+ 890:C:/StellarisWare/driverlib\peci.c ****                                     (ucDomain << 8) |
+ 1038              		.loc 1 890 0
+ 1039 005a 0A43     		orrs	r2, r2, r1
+ 888:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACADDR) = (ucHidRe << 24) |
+ 1040              		.loc 1 888 0
+ 1041 005c 1A60     		str	r2, [r3, #0]
+ 892:C:/StellarisWare/driverlib\peci.c **** 
+ 893:C:/StellarisWare/driverlib\peci.c ****     //
+ 894:C:/StellarisWare/driverlib\peci.c ****     // Now, issue the command.
+ 895:C:/StellarisWare/driverlib\peci.c ****     //
+ 896:C:/StellarisWare/driverlib\peci.c ****     HWREG(ulBase + PECI_O_ACCMD) = ucCmd;
+ 1042              		.loc 1 896 0
+ 1043 005e 7B68     		ldr	r3, [r7, #4]
+ 1044 0060 03F58873 		add	r3, r3, #272
+ 1045 0064 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1046 0066 1A60     		str	r2, [r3, #0]
+ 897:C:/StellarisWare/driverlib\peci.c **** }
+ 1047              		.loc 1 897 0
+ 1048 0068 07F10C07 		add	r7, r7, #12
+ 1049 006c BD46     		mov	sp, r7
+ 1050 006e 80BC     		pop	{r7}
+ 1051 0070 7047     		bx	lr
+ 1052              		.cfi_endproc
+ 1053              	.LFE18:
+ 1055 0072 00BF     		.section	.text.PECIAdvCmdSendNonBlocking,"ax",%progbits
+ 1056              		.align	2
+ 1057              		.global	PECIAdvCmdSendNonBlocking
+ 1058              		.thumb
+ 1059              		.thumb_func
+ 1061              	PECIAdvCmdSendNonBlocking:
+ 1062              	.LFB19:
+ 898:C:/StellarisWare/driverlib\peci.c **** 
+ 899:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 900:C:/StellarisWare/driverlib\peci.c **** //
+ 901:C:/StellarisWare/driverlib\peci.c **** //! Sends a PECI Advanced Command (non blocking).
+ 902:C:/StellarisWare/driverlib\peci.c **** //!
+ 903:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 904:C:/StellarisWare/driverlib\peci.c **** //!
+ 905:C:/StellarisWare/driverlib\peci.c **** //! This function sends a PECI Advanced Command.  If the interface is not IDLE,
+ 906:C:/StellarisWare/driverlib\peci.c **** //! it returns immediately.  Otherwise, it sends the the command.  The function
+ 907:C:/StellarisWare/driverlib\peci.c **** //! paramters are used to populate the message control fields before activating
+ 908:C:/StellarisWare/driverlib\peci.c **** //! the command.
+ 909:C:/StellarisWare/driverlib\peci.c **** //!
+ 910:C:/StellarisWare/driverlib\peci.c **** //! \return None.
+ 911:C:/StellarisWare/driverlib\peci.c **** //
+ 912:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 913:C:/StellarisWare/driverlib\peci.c **** unsigned long
+ 914:C:/StellarisWare/driverlib\peci.c **** PECIAdvCmdSendNonBlocking(unsigned long ulBase, unsigned char ucCmd,
+ 915:C:/StellarisWare/driverlib\peci.c ****                           unsigned char ucHidRe, unsigned char ucDomain,
+ 916:C:/StellarisWare/driverlib\peci.c ****                           unsigned char ucProcAdd, unsigned long ulArg,
+ 917:C:/StellarisWare/driverlib\peci.c ****                           unsigned char ucSize, unsigned long ulData0,
+ 918:C:/StellarisWare/driverlib\peci.c ****                           unsigned long ulData1)
+ 919:C:/StellarisWare/driverlib\peci.c **** {
+ 1063              		.loc 1 919 0
+ 1064              		.cfi_startproc
+ 1065              		@ args = 20, pretend = 0, frame = 8
+ 1066              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1067 0000 80B5     		push	{r7, lr}
+ 1068              	.LCFI57:
+ 1069              		.cfi_def_cfa_offset 8
+ 1070              		.cfi_offset 14, -4
+ 1071              		.cfi_offset 7, -8
+ 1072 0002 88B0     		sub	sp, sp, #32
+ 1073              	.LCFI58:
+ 1074              		.cfi_def_cfa_offset 40
+ 1075 0004 06AF     		add	r7, sp, #24
+ 1076              	.LCFI59:
+ 1077              		.cfi_def_cfa 7, 16
+ 1078 0006 7860     		str	r0, [r7, #4]
+ 1079 0008 F970     		strb	r1, [r7, #3]
+ 1080 000a BA70     		strb	r2, [r7, #2]
+ 1081 000c 7B70     		strb	r3, [r7, #1]
+ 920:C:/StellarisWare/driverlib\peci.c ****     //
+ 921:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 922:C:/StellarisWare/driverlib\peci.c ****     //
+ 923:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 924:C:/StellarisWare/driverlib\peci.c **** 
+ 925:C:/StellarisWare/driverlib\peci.c ****     //
+ 926:C:/StellarisWare/driverlib\peci.c ****     // Check for the interface to be idle.
+ 927:C:/StellarisWare/driverlib\peci.c ****     // If not, return immediately.
+ 928:C:/StellarisWare/driverlib\peci.c ****     //
+ 929:C:/StellarisWare/driverlib\peci.c ****     if(HWREG(ulBase + PECI_O_ACCODE) == 0xFFFFFFFF)
+ 1082              		.loc 1 929 0
+ 1083 000e 7B68     		ldr	r3, [r7, #4]
+ 1084 0010 03F58A73 		add	r3, r3, #276
+ 1085 0014 1B68     		ldr	r3, [r3, #0]
+ 1086 0016 B3F1FF3F 		cmp	r3, #-1
+ 1087 001a 02D1     		bne	.L32
+ 930:C:/StellarisWare/driverlib\peci.c ****     {
+ 931:C:/StellarisWare/driverlib\peci.c ****         return(0);
+ 1088              		.loc 1 931 0
+ 1089 001c 4FF00003 		mov	r3, #0
+ 1090 0020 11E0     		b	.L33
+ 1091              	.L32:
+ 932:C:/StellarisWare/driverlib\peci.c ****     }
+ 933:C:/StellarisWare/driverlib\peci.c **** 
+ 934:C:/StellarisWare/driverlib\peci.c ****     //
+ 935:C:/StellarisWare/driverlib\peci.c ****     // Send the command.
+ 936:C:/StellarisWare/driverlib\peci.c ****     //
+ 937:C:/StellarisWare/driverlib\peci.c ****     PECIAdvCmdSend(ulBase, ucCmd, ucHidRe, ucDomain, ucProcAdd, ulArg,
+ 1092              		.loc 1 937 0
+ 1093 0022 F978     		ldrb	r1, [r7, #3]	@ zero_extendqisi2
+ 1094 0024 BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 1095 0026 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 1096 0028 387C     		ldrb	r0, [r7, #16]	@ zero_extendqisi2
+ 1097 002a 0090     		str	r0, [sp, #0]
+ 1098 002c 7869     		ldr	r0, [r7, #20]
+ 1099 002e 0190     		str	r0, [sp, #4]
+ 1100 0030 387E     		ldrb	r0, [r7, #24]	@ zero_extendqisi2
+ 1101 0032 0290     		str	r0, [sp, #8]
+ 1102 0034 F869     		ldr	r0, [r7, #28]
+ 1103 0036 0390     		str	r0, [sp, #12]
+ 1104 0038 386A     		ldr	r0, [r7, #32]
+ 1105 003a 0490     		str	r0, [sp, #16]
+ 1106 003c 7868     		ldr	r0, [r7, #4]
+ 1107 003e FFF7FEFF 		bl	PECIAdvCmdSend
+ 938:C:/StellarisWare/driverlib\peci.c ****                    ucSize, ulData0, ulData1);
+ 939:C:/StellarisWare/driverlib\peci.c **** 
+ 940:C:/StellarisWare/driverlib\peci.c ****     //
+ 941:C:/StellarisWare/driverlib\peci.c ****     // Return, indicating that the command has been issued.
+ 942:C:/StellarisWare/driverlib\peci.c ****     //
+ 943:C:/StellarisWare/driverlib\peci.c ****     return(1);
+ 1108              		.loc 1 943 0
+ 1109 0042 4FF00103 		mov	r3, #1
+ 1110              	.L33:
+ 944:C:/StellarisWare/driverlib\peci.c **** }
+ 1111              		.loc 1 944 0
+ 1112 0046 1846     		mov	r0, r3
+ 1113 0048 07F10807 		add	r7, r7, #8
+ 1114 004c BD46     		mov	sp, r7
+ 1115 004e 80BD     		pop	{r7, pc}
+ 1116              		.cfi_endproc
+ 1117              	.LFE19:
+ 1119              		.section	.text.PECIAdvCmdStatusGet,"ax",%progbits
+ 1120              		.align	2
+ 1121              		.global	PECIAdvCmdStatusGet
+ 1122              		.thumb
+ 1123              		.thumb_func
+ 1125              	PECIAdvCmdStatusGet:
+ 1126              	.LFB20:
+ 945:C:/StellarisWare/driverlib\peci.c **** 
+ 946:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 947:C:/StellarisWare/driverlib\peci.c **** //
+ 948:C:/StellarisWare/driverlib\peci.c **** //! Obtains status of previous PECI Advanced Command.
+ 949:C:/StellarisWare/driverlib\peci.c **** //!
+ 950:C:/StellarisWare/driverlib\peci.c **** //! \param ulBase specifies the PECI module base address.
+ 951:C:/StellarisWare/driverlib\peci.c **** //!
+ 952:C:/StellarisWare/driverlib\peci.c **** //! This function gets the status of a previously issued PECI Advanced Command.
+ 953:C:/StellarisWare/driverlib\peci.c **** //! If the command has completed, and the data pointers are non-zero, the data
+ 954:C:/StellarisWare/driverlib\peci.c **** //! registers are read and saved.
+ 955:C:/StellarisWare/driverlib\peci.c **** //!
+ 956:C:/StellarisWare/driverlib\peci.c **** //! \return -1 if command has not yet been completed, otherwise, the return
+ 957:C:/StellarisWare/driverlib\peci.c **** //! code associated with the Advanced Command.
+ 958:C:/StellarisWare/driverlib\peci.c **** //
+ 959:C:/StellarisWare/driverlib\peci.c **** //*****************************************************************************
+ 960:C:/StellarisWare/driverlib\peci.c **** unsigned long
+ 961:C:/StellarisWare/driverlib\peci.c **** PECIAdvCmdStatusGet(unsigned long ulBase, unsigned long *pulData0,
+ 962:C:/StellarisWare/driverlib\peci.c ****                     unsigned long *pulData1)
+ 963:C:/StellarisWare/driverlib\peci.c **** {
+ 1127              		.loc 1 963 0
+ 1128              		.cfi_startproc
+ 1129              		@ args = 0, pretend = 0, frame = 24
+ 1130              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1131              		@ link register save eliminated.
+ 1132 0000 80B4     		push	{r7}
+ 1133              	.LCFI60:
+ 1134              		.cfi_def_cfa_offset 4
+ 1135              		.cfi_offset 7, -4
+ 1136 0002 87B0     		sub	sp, sp, #28
+ 1137              	.LCFI61:
+ 1138              		.cfi_def_cfa_offset 32
+ 1139 0004 00AF     		add	r7, sp, #0
+ 1140              	.LCFI62:
+ 1141              		.cfi_def_cfa_register 7
+ 1142 0006 F860     		str	r0, [r7, #12]
+ 1143 0008 B960     		str	r1, [r7, #8]
+ 1144 000a 7A60     		str	r2, [r7, #4]
+ 964:C:/StellarisWare/driverlib\peci.c ****     unsigned long ulCode;
+ 965:C:/StellarisWare/driverlib\peci.c **** 
+ 966:C:/StellarisWare/driverlib\peci.c ****     //
+ 967:C:/StellarisWare/driverlib\peci.c ****     // Check the arguments.
+ 968:C:/StellarisWare/driverlib\peci.c ****     //
+ 969:C:/StellarisWare/driverlib\peci.c ****     ASSERT(ulBase == PECI0_BASE);
+ 970:C:/StellarisWare/driverlib\peci.c **** 
+ 971:C:/StellarisWare/driverlib\peci.c ****     //
+ 972:C:/StellarisWare/driverlib\peci.c ****     // If the command has completed, optionally read and save the data
+ 973:C:/StellarisWare/driverlib\peci.c ****     // registers.
+ 974:C:/StellarisWare/driverlib\peci.c ****     //
+ 975:C:/StellarisWare/driverlib\peci.c ****     ulCode = HWREG(ulBase + PECI_O_ACCODE);
+ 1145              		.loc 1 975 0
+ 1146 000c FB68     		ldr	r3, [r7, #12]
+ 1147 000e 03F58A73 		add	r3, r3, #276
+ 1148 0012 1B68     		ldr	r3, [r3, #0]
+ 1149 0014 7B61     		str	r3, [r7, #20]
+ 976:C:/StellarisWare/driverlib\peci.c ****     if(ulCode != 0xFFFFFFFF)
+ 1150              		.loc 1 976 0
+ 1151 0016 7B69     		ldr	r3, [r7, #20]
+ 1152 0018 B3F1FF3F 		cmp	r3, #-1
+ 1153 001c 11D0     		beq	.L35
+ 977:C:/StellarisWare/driverlib\peci.c ****     {
+ 978:C:/StellarisWare/driverlib\peci.c ****         if(pulData0 != (void *)0)
+ 1154              		.loc 1 978 0
+ 1155 001e BB68     		ldr	r3, [r7, #8]
+ 1156 0020 002B     		cmp	r3, #0
+ 1157 0022 05D0     		beq	.L36
+ 979:C:/StellarisWare/driverlib\peci.c ****         {
+ 980:C:/StellarisWare/driverlib\peci.c ****             *pulData0 = HWREG(ulBase + PECI_O_ACRDWR0);
+ 1158              		.loc 1 980 0
+ 1159 0024 FB68     		ldr	r3, [r7, #12]
+ 1160 0026 03F58473 		add	r3, r3, #264
+ 1161 002a 1A68     		ldr	r2, [r3, #0]
+ 1162 002c BB68     		ldr	r3, [r7, #8]
+ 1163 002e 1A60     		str	r2, [r3, #0]
+ 1164              	.L36:
+ 981:C:/StellarisWare/driverlib\peci.c ****         }
+ 982:C:/StellarisWare/driverlib\peci.c ****         if(pulData1 != (void *)0)
+ 1165              		.loc 1 982 0
+ 1166 0030 7B68     		ldr	r3, [r7, #4]
+ 1167 0032 002B     		cmp	r3, #0
+ 1168 0034 05D0     		beq	.L35
+ 983:C:/StellarisWare/driverlib\peci.c ****         {
+ 984:C:/StellarisWare/driverlib\peci.c ****             *pulData1 = HWREG(ulBase + PECI_O_ACRDWR1);
+ 1169              		.loc 1 984 0
+ 1170 0036 FB68     		ldr	r3, [r7, #12]
+ 1171 0038 03F58673 		add	r3, r3, #268
+ 1172 003c 1A68     		ldr	r2, [r3, #0]
+ 1173 003e 7B68     		ldr	r3, [r7, #4]
+ 1174 0040 1A60     		str	r2, [r3, #0]
+ 1175              	.L35:
+ 985:C:/StellarisWare/driverlib\peci.c ****         }
+ 986:C:/StellarisWare/driverlib\peci.c ****     }
+ 987:C:/StellarisWare/driverlib\peci.c **** 
+ 988:C:/StellarisWare/driverlib\peci.c ****     //
+ 989:C:/StellarisWare/driverlib\peci.c ****     // Return the command code from the most recently completed command.
+ 990:C:/StellarisWare/driverlib\peci.c ****     //
+ 991:C:/StellarisWare/driverlib\peci.c ****     return(ulCode);
+ 1176              		.loc 1 991 0
+ 1177 0042 7B69     		ldr	r3, [r7, #20]
+ 992:C:/StellarisWare/driverlib\peci.c **** }
+ 1178              		.loc 1 992 0
+ 1179 0044 1846     		mov	r0, r3
+ 1180 0046 07F11C07 		add	r7, r7, #28
+ 1181 004a BD46     		mov	sp, r7
+ 1182 004c 80BC     		pop	{r7}
+ 1183 004e 7047     		bx	lr
+ 1184              		.cfi_endproc
+ 1185              	.LFE20:
+ 1187              		.text
+ 1188              	.Letext0:
+ 1189              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 peci.c
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:19     .text.PECIConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:24     .text.PECIConfigSet:00000000 PECIConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:172    .text.PECIConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:177    .text.PECIConfigGet:00000000 PECIConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:248    .text.PECIBypassEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:253    .text.PECIBypassEnable:00000000 PECIBypassEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:286    .text.PECIBypassDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:291    .text.PECIBypassDisable:00000000 PECIBypassDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:324    .text.PECIDomainConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:329    .text.PECIDomainConfigSet:00000000 PECIDomainConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:377    .text.PECIDomainConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:382    .text.PECIDomainConfigGet:00000000 PECIDomainConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:432    .text.PECIDomainEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:437    .text.PECIDomainEnable:00000000 PECIDomainEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:474    .text.PECIDomainDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:479    .text.PECIDomainDisable:00000000 PECIDomainDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:517    .text.PECIDomainValueGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:522    .text.PECIDomainValueGet:00000000 PECIDomainValueGet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:560    .text.PECIDomainMaxReadGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:565    .text.PECIDomainMaxReadGet:00000000 PECIDomainMaxReadGet
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:602    .text.PECIDomainValueClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:607    .text.PECIDomainValueClear:00000000 PECIDomainValueClear
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:651    .text.PECIDomainMaxReadClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:656    .text.PECIDomainMaxReadClear:00000000 PECIDomainMaxReadClear
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:700    .text.PECIIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:705    .text.PECIIntRegister:00000000 PECIIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:739    .text.PECIIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:744    .text.PECIIntUnregister:00000000 PECIIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:776    .text.PECIIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:781    .text.PECIIntEnable:00000000 PECIIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:840    .text.PECIIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:845    .text.PECIIntDisable:00000000 PECIIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:883    .text.PECIIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:888    .text.PECIIntStatus:00000000 PECIIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:933    .text.PECIIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:938    .text.PECIIntClear:00000000 PECIIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:971    .text.PECIAdvCmdSend:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:976    .text.PECIAdvCmdSend:00000000 PECIAdvCmdSend
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:1056   .text.PECIAdvCmdSendNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:1061   .text.PECIAdvCmdSendNonBlocking:00000000 PECIAdvCmdSendNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:1120   .text.PECIAdvCmdStatusGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccBzI5u6.s:1125   .text.PECIAdvCmdStatusGet:00000000 PECIAdvCmdStatusGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

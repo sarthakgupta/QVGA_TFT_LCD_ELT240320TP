@@ -1,0 +1,3203 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"ethernet.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.EthernetInitExpClk,"ax",%progbits
+  19              		.align	2
+  20              		.global	EthernetInitExpClk
+  21              		.thumb
+  22              		.thumb_func
+  24              	EthernetInitExpClk:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/ethernet.c"
+   1:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\ethernet.c **** //
+   3:C:/StellarisWare/driverlib\ethernet.c **** // ethernet.c - Driver for the Integrated Ethernet Controller
+   4:C:/StellarisWare/driverlib\ethernet.c **** //
+   5:C:/StellarisWare/driverlib\ethernet.c **** // Copyright (c) 2006-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\ethernet.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\ethernet.c **** // 
+   8:C:/StellarisWare/driverlib\ethernet.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\ethernet.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\ethernet.c **** //   are met:
+  11:C:/StellarisWare/driverlib\ethernet.c **** // 
+  12:C:/StellarisWare/driverlib\ethernet.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\ethernet.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\ethernet.c **** // 
+  15:C:/StellarisWare/driverlib\ethernet.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\ethernet.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\ethernet.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\ethernet.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\ethernet.c **** // 
+  20:C:/StellarisWare/driverlib\ethernet.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\ethernet.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\ethernet.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\ethernet.c **** // 
+  24:C:/StellarisWare/driverlib\ethernet.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\ethernet.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\ethernet.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\ethernet.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\ethernet.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\ethernet.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\ethernet.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\ethernet.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\ethernet.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\ethernet.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\ethernet.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\ethernet.c **** // 
+  36:C:/StellarisWare/driverlib\ethernet.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\ethernet.c **** //
+  38:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\ethernet.c **** 
+  40:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\ethernet.c **** //
+  42:C:/StellarisWare/driverlib\ethernet.c **** //! \addtogroup ethernet_api
+  43:C:/StellarisWare/driverlib\ethernet.c **** //! @{
+  44:C:/StellarisWare/driverlib\ethernet.c **** //
+  45:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\ethernet.c **** 
+  47:C:/StellarisWare/driverlib\ethernet.c **** #include "inc/hw_ethernet.h"
+  48:C:/StellarisWare/driverlib\ethernet.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\ethernet.c **** #include "inc/hw_memmap.h"
+  50:C:/StellarisWare/driverlib\ethernet.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\ethernet.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\ethernet.c **** #include "driverlib/ethernet.h"
+  53:C:/StellarisWare/driverlib\ethernet.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\ethernet.c **** 
+  55:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\ethernet.c **** //
+  57:C:/StellarisWare/driverlib\ethernet.c **** //! Initializes the Ethernet controller for operation.
+  58:C:/StellarisWare/driverlib\ethernet.c **** //!
+  59:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+  60:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulEthClk is the rate of the clock supplied to the Ethernet module.
+  61:C:/StellarisWare/driverlib\ethernet.c **** //!
+  62:C:/StellarisWare/driverlib\ethernet.c **** //! This function prepares the Ethernet controller for first-time use in
+  63:C:/StellarisWare/driverlib\ethernet.c **** //! a given hardware/software configuration.  This function should be called
+  64:C:/StellarisWare/driverlib\ethernet.c **** //! before any other Ethernet API functions are called.
+  65:C:/StellarisWare/driverlib\ethernet.c **** //!
+  66:C:/StellarisWare/driverlib\ethernet.c **** //! The peripheral clock is the same as the processor clock.  This value is
+  67:C:/StellarisWare/driverlib\ethernet.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard-coded if it is
+  68:C:/StellarisWare/driverlib\ethernet.c **** //! constant and known (to save the code/execution overhead of a call to
+  69:C:/StellarisWare/driverlib\ethernet.c **** //! SysCtlClockGet()).
+  70:C:/StellarisWare/driverlib\ethernet.c **** //!
+  71:C:/StellarisWare/driverlib\ethernet.c **** //! This function replaces the original EthernetInit() API and performs the
+  72:C:/StellarisWare/driverlib\ethernet.c **** //! same actions.  A macro is provided in <tt>ethernet.h</tt> to map the
+  73:C:/StellarisWare/driverlib\ethernet.c **** //! original API to this API.
+  74:C:/StellarisWare/driverlib\ethernet.c **** //!
+  75:C:/StellarisWare/driverlib\ethernet.c **** //! \note If the device configuration is changed (for example, the system clock
+  76:C:/StellarisWare/driverlib\ethernet.c **** //! is reprogrammed to a different speed), then the Ethernet controller must be
+  77:C:/StellarisWare/driverlib\ethernet.c **** //! disabled by calling the EthernetDisable() function and the controller must
+  78:C:/StellarisWare/driverlib\ethernet.c **** //! be reinitialized by calling the EthernetInitExpClk() function again.  After
+  79:C:/StellarisWare/driverlib\ethernet.c **** //! the controller has been reinitialized, the controller should be
+  80:C:/StellarisWare/driverlib\ethernet.c **** //! reconfigured using the appropriate Ethernet API calls.
+  81:C:/StellarisWare/driverlib\ethernet.c **** //!
+  82:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+  83:C:/StellarisWare/driverlib\ethernet.c **** //
+  84:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+  85:C:/StellarisWare/driverlib\ethernet.c **** void
+  86:C:/StellarisWare/driverlib\ethernet.c **** EthernetInitExpClk(unsigned long ulBase, unsigned long ulEthClk)
+  87:C:/StellarisWare/driverlib\ethernet.c **** {
+  27              		.loc 1 87 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 85B0     		sub	sp, sp, #20
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 24
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 3960     		str	r1, [r7, #0]
+  88:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulDiv;
+  89:C:/StellarisWare/driverlib\ethernet.c **** 
+  90:C:/StellarisWare/driverlib\ethernet.c ****     //
+  91:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+  92:C:/StellarisWare/driverlib\ethernet.c ****     //
+  93:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+  94:C:/StellarisWare/driverlib\ethernet.c **** 
+  95:C:/StellarisWare/driverlib\ethernet.c ****     //
+  96:C:/StellarisWare/driverlib\ethernet.c ****     // Set the Management Clock Divider register for access to the PHY
+  97:C:/StellarisWare/driverlib\ethernet.c ****     // register set (via EthernetPHYRead/Write).
+  98:C:/StellarisWare/driverlib\ethernet.c ****     //
+  99:C:/StellarisWare/driverlib\ethernet.c ****     // The MDC clock divided down from the system clock using the following
+ 100:C:/StellarisWare/driverlib\ethernet.c ****     // formula.  A maximum of 2.5MHz is allowed for F(mdc).
+ 101:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 102:C:/StellarisWare/driverlib\ethernet.c ****     //      F(mdc) = F(sys) / (2 * (div + 1))
+ 103:C:/StellarisWare/driverlib\ethernet.c ****     //      div = (F(sys) / (2 * F(mdc))) - 1
+ 104:C:/StellarisWare/driverlib\ethernet.c ****     //      div = (F(sys) / 2 / F(mdc)) - 1
+ 105:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 106:C:/StellarisWare/driverlib\ethernet.c ****     // Note: Because we should round up, to ensure we don't violate the
+ 107:C:/StellarisWare/driverlib\ethernet.c ****     // maximum clock speed, we can simplify this as follows:
+ 108:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 109:C:/StellarisWare/driverlib\ethernet.c ****     //      div = F(sys) / 2 / F(mdc)
+ 110:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 111:C:/StellarisWare/driverlib\ethernet.c ****     // For example, given a system clock of 6.0MHz, and a div value of 1,
+ 112:C:/StellarisWare/driverlib\ethernet.c ****     // the mdc clock would be programmed as 1.5 MHz.
+ 113:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 114:C:/StellarisWare/driverlib\ethernet.c ****     ulDiv = (ulEthClk / 2) / 2500000;
+  44              		.loc 1 114 0
+  45 000a 3A68     		ldr	r2, [r7, #0]
+  46 000c 4CF66B23 		movw	r3, #51819
+  47 0010 C6F65F33 		movt	r3, 27487
+  48 0014 A3FB0213 		umull	r1, r3, r3, r2
+  49 0018 4FEA5353 		lsr	r3, r3, #21
+  50 001c FB60     		str	r3, [r7, #12]
+ 115:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MDV) = (ulDiv & MAC_MDV_DIV_M);
+  51              		.loc 1 115 0
+  52 001e 7B68     		ldr	r3, [r7, #4]
+  53 0020 03F12403 		add	r3, r3, #36
+  54 0024 FA68     		ldr	r2, [r7, #12]
+  55 0026 D2B2     		uxtb	r2, r2
+  56 0028 1A60     		str	r2, [r3, #0]
+ 116:C:/StellarisWare/driverlib\ethernet.c **** }
+  57              		.loc 1 116 0
+  58 002a 07F11407 		add	r7, r7, #20
+  59 002e BD46     		mov	sp, r7
+  60 0030 80BC     		pop	{r7}
+  61 0032 7047     		bx	lr
+  62              		.cfi_endproc
+  63              	.LFE0:
+  65              		.section	.text.EthernetConfigSet,"ax",%progbits
+  66              		.align	2
+  67              		.global	EthernetConfigSet
+  68              		.thumb
+  69              		.thumb_func
+  71              	EthernetConfigSet:
+  72              	.LFB1:
+ 117:C:/StellarisWare/driverlib\ethernet.c **** 
+ 118:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 119:C:/StellarisWare/driverlib\ethernet.c **** //
+ 120:C:/StellarisWare/driverlib\ethernet.c **** //! Sets the configuration of the Ethernet controller.
+ 121:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 122:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 123:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulConfig is the configuration for the controller.
+ 124:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 125:C:/StellarisWare/driverlib\ethernet.c **** //! After the EthernetInitExpClk() function has been called, this API function
+ 126:C:/StellarisWare/driverlib\ethernet.c **** //! can be used to configure the various features of the Ethernet controller.
+ 127:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 128:C:/StellarisWare/driverlib\ethernet.c **** //! The Ethernet controller provides three control registers that are used
+ 129:C:/StellarisWare/driverlib\ethernet.c **** //! to configure the controller's operation.  The transmit control register
+ 130:C:/StellarisWare/driverlib\ethernet.c **** //! provides settings to enable full-duplex operation, to auto-generate the
+ 131:C:/StellarisWare/driverlib\ethernet.c **** //! frame check sequence, and to pad the transmit packets to the minimum
+ 132:C:/StellarisWare/driverlib\ethernet.c **** //! length as required by the IEEE standard.  The receive control register
+ 133:C:/StellarisWare/driverlib\ethernet.c **** //! provides settings to enable reception of packets with bad frame check
+ 134:C:/StellarisWare/driverlib\ethernet.c **** //! sequence values and to enable multi-cast or promiscuous modes.  The
+ 135:C:/StellarisWare/driverlib\ethernet.c **** //! timestamp control register provides settings that enable support logic in
+ 136:C:/StellarisWare/driverlib\ethernet.c **** //! the controller that allow the use of the General Purpose Timer 3 to capture
+ 137:C:/StellarisWare/driverlib\ethernet.c **** //! timestamps for the transmitted and received packets. Note that not all
+ 138:C:/StellarisWare/driverlib\ethernet.c **** //! devices support this functionality; see the data sheet to determine if
+ 139:C:/StellarisWare/driverlib\ethernet.c **** //! this feature is supported.
+ 140:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 141:C:/StellarisWare/driverlib\ethernet.c **** //! The \e ulConfig parameter is the logical OR of the following values:
+ 142:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 143:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_TS_TSEN - Enable TX and RX interrupt status as CCP timer
+ 144:C:/StellarisWare/driverlib\ethernet.c **** //! inputs
+ 145:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_RX_BADCRCDIS - Disable reception of packets with a bad CRC
+ 146:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_RX_PRMSEN - Enable promiscuous mode reception (all packets)
+ 147:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_RX_AMULEN - Enable reception of multicast packets
+ 148:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_TX_DPLXEN - Enable full duplex transmit mode
+ 149:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_TX_CRCEN - Enable transmit with auto CRC generation
+ 150:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_CFG_TX_PADEN - Enable padding of transmit data to minimum size
+ 151:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 152:C:/StellarisWare/driverlib\ethernet.c **** //! These bit-mapped values are programmed into the transmit, receive, and/or
+ 153:C:/StellarisWare/driverlib\ethernet.c **** //! timestamp control register.
+ 154:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 155:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 156:C:/StellarisWare/driverlib\ethernet.c **** //
+ 157:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 158:C:/StellarisWare/driverlib\ethernet.c **** void
+ 159:C:/StellarisWare/driverlib\ethernet.c **** EthernetConfigSet(unsigned long ulBase, unsigned long ulConfig)
+ 160:C:/StellarisWare/driverlib\ethernet.c **** {
+  73              		.loc 1 160 0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 16
+  76              		@ frame_needed = 1, uses_anonymous_args = 0
+  77              		@ link register save eliminated.
+  78 0000 80B4     		push	{r7}
+  79              	.LCFI3:
+  80              		.cfi_def_cfa_offset 4
+  81              		.cfi_offset 7, -4
+  82 0002 85B0     		sub	sp, sp, #20
+  83              	.LCFI4:
+  84              		.cfi_def_cfa_offset 24
+  85 0004 00AF     		add	r7, sp, #0
+  86              	.LCFI5:
+  87              		.cfi_def_cfa_register 7
+  88 0006 7860     		str	r0, [r7, #4]
+  89 0008 3960     		str	r1, [r7, #0]
+ 161:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulTemp;
+ 162:C:/StellarisWare/driverlib\ethernet.c **** 
+ 163:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 164:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 165:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 166:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 167:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT((ulConfig & ~(ETH_CFG_TX_DPLXEN | ETH_CFG_TX_CRCEN |
+ 168:C:/StellarisWare/driverlib\ethernet.c ****                          ETH_CFG_TX_PADEN | ETH_CFG_RX_BADCRCDIS |
+ 169:C:/StellarisWare/driverlib\ethernet.c ****                          ETH_CFG_RX_PRMSEN | ETH_CFG_RX_AMULEN |
+ 170:C:/StellarisWare/driverlib\ethernet.c ****                          ETH_CFG_TS_TSEN)) == 0);
+ 171:C:/StellarisWare/driverlib\ethernet.c **** 
+ 172:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 173:C:/StellarisWare/driverlib\ethernet.c ****     // Setup the Transmit Control Register.
+ 174:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 175:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp  = HWREG(ulBase + MAC_O_TCTL);
+  90              		.loc 1 175 0
+  91 000a 7B68     		ldr	r3, [r7, #4]
+  92 000c 03F10C03 		add	r3, r3, #12
+  93 0010 1B68     		ldr	r3, [r3, #0]
+  94 0012 FB60     		str	r3, [r7, #12]
+ 176:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp &= ~(MAC_TCTL_DUPLEX | MAC_TCTL_CRC | MAC_TCTL_PADEN);
+  95              		.loc 1 176 0
+  96 0014 FB68     		ldr	r3, [r7, #12]
+  97 0016 23F01603 		bic	r3, r3, #22
+  98 001a FB60     		str	r3, [r7, #12]
+ 177:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp |= ulConfig & 0x0FF;
+  99              		.loc 1 177 0
+ 100 001c 3B68     		ldr	r3, [r7, #0]
+ 101 001e DBB2     		uxtb	r3, r3
+ 102 0020 FA68     		ldr	r2, [r7, #12]
+ 103 0022 1343     		orrs	r3, r3, r2
+ 104 0024 FB60     		str	r3, [r7, #12]
+ 178:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_TCTL) = ulTemp;
+ 105              		.loc 1 178 0
+ 106 0026 7B68     		ldr	r3, [r7, #4]
+ 107 0028 03F10C03 		add	r3, r3, #12
+ 108 002c FA68     		ldr	r2, [r7, #12]
+ 109 002e 1A60     		str	r2, [r3, #0]
+ 179:C:/StellarisWare/driverlib\ethernet.c **** 
+ 180:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 181:C:/StellarisWare/driverlib\ethernet.c ****     // Setup the Receive Control Register.
+ 182:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 183:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp  = HWREG(ulBase + MAC_O_RCTL);
+ 110              		.loc 1 183 0
+ 111 0030 7B68     		ldr	r3, [r7, #4]
+ 112 0032 03F10803 		add	r3, r3, #8
+ 113 0036 1B68     		ldr	r3, [r3, #0]
+ 114 0038 FB60     		str	r3, [r7, #12]
+ 184:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp &= ~(MAC_RCTL_BADCRC | MAC_RCTL_PRMS | MAC_RCTL_AMUL);
+ 115              		.loc 1 184 0
+ 116 003a FB68     		ldr	r3, [r7, #12]
+ 117 003c 23F00E03 		bic	r3, r3, #14
+ 118 0040 FB60     		str	r3, [r7, #12]
+ 185:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp |= (ulConfig >> 8) & 0x0FF;
+ 119              		.loc 1 185 0
+ 120 0042 3B68     		ldr	r3, [r7, #0]
+ 121 0044 4FEA1323 		lsr	r3, r3, #8
+ 122 0048 DBB2     		uxtb	r3, r3
+ 123 004a FA68     		ldr	r2, [r7, #12]
+ 124 004c 1343     		orrs	r3, r3, r2
+ 125 004e FB60     		str	r3, [r7, #12]
+ 186:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) = ulTemp;
+ 126              		.loc 1 186 0
+ 127 0050 7B68     		ldr	r3, [r7, #4]
+ 128 0052 03F10803 		add	r3, r3, #8
+ 129 0056 FA68     		ldr	r2, [r7, #12]
+ 130 0058 1A60     		str	r2, [r3, #0]
+ 187:C:/StellarisWare/driverlib\ethernet.c **** 
+ 188:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 189:C:/StellarisWare/driverlib\ethernet.c ****     // Setup the Time Stamp Configuration register.
+ 190:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 191:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = HWREG(ulBase + MAC_O_TS);
+ 131              		.loc 1 191 0
+ 132 005a 7B68     		ldr	r3, [r7, #4]
+ 133 005c 03F13C03 		add	r3, r3, #60
+ 134 0060 1B68     		ldr	r3, [r3, #0]
+ 135 0062 FB60     		str	r3, [r7, #12]
+ 192:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp &= ~(MAC_TS_TSEN);
+ 136              		.loc 1 192 0
+ 137 0064 FB68     		ldr	r3, [r7, #12]
+ 138 0066 23F00103 		bic	r3, r3, #1
+ 139 006a FB60     		str	r3, [r7, #12]
+ 193:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp |= (ulConfig >> 16) & 0x0FF;
+ 140              		.loc 1 193 0
+ 141 006c 3B68     		ldr	r3, [r7, #0]
+ 142 006e 4FEA1343 		lsr	r3, r3, #16
+ 143 0072 DBB2     		uxtb	r3, r3
+ 144 0074 FA68     		ldr	r2, [r7, #12]
+ 145 0076 1343     		orrs	r3, r3, r2
+ 146 0078 FB60     		str	r3, [r7, #12]
+ 194:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_TS) = ulTemp;
+ 147              		.loc 1 194 0
+ 148 007a 7B68     		ldr	r3, [r7, #4]
+ 149 007c 03F13C03 		add	r3, r3, #60
+ 150 0080 FA68     		ldr	r2, [r7, #12]
+ 151 0082 1A60     		str	r2, [r3, #0]
+ 195:C:/StellarisWare/driverlib\ethernet.c **** }
+ 152              		.loc 1 195 0
+ 153 0084 07F11407 		add	r7, r7, #20
+ 154 0088 BD46     		mov	sp, r7
+ 155 008a 80BC     		pop	{r7}
+ 156 008c 7047     		bx	lr
+ 157              		.cfi_endproc
+ 158              	.LFE1:
+ 160 008e 00BF     		.section	.text.EthernetConfigGet,"ax",%progbits
+ 161              		.align	2
+ 162              		.global	EthernetConfigGet
+ 163              		.thumb
+ 164              		.thumb_func
+ 166              	EthernetConfigGet:
+ 167              	.LFB2:
+ 196:C:/StellarisWare/driverlib\ethernet.c **** 
+ 197:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 198:C:/StellarisWare/driverlib\ethernet.c **** //
+ 199:C:/StellarisWare/driverlib\ethernet.c **** //! Gets the current configuration of the Ethernet controller.
+ 200:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 201:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 202:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 203:C:/StellarisWare/driverlib\ethernet.c **** //! This function queries the control registers of the Ethernet controller
+ 204:C:/StellarisWare/driverlib\ethernet.c **** //! and returns a bit-mapped configuration value.
+ 205:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 206:C:/StellarisWare/driverlib\ethernet.c **** //! \sa The description of the EthernetConfigSet() function provides detailed
+ 207:C:/StellarisWare/driverlib\ethernet.c **** //! information for the bit-mapped configuration values that are returned.
+ 208:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 209:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the bit-mapped Ethernet controller configuration value.
+ 210:C:/StellarisWare/driverlib\ethernet.c **** //
+ 211:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 212:C:/StellarisWare/driverlib\ethernet.c **** unsigned long
+ 213:C:/StellarisWare/driverlib\ethernet.c **** EthernetConfigGet(unsigned long ulBase)
+ 214:C:/StellarisWare/driverlib\ethernet.c **** {
+ 168              		.loc 1 214 0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 16
+ 171              		@ frame_needed = 1, uses_anonymous_args = 0
+ 172              		@ link register save eliminated.
+ 173 0000 80B4     		push	{r7}
+ 174              	.LCFI6:
+ 175              		.cfi_def_cfa_offset 4
+ 176              		.cfi_offset 7, -4
+ 177 0002 85B0     		sub	sp, sp, #20
+ 178              	.LCFI7:
+ 179              		.cfi_def_cfa_offset 24
+ 180 0004 00AF     		add	r7, sp, #0
+ 181              	.LCFI8:
+ 182              		.cfi_def_cfa_register 7
+ 183 0006 7860     		str	r0, [r7, #4]
+ 215:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulConfig;
+ 216:C:/StellarisWare/driverlib\ethernet.c **** 
+ 217:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 218:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 219:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 220:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 221:C:/StellarisWare/driverlib\ethernet.c **** 
+ 222:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 223:C:/StellarisWare/driverlib\ethernet.c ****     // Read and return the Ethernet controller configuration parameters,
+ 224:C:/StellarisWare/driverlib\ethernet.c ****     // properly shifted into the appropriate bit field positions.
+ 225:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 226:C:/StellarisWare/driverlib\ethernet.c ****     ulConfig = HWREG(ulBase + MAC_O_TS) << 16;
+ 184              		.loc 1 226 0
+ 185 0008 7B68     		ldr	r3, [r7, #4]
+ 186 000a 03F13C03 		add	r3, r3, #60
+ 187 000e 1B68     		ldr	r3, [r3, #0]
+ 188 0010 4FEA0343 		lsl	r3, r3, #16
+ 189 0014 FB60     		str	r3, [r7, #12]
+ 227:C:/StellarisWare/driverlib\ethernet.c ****     ulConfig |= (HWREG(ulBase + MAC_O_RCTL) & ~(MAC_RCTL_RXEN)) << 8;
+ 190              		.loc 1 227 0
+ 191 0016 7B68     		ldr	r3, [r7, #4]
+ 192 0018 03F10803 		add	r3, r3, #8
+ 193 001c 1B68     		ldr	r3, [r3, #0]
+ 194 001e 23F00103 		bic	r3, r3, #1
+ 195 0022 4FEA0323 		lsl	r3, r3, #8
+ 196 0026 FA68     		ldr	r2, [r7, #12]
+ 197 0028 1343     		orrs	r3, r3, r2
+ 198 002a FB60     		str	r3, [r7, #12]
+ 228:C:/StellarisWare/driverlib\ethernet.c ****     ulConfig |= HWREG(ulBase + MAC_O_TCTL) & ~(MAC_TCTL_TXEN);
+ 199              		.loc 1 228 0
+ 200 002c 7B68     		ldr	r3, [r7, #4]
+ 201 002e 03F10C03 		add	r3, r3, #12
+ 202 0032 1B68     		ldr	r3, [r3, #0]
+ 203 0034 23F00103 		bic	r3, r3, #1
+ 204 0038 FA68     		ldr	r2, [r7, #12]
+ 205 003a 1343     		orrs	r3, r3, r2
+ 206 003c FB60     		str	r3, [r7, #12]
+ 229:C:/StellarisWare/driverlib\ethernet.c ****     return(ulConfig);
+ 207              		.loc 1 229 0
+ 208 003e FB68     		ldr	r3, [r7, #12]
+ 230:C:/StellarisWare/driverlib\ethernet.c **** }
+ 209              		.loc 1 230 0
+ 210 0040 1846     		mov	r0, r3
+ 211 0042 07F11407 		add	r7, r7, #20
+ 212 0046 BD46     		mov	sp, r7
+ 213 0048 80BC     		pop	{r7}
+ 214 004a 7047     		bx	lr
+ 215              		.cfi_endproc
+ 216              	.LFE2:
+ 218              		.section	.text.EthernetMACAddrSet,"ax",%progbits
+ 219              		.align	2
+ 220              		.global	EthernetMACAddrSet
+ 221              		.thumb
+ 222              		.thumb_func
+ 224              	EthernetMACAddrSet:
+ 225              	.LFB3:
+ 231:C:/StellarisWare/driverlib\ethernet.c **** 
+ 232:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 233:C:/StellarisWare/driverlib\ethernet.c **** //
+ 234:C:/StellarisWare/driverlib\ethernet.c **** //! Sets the MAC address of the Ethernet controller.
+ 235:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 236:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 237:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucMACAddr is the pointer to the array of MAC-48 address octets.
+ 238:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 239:C:/StellarisWare/driverlib\ethernet.c **** //! This function programs the IEEE-defined MAC-48 address specified in
+ 240:C:/StellarisWare/driverlib\ethernet.c **** //! \e pucMACAddr into the Ethernet controller.  This address is used by the
+ 241:C:/StellarisWare/driverlib\ethernet.c **** //! Ethernet controller for hardware-level filtering of incoming Ethernet
+ 242:C:/StellarisWare/driverlib\ethernet.c **** //! packets (when promiscuous mode is not enabled).
+ 243:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 244:C:/StellarisWare/driverlib\ethernet.c **** //! The MAC-48 address is defined as 6 octets, illustrated by the following
+ 245:C:/StellarisWare/driverlib\ethernet.c **** //! example address.  The numbers are shown in hexadecimal format.
+ 246:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 247:C:/StellarisWare/driverlib\ethernet.c **** //!         AC-DE-48-00-00-80
+ 248:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 249:C:/StellarisWare/driverlib\ethernet.c **** //! In this representation, the first three octets (AC-DE-48) are the
+ 250:C:/StellarisWare/driverlib\ethernet.c **** //! Organizationally Unique Identifier (OUI).  This is a number assigned by
+ 251:C:/StellarisWare/driverlib\ethernet.c **** //! the IEEE to an organization that requests a block of MAC addresses.  The
+ 252:C:/StellarisWare/driverlib\ethernet.c **** //! last three octets (00-00-80) are a 24-bit number managed by the OUI owner
+ 253:C:/StellarisWare/driverlib\ethernet.c **** //! to uniquely identify a piece of hardware within that organization that is
+ 254:C:/StellarisWare/driverlib\ethernet.c **** //! to be connected to the Ethernet.
+ 255:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 256:C:/StellarisWare/driverlib\ethernet.c **** //! In this representation, the octets are transmitted from left to right,
+ 257:C:/StellarisWare/driverlib\ethernet.c **** //! with the ``AC'' octet being transmitted first and the ``80'' octet being
+ 258:C:/StellarisWare/driverlib\ethernet.c **** //! transmitted last.  Within an octet, the bits are transmitted LSB to MSB.
+ 259:C:/StellarisWare/driverlib\ethernet.c **** //! For this address, the first bit to be transmitted would be ``0'', the LSB
+ 260:C:/StellarisWare/driverlib\ethernet.c **** //! of ``AC'', and the last bit to be transmitted would be ``1'', the MSB of
+ 261:C:/StellarisWare/driverlib\ethernet.c **** //! ``80''.
+ 262:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 263:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 264:C:/StellarisWare/driverlib\ethernet.c **** //
+ 265:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 266:C:/StellarisWare/driverlib\ethernet.c **** void
+ 267:C:/StellarisWare/driverlib\ethernet.c **** EthernetMACAddrSet(unsigned long ulBase, unsigned char *pucMACAddr)
+ 268:C:/StellarisWare/driverlib\ethernet.c **** {
+ 226              		.loc 1 268 0
+ 227              		.cfi_startproc
+ 228              		@ args = 0, pretend = 0, frame = 16
+ 229              		@ frame_needed = 1, uses_anonymous_args = 0
+ 230              		@ link register save eliminated.
+ 231 0000 80B4     		push	{r7}
+ 232              	.LCFI9:
+ 233              		.cfi_def_cfa_offset 4
+ 234              		.cfi_offset 7, -4
+ 235 0002 85B0     		sub	sp, sp, #20
+ 236              	.LCFI10:
+ 237              		.cfi_def_cfa_offset 24
+ 238 0004 00AF     		add	r7, sp, #0
+ 239              	.LCFI11:
+ 240              		.cfi_def_cfa_register 7
+ 241 0006 7860     		str	r0, [r7, #4]
+ 242 0008 3960     		str	r1, [r7, #0]
+ 269:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulTemp;
+ 270:C:/StellarisWare/driverlib\ethernet.c ****     unsigned char *pucTemp = (unsigned char *)&ulTemp;
+ 243              		.loc 1 270 0
+ 244 000a 07F10803 		add	r3, r7, #8
+ 245 000e FB60     		str	r3, [r7, #12]
+ 271:C:/StellarisWare/driverlib\ethernet.c **** 
+ 272:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 273:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 274:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 275:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 276:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucMACAddr != 0);
+ 277:C:/StellarisWare/driverlib\ethernet.c **** 
+ 278:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 279:C:/StellarisWare/driverlib\ethernet.c ****     // Program the MAC Address into the device.  The first four bytes of the
+ 280:C:/StellarisWare/driverlib\ethernet.c ****     // MAC Address are placed into the IA0 register.  The remaining two bytes
+ 281:C:/StellarisWare/driverlib\ethernet.c ****     // of the MAC address are placed into the IA1 register.
+ 282:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 283:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[0] = pucMACAddr[0];
+ 246              		.loc 1 283 0
+ 247 0010 3B68     		ldr	r3, [r7, #0]
+ 248 0012 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 249 0014 FB68     		ldr	r3, [r7, #12]
+ 250 0016 1A70     		strb	r2, [r3, #0]
+ 284:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[1] = pucMACAddr[1];
+ 251              		.loc 1 284 0
+ 252 0018 FB68     		ldr	r3, [r7, #12]
+ 253 001a 03F10103 		add	r3, r3, #1
+ 254 001e 3A68     		ldr	r2, [r7, #0]
+ 255 0020 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 256 0022 1A70     		strb	r2, [r3, #0]
+ 285:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[2] = pucMACAddr[2];
+ 257              		.loc 1 285 0
+ 258 0024 FB68     		ldr	r3, [r7, #12]
+ 259 0026 03F10203 		add	r3, r3, #2
+ 260 002a 3A68     		ldr	r2, [r7, #0]
+ 261 002c 9278     		ldrb	r2, [r2, #2]	@ zero_extendqisi2
+ 262 002e 1A70     		strb	r2, [r3, #0]
+ 286:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[3] = pucMACAddr[3];
+ 263              		.loc 1 286 0
+ 264 0030 FB68     		ldr	r3, [r7, #12]
+ 265 0032 03F10303 		add	r3, r3, #3
+ 266 0036 3A68     		ldr	r2, [r7, #0]
+ 267 0038 D278     		ldrb	r2, [r2, #3]	@ zero_extendqisi2
+ 268 003a 1A70     		strb	r2, [r3, #0]
+ 287:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_IA0) = ulTemp;
+ 269              		.loc 1 287 0
+ 270 003c 7B68     		ldr	r3, [r7, #4]
+ 271 003e 03F11403 		add	r3, r3, #20
+ 272 0042 BA68     		ldr	r2, [r7, #8]
+ 273 0044 1A60     		str	r2, [r3, #0]
+ 288:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = 0;
+ 274              		.loc 1 288 0
+ 275 0046 4FF00003 		mov	r3, #0
+ 276 004a BB60     		str	r3, [r7, #8]
+ 289:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[0] = pucMACAddr[4];
+ 277              		.loc 1 289 0
+ 278 004c 3B68     		ldr	r3, [r7, #0]
+ 279 004e 1A79     		ldrb	r2, [r3, #4]	@ zero_extendqisi2
+ 280 0050 FB68     		ldr	r3, [r7, #12]
+ 281 0052 1A70     		strb	r2, [r3, #0]
+ 290:C:/StellarisWare/driverlib\ethernet.c ****     pucTemp[1] = pucMACAddr[5];
+ 282              		.loc 1 290 0
+ 283 0054 FB68     		ldr	r3, [r7, #12]
+ 284 0056 03F10103 		add	r3, r3, #1
+ 285 005a 3A68     		ldr	r2, [r7, #0]
+ 286 005c 5279     		ldrb	r2, [r2, #5]	@ zero_extendqisi2
+ 287 005e 1A70     		strb	r2, [r3, #0]
+ 291:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_IA1) = ulTemp;
+ 288              		.loc 1 291 0
+ 289 0060 7B68     		ldr	r3, [r7, #4]
+ 290 0062 03F11803 		add	r3, r3, #24
+ 291 0066 BA68     		ldr	r2, [r7, #8]
+ 292 0068 1A60     		str	r2, [r3, #0]
+ 292:C:/StellarisWare/driverlib\ethernet.c **** }
+ 293              		.loc 1 292 0
+ 294 006a 07F11407 		add	r7, r7, #20
+ 295 006e BD46     		mov	sp, r7
+ 296 0070 80BC     		pop	{r7}
+ 297 0072 7047     		bx	lr
+ 298              		.cfi_endproc
+ 299              	.LFE3:
+ 301              		.section	.text.EthernetMACAddrGet,"ax",%progbits
+ 302              		.align	2
+ 303              		.global	EthernetMACAddrGet
+ 304              		.thumb
+ 305              		.thumb_func
+ 307              	EthernetMACAddrGet:
+ 308              	.LFB4:
+ 293:C:/StellarisWare/driverlib\ethernet.c **** 
+ 294:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 295:C:/StellarisWare/driverlib\ethernet.c **** //
+ 296:C:/StellarisWare/driverlib\ethernet.c **** //! Gets the MAC address of the Ethernet controller.
+ 297:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 298:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 299:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucMACAddr is the pointer to the location in which to store the
+ 300:C:/StellarisWare/driverlib\ethernet.c **** //! array of MAC-48 address octets.
+ 301:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 302:C:/StellarisWare/driverlib\ethernet.c **** //! This function reads the currently programmed MAC address into the
+ 303:C:/StellarisWare/driverlib\ethernet.c **** //! \e pucMACAddr buffer.
+ 304:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 305:C:/StellarisWare/driverlib\ethernet.c **** //! \sa Refer to EthernetMACAddrSet() API description for more details about
+ 306:C:/StellarisWare/driverlib\ethernet.c **** //! the MAC address format.
+ 307:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 308:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 309:C:/StellarisWare/driverlib\ethernet.c **** //
+ 310:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 311:C:/StellarisWare/driverlib\ethernet.c **** void
+ 312:C:/StellarisWare/driverlib\ethernet.c **** EthernetMACAddrGet(unsigned long ulBase, unsigned char *pucMACAddr)
+ 313:C:/StellarisWare/driverlib\ethernet.c **** {
+ 309              		.loc 1 313 0
+ 310              		.cfi_startproc
+ 311              		@ args = 0, pretend = 0, frame = 16
+ 312              		@ frame_needed = 1, uses_anonymous_args = 0
+ 313              		@ link register save eliminated.
+ 314 0000 80B4     		push	{r7}
+ 315              	.LCFI12:
+ 316              		.cfi_def_cfa_offset 4
+ 317              		.cfi_offset 7, -4
+ 318 0002 85B0     		sub	sp, sp, #20
+ 319              	.LCFI13:
+ 320              		.cfi_def_cfa_offset 24
+ 321 0004 00AF     		add	r7, sp, #0
+ 322              	.LCFI14:
+ 323              		.cfi_def_cfa_register 7
+ 324 0006 7860     		str	r0, [r7, #4]
+ 325 0008 3960     		str	r1, [r7, #0]
+ 314:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulTemp;
+ 315:C:/StellarisWare/driverlib\ethernet.c ****     unsigned char *pucTemp = (unsigned char *)&ulTemp;
+ 326              		.loc 1 315 0
+ 327 000a 07F10803 		add	r3, r7, #8
+ 328 000e FB60     		str	r3, [r7, #12]
+ 316:C:/StellarisWare/driverlib\ethernet.c **** 
+ 317:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 318:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 319:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 320:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 321:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucMACAddr != 0);
+ 322:C:/StellarisWare/driverlib\ethernet.c **** 
+ 323:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 324:C:/StellarisWare/driverlib\ethernet.c ****     // Read the MAC address from the device.  The first four bytes of the
+ 325:C:/StellarisWare/driverlib\ethernet.c ****     // MAC address are read from the IA0 register.  The remaining two bytes
+ 326:C:/StellarisWare/driverlib\ethernet.c ****     // of the MAC addres
+ 327:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 328:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = HWREG(ulBase + MAC_O_IA0);
+ 329              		.loc 1 328 0
+ 330 0010 7B68     		ldr	r3, [r7, #4]
+ 331 0012 03F11403 		add	r3, r3, #20
+ 332 0016 1B68     		ldr	r3, [r3, #0]
+ 333 0018 BB60     		str	r3, [r7, #8]
+ 329:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[0] = pucTemp[0];
+ 334              		.loc 1 329 0
+ 335 001a FB68     		ldr	r3, [r7, #12]
+ 336 001c 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 337 001e 3B68     		ldr	r3, [r7, #0]
+ 338 0020 1A70     		strb	r2, [r3, #0]
+ 330:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[1] = pucTemp[1];
+ 339              		.loc 1 330 0
+ 340 0022 3B68     		ldr	r3, [r7, #0]
+ 341 0024 03F10103 		add	r3, r3, #1
+ 342 0028 FA68     		ldr	r2, [r7, #12]
+ 343 002a 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 344 002c 1A70     		strb	r2, [r3, #0]
+ 331:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[2] = pucTemp[2];
+ 345              		.loc 1 331 0
+ 346 002e 3B68     		ldr	r3, [r7, #0]
+ 347 0030 03F10203 		add	r3, r3, #2
+ 348 0034 FA68     		ldr	r2, [r7, #12]
+ 349 0036 9278     		ldrb	r2, [r2, #2]	@ zero_extendqisi2
+ 350 0038 1A70     		strb	r2, [r3, #0]
+ 332:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[3] = pucTemp[3];
+ 351              		.loc 1 332 0
+ 352 003a 3B68     		ldr	r3, [r7, #0]
+ 353 003c 03F10303 		add	r3, r3, #3
+ 354 0040 FA68     		ldr	r2, [r7, #12]
+ 355 0042 D278     		ldrb	r2, [r2, #3]	@ zero_extendqisi2
+ 356 0044 1A70     		strb	r2, [r3, #0]
+ 333:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = HWREG(ulBase + MAC_O_IA1);
+ 357              		.loc 1 333 0
+ 358 0046 7B68     		ldr	r3, [r7, #4]
+ 359 0048 03F11803 		add	r3, r3, #24
+ 360 004c 1B68     		ldr	r3, [r3, #0]
+ 361 004e BB60     		str	r3, [r7, #8]
+ 334:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[4] = pucTemp[0];
+ 362              		.loc 1 334 0
+ 363 0050 3B68     		ldr	r3, [r7, #0]
+ 364 0052 03F10403 		add	r3, r3, #4
+ 365 0056 FA68     		ldr	r2, [r7, #12]
+ 366 0058 1278     		ldrb	r2, [r2, #0]	@ zero_extendqisi2
+ 367 005a 1A70     		strb	r2, [r3, #0]
+ 335:C:/StellarisWare/driverlib\ethernet.c ****     pucMACAddr[5] = pucTemp[1];
+ 368              		.loc 1 335 0
+ 369 005c 3B68     		ldr	r3, [r7, #0]
+ 370 005e 03F10503 		add	r3, r3, #5
+ 371 0062 FA68     		ldr	r2, [r7, #12]
+ 372 0064 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 373 0066 1A70     		strb	r2, [r3, #0]
+ 336:C:/StellarisWare/driverlib\ethernet.c **** }
+ 374              		.loc 1 336 0
+ 375 0068 07F11407 		add	r7, r7, #20
+ 376 006c BD46     		mov	sp, r7
+ 377 006e 80BC     		pop	{r7}
+ 378 0070 7047     		bx	lr
+ 379              		.cfi_endproc
+ 380              	.LFE4:
+ 382 0072 00BF     		.section	.text.EthernetEnable,"ax",%progbits
+ 383              		.align	2
+ 384              		.global	EthernetEnable
+ 385              		.thumb
+ 386              		.thumb_func
+ 388              	EthernetEnable:
+ 389              	.LFB5:
+ 337:C:/StellarisWare/driverlib\ethernet.c **** 
+ 338:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 339:C:/StellarisWare/driverlib\ethernet.c **** //
+ 340:C:/StellarisWare/driverlib\ethernet.c **** //! Enables the Ethernet controller for normal operation.
+ 341:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 342:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 343:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 344:C:/StellarisWare/driverlib\ethernet.c **** //! Once the Ethernet controller has been configured using the
+ 345:C:/StellarisWare/driverlib\ethernet.c **** //! EthernetConfigSet() function and the MAC address has been programmed using
+ 346:C:/StellarisWare/driverlib\ethernet.c **** //! the EthernetMACAddrSet() function, this API function can be called to
+ 347:C:/StellarisWare/driverlib\ethernet.c **** //! enable the controller for normal operation.
+ 348:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 349:C:/StellarisWare/driverlib\ethernet.c **** //! This function enables the controller's transmitter and receiver, and
+ 350:C:/StellarisWare/driverlib\ethernet.c **** //! resets the receive FIFO.
+ 351:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 352:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 353:C:/StellarisWare/driverlib\ethernet.c **** //
+ 354:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 355:C:/StellarisWare/driverlib\ethernet.c **** void
+ 356:C:/StellarisWare/driverlib\ethernet.c **** EthernetEnable(unsigned long ulBase)
+ 357:C:/StellarisWare/driverlib\ethernet.c **** {
+ 390              		.loc 1 357 0
+ 391              		.cfi_startproc
+ 392              		@ args = 0, pretend = 0, frame = 8
+ 393              		@ frame_needed = 1, uses_anonymous_args = 0
+ 394              		@ link register save eliminated.
+ 395 0000 80B4     		push	{r7}
+ 396              	.LCFI15:
+ 397              		.cfi_def_cfa_offset 4
+ 398              		.cfi_offset 7, -4
+ 399 0002 83B0     		sub	sp, sp, #12
+ 400              	.LCFI16:
+ 401              		.cfi_def_cfa_offset 16
+ 402 0004 00AF     		add	r7, sp, #0
+ 403              	.LCFI17:
+ 404              		.cfi_def_cfa_register 7
+ 405 0006 7860     		str	r0, [r7, #4]
+ 358:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 359:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 360:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 361:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 362:C:/StellarisWare/driverlib\ethernet.c **** 
+ 363:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 364:C:/StellarisWare/driverlib\ethernet.c ****     // Reset the receive FIFO.
+ 365:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 366:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) |= MAC_RCTL_RSTFIFO;
+ 406              		.loc 1 366 0
+ 407 0008 7B68     		ldr	r3, [r7, #4]
+ 408 000a 03F10803 		add	r3, r3, #8
+ 409 000e 7A68     		ldr	r2, [r7, #4]
+ 410 0010 02F10802 		add	r2, r2, #8
+ 411 0014 1268     		ldr	r2, [r2, #0]
+ 412 0016 42F01002 		orr	r2, r2, #16
+ 413 001a 1A60     		str	r2, [r3, #0]
+ 367:C:/StellarisWare/driverlib\ethernet.c **** 
+ 368:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 369:C:/StellarisWare/driverlib\ethernet.c ****     // Enable the Ethernet receiver.
+ 370:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 371:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) |= MAC_RCTL_RXEN;
+ 414              		.loc 1 371 0
+ 415 001c 7B68     		ldr	r3, [r7, #4]
+ 416 001e 03F10803 		add	r3, r3, #8
+ 417 0022 7A68     		ldr	r2, [r7, #4]
+ 418 0024 02F10802 		add	r2, r2, #8
+ 419 0028 1268     		ldr	r2, [r2, #0]
+ 420 002a 42F00102 		orr	r2, r2, #1
+ 421 002e 1A60     		str	r2, [r3, #0]
+ 372:C:/StellarisWare/driverlib\ethernet.c **** 
+ 373:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 374:C:/StellarisWare/driverlib\ethernet.c ****     // Enable Ethernet transmitter.
+ 375:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 376:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_TCTL) |= MAC_TCTL_TXEN;
+ 422              		.loc 1 376 0
+ 423 0030 7B68     		ldr	r3, [r7, #4]
+ 424 0032 03F10C03 		add	r3, r3, #12
+ 425 0036 7A68     		ldr	r2, [r7, #4]
+ 426 0038 02F10C02 		add	r2, r2, #12
+ 427 003c 1268     		ldr	r2, [r2, #0]
+ 428 003e 42F00102 		orr	r2, r2, #1
+ 429 0042 1A60     		str	r2, [r3, #0]
+ 377:C:/StellarisWare/driverlib\ethernet.c **** 
+ 378:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 379:C:/StellarisWare/driverlib\ethernet.c ****     // Reset the receive FIFO again, after the receiver has been enabled.
+ 380:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 381:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) |= MAC_RCTL_RSTFIFO;
+ 430              		.loc 1 381 0
+ 431 0044 7B68     		ldr	r3, [r7, #4]
+ 432 0046 03F10803 		add	r3, r3, #8
+ 433 004a 7A68     		ldr	r2, [r7, #4]
+ 434 004c 02F10802 		add	r2, r2, #8
+ 435 0050 1268     		ldr	r2, [r2, #0]
+ 436 0052 42F01002 		orr	r2, r2, #16
+ 437 0056 1A60     		str	r2, [r3, #0]
+ 382:C:/StellarisWare/driverlib\ethernet.c **** }
+ 438              		.loc 1 382 0
+ 439 0058 07F10C07 		add	r7, r7, #12
+ 440 005c BD46     		mov	sp, r7
+ 441 005e 80BC     		pop	{r7}
+ 442 0060 7047     		bx	lr
+ 443              		.cfi_endproc
+ 444              	.LFE5:
+ 446 0062 00BF     		.section	.text.EthernetDisable,"ax",%progbits
+ 447              		.align	2
+ 448              		.global	EthernetDisable
+ 449              		.thumb
+ 450              		.thumb_func
+ 452              	EthernetDisable:
+ 453              	.LFB6:
+ 383:C:/StellarisWare/driverlib\ethernet.c **** 
+ 384:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 385:C:/StellarisWare/driverlib\ethernet.c **** //
+ 386:C:/StellarisWare/driverlib\ethernet.c **** //! Disables the Ethernet controller.
+ 387:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 388:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 389:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 390:C:/StellarisWare/driverlib\ethernet.c **** //! When terminating operations on the Ethernet interface, this function should
+ 391:C:/StellarisWare/driverlib\ethernet.c **** //! be called.  This function disables the transmitter and receiver, and
+ 392:C:/StellarisWare/driverlib\ethernet.c **** //! clears out the receive FIFO.
+ 393:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 394:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 395:C:/StellarisWare/driverlib\ethernet.c **** //
+ 396:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 397:C:/StellarisWare/driverlib\ethernet.c **** void
+ 398:C:/StellarisWare/driverlib\ethernet.c **** EthernetDisable(unsigned long ulBase)
+ 399:C:/StellarisWare/driverlib\ethernet.c **** {
+ 454              		.loc 1 399 0
+ 455              		.cfi_startproc
+ 456              		@ args = 0, pretend = 0, frame = 8
+ 457              		@ frame_needed = 1, uses_anonymous_args = 0
+ 458              		@ link register save eliminated.
+ 459 0000 80B4     		push	{r7}
+ 460              	.LCFI18:
+ 461              		.cfi_def_cfa_offset 4
+ 462              		.cfi_offset 7, -4
+ 463 0002 83B0     		sub	sp, sp, #12
+ 464              	.LCFI19:
+ 465              		.cfi_def_cfa_offset 16
+ 466 0004 00AF     		add	r7, sp, #0
+ 467              	.LCFI20:
+ 468              		.cfi_def_cfa_register 7
+ 469 0006 7860     		str	r0, [r7, #4]
+ 400:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 401:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 402:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 403:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 404:C:/StellarisWare/driverlib\ethernet.c **** 
+ 405:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 406:C:/StellarisWare/driverlib\ethernet.c ****     // Reset the receive FIFO.
+ 407:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 408:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) |= MAC_RCTL_RSTFIFO;
+ 470              		.loc 1 408 0
+ 471 0008 7B68     		ldr	r3, [r7, #4]
+ 472 000a 03F10803 		add	r3, r3, #8
+ 473 000e 7A68     		ldr	r2, [r7, #4]
+ 474 0010 02F10802 		add	r2, r2, #8
+ 475 0014 1268     		ldr	r2, [r2, #0]
+ 476 0016 42F01002 		orr	r2, r2, #16
+ 477 001a 1A60     		str	r2, [r3, #0]
+ 409:C:/StellarisWare/driverlib\ethernet.c **** 
+ 410:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 411:C:/StellarisWare/driverlib\ethernet.c ****     // Disable the Ethernet transmitter.
+ 412:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 413:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_TCTL) &= ~(MAC_TCTL_TXEN);
+ 478              		.loc 1 413 0
+ 479 001c 7B68     		ldr	r3, [r7, #4]
+ 480 001e 03F10C03 		add	r3, r3, #12
+ 481 0022 7A68     		ldr	r2, [r7, #4]
+ 482 0024 02F10C02 		add	r2, r2, #12
+ 483 0028 1268     		ldr	r2, [r2, #0]
+ 484 002a 22F00102 		bic	r2, r2, #1
+ 485 002e 1A60     		str	r2, [r3, #0]
+ 414:C:/StellarisWare/driverlib\ethernet.c **** 
+ 415:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 416:C:/StellarisWare/driverlib\ethernet.c ****     // Disable the Ethernet receiver.
+ 417:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 418:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) &= ~(MAC_RCTL_RXEN);
+ 486              		.loc 1 418 0
+ 487 0030 7B68     		ldr	r3, [r7, #4]
+ 488 0032 03F10803 		add	r3, r3, #8
+ 489 0036 7A68     		ldr	r2, [r7, #4]
+ 490 0038 02F10802 		add	r2, r2, #8
+ 491 003c 1268     		ldr	r2, [r2, #0]
+ 492 003e 22F00102 		bic	r2, r2, #1
+ 493 0042 1A60     		str	r2, [r3, #0]
+ 419:C:/StellarisWare/driverlib\ethernet.c **** 
+ 420:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 421:C:/StellarisWare/driverlib\ethernet.c ****     // Reset the receive FIFO again, after the receiver has been disabled.
+ 422:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 423:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_RCTL) |= MAC_RCTL_RSTFIFO;
+ 494              		.loc 1 423 0
+ 495 0044 7B68     		ldr	r3, [r7, #4]
+ 496 0046 03F10803 		add	r3, r3, #8
+ 497 004a 7A68     		ldr	r2, [r7, #4]
+ 498 004c 02F10802 		add	r2, r2, #8
+ 499 0050 1268     		ldr	r2, [r2, #0]
+ 500 0052 42F01002 		orr	r2, r2, #16
+ 501 0056 1A60     		str	r2, [r3, #0]
+ 424:C:/StellarisWare/driverlib\ethernet.c **** }
+ 502              		.loc 1 424 0
+ 503 0058 07F10C07 		add	r7, r7, #12
+ 504 005c BD46     		mov	sp, r7
+ 505 005e 80BC     		pop	{r7}
+ 506 0060 7047     		bx	lr
+ 507              		.cfi_endproc
+ 508              	.LFE6:
+ 510 0062 00BF     		.section	.text.EthernetPacketAvail,"ax",%progbits
+ 511              		.align	2
+ 512              		.global	EthernetPacketAvail
+ 513              		.thumb
+ 514              		.thumb_func
+ 516              	EthernetPacketAvail:
+ 517              	.LFB7:
+ 425:C:/StellarisWare/driverlib\ethernet.c **** 
+ 426:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 427:C:/StellarisWare/driverlib\ethernet.c **** //
+ 428:C:/StellarisWare/driverlib\ethernet.c **** //! Check for packet available from the Ethernet controller.
+ 429:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 430:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 431:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 432:C:/StellarisWare/driverlib\ethernet.c **** //! The Ethernet controller provides a register that contains the number of
+ 433:C:/StellarisWare/driverlib\ethernet.c **** //! packets available in the receive FIFO.  When the last bytes of a packet are
+ 434:C:/StellarisWare/driverlib\ethernet.c **** //! successfully received (that is, the frame check sequence bytes), the packet
+ 435:C:/StellarisWare/driverlib\ethernet.c **** //! count is incremented.  Once the packet has been fully read (including the
+ 436:C:/StellarisWare/driverlib\ethernet.c **** //! frame check sequence bytes) from the FIFO, the packet count is decremented.
+ 437:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 438:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns \b true if there are one or more packets available in the
+ 439:C:/StellarisWare/driverlib\ethernet.c **** //! receive FIFO, including the current packet being read, and \b false
+ 440:C:/StellarisWare/driverlib\ethernet.c **** //! otherwise.
+ 441:C:/StellarisWare/driverlib\ethernet.c **** //
+ 442:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 443:C:/StellarisWare/driverlib\ethernet.c **** tBoolean
+ 444:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketAvail(unsigned long ulBase)
+ 445:C:/StellarisWare/driverlib\ethernet.c **** {
+ 518              		.loc 1 445 0
+ 519              		.cfi_startproc
+ 520              		@ args = 0, pretend = 0, frame = 8
+ 521              		@ frame_needed = 1, uses_anonymous_args = 0
+ 522              		@ link register save eliminated.
+ 523 0000 80B4     		push	{r7}
+ 524              	.LCFI21:
+ 525              		.cfi_def_cfa_offset 4
+ 526              		.cfi_offset 7, -4
+ 527 0002 83B0     		sub	sp, sp, #12
+ 528              	.LCFI22:
+ 529              		.cfi_def_cfa_offset 16
+ 530 0004 00AF     		add	r7, sp, #0
+ 531              	.LCFI23:
+ 532              		.cfi_def_cfa_register 7
+ 533 0006 7860     		str	r0, [r7, #4]
+ 446:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 447:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 448:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 449:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 450:C:/StellarisWare/driverlib\ethernet.c **** 
+ 451:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 452:C:/StellarisWare/driverlib\ethernet.c ****     // Return the availability of packets.
+ 453:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 454:C:/StellarisWare/driverlib\ethernet.c ****     return((HWREG(ulBase + MAC_O_NP) & MAC_NP_NPR_M) ? true : false);
+ 534              		.loc 1 454 0
+ 535 0008 7B68     		ldr	r3, [r7, #4]
+ 536 000a 03F13403 		add	r3, r3, #52
+ 537 000e 1B68     		ldr	r3, [r3, #0]
+ 538 0010 03F03F03 		and	r3, r3, #63
+ 539 0014 002B     		cmp	r3, #0
+ 540 0016 0CBF     		ite	eq
+ 541 0018 0023     		moveq	r3, #0
+ 542 001a 0123     		movne	r3, #1
+ 543 001c DBB2     		uxtb	r3, r3
+ 455:C:/StellarisWare/driverlib\ethernet.c **** }
+ 544              		.loc 1 455 0
+ 545 001e 1846     		mov	r0, r3
+ 546 0020 07F10C07 		add	r7, r7, #12
+ 547 0024 BD46     		mov	sp, r7
+ 548 0026 80BC     		pop	{r7}
+ 549 0028 7047     		bx	lr
+ 550              		.cfi_endproc
+ 551              	.LFE7:
+ 553 002a 00BF     		.section	.text.EthernetSpaceAvail,"ax",%progbits
+ 554              		.align	2
+ 555              		.global	EthernetSpaceAvail
+ 556              		.thumb
+ 557              		.thumb_func
+ 559              	EthernetSpaceAvail:
+ 560              	.LFB8:
+ 456:C:/StellarisWare/driverlib\ethernet.c **** 
+ 457:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 458:C:/StellarisWare/driverlib\ethernet.c **** //
+ 459:C:/StellarisWare/driverlib\ethernet.c **** //! Checks for packet space available in the Ethernet controller.
+ 460:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 461:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 462:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 463:C:/StellarisWare/driverlib\ethernet.c **** //! The Ethernet controller's transmit FIFO is designed to support a single
+ 464:C:/StellarisWare/driverlib\ethernet.c **** //! packet at a time.  After the packet has been written into the FIFO, the
+ 465:C:/StellarisWare/driverlib\ethernet.c **** //! transmit request bit must be set to enable the transmission of the packet.
+ 466:C:/StellarisWare/driverlib\ethernet.c **** //! Only after the packet has been transmitted can a new packet be written
+ 467:C:/StellarisWare/driverlib\ethernet.c **** //! into the FIFO.  This function simply checks to see if a packet is
+ 468:C:/StellarisWare/driverlib\ethernet.c **** //! in progress.  If so, there is no space available in the transmit FIFO.
+ 469:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 470:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns \b true if a space is available in the transmit FIFO, and
+ 471:C:/StellarisWare/driverlib\ethernet.c **** //! \b false otherwise.
+ 472:C:/StellarisWare/driverlib\ethernet.c **** //
+ 473:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 474:C:/StellarisWare/driverlib\ethernet.c **** tBoolean
+ 475:C:/StellarisWare/driverlib\ethernet.c **** EthernetSpaceAvail(unsigned long ulBase)
+ 476:C:/StellarisWare/driverlib\ethernet.c **** {
+ 561              		.loc 1 476 0
+ 562              		.cfi_startproc
+ 563              		@ args = 0, pretend = 0, frame = 8
+ 564              		@ frame_needed = 1, uses_anonymous_args = 0
+ 565              		@ link register save eliminated.
+ 566 0000 80B4     		push	{r7}
+ 567              	.LCFI24:
+ 568              		.cfi_def_cfa_offset 4
+ 569              		.cfi_offset 7, -4
+ 570 0002 83B0     		sub	sp, sp, #12
+ 571              	.LCFI25:
+ 572              		.cfi_def_cfa_offset 16
+ 573 0004 00AF     		add	r7, sp, #0
+ 574              	.LCFI26:
+ 575              		.cfi_def_cfa_register 7
+ 576 0006 7860     		str	r0, [r7, #4]
+ 477:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 478:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 479:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 480:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 481:C:/StellarisWare/driverlib\ethernet.c **** 
+ 482:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 483:C:/StellarisWare/driverlib\ethernet.c ****     // Return the availability of space.
+ 484:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 485:C:/StellarisWare/driverlib\ethernet.c ****     return((HWREG(ulBase + MAC_O_TR) & MAC_TR_NEWTX) ? false : true);
+ 577              		.loc 1 485 0
+ 578 0008 7B68     		ldr	r3, [r7, #4]
+ 579 000a 03F13803 		add	r3, r3, #56
+ 580 000e 1B68     		ldr	r3, [r3, #0]
+ 581 0010 03F00103 		and	r3, r3, #1
+ 582 0014 DBB2     		uxtb	r3, r3
+ 583 0016 002B     		cmp	r3, #0
+ 584 0018 02D0     		beq	.L10
+ 585              		.loc 1 485 0 is_stmt 0 discriminator 1
+ 586 001a 4FF00003 		mov	r3, #0
+ 587 001e 01E0     		b	.L11
+ 588              	.L10:
+ 589              		.loc 1 485 0 discriminator 2
+ 590 0020 4FF00103 		mov	r3, #1
+ 591              	.L11:
+ 486:C:/StellarisWare/driverlib\ethernet.c **** }
+ 592              		.loc 1 486 0 is_stmt 1 discriminator 3
+ 593 0024 1846     		mov	r0, r3
+ 594 0026 07F10C07 		add	r7, r7, #12
+ 595 002a BD46     		mov	sp, r7
+ 596 002c 80BC     		pop	{r7}
+ 597 002e 7047     		bx	lr
+ 598              		.cfi_endproc
+ 599              	.LFE8:
+ 601              		.section	.text.EthernetPacketGetInternal,"ax",%progbits
+ 602              		.align	2
+ 603              		.thumb
+ 604              		.thumb_func
+ 606              	EthernetPacketGetInternal:
+ 607              	.LFB9:
+ 487:C:/StellarisWare/driverlib\ethernet.c **** 
+ 488:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 489:C:/StellarisWare/driverlib\ethernet.c **** //
+ 490:C:/StellarisWare/driverlib\ethernet.c **** //! \internal
+ 491:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 492:C:/StellarisWare/driverlib\ethernet.c **** //! Internal function for reading a packet from the Ethernet controller.
+ 493:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 494:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 495:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 496:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is the maximum number of bytes to be read into the buffer.
+ 497:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 498:C:/StellarisWare/driverlib\ethernet.c **** //! Based on the following table of how the receive frame is stored in the
+ 499:C:/StellarisWare/driverlib\ethernet.c **** //! receive FIFO, this function will extract a packet from the FIFO and store
+ 500:C:/StellarisWare/driverlib\ethernet.c **** //! it in the packet buffer that was passed in.
+ 501:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 502:C:/StellarisWare/driverlib\ethernet.c **** //! Format of the data in the RX FIFO is as follows:
+ 503:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 504:C:/StellarisWare/driverlib\ethernet.c **** //! \verbatim
+ 505:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 506:C:/StellarisWare/driverlib\ethernet.c **** //! |         | 31:24    | 23:16    | 15:8     | 7:0      |
+ 507:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 508:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 0  | DA 2     | DA 1     | FL MSB   | FL LSB   |
+ 509:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 510:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 1  | DA 6     | DA 5     | DA 4     | DA 3     |
+ 511:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 512:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 2  | SA 4     | SA 3     | SA 2     | SA 1     |
+ 513:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 514:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 3  | FT LSB   | FT MSB   | SA 6     | SA 5     |
+ 515:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 516:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 4  | DATA 4   | DATA 3   | DATA 2   | DATA 1   |
+ 517:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 518:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 5  | DATA 8   | DATA 7   | DATA 6   | DATA 5   |
+ 519:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 520:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 6  | DATA 12  | DATA 11  | DATA 10  | DATA 9   |
+ 521:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 522:C:/StellarisWare/driverlib\ethernet.c **** //! | ...     |          |          |          |          |
+ 523:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 524:C:/StellarisWare/driverlib\ethernet.c **** //! | Word X  | DATA n   | DATA n-1 | DATA n-2 | DATA n-3 |
+ 525:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 526:C:/StellarisWare/driverlib\ethernet.c **** //! | Word Y  | FCS 4    | FCS 3    | FCS 2    | FCS 1    |
+ 527:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 528:C:/StellarisWare/driverlib\ethernet.c **** //! \endverbatim
+ 529:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 530:C:/StellarisWare/driverlib\ethernet.c **** //! Where FL is Frame Length, (FL + DA + SA + FT + DATA + FCS) Bytes.
+ 531:C:/StellarisWare/driverlib\ethernet.c **** //! Where DA is Destination (MAC) Address.
+ 532:C:/StellarisWare/driverlib\ethernet.c **** //! Where SA is Source (MAC) Address.
+ 533:C:/StellarisWare/driverlib\ethernet.c **** //! Where FT is Frame Type (or Frame Length for Ethernet).
+ 534:C:/StellarisWare/driverlib\ethernet.c **** //! Where DATA is Payload Data for the Ethernet Frame.
+ 535:C:/StellarisWare/driverlib\ethernet.c **** //! Where FCS is the Frame Check Sequence.
+ 536:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 537:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the negated packet length \b -n if the packet is too large
+ 538:C:/StellarisWare/driverlib\ethernet.c **** //! for \e pucBuf, and returns the packet length \b n otherwise.
+ 539:C:/StellarisWare/driverlib\ethernet.c **** //
+ 540:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 541:C:/StellarisWare/driverlib\ethernet.c **** static long
+ 542:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketGetInternal(unsigned long ulBase, unsigned char *pucBuf,
+ 543:C:/StellarisWare/driverlib\ethernet.c ****                           long lBufLen)
+ 544:C:/StellarisWare/driverlib\ethernet.c **** {
+ 608              		.loc 1 544 0
+ 609              		.cfi_startproc
+ 610              		@ args = 0, pretend = 0, frame = 32
+ 611              		@ frame_needed = 1, uses_anonymous_args = 0
+ 612              		@ link register save eliminated.
+ 613 0000 80B4     		push	{r7}
+ 614              	.LCFI27:
+ 615              		.cfi_def_cfa_offset 4
+ 616              		.cfi_offset 7, -4
+ 617 0002 89B0     		sub	sp, sp, #36
+ 618              	.LCFI28:
+ 619              		.cfi_def_cfa_offset 40
+ 620 0004 00AF     		add	r7, sp, #0
+ 621              	.LCFI29:
+ 622              		.cfi_def_cfa_register 7
+ 623 0006 F860     		str	r0, [r7, #12]
+ 624 0008 B960     		str	r1, [r7, #8]
+ 625 000a 7A60     		str	r2, [r7, #4]
+ 545:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulTemp;
+ 546:C:/StellarisWare/driverlib\ethernet.c ****     long lFrameLen, lTempLen;
+ 547:C:/StellarisWare/driverlib\ethernet.c ****     long i = 0;
+ 626              		.loc 1 547 0
+ 627 000c 4FF00003 		mov	r3, #0
+ 628 0010 FB61     		str	r3, [r7, #28]
+ 548:C:/StellarisWare/driverlib\ethernet.c **** 
+ 549:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 550:C:/StellarisWare/driverlib\ethernet.c ****     // Read WORD 0 (see format above) from the FIFO, set the receive
+ 551:C:/StellarisWare/driverlib\ethernet.c ****     // Frame Length and store the first two bytes of the destination
+ 552:C:/StellarisWare/driverlib\ethernet.c ****     // address in the receive buffer.
+ 553:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 554:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = HWREG(ulBase + MAC_O_DATA);
+ 629              		.loc 1 554 0
+ 630 0012 FB68     		ldr	r3, [r7, #12]
+ 631 0014 03F11003 		add	r3, r3, #16
+ 632 0018 1B68     		ldr	r3, [r3, #0]
+ 633 001a BB61     		str	r3, [r7, #24]
+ 555:C:/StellarisWare/driverlib\ethernet.c ****     lFrameLen = (long)(ulTemp & 0xFFFF);
+ 634              		.loc 1 555 0
+ 635 001c BB69     		ldr	r3, [r7, #24]
+ 636 001e 4FEA0343 		lsl	r3, r3, #16
+ 637 0022 4FEA1343 		lsr	r3, r3, #16
+ 638 0026 7B61     		str	r3, [r7, #20]
+ 556:C:/StellarisWare/driverlib\ethernet.c ****     pucBuf[i++] = (unsigned char) ((ulTemp >> 16) & 0xff);
+ 639              		.loc 1 556 0
+ 640 0028 FB69     		ldr	r3, [r7, #28]
+ 641 002a BA68     		ldr	r2, [r7, #8]
+ 642 002c D318     		adds	r3, r2, r3
+ 643 002e BA69     		ldr	r2, [r7, #24]
+ 644 0030 4FEA1242 		lsr	r2, r2, #16
+ 645 0034 D2B2     		uxtb	r2, r2
+ 646 0036 1A70     		strb	r2, [r3, #0]
+ 647 0038 FB69     		ldr	r3, [r7, #28]
+ 648 003a 03F10103 		add	r3, r3, #1
+ 649 003e FB61     		str	r3, [r7, #28]
+ 557:C:/StellarisWare/driverlib\ethernet.c ****     pucBuf[i++] = (unsigned char) ((ulTemp >> 24) & 0xff);
+ 650              		.loc 1 557 0
+ 651 0040 FB69     		ldr	r3, [r7, #28]
+ 652 0042 BA68     		ldr	r2, [r7, #8]
+ 653 0044 D318     		adds	r3, r2, r3
+ 654 0046 BA69     		ldr	r2, [r7, #24]
+ 655 0048 4FEA1262 		lsr	r2, r2, #24
+ 656 004c D2B2     		uxtb	r2, r2
+ 657 004e 1A70     		strb	r2, [r3, #0]
+ 658 0050 FB69     		ldr	r3, [r7, #28]
+ 659 0052 03F10103 		add	r3, r3, #1
+ 660 0056 FB61     		str	r3, [r7, #28]
+ 558:C:/StellarisWare/driverlib\ethernet.c **** 
+ 559:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 560:C:/StellarisWare/driverlib\ethernet.c ****     // Read all but the last WORD into the receive buffer.
+ 561:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 562:C:/StellarisWare/driverlib\ethernet.c ****     lTempLen = (lBufLen < (lFrameLen - 6)) ? lBufLen : (lFrameLen - 6);
+ 661              		.loc 1 562 0
+ 662 0058 7B69     		ldr	r3, [r7, #20]
+ 663 005a A3F10602 		sub	r2, r3, #6
+ 664 005e 7B68     		ldr	r3, [r7, #4]
+ 665 0060 9A42     		cmp	r2, r3
+ 666 0062 B8BF     		it	lt
+ 667 0064 1346     		movlt	r3, r2
+ 668 0066 3B61     		str	r3, [r7, #16]
+ 563:C:/StellarisWare/driverlib\ethernet.c ****     while(i <= (lTempLen - 4))
+ 669              		.loc 1 563 0
+ 670 0068 0BE0     		b	.L13
+ 671              	.L14:
+ 564:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 565:C:/StellarisWare/driverlib\ethernet.c ****         *(unsigned long *)&pucBuf[i] = HWREG(ulBase + MAC_O_DATA);
+ 672              		.loc 1 565 0
+ 673 006a FB69     		ldr	r3, [r7, #28]
+ 674 006c BA68     		ldr	r2, [r7, #8]
+ 675 006e D318     		adds	r3, r2, r3
+ 676 0070 FA68     		ldr	r2, [r7, #12]
+ 677 0072 02F11002 		add	r2, r2, #16
+ 678 0076 1268     		ldr	r2, [r2, #0]
+ 679 0078 1A60     		str	r2, [r3, #0]
+ 566:C:/StellarisWare/driverlib\ethernet.c ****         i += 4;
+ 680              		.loc 1 566 0
+ 681 007a FB69     		ldr	r3, [r7, #28]
+ 682 007c 03F10403 		add	r3, r3, #4
+ 683 0080 FB61     		str	r3, [r7, #28]
+ 684              	.L13:
+ 563:C:/StellarisWare/driverlib\ethernet.c ****     while(i <= (lTempLen - 4))
+ 685              		.loc 1 563 0 discriminator 1
+ 686 0082 3B69     		ldr	r3, [r7, #16]
+ 687 0084 A3F10402 		sub	r2, r3, #4
+ 688 0088 FB69     		ldr	r3, [r7, #28]
+ 689 008a 9A42     		cmp	r2, r3
+ 690 008c EDDA     		bge	.L14
+ 567:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 568:C:/StellarisWare/driverlib\ethernet.c **** 
+ 569:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 570:C:/StellarisWare/driverlib\ethernet.c ****     // Read the last 1, 2, or 3 BYTES into the buffer
+ 571:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 572:C:/StellarisWare/driverlib\ethernet.c ****     if(i < lTempLen)
+ 691              		.loc 1 572 0
+ 692 008e FA69     		ldr	r2, [r7, #28]
+ 693 0090 3B69     		ldr	r3, [r7, #16]
+ 694 0092 9A42     		cmp	r2, r3
+ 695 0094 71DA     		bge	.L22
+ 573:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 574:C:/StellarisWare/driverlib\ethernet.c ****         ulTemp = HWREG(ulBase + MAC_O_DATA);
+ 696              		.loc 1 574 0
+ 697 0096 FB68     		ldr	r3, [r7, #12]
+ 698 0098 03F11003 		add	r3, r3, #16
+ 699 009c 1B68     		ldr	r3, [r3, #0]
+ 700 009e BB61     		str	r3, [r7, #24]
+ 575:C:/StellarisWare/driverlib\ethernet.c ****         if(i == lTempLen - 3)
+ 701              		.loc 1 575 0
+ 702 00a0 3B69     		ldr	r3, [r7, #16]
+ 703 00a2 A3F10302 		sub	r2, r3, #3
+ 704 00a6 FB69     		ldr	r3, [r7, #28]
+ 705 00a8 9A42     		cmp	r2, r3
+ 706 00aa 26D1     		bne	.L16
+ 576:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 577:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  0) & 0xff);
+ 707              		.loc 1 577 0
+ 708 00ac FB69     		ldr	r3, [r7, #28]
+ 709 00ae BA68     		ldr	r2, [r7, #8]
+ 710 00b0 D318     		adds	r3, r2, r3
+ 711 00b2 BA69     		ldr	r2, [r7, #24]
+ 712 00b4 D2B2     		uxtb	r2, r2
+ 713 00b6 1A70     		strb	r2, [r3, #0]
+ 714 00b8 FB69     		ldr	r3, [r7, #28]
+ 715 00ba 03F10103 		add	r3, r3, #1
+ 716 00be FB61     		str	r3, [r7, #28]
+ 578:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  8) & 0xff);
+ 717              		.loc 1 578 0
+ 718 00c0 FB69     		ldr	r3, [r7, #28]
+ 719 00c2 BA68     		ldr	r2, [r7, #8]
+ 720 00c4 D318     		adds	r3, r2, r3
+ 721 00c6 BA69     		ldr	r2, [r7, #24]
+ 722 00c8 4FEA1222 		lsr	r2, r2, #8
+ 723 00cc D2B2     		uxtb	r2, r2
+ 724 00ce 1A70     		strb	r2, [r3, #0]
+ 725 00d0 FB69     		ldr	r3, [r7, #28]
+ 726 00d2 03F10103 		add	r3, r3, #1
+ 727 00d6 FB61     		str	r3, [r7, #28]
+ 579:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >> 16) & 0xff);
+ 728              		.loc 1 579 0
+ 729 00d8 FB69     		ldr	r3, [r7, #28]
+ 730 00da BA68     		ldr	r2, [r7, #8]
+ 731 00dc D318     		adds	r3, r2, r3
+ 732 00de BA69     		ldr	r2, [r7, #24]
+ 733 00e0 4FEA1242 		lsr	r2, r2, #16
+ 734 00e4 D2B2     		uxtb	r2, r2
+ 735 00e6 1A70     		strb	r2, [r3, #0]
+ 736 00e8 FB69     		ldr	r3, [r7, #28]
+ 737 00ea 03F10103 		add	r3, r3, #1
+ 738 00ee FB61     		str	r3, [r7, #28]
+ 580:C:/StellarisWare/driverlib\ethernet.c ****             i += 1;
+ 739              		.loc 1 580 0
+ 740 00f0 FB69     		ldr	r3, [r7, #28]
+ 741 00f2 03F10103 		add	r3, r3, #1
+ 742 00f6 FB61     		str	r3, [r7, #28]
+ 581:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 582:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == lTempLen - 2)
+ 583:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 584:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  0) & 0xff);
+ 585:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  8) & 0xff);
+ 586:C:/StellarisWare/driverlib\ethernet.c ****             i += 2;
+ 587:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 588:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == lTempLen - 1)
+ 589:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 590:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  0) & 0xff);
+ 591:C:/StellarisWare/driverlib\ethernet.c ****             i += 3;
+ 592:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 593:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 594:C:/StellarisWare/driverlib\ethernet.c **** 
+ 595:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 596:C:/StellarisWare/driverlib\ethernet.c ****     // Read any remaining WORDS (that did not fit into the buffer).
+ 597:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 598:C:/StellarisWare/driverlib\ethernet.c ****     while(i < (lFrameLen - 2))
+ 743              		.loc 1 598 0
+ 744 00f8 3FE0     		b	.L22
+ 745              	.L16:
+ 582:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == lTempLen - 2)
+ 746              		.loc 1 582 0
+ 747 00fa 3B69     		ldr	r3, [r7, #16]
+ 748 00fc A3F10202 		sub	r2, r3, #2
+ 749 0100 FB69     		ldr	r3, [r7, #28]
+ 750 0102 9A42     		cmp	r2, r3
+ 751 0104 1AD1     		bne	.L17
+ 584:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  0) & 0xff);
+ 752              		.loc 1 584 0
+ 753 0106 FB69     		ldr	r3, [r7, #28]
+ 754 0108 BA68     		ldr	r2, [r7, #8]
+ 755 010a D318     		adds	r3, r2, r3
+ 756 010c BA69     		ldr	r2, [r7, #24]
+ 757 010e D2B2     		uxtb	r2, r2
+ 758 0110 1A70     		strb	r2, [r3, #0]
+ 759 0112 FB69     		ldr	r3, [r7, #28]
+ 760 0114 03F10103 		add	r3, r3, #1
+ 761 0118 FB61     		str	r3, [r7, #28]
+ 585:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  8) & 0xff);
+ 762              		.loc 1 585 0
+ 763 011a FB69     		ldr	r3, [r7, #28]
+ 764 011c BA68     		ldr	r2, [r7, #8]
+ 765 011e D318     		adds	r3, r2, r3
+ 766 0120 BA69     		ldr	r2, [r7, #24]
+ 767 0122 4FEA1222 		lsr	r2, r2, #8
+ 768 0126 D2B2     		uxtb	r2, r2
+ 769 0128 1A70     		strb	r2, [r3, #0]
+ 770 012a FB69     		ldr	r3, [r7, #28]
+ 771 012c 03F10103 		add	r3, r3, #1
+ 772 0130 FB61     		str	r3, [r7, #28]
+ 586:C:/StellarisWare/driverlib\ethernet.c ****             i += 2;
+ 773              		.loc 1 586 0
+ 774 0132 FB69     		ldr	r3, [r7, #28]
+ 775 0134 03F10203 		add	r3, r3, #2
+ 776 0138 FB61     		str	r3, [r7, #28]
+ 777              		.loc 1 598 0
+ 778 013a 1EE0     		b	.L22
+ 779              	.L17:
+ 588:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == lTempLen - 1)
+ 780              		.loc 1 588 0
+ 781 013c 3B69     		ldr	r3, [r7, #16]
+ 782 013e 03F1FF32 		add	r2, r3, #-1
+ 783 0142 FB69     		ldr	r3, [r7, #28]
+ 784 0144 9A42     		cmp	r2, r3
+ 785 0146 18D1     		bne	.L22
+ 590:C:/StellarisWare/driverlib\ethernet.c ****             pucBuf[i++] = ((ulTemp >>  0) & 0xff);
+ 786              		.loc 1 590 0
+ 787 0148 FB69     		ldr	r3, [r7, #28]
+ 788 014a BA68     		ldr	r2, [r7, #8]
+ 789 014c D318     		adds	r3, r2, r3
+ 790 014e BA69     		ldr	r2, [r7, #24]
+ 791 0150 D2B2     		uxtb	r2, r2
+ 792 0152 1A70     		strb	r2, [r3, #0]
+ 793 0154 FB69     		ldr	r3, [r7, #28]
+ 794 0156 03F10103 		add	r3, r3, #1
+ 795 015a FB61     		str	r3, [r7, #28]
+ 591:C:/StellarisWare/driverlib\ethernet.c ****             i += 3;
+ 796              		.loc 1 591 0
+ 797 015c FB69     		ldr	r3, [r7, #28]
+ 798 015e 03F10303 		add	r3, r3, #3
+ 799 0162 FB61     		str	r3, [r7, #28]
+ 800              		.loc 1 598 0
+ 801 0164 09E0     		b	.L22
+ 802              	.L19:
+ 599:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 600:C:/StellarisWare/driverlib\ethernet.c ****         ulTemp = HWREG(ulBase + MAC_O_DATA);
+ 803              		.loc 1 600 0
+ 804 0166 FB68     		ldr	r3, [r7, #12]
+ 805 0168 03F11003 		add	r3, r3, #16
+ 806 016c 1B68     		ldr	r3, [r3, #0]
+ 807 016e BB61     		str	r3, [r7, #24]
+ 601:C:/StellarisWare/driverlib\ethernet.c ****         i += 4;
+ 808              		.loc 1 601 0
+ 809 0170 FB69     		ldr	r3, [r7, #28]
+ 810 0172 03F10403 		add	r3, r3, #4
+ 811 0176 FB61     		str	r3, [r7, #28]
+ 812 0178 00E0     		b	.L18
+ 813              	.L22:
+ 598:C:/StellarisWare/driverlib\ethernet.c ****     while(i < (lFrameLen - 2))
+ 814              		.loc 1 598 0
+ 815 017a 00BF     		nop
+ 816              	.L18:
+ 598:C:/StellarisWare/driverlib\ethernet.c ****     while(i < (lFrameLen - 2))
+ 817              		.loc 1 598 0 is_stmt 0 discriminator 1
+ 818 017c 7B69     		ldr	r3, [r7, #20]
+ 819 017e A3F10202 		sub	r2, r3, #2
+ 820 0182 FB69     		ldr	r3, [r7, #28]
+ 821 0184 9A42     		cmp	r2, r3
+ 822 0186 EEDC     		bgt	.L19
+ 602:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 603:C:/StellarisWare/driverlib\ethernet.c **** 
+ 604:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 605:C:/StellarisWare/driverlib\ethernet.c ****     // If frame was larger than the buffer, return the "negative" frame length
+ 606:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 607:C:/StellarisWare/driverlib\ethernet.c ****     lFrameLen -= 6;
+ 823              		.loc 1 607 0 is_stmt 1
+ 824 0188 7B69     		ldr	r3, [r7, #20]
+ 825 018a A3F10603 		sub	r3, r3, #6
+ 826 018e 7B61     		str	r3, [r7, #20]
+ 608:C:/StellarisWare/driverlib\ethernet.c ****     if(lFrameLen > lBufLen)
+ 827              		.loc 1 608 0
+ 828 0190 7A69     		ldr	r2, [r7, #20]
+ 829 0192 7B68     		ldr	r3, [r7, #4]
+ 830 0194 9A42     		cmp	r2, r3
+ 831 0196 03DD     		ble	.L20
+ 609:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 610:C:/StellarisWare/driverlib\ethernet.c ****         return(-lFrameLen);
+ 832              		.loc 1 610 0
+ 833 0198 7B69     		ldr	r3, [r7, #20]
+ 834 019a C3F10003 		rsb	r3, r3, #0
+ 835 019e 00E0     		b	.L21
+ 836              	.L20:
+ 611:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 612:C:/StellarisWare/driverlib\ethernet.c **** 
+ 613:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 614:C:/StellarisWare/driverlib\ethernet.c ****     // Return the Frame Length
+ 615:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 616:C:/StellarisWare/driverlib\ethernet.c ****     return(lFrameLen);
+ 837              		.loc 1 616 0
+ 838 01a0 7B69     		ldr	r3, [r7, #20]
+ 839              	.L21:
+ 617:C:/StellarisWare/driverlib\ethernet.c **** }
+ 840              		.loc 1 617 0
+ 841 01a2 1846     		mov	r0, r3
+ 842 01a4 07F12407 		add	r7, r7, #36
+ 843 01a8 BD46     		mov	sp, r7
+ 844 01aa 80BC     		pop	{r7}
+ 845 01ac 7047     		bx	lr
+ 846              		.cfi_endproc
+ 847              	.LFE9:
+ 849 01ae 00BF     		.section	.text.EthernetPacketGetNonBlocking,"ax",%progbits
+ 850              		.align	2
+ 851              		.global	EthernetPacketGetNonBlocking
+ 852              		.thumb
+ 853              		.thumb_func
+ 855              	EthernetPacketGetNonBlocking:
+ 856              	.LFB10:
+ 618:C:/StellarisWare/driverlib\ethernet.c **** 
+ 619:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 620:C:/StellarisWare/driverlib\ethernet.c **** //
+ 621:C:/StellarisWare/driverlib\ethernet.c **** //! Receives a packet from the Ethernet controller.
+ 622:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 623:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 624:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 625:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is the maximum number of bytes to be read into the buffer.
+ 626:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 627:C:/StellarisWare/driverlib\ethernet.c **** //! This function reads a packet from the receive FIFO of the controller and
+ 628:C:/StellarisWare/driverlib\ethernet.c **** //! places it into \e pucBuf.  If no packet is available the function
+ 629:C:/StellarisWare/driverlib\ethernet.c **** //! returns immediately.  Otherwise, the function reads the entire packet
+ 630:C:/StellarisWare/driverlib\ethernet.c **** //! from the receive FIFO.  If there are more bytes in the packet than can fit
+ 631:C:/StellarisWare/driverlib\ethernet.c **** //! into \e pucBuf (as specified by \e lBufLen), the function returns the
+ 632:C:/StellarisWare/driverlib\ethernet.c **** //! negated length of the packet and the buffer contains \e lBufLen bytes
+ 633:C:/StellarisWare/driverlib\ethernet.c **** //! of the packet.  Otherwise, the function returns the length of the
+ 634:C:/StellarisWare/driverlib\ethernet.c **** //! packet that was read and \e pucBuf contains the entire packet
+ 635:C:/StellarisWare/driverlib\ethernet.c **** //! (excluding the frame check sequence bytes).
+ 636:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 637:C:/StellarisWare/driverlib\ethernet.c **** //! This function replaces the original EthernetPacketNonBlockingGet() API and
+ 638:C:/StellarisWare/driverlib\ethernet.c **** //! performs the same actions.  A macro is provided in <tt>ethernet.h</tt> to
+ 639:C:/StellarisWare/driverlib\ethernet.c **** //! map the original API to this API.
+ 640:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 641:C:/StellarisWare/driverlib\ethernet.c **** //! \note This function returns immediately if no packet is available.
+ 642:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 643:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns \b 0 if no packet is available, the negated packet length
+ 644:C:/StellarisWare/driverlib\ethernet.c **** //! \b -n if the packet is too large for \e pucBuf, and the packet length \b n
+ 645:C:/StellarisWare/driverlib\ethernet.c **** //! otherwise.
+ 646:C:/StellarisWare/driverlib\ethernet.c **** //
+ 647:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 648:C:/StellarisWare/driverlib\ethernet.c **** long
+ 649:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketGetNonBlocking(unsigned long ulBase, unsigned char *pucBuf,
+ 650:C:/StellarisWare/driverlib\ethernet.c ****                              long lBufLen)
+ 651:C:/StellarisWare/driverlib\ethernet.c **** {
+ 857              		.loc 1 651 0
+ 858              		.cfi_startproc
+ 859              		@ args = 0, pretend = 0, frame = 16
+ 860              		@ frame_needed = 1, uses_anonymous_args = 0
+ 861 0000 80B5     		push	{r7, lr}
+ 862              	.LCFI30:
+ 863              		.cfi_def_cfa_offset 8
+ 864              		.cfi_offset 14, -4
+ 865              		.cfi_offset 7, -8
+ 866 0002 84B0     		sub	sp, sp, #16
+ 867              	.LCFI31:
+ 868              		.cfi_def_cfa_offset 24
+ 869 0004 00AF     		add	r7, sp, #0
+ 870              	.LCFI32:
+ 871              		.cfi_def_cfa_register 7
+ 872 0006 F860     		str	r0, [r7, #12]
+ 873 0008 B960     		str	r1, [r7, #8]
+ 874 000a 7A60     		str	r2, [r7, #4]
+ 652:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 653:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 654:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 655:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 656:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucBuf != 0);
+ 657:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(lBufLen > 0);
+ 658:C:/StellarisWare/driverlib\ethernet.c **** 
+ 659:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 660:C:/StellarisWare/driverlib\ethernet.c ****     // Check to see if any packets are available.
+ 661:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 662:C:/StellarisWare/driverlib\ethernet.c ****     if((HWREG(ulBase + MAC_O_NP) & MAC_NP_NPR_M) == 0)
+ 875              		.loc 1 662 0
+ 876 000c FB68     		ldr	r3, [r7, #12]
+ 877 000e 03F13403 		add	r3, r3, #52
+ 878 0012 1B68     		ldr	r3, [r3, #0]
+ 879 0014 03F03F03 		and	r3, r3, #63
+ 880 0018 002B     		cmp	r3, #0
+ 881 001a 02D1     		bne	.L24
+ 663:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 664:C:/StellarisWare/driverlib\ethernet.c ****         return(0);
+ 882              		.loc 1 664 0
+ 883 001c 4FF00003 		mov	r3, #0
+ 884 0020 05E0     		b	.L25
+ 885              	.L24:
+ 665:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 666:C:/StellarisWare/driverlib\ethernet.c **** 
+ 667:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 668:C:/StellarisWare/driverlib\ethernet.c ****     // Read the packet, and return.
+ 669:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 670:C:/StellarisWare/driverlib\ethernet.c ****     return(EthernetPacketGetInternal(ulBase, pucBuf, lBufLen));
+ 886              		.loc 1 670 0
+ 887 0022 F868     		ldr	r0, [r7, #12]
+ 888 0024 B968     		ldr	r1, [r7, #8]
+ 889 0026 7A68     		ldr	r2, [r7, #4]
+ 890 0028 FFF7FEFF 		bl	EthernetPacketGetInternal
+ 891 002c 0346     		mov	r3, r0
+ 892              	.L25:
+ 671:C:/StellarisWare/driverlib\ethernet.c **** }
+ 893              		.loc 1 671 0
+ 894 002e 1846     		mov	r0, r3
+ 895 0030 07F11007 		add	r7, r7, #16
+ 896 0034 BD46     		mov	sp, r7
+ 897 0036 80BD     		pop	{r7, pc}
+ 898              		.cfi_endproc
+ 899              	.LFE10:
+ 901              		.section	.text.EthernetPacketGet,"ax",%progbits
+ 902              		.align	2
+ 903              		.global	EthernetPacketGet
+ 904              		.thumb
+ 905              		.thumb_func
+ 907              	EthernetPacketGet:
+ 908              	.LFB11:
+ 672:C:/StellarisWare/driverlib\ethernet.c **** 
+ 673:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 674:C:/StellarisWare/driverlib\ethernet.c **** //
+ 675:C:/StellarisWare/driverlib\ethernet.c **** //! Waits for a packet from the Ethernet controller.
+ 676:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 677:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 678:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 679:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is the maximum number of bytes to be read into the buffer.
+ 680:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 681:C:/StellarisWare/driverlib\ethernet.c **** //! This function reads a packet from the receive FIFO of the controller and
+ 682:C:/StellarisWare/driverlib\ethernet.c **** //! places it into \e pucBuf.  The function waits until a packet is
+ 683:C:/StellarisWare/driverlib\ethernet.c **** //! available in the FIFO.  Then the function reads the entire packet
+ 684:C:/StellarisWare/driverlib\ethernet.c **** //! from the receive FIFO.  If there are more bytes in the packet than can
+ 685:C:/StellarisWare/driverlib\ethernet.c **** //! fit into \e pucBuf (as specified by \e lBufLen), the function returns
+ 686:C:/StellarisWare/driverlib\ethernet.c **** //! the negated length of the packet and the buffer contains \e lBufLen
+ 687:C:/StellarisWare/driverlib\ethernet.c **** //! bytes of the packet.  Otherwise, the function returns the length of
+ 688:C:/StellarisWare/driverlib\ethernet.c **** //! the packet that was read and \e pucBuf contains the entire packet
+ 689:C:/StellarisWare/driverlib\ethernet.c **** //! (excluding the frame check sequence bytes).
+ 690:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 691:C:/StellarisWare/driverlib\ethernet.c **** //! \note This function is blocking and does not return until a packet arrives.
+ 692:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 693:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the negated packet length \b -n if the packet is too large
+ 694:C:/StellarisWare/driverlib\ethernet.c **** //! for \e pucBuf, and returns the packet length \b n otherwise.
+ 695:C:/StellarisWare/driverlib\ethernet.c **** //
+ 696:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 697:C:/StellarisWare/driverlib\ethernet.c **** long
+ 698:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketGet(unsigned long ulBase, unsigned char *pucBuf,
+ 699:C:/StellarisWare/driverlib\ethernet.c ****                   long lBufLen)
+ 700:C:/StellarisWare/driverlib\ethernet.c **** {
+ 909              		.loc 1 700 0
+ 910              		.cfi_startproc
+ 911              		@ args = 0, pretend = 0, frame = 16
+ 912              		@ frame_needed = 1, uses_anonymous_args = 0
+ 913 0000 80B5     		push	{r7, lr}
+ 914              	.LCFI33:
+ 915              		.cfi_def_cfa_offset 8
+ 916              		.cfi_offset 14, -4
+ 917              		.cfi_offset 7, -8
+ 918 0002 84B0     		sub	sp, sp, #16
+ 919              	.LCFI34:
+ 920              		.cfi_def_cfa_offset 24
+ 921 0004 00AF     		add	r7, sp, #0
+ 922              	.LCFI35:
+ 923              		.cfi_def_cfa_register 7
+ 924 0006 F860     		str	r0, [r7, #12]
+ 925 0008 B960     		str	r1, [r7, #8]
+ 926 000a 7A60     		str	r2, [r7, #4]
+ 701:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 702:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 703:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 704:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 705:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucBuf != 0);
+ 706:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(lBufLen > 0);
+ 707:C:/StellarisWare/driverlib\ethernet.c **** 
+ 708:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 709:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for a packet to become available
+ 710:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 711:C:/StellarisWare/driverlib\ethernet.c ****     while((HWREG(ulBase + MAC_O_NP) & MAC_NP_NPR_M) == 0)
+ 927              		.loc 1 711 0
+ 928 000c 00BF     		nop
+ 929              	.L27:
+ 930              		.loc 1 711 0 is_stmt 0 discriminator 1
+ 931 000e FB68     		ldr	r3, [r7, #12]
+ 932 0010 03F13403 		add	r3, r3, #52
+ 933 0014 1B68     		ldr	r3, [r3, #0]
+ 934 0016 03F03F03 		and	r3, r3, #63
+ 935 001a 002B     		cmp	r3, #0
+ 936 001c F7D0     		beq	.L27
+ 712:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 713:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 714:C:/StellarisWare/driverlib\ethernet.c **** 
+ 715:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 716:C:/StellarisWare/driverlib\ethernet.c ****     // Read the packet
+ 717:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 718:C:/StellarisWare/driverlib\ethernet.c ****     return(EthernetPacketGetInternal(ulBase, pucBuf, lBufLen));
+ 937              		.loc 1 718 0 is_stmt 1
+ 938 001e F868     		ldr	r0, [r7, #12]
+ 939 0020 B968     		ldr	r1, [r7, #8]
+ 940 0022 7A68     		ldr	r2, [r7, #4]
+ 941 0024 FFF7FEFF 		bl	EthernetPacketGetInternal
+ 942 0028 0346     		mov	r3, r0
+ 719:C:/StellarisWare/driverlib\ethernet.c **** }
+ 943              		.loc 1 719 0
+ 944 002a 1846     		mov	r0, r3
+ 945 002c 07F11007 		add	r7, r7, #16
+ 946 0030 BD46     		mov	sp, r7
+ 947 0032 80BD     		pop	{r7, pc}
+ 948              		.cfi_endproc
+ 949              	.LFE11:
+ 951              		.section	.text.EthernetPacketPutInternal,"ax",%progbits
+ 952              		.align	2
+ 953              		.thumb
+ 954              		.thumb_func
+ 956              	EthernetPacketPutInternal:
+ 957              	.LFB12:
+ 720:C:/StellarisWare/driverlib\ethernet.c **** 
+ 721:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 722:C:/StellarisWare/driverlib\ethernet.c **** //
+ 723:C:/StellarisWare/driverlib\ethernet.c **** //! \internal
+ 724:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 725:C:/StellarisWare/driverlib\ethernet.c **** //! Internal function for sending a packet to the Ethernet controller.
+ 726:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 727:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 728:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 729:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is number of bytes in the packet to be transmitted.
+ 730:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 731:C:/StellarisWare/driverlib\ethernet.c **** //! Puts a packet into the transmit FIFO of the controller.
+ 732:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 733:C:/StellarisWare/driverlib\ethernet.c **** //! Format of the data in the TX FIFO is as follows:
+ 734:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 735:C:/StellarisWare/driverlib\ethernet.c **** //! \verbatim
+ 736:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 737:C:/StellarisWare/driverlib\ethernet.c **** //! |         | 31:24    | 23:16    | 15:8     | 7:0      |
+ 738:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 739:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 0  | DA 2     | DA 1     | PL MSB   | PL LSB   |
+ 740:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 741:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 1  | DA 6     | DA 5     | DA 4     | DA 3     |
+ 742:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 743:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 2  | SA 4     | SA 3     | SA 2     | SA 1     |
+ 744:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 745:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 3  | FT LSB   | FT MSB   | SA 6     | SA 5     |
+ 746:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 747:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 4  | DATA 4   | DATA 3   | DATA 2   | DATA 1   |
+ 748:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 749:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 5  | DATA 8   | DATA 7   | DATA 6   | DATA 5   |
+ 750:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 751:C:/StellarisWare/driverlib\ethernet.c **** //! | Word 6  | DATA 12  | DATA 11  | DATA 10  | DATA 9   |
+ 752:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 753:C:/StellarisWare/driverlib\ethernet.c **** //! | ...     |          |          |          |          |
+ 754:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 755:C:/StellarisWare/driverlib\ethernet.c **** //! | Word X  | DATA n   | DATA n-1 | DATA n-2 | DATA n-3 |
+ 756:C:/StellarisWare/driverlib\ethernet.c **** //! +---------+----------+----------+----------+----------+
+ 757:C:/StellarisWare/driverlib\ethernet.c **** //! \endverbatim
+ 758:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 759:C:/StellarisWare/driverlib\ethernet.c **** //! Where PL is Payload Length, (DATA) only
+ 760:C:/StellarisWare/driverlib\ethernet.c **** //! Where DA is Destination (MAC) Address
+ 761:C:/StellarisWare/driverlib\ethernet.c **** //! Where SA is Source (MAC) Address
+ 762:C:/StellarisWare/driverlib\ethernet.c **** //! Where FT is Frame Type (or Frame Length for Ethernet)
+ 763:C:/StellarisWare/driverlib\ethernet.c **** //! Where DATA is Payload Data for the Ethernet Frame
+ 764:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 765:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the negated packet length \b -lBufLen if the packet is too
+ 766:C:/StellarisWare/driverlib\ethernet.c **** //! large for FIFO, and the packet length \b lBufLen otherwise.
+ 767:C:/StellarisWare/driverlib\ethernet.c **** //
+ 768:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 769:C:/StellarisWare/driverlib\ethernet.c **** static long
+ 770:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketPutInternal(unsigned long ulBase, unsigned char *pucBuf,
+ 771:C:/StellarisWare/driverlib\ethernet.c ****                           long lBufLen)
+ 772:C:/StellarisWare/driverlib\ethernet.c **** {
+ 958              		.loc 1 772 0
+ 959              		.cfi_startproc
+ 960              		@ args = 0, pretend = 0, frame = 24
+ 961              		@ frame_needed = 1, uses_anonymous_args = 0
+ 962              		@ link register save eliminated.
+ 963 0000 80B4     		push	{r7}
+ 964              	.LCFI36:
+ 965              		.cfi_def_cfa_offset 4
+ 966              		.cfi_offset 7, -4
+ 967 0002 87B0     		sub	sp, sp, #28
+ 968              	.LCFI37:
+ 969              		.cfi_def_cfa_offset 32
+ 970 0004 00AF     		add	r7, sp, #0
+ 971              	.LCFI38:
+ 972              		.cfi_def_cfa_register 7
+ 973 0006 F860     		str	r0, [r7, #12]
+ 974 0008 B960     		str	r1, [r7, #8]
+ 975 000a 7A60     		str	r2, [r7, #4]
+ 773:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulTemp;
+ 774:C:/StellarisWare/driverlib\ethernet.c ****     long i = 0;
+ 976              		.loc 1 774 0
+ 977 000c 4FF00003 		mov	r3, #0
+ 978 0010 7B61     		str	r3, [r7, #20]
+ 775:C:/StellarisWare/driverlib\ethernet.c **** 
+ 776:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 777:C:/StellarisWare/driverlib\ethernet.c ****     // If the packet is too large, return the negative packet length as
+ 778:C:/StellarisWare/driverlib\ethernet.c ****     // an error code.
+ 779:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 780:C:/StellarisWare/driverlib\ethernet.c ****     if(lBufLen > (2048 - 2))
+ 979              		.loc 1 780 0
+ 980 0012 7A68     		ldr	r2, [r7, #4]
+ 981 0014 40F2FE73 		movw	r3, #2046
+ 982 0018 9A42     		cmp	r2, r3
+ 983 001a 03DD     		ble	.L29
+ 781:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 782:C:/StellarisWare/driverlib\ethernet.c ****         return(-lBufLen);
+ 984              		.loc 1 782 0
+ 985 001c 7B68     		ldr	r3, [r7, #4]
+ 986 001e C3F10003 		rsb	r3, r3, #0
+ 987 0022 A5E0     		b	.L30
+ 988              	.L29:
+ 783:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 784:C:/StellarisWare/driverlib\ethernet.c **** 
+ 785:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 786:C:/StellarisWare/driverlib\ethernet.c ****     // Build and write WORD 0 (see format above) to the transmit FIFO.
+ 787:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 788:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp = (unsigned long)(lBufLen - 14);
+ 989              		.loc 1 788 0
+ 990 0024 7B68     		ldr	r3, [r7, #4]
+ 991 0026 A3F10E03 		sub	r3, r3, #14
+ 992 002a 3B61     		str	r3, [r7, #16]
+ 789:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp |= (pucBuf[i++] << 16);
+ 993              		.loc 1 789 0
+ 994 002c 7B69     		ldr	r3, [r7, #20]
+ 995 002e BA68     		ldr	r2, [r7, #8]
+ 996 0030 D318     		adds	r3, r2, r3
+ 997 0032 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 998 0034 4FEA0343 		lsl	r3, r3, #16
+ 999 0038 3A69     		ldr	r2, [r7, #16]
+ 1000 003a 1343     		orrs	r3, r3, r2
+ 1001 003c 3B61     		str	r3, [r7, #16]
+ 1002 003e 7B69     		ldr	r3, [r7, #20]
+ 1003 0040 03F10103 		add	r3, r3, #1
+ 1004 0044 7B61     		str	r3, [r7, #20]
+ 790:C:/StellarisWare/driverlib\ethernet.c ****     ulTemp |= (pucBuf[i++] << 24);
+ 1005              		.loc 1 790 0
+ 1006 0046 7B69     		ldr	r3, [r7, #20]
+ 1007 0048 BA68     		ldr	r2, [r7, #8]
+ 1008 004a D318     		adds	r3, r2, r3
+ 1009 004c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1010 004e 4FEA0363 		lsl	r3, r3, #24
+ 1011 0052 3A69     		ldr	r2, [r7, #16]
+ 1012 0054 1343     		orrs	r3, r3, r2
+ 1013 0056 3B61     		str	r3, [r7, #16]
+ 1014 0058 7B69     		ldr	r3, [r7, #20]
+ 1015 005a 03F10103 		add	r3, r3, #1
+ 1016 005e 7B61     		str	r3, [r7, #20]
+ 791:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_DATA) = ulTemp;
+ 1017              		.loc 1 791 0
+ 1018 0060 FB68     		ldr	r3, [r7, #12]
+ 1019 0062 03F11003 		add	r3, r3, #16
+ 1020 0066 3A69     		ldr	r2, [r7, #16]
+ 1021 0068 1A60     		str	r2, [r3, #0]
+ 792:C:/StellarisWare/driverlib\ethernet.c **** 
+ 793:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 794:C:/StellarisWare/driverlib\ethernet.c ****     // Write each subsequent WORD n to the transmit FIFO, except for the last
+ 795:C:/StellarisWare/driverlib\ethernet.c ****     // WORD (if the word does not contain 4 bytes).
+ 796:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 797:C:/StellarisWare/driverlib\ethernet.c ****     while(i <= (lBufLen - 4))
+ 1022              		.loc 1 797 0
+ 1023 006a 0BE0     		b	.L31
+ 1024              	.L32:
+ 798:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 799:C:/StellarisWare/driverlib\ethernet.c ****         HWREG(ulBase + MAC_O_DATA) = *(unsigned long *)&pucBuf[i];
+ 1025              		.loc 1 799 0
+ 1026 006c FB68     		ldr	r3, [r7, #12]
+ 1027 006e 03F11003 		add	r3, r3, #16
+ 1028 0072 7A69     		ldr	r2, [r7, #20]
+ 1029 0074 B968     		ldr	r1, [r7, #8]
+ 1030 0076 8A18     		adds	r2, r1, r2
+ 1031 0078 1268     		ldr	r2, [r2, #0]
+ 1032 007a 1A60     		str	r2, [r3, #0]
+ 800:C:/StellarisWare/driverlib\ethernet.c ****         i += 4;
+ 1033              		.loc 1 800 0
+ 1034 007c 7B69     		ldr	r3, [r7, #20]
+ 1035 007e 03F10403 		add	r3, r3, #4
+ 1036 0082 7B61     		str	r3, [r7, #20]
+ 1037              	.L31:
+ 797:C:/StellarisWare/driverlib\ethernet.c ****     while(i <= (lBufLen - 4))
+ 1038              		.loc 1 797 0 discriminator 1
+ 1039 0084 7B68     		ldr	r3, [r7, #4]
+ 1040 0086 A3F10402 		sub	r2, r3, #4
+ 1041 008a 7B69     		ldr	r3, [r7, #20]
+ 1042 008c 9A42     		cmp	r2, r3
+ 1043 008e EDDA     		bge	.L32
+ 801:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 802:C:/StellarisWare/driverlib\ethernet.c **** 
+ 803:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 804:C:/StellarisWare/driverlib\ethernet.c ****     // Build the last word of the remaining 1, 2, or 3 bytes, and store
+ 805:C:/StellarisWare/driverlib\ethernet.c ****     // the WORD into the transmit FIFO.
+ 806:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 807:C:/StellarisWare/driverlib\ethernet.c ****     if(i != lBufLen)
+ 1044              		.loc 1 807 0
+ 1045 0090 7A69     		ldr	r2, [r7, #20]
+ 1046 0092 7B68     		ldr	r3, [r7, #4]
+ 1047 0094 9A42     		cmp	r2, r3
+ 1048 0096 64D0     		beq	.L33
+ 808:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 809:C:/StellarisWare/driverlib\ethernet.c ****         if(i == (lBufLen - 3))
+ 1049              		.loc 1 809 0
+ 1050 0098 7B68     		ldr	r3, [r7, #4]
+ 1051 009a A3F10302 		sub	r2, r3, #3
+ 1052 009e 7B69     		ldr	r3, [r7, #20]
+ 1053 00a0 9A42     		cmp	r2, r3
+ 1054 00a2 28D1     		bne	.L34
+ 810:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 811:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp  = (pucBuf[i++] <<  0);
+ 1055              		.loc 1 811 0
+ 1056 00a4 7B69     		ldr	r3, [r7, #20]
+ 1057 00a6 BA68     		ldr	r2, [r7, #8]
+ 1058 00a8 D318     		adds	r3, r2, r3
+ 1059 00aa 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1060 00ac 3B61     		str	r3, [r7, #16]
+ 1061 00ae 7B69     		ldr	r3, [r7, #20]
+ 1062 00b0 03F10103 		add	r3, r3, #1
+ 1063 00b4 7B61     		str	r3, [r7, #20]
+ 812:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp |= (pucBuf[i++] <<  8);
+ 1064              		.loc 1 812 0
+ 1065 00b6 7B69     		ldr	r3, [r7, #20]
+ 1066 00b8 BA68     		ldr	r2, [r7, #8]
+ 1067 00ba D318     		adds	r3, r2, r3
+ 1068 00bc 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1069 00be 4FEA0323 		lsl	r3, r3, #8
+ 1070 00c2 3A69     		ldr	r2, [r7, #16]
+ 1071 00c4 1343     		orrs	r3, r3, r2
+ 1072 00c6 3B61     		str	r3, [r7, #16]
+ 1073 00c8 7B69     		ldr	r3, [r7, #20]
+ 1074 00ca 03F10103 		add	r3, r3, #1
+ 1075 00ce 7B61     		str	r3, [r7, #20]
+ 813:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp |= (pucBuf[i++] << 16);
+ 1076              		.loc 1 813 0
+ 1077 00d0 7B69     		ldr	r3, [r7, #20]
+ 1078 00d2 BA68     		ldr	r2, [r7, #8]
+ 1079 00d4 D318     		adds	r3, r2, r3
+ 1080 00d6 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1081 00d8 4FEA0343 		lsl	r3, r3, #16
+ 1082 00dc 3A69     		ldr	r2, [r7, #16]
+ 1083 00de 1343     		orrs	r3, r3, r2
+ 1084 00e0 3B61     		str	r3, [r7, #16]
+ 1085 00e2 7B69     		ldr	r3, [r7, #20]
+ 1086 00e4 03F10103 		add	r3, r3, #1
+ 1087 00e8 7B61     		str	r3, [r7, #20]
+ 814:C:/StellarisWare/driverlib\ethernet.c ****             HWREG(ulBase + MAC_O_DATA) = ulTemp;
+ 1088              		.loc 1 814 0
+ 1089 00ea FB68     		ldr	r3, [r7, #12]
+ 1090 00ec 03F11003 		add	r3, r3, #16
+ 1091 00f0 3A69     		ldr	r2, [r7, #16]
+ 1092 00f2 1A60     		str	r2, [r3, #0]
+ 1093 00f4 35E0     		b	.L33
+ 1094              	.L34:
+ 815:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 816:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == (lBufLen - 2))
+ 1095              		.loc 1 816 0
+ 1096 00f6 7B68     		ldr	r3, [r7, #4]
+ 1097 00f8 A3F10202 		sub	r2, r3, #2
+ 1098 00fc 7B69     		ldr	r3, [r7, #20]
+ 1099 00fe 9A42     		cmp	r2, r3
+ 1100 0100 1BD1     		bne	.L35
+ 817:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 818:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp  = (pucBuf[i++] <<  0);
+ 1101              		.loc 1 818 0
+ 1102 0102 7B69     		ldr	r3, [r7, #20]
+ 1103 0104 BA68     		ldr	r2, [r7, #8]
+ 1104 0106 D318     		adds	r3, r2, r3
+ 1105 0108 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1106 010a 3B61     		str	r3, [r7, #16]
+ 1107 010c 7B69     		ldr	r3, [r7, #20]
+ 1108 010e 03F10103 		add	r3, r3, #1
+ 1109 0112 7B61     		str	r3, [r7, #20]
+ 819:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp |= (pucBuf[i++] <<  8);
+ 1110              		.loc 1 819 0
+ 1111 0114 7B69     		ldr	r3, [r7, #20]
+ 1112 0116 BA68     		ldr	r2, [r7, #8]
+ 1113 0118 D318     		adds	r3, r2, r3
+ 1114 011a 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1115 011c 4FEA0323 		lsl	r3, r3, #8
+ 1116 0120 3A69     		ldr	r2, [r7, #16]
+ 1117 0122 1343     		orrs	r3, r3, r2
+ 1118 0124 3B61     		str	r3, [r7, #16]
+ 1119 0126 7B69     		ldr	r3, [r7, #20]
+ 1120 0128 03F10103 		add	r3, r3, #1
+ 1121 012c 7B61     		str	r3, [r7, #20]
+ 820:C:/StellarisWare/driverlib\ethernet.c ****             HWREG(ulBase + MAC_O_DATA) = ulTemp;
+ 1122              		.loc 1 820 0
+ 1123 012e FB68     		ldr	r3, [r7, #12]
+ 1124 0130 03F11003 		add	r3, r3, #16
+ 1125 0134 3A69     		ldr	r2, [r7, #16]
+ 1126 0136 1A60     		str	r2, [r3, #0]
+ 1127 0138 13E0     		b	.L33
+ 1128              	.L35:
+ 821:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 822:C:/StellarisWare/driverlib\ethernet.c ****         else if(i == (lBufLen - 1))
+ 1129              		.loc 1 822 0
+ 1130 013a 7B68     		ldr	r3, [r7, #4]
+ 1131 013c 03F1FF32 		add	r2, r3, #-1
+ 1132 0140 7B69     		ldr	r3, [r7, #20]
+ 1133 0142 9A42     		cmp	r2, r3
+ 1134 0144 0DD1     		bne	.L33
+ 823:C:/StellarisWare/driverlib\ethernet.c ****         {
+ 824:C:/StellarisWare/driverlib\ethernet.c ****             ulTemp  = (pucBuf[i++] <<  0);
+ 1135              		.loc 1 824 0
+ 1136 0146 7B69     		ldr	r3, [r7, #20]
+ 1137 0148 BA68     		ldr	r2, [r7, #8]
+ 1138 014a D318     		adds	r3, r2, r3
+ 1139 014c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 1140 014e 3B61     		str	r3, [r7, #16]
+ 1141 0150 7B69     		ldr	r3, [r7, #20]
+ 1142 0152 03F10103 		add	r3, r3, #1
+ 1143 0156 7B61     		str	r3, [r7, #20]
+ 825:C:/StellarisWare/driverlib\ethernet.c ****             HWREG(ulBase + MAC_O_DATA) = ulTemp;
+ 1144              		.loc 1 825 0
+ 1145 0158 FB68     		ldr	r3, [r7, #12]
+ 1146 015a 03F11003 		add	r3, r3, #16
+ 1147 015e 3A69     		ldr	r2, [r7, #16]
+ 1148 0160 1A60     		str	r2, [r3, #0]
+ 1149              	.L33:
+ 826:C:/StellarisWare/driverlib\ethernet.c ****         }
+ 827:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 828:C:/StellarisWare/driverlib\ethernet.c **** 
+ 829:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 830:C:/StellarisWare/driverlib\ethernet.c ****     // Activate the transmitter
+ 831:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 832:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_TR) = MAC_TR_NEWTX;
+ 1150              		.loc 1 832 0
+ 1151 0162 FB68     		ldr	r3, [r7, #12]
+ 1152 0164 03F13803 		add	r3, r3, #56
+ 1153 0168 4FF00102 		mov	r2, #1
+ 1154 016c 1A60     		str	r2, [r3, #0]
+ 833:C:/StellarisWare/driverlib\ethernet.c **** 
+ 834:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 835:C:/StellarisWare/driverlib\ethernet.c ****     // Return the Buffer Length transmitted.
+ 836:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 837:C:/StellarisWare/driverlib\ethernet.c ****     return(lBufLen);
+ 1155              		.loc 1 837 0
+ 1156 016e 7B68     		ldr	r3, [r7, #4]
+ 1157              	.L30:
+ 838:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1158              		.loc 1 838 0
+ 1159 0170 1846     		mov	r0, r3
+ 1160 0172 07F11C07 		add	r7, r7, #28
+ 1161 0176 BD46     		mov	sp, r7
+ 1162 0178 80BC     		pop	{r7}
+ 1163 017a 7047     		bx	lr
+ 1164              		.cfi_endproc
+ 1165              	.LFE12:
+ 1167              		.section	.text.EthernetPacketPutNonBlocking,"ax",%progbits
+ 1168              		.align	2
+ 1169              		.global	EthernetPacketPutNonBlocking
+ 1170              		.thumb
+ 1171              		.thumb_func
+ 1173              	EthernetPacketPutNonBlocking:
+ 1174              	.LFB13:
+ 839:C:/StellarisWare/driverlib\ethernet.c **** 
+ 840:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 841:C:/StellarisWare/driverlib\ethernet.c **** //
+ 842:C:/StellarisWare/driverlib\ethernet.c **** //! Sends a packet to the Ethernet controller.
+ 843:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 844:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 845:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 846:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is number of bytes in the packet to be transmitted.
+ 847:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 848:C:/StellarisWare/driverlib\ethernet.c **** //! This function writes \e lBufLen bytes of the packet contained in \e pucBuf
+ 849:C:/StellarisWare/driverlib\ethernet.c **** //! into the transmit FIFO of the controller and then activates the
+ 850:C:/StellarisWare/driverlib\ethernet.c **** //! transmitter for this packet.  If no space is available in the FIFO, the
+ 851:C:/StellarisWare/driverlib\ethernet.c **** //! function returns immediately.  If space is available, the
+ 852:C:/StellarisWare/driverlib\ethernet.c **** //! function returns once \e lBufLen bytes of the packet have been placed
+ 853:C:/StellarisWare/driverlib\ethernet.c **** //! into the FIFO and the transmitter has been started.  The function does not
+ 854:C:/StellarisWare/driverlib\ethernet.c **** //! wait for the transmission to complete.  The function returns the
+ 855:C:/StellarisWare/driverlib\ethernet.c **** //! negated \e lBufLen if the length is larger than the space available in
+ 856:C:/StellarisWare/driverlib\ethernet.c **** //! the transmit FIFO.
+ 857:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 858:C:/StellarisWare/driverlib\ethernet.c **** //! This function replaces the original EthernetPacketNonBlockingPut() API and
+ 859:C:/StellarisWare/driverlib\ethernet.c **** //! performs the same actions.  A macro is provided in <tt>ethernet.h</tt> to
+ 860:C:/StellarisWare/driverlib\ethernet.c **** //! map the original API to this API.
+ 861:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 862:C:/StellarisWare/driverlib\ethernet.c **** //! \note This function does not block and returns immediately if no space
+ 863:C:/StellarisWare/driverlib\ethernet.c **** //! is available for the transmit packet.
+ 864:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 865:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns \b 0 if no space is available in the transmit FIFO, the
+ 866:C:/StellarisWare/driverlib\ethernet.c **** //! negated packet length \b -lBufLen if the packet is too large for FIFO, and
+ 867:C:/StellarisWare/driverlib\ethernet.c **** //! the packet length \b lBufLen otherwise.
+ 868:C:/StellarisWare/driverlib\ethernet.c **** //
+ 869:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 870:C:/StellarisWare/driverlib\ethernet.c **** long
+ 871:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketPutNonBlocking(unsigned long ulBase, unsigned char *pucBuf,
+ 872:C:/StellarisWare/driverlib\ethernet.c ****                              long lBufLen)
+ 873:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1175              		.loc 1 873 0
+ 1176              		.cfi_startproc
+ 1177              		@ args = 0, pretend = 0, frame = 16
+ 1178              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1179 0000 80B5     		push	{r7, lr}
+ 1180              	.LCFI39:
+ 1181              		.cfi_def_cfa_offset 8
+ 1182              		.cfi_offset 14, -4
+ 1183              		.cfi_offset 7, -8
+ 1184 0002 84B0     		sub	sp, sp, #16
+ 1185              	.LCFI40:
+ 1186              		.cfi_def_cfa_offset 24
+ 1187 0004 00AF     		add	r7, sp, #0
+ 1188              	.LCFI41:
+ 1189              		.cfi_def_cfa_register 7
+ 1190 0006 F860     		str	r0, [r7, #12]
+ 1191 0008 B960     		str	r1, [r7, #8]
+ 1192 000a 7A60     		str	r2, [r7, #4]
+ 874:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 875:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 876:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 877:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 878:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucBuf != 0);
+ 879:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(lBufLen > 0);
+ 880:C:/StellarisWare/driverlib\ethernet.c **** 
+ 881:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 882:C:/StellarisWare/driverlib\ethernet.c ****     // Check if the transmit FIFO is in use and return the appropriate code.
+ 883:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 884:C:/StellarisWare/driverlib\ethernet.c ****     if(HWREG(ulBase + MAC_O_TR) & MAC_TR_NEWTX)
+ 1193              		.loc 1 884 0
+ 1194 000c FB68     		ldr	r3, [r7, #12]
+ 1195 000e 03F13803 		add	r3, r3, #56
+ 1196 0012 1B68     		ldr	r3, [r3, #0]
+ 1197 0014 03F00103 		and	r3, r3, #1
+ 1198 0018 DBB2     		uxtb	r3, r3
+ 1199 001a 002B     		cmp	r3, #0
+ 1200 001c 02D0     		beq	.L37
+ 885:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 886:C:/StellarisWare/driverlib\ethernet.c ****         return(0);
+ 1201              		.loc 1 886 0
+ 1202 001e 4FF00003 		mov	r3, #0
+ 1203 0022 05E0     		b	.L38
+ 1204              	.L37:
+ 887:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 888:C:/StellarisWare/driverlib\ethernet.c **** 
+ 889:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 890:C:/StellarisWare/driverlib\ethernet.c ****     // Send the packet and return.
+ 891:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 892:C:/StellarisWare/driverlib\ethernet.c ****     return(EthernetPacketPutInternal(ulBase, pucBuf, lBufLen));
+ 1205              		.loc 1 892 0
+ 1206 0024 F868     		ldr	r0, [r7, #12]
+ 1207 0026 B968     		ldr	r1, [r7, #8]
+ 1208 0028 7A68     		ldr	r2, [r7, #4]
+ 1209 002a FFF7FEFF 		bl	EthernetPacketPutInternal
+ 1210 002e 0346     		mov	r3, r0
+ 1211              	.L38:
+ 893:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1212              		.loc 1 893 0
+ 1213 0030 1846     		mov	r0, r3
+ 1214 0032 07F11007 		add	r7, r7, #16
+ 1215 0036 BD46     		mov	sp, r7
+ 1216 0038 80BD     		pop	{r7, pc}
+ 1217              		.cfi_endproc
+ 1218              	.LFE13:
+ 1220 003a 00BF     		.section	.text.EthernetPacketPut,"ax",%progbits
+ 1221              		.align	2
+ 1222              		.global	EthernetPacketPut
+ 1223              		.thumb
+ 1224              		.thumb_func
+ 1226              	EthernetPacketPut:
+ 1227              	.LFB14:
+ 894:C:/StellarisWare/driverlib\ethernet.c **** 
+ 895:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 896:C:/StellarisWare/driverlib\ethernet.c **** //
+ 897:C:/StellarisWare/driverlib\ethernet.c **** //! Waits to send a packet from the Ethernet controller.
+ 898:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 899:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 900:C:/StellarisWare/driverlib\ethernet.c **** //! \param pucBuf is the pointer to the packet buffer.
+ 901:C:/StellarisWare/driverlib\ethernet.c **** //! \param lBufLen is number of bytes in the packet to be transmitted.
+ 902:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 903:C:/StellarisWare/driverlib\ethernet.c **** //! This function writes \e lBufLen bytes of the packet contained in \e pucBuf
+ 904:C:/StellarisWare/driverlib\ethernet.c **** //! into the transmit FIFO of the controller and then activates the transmitter
+ 905:C:/StellarisWare/driverlib\ethernet.c **** //! for this packet.  This function waits until the transmit FIFO is empty.
+ 906:C:/StellarisWare/driverlib\ethernet.c **** //! Once space is available, the function returns once \e lBufLen bytes of
+ 907:C:/StellarisWare/driverlib\ethernet.c **** //! the packet have been placed into the FIFO and the transmitter has been
+ 908:C:/StellarisWare/driverlib\ethernet.c **** //! started.  The function does not wait for the transmission to complete.  The
+ 909:C:/StellarisWare/driverlib\ethernet.c **** //! function returns the negated \e lBufLen if the length is larger than
+ 910:C:/StellarisWare/driverlib\ethernet.c **** //! the space available in the transmit FIFO.
+ 911:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 912:C:/StellarisWare/driverlib\ethernet.c **** //! \note This function blocks and waits until space is available for the
+ 913:C:/StellarisWare/driverlib\ethernet.c **** //! transmit packet before returning.
+ 914:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 915:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the negated packet length \b -lBufLen if the packet is too
+ 916:C:/StellarisWare/driverlib\ethernet.c **** //! large for FIFO, and the packet length \b lBufLen otherwise.
+ 917:C:/StellarisWare/driverlib\ethernet.c **** //
+ 918:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 919:C:/StellarisWare/driverlib\ethernet.c **** long
+ 920:C:/StellarisWare/driverlib\ethernet.c **** EthernetPacketPut(unsigned long ulBase, unsigned char *pucBuf,
+ 921:C:/StellarisWare/driverlib\ethernet.c ****                   long lBufLen)
+ 922:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1228              		.loc 1 922 0
+ 1229              		.cfi_startproc
+ 1230              		@ args = 0, pretend = 0, frame = 16
+ 1231              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1232 0000 80B5     		push	{r7, lr}
+ 1233              	.LCFI42:
+ 1234              		.cfi_def_cfa_offset 8
+ 1235              		.cfi_offset 14, -4
+ 1236              		.cfi_offset 7, -8
+ 1237 0002 84B0     		sub	sp, sp, #16
+ 1238              	.LCFI43:
+ 1239              		.cfi_def_cfa_offset 24
+ 1240 0004 00AF     		add	r7, sp, #0
+ 1241              	.LCFI44:
+ 1242              		.cfi_def_cfa_register 7
+ 1243 0006 F860     		str	r0, [r7, #12]
+ 1244 0008 B960     		str	r1, [r7, #8]
+ 1245 000a 7A60     		str	r2, [r7, #4]
+ 923:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 924:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 925:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 926:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 927:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pucBuf != 0);
+ 928:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(lBufLen > 0);
+ 929:C:/StellarisWare/driverlib\ethernet.c **** 
+ 930:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 931:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for current packet (if any) to complete.
+ 932:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 933:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_TR) & MAC_TR_NEWTX)
+ 1246              		.loc 1 933 0
+ 1247 000c 00BF     		nop
+ 1248              	.L40:
+ 1249              		.loc 1 933 0 is_stmt 0 discriminator 1
+ 1250 000e FB68     		ldr	r3, [r7, #12]
+ 1251 0010 03F13803 		add	r3, r3, #56
+ 1252 0014 1B68     		ldr	r3, [r3, #0]
+ 1253 0016 03F00103 		and	r3, r3, #1
+ 1254 001a DBB2     		uxtb	r3, r3
+ 1255 001c 002B     		cmp	r3, #0
+ 1256 001e F6D1     		bne	.L40
+ 934:C:/StellarisWare/driverlib\ethernet.c ****     {
+ 935:C:/StellarisWare/driverlib\ethernet.c ****     }
+ 936:C:/StellarisWare/driverlib\ethernet.c **** 
+ 937:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 938:C:/StellarisWare/driverlib\ethernet.c ****     // Send the packet and return.
+ 939:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 940:C:/StellarisWare/driverlib\ethernet.c ****     return(EthernetPacketPutInternal(ulBase, pucBuf, lBufLen));
+ 1257              		.loc 1 940 0 is_stmt 1
+ 1258 0020 F868     		ldr	r0, [r7, #12]
+ 1259 0022 B968     		ldr	r1, [r7, #8]
+ 1260 0024 7A68     		ldr	r2, [r7, #4]
+ 1261 0026 FFF7FEFF 		bl	EthernetPacketPutInternal
+ 1262 002a 0346     		mov	r3, r0
+ 941:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1263              		.loc 1 941 0
+ 1264 002c 1846     		mov	r0, r3
+ 1265 002e 07F11007 		add	r7, r7, #16
+ 1266 0032 BD46     		mov	sp, r7
+ 1267 0034 80BD     		pop	{r7, pc}
+ 1268              		.cfi_endproc
+ 1269              	.LFE14:
+ 1271 0036 00BF     		.section	.text.EthernetIntRegister,"ax",%progbits
+ 1272              		.align	2
+ 1273              		.global	EthernetIntRegister
+ 1274              		.thumb
+ 1275              		.thumb_func
+ 1277              	EthernetIntRegister:
+ 1278              	.LFB15:
+ 942:C:/StellarisWare/driverlib\ethernet.c **** 
+ 943:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 944:C:/StellarisWare/driverlib\ethernet.c **** //
+ 945:C:/StellarisWare/driverlib\ethernet.c **** //! Registers an interrupt handler for an Ethernet interrupt.
+ 946:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 947:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 948:C:/StellarisWare/driverlib\ethernet.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 949:C:/StellarisWare/driverlib\ethernet.c **** //! enabled Ethernet interrupts occur.
+ 950:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 951:C:/StellarisWare/driverlib\ethernet.c **** //! This function sets the handler to be called when the Ethernet interrupt
+ 952:C:/StellarisWare/driverlib\ethernet.c **** //! occurs.  This function enables the global interrupt in the interrupt
+ 953:C:/StellarisWare/driverlib\ethernet.c **** //! controller; specific Ethernet interrupts must be enabled via
+ 954:C:/StellarisWare/driverlib\ethernet.c **** //! EthernetIntEnable().  It is the interrupt handler's responsibility to clear
+ 955:C:/StellarisWare/driverlib\ethernet.c **** //! the interrupt source.
+ 956:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 957:C:/StellarisWare/driverlib\ethernet.c **** //! \sa IntRegister() for important information about registering interrupt
+ 958:C:/StellarisWare/driverlib\ethernet.c **** //! handlers.
+ 959:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 960:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 961:C:/StellarisWare/driverlib\ethernet.c **** //
+ 962:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 963:C:/StellarisWare/driverlib\ethernet.c **** void
+ 964:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 965:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1279              		.loc 1 965 0
+ 1280              		.cfi_startproc
+ 1281              		@ args = 0, pretend = 0, frame = 8
+ 1282              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1283 0000 80B5     		push	{r7, lr}
+ 1284              	.LCFI45:
+ 1285              		.cfi_def_cfa_offset 8
+ 1286              		.cfi_offset 14, -4
+ 1287              		.cfi_offset 7, -8
+ 1288 0002 82B0     		sub	sp, sp, #8
+ 1289              	.LCFI46:
+ 1290              		.cfi_def_cfa_offset 16
+ 1291 0004 00AF     		add	r7, sp, #0
+ 1292              	.LCFI47:
+ 1293              		.cfi_def_cfa_register 7
+ 1294 0006 7860     		str	r0, [r7, #4]
+ 1295 0008 3960     		str	r1, [r7, #0]
+ 966:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 967:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+ 968:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 969:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+ 970:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(pfnHandler != 0);
+ 971:C:/StellarisWare/driverlib\ethernet.c **** 
+ 972:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 973:C:/StellarisWare/driverlib\ethernet.c ****     // Register the interrupt handler.
+ 974:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 975:C:/StellarisWare/driverlib\ethernet.c ****     IntRegister(INT_ETH, pfnHandler);
+ 1296              		.loc 1 975 0
+ 1297 000a 4FF03A00 		mov	r0, #58
+ 1298 000e 3968     		ldr	r1, [r7, #0]
+ 1299 0010 FFF7FEFF 		bl	IntRegister
+ 976:C:/StellarisWare/driverlib\ethernet.c **** 
+ 977:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 978:C:/StellarisWare/driverlib\ethernet.c ****     // Enable the Ethernet interrupt.
+ 979:C:/StellarisWare/driverlib\ethernet.c ****     //
+ 980:C:/StellarisWare/driverlib\ethernet.c ****     IntEnable(INT_ETH);
+ 1300              		.loc 1 980 0
+ 1301 0014 4FF03A00 		mov	r0, #58
+ 1302 0018 FFF7FEFF 		bl	IntEnable
+ 981:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1303              		.loc 1 981 0
+ 1304 001c 07F10807 		add	r7, r7, #8
+ 1305 0020 BD46     		mov	sp, r7
+ 1306 0022 80BD     		pop	{r7, pc}
+ 1307              		.cfi_endproc
+ 1308              	.LFE15:
+ 1310              		.section	.text.EthernetIntUnregister,"ax",%progbits
+ 1311              		.align	2
+ 1312              		.global	EthernetIntUnregister
+ 1313              		.thumb
+ 1314              		.thumb_func
+ 1316              	EthernetIntUnregister:
+ 1317              	.LFB16:
+ 982:C:/StellarisWare/driverlib\ethernet.c **** 
+ 983:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 984:C:/StellarisWare/driverlib\ethernet.c **** //
+ 985:C:/StellarisWare/driverlib\ethernet.c **** //! Unregisters an interrupt handler for an Ethernet interrupt.
+ 986:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 987:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+ 988:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 989:C:/StellarisWare/driverlib\ethernet.c **** //! This function unregisters the interrupt handler.  This function disables
+ 990:C:/StellarisWare/driverlib\ethernet.c **** //! the global interrupt in the interrupt controller so that the interrupt
+ 991:C:/StellarisWare/driverlib\ethernet.c **** //! handler no longer is called.
+ 992:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 993:C:/StellarisWare/driverlib\ethernet.c **** //! \sa IntRegister() for important information about registering interrupt
+ 994:C:/StellarisWare/driverlib\ethernet.c **** //! handlers.
+ 995:C:/StellarisWare/driverlib\ethernet.c **** //!
+ 996:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+ 997:C:/StellarisWare/driverlib\ethernet.c **** //
+ 998:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+ 999:C:/StellarisWare/driverlib\ethernet.c **** void
+1000:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntUnregister(unsigned long ulBase)
+1001:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1318              		.loc 1 1001 0
+ 1319              		.cfi_startproc
+ 1320              		@ args = 0, pretend = 0, frame = 8
+ 1321              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1322 0000 80B5     		push	{r7, lr}
+ 1323              	.LCFI48:
+ 1324              		.cfi_def_cfa_offset 8
+ 1325              		.cfi_offset 14, -4
+ 1326              		.cfi_offset 7, -8
+ 1327 0002 82B0     		sub	sp, sp, #8
+ 1328              	.LCFI49:
+ 1329              		.cfi_def_cfa_offset 16
+ 1330 0004 00AF     		add	r7, sp, #0
+ 1331              	.LCFI50:
+ 1332              		.cfi_def_cfa_register 7
+ 1333 0006 7860     		str	r0, [r7, #4]
+1002:C:/StellarisWare/driverlib\ethernet.c ****     //
+1003:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1004:C:/StellarisWare/driverlib\ethernet.c ****     //
+1005:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1006:C:/StellarisWare/driverlib\ethernet.c **** 
+1007:C:/StellarisWare/driverlib\ethernet.c ****     //
+1008:C:/StellarisWare/driverlib\ethernet.c ****     // Disable the interrupt.
+1009:C:/StellarisWare/driverlib\ethernet.c ****     //
+1010:C:/StellarisWare/driverlib\ethernet.c ****     IntDisable(INT_ETH);
+ 1334              		.loc 1 1010 0
+ 1335 0008 4FF03A00 		mov	r0, #58
+ 1336 000c FFF7FEFF 		bl	IntDisable
+1011:C:/StellarisWare/driverlib\ethernet.c **** 
+1012:C:/StellarisWare/driverlib\ethernet.c ****     //
+1013:C:/StellarisWare/driverlib\ethernet.c ****     // Unregister the interrupt handler.
+1014:C:/StellarisWare/driverlib\ethernet.c ****     //
+1015:C:/StellarisWare/driverlib\ethernet.c ****     IntUnregister(INT_ETH);
+ 1337              		.loc 1 1015 0
+ 1338 0010 4FF03A00 		mov	r0, #58
+ 1339 0014 FFF7FEFF 		bl	IntUnregister
+1016:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1340              		.loc 1 1016 0
+ 1341 0018 07F10807 		add	r7, r7, #8
+ 1342 001c BD46     		mov	sp, r7
+ 1343 001e 80BD     		pop	{r7, pc}
+ 1344              		.cfi_endproc
+ 1345              	.LFE16:
+ 1347              		.section	.text.EthernetIntEnable,"ax",%progbits
+ 1348              		.align	2
+ 1349              		.global	EthernetIntEnable
+ 1350              		.thumb
+ 1351              		.thumb_func
+ 1353              	EthernetIntEnable:
+ 1354              	.LFB17:
+1017:C:/StellarisWare/driverlib\ethernet.c **** 
+1018:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1019:C:/StellarisWare/driverlib\ethernet.c **** //
+1020:C:/StellarisWare/driverlib\ethernet.c **** //! Enables individual Ethernet interrupt sources.
+1021:C:/StellarisWare/driverlib\ethernet.c **** //!
+1022:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1023:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be enabled.
+1024:C:/StellarisWare/driverlib\ethernet.c **** //!
+1025:C:/StellarisWare/driverlib\ethernet.c **** //! This function enables the indicated Ethernet interrupt sources.  Only the
+1026:C:/StellarisWare/driverlib\ethernet.c **** //! sources that are enabled can be reflected to the processor interrupt;
+1027:C:/StellarisWare/driverlib\ethernet.c **** //! disabled sources have no effect on the processor.
+1028:C:/StellarisWare/driverlib\ethernet.c **** //!
+1029:C:/StellarisWare/driverlib\ethernet.c **** //! The \e ulIntFlags parameter is the logical OR of any of the following:
+1030:C:/StellarisWare/driverlib\ethernet.c **** //!
+1031:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_PHY - An interrupt from the PHY has occurred.  The integrated
+1032:C:/StellarisWare/driverlib\ethernet.c **** //! PHY supports a number of interrupt conditions.  The appropriate PHY
+1033:C:/StellarisWare/driverlib\ethernet.c **** //! register, PHY_MR17 or PHY_MR29 depending on the device class, must be read
+1034:C:/StellarisWare/driverlib\ethernet.c **** //! to determine which PHY interrupt has occurred.  This register can be read
+1035:C:/StellarisWare/driverlib\ethernet.c **** //! using the EthernetPHYRead() API function.
+1036:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_MDIO - This interrupt indicates that a transaction on the
+1037:C:/StellarisWare/driverlib\ethernet.c **** //! management interface has completed successfully.
+1038:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_RXER - This interrupt indicates that an error has occurred
+1039:C:/StellarisWare/driverlib\ethernet.c **** //! during reception of a frame.  This error can indicate a length mismatch, a
+1040:C:/StellarisWare/driverlib\ethernet.c **** //! CRC failure, or an error indication from the PHY.
+1041:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_RXOF - This interrupt indicates that a frame has been received
+1042:C:/StellarisWare/driverlib\ethernet.c **** //! that exceeds the available space in the RX FIFO.
+1043:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_TX - This interrupt indicates that the packet stored in the TX
+1044:C:/StellarisWare/driverlib\ethernet.c **** //! FIFO has been successfully transmitted.
+1045:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_TXER - This interrupt indicates that an error has occurred
+1046:C:/StellarisWare/driverlib\ethernet.c **** //! during the transmission of a packet.  This error can be either a retry
+1047:C:/StellarisWare/driverlib\ethernet.c **** //! failure during the back-off process, or an invalid length stored in the TX
+1048:C:/StellarisWare/driverlib\ethernet.c **** //! FIFO.
+1049:C:/StellarisWare/driverlib\ethernet.c **** //! - \b ETH_INT_RX - This interrupt indicates that one (or more) packets are
+1050:C:/StellarisWare/driverlib\ethernet.c **** //! available in the RX FIFO for processing.
+1051:C:/StellarisWare/driverlib\ethernet.c **** //!
+1052:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1053:C:/StellarisWare/driverlib\ethernet.c **** //
+1054:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1055:C:/StellarisWare/driverlib\ethernet.c **** void
+1056:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+1057:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1355              		.loc 1 1057 0
+ 1356              		.cfi_startproc
+ 1357              		@ args = 0, pretend = 0, frame = 8
+ 1358              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1359              		@ link register save eliminated.
+ 1360 0000 80B4     		push	{r7}
+ 1361              	.LCFI51:
+ 1362              		.cfi_def_cfa_offset 4
+ 1363              		.cfi_offset 7, -4
+ 1364 0002 83B0     		sub	sp, sp, #12
+ 1365              	.LCFI52:
+ 1366              		.cfi_def_cfa_offset 16
+ 1367 0004 00AF     		add	r7, sp, #0
+ 1368              	.LCFI53:
+ 1369              		.cfi_def_cfa_register 7
+ 1370 0006 7860     		str	r0, [r7, #4]
+ 1371 0008 3960     		str	r1, [r7, #0]
+1058:C:/StellarisWare/driverlib\ethernet.c ****     //
+1059:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1060:C:/StellarisWare/driverlib\ethernet.c ****     //
+1061:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1062:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(!(ulIntFlags & ~(ETH_INT_PHY | ETH_INT_MDIO | ETH_INT_RXER |
+1063:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RXOF | ETH_INT_TX | ETH_INT_TXER |
+1064:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RX)));
+1065:C:/StellarisWare/driverlib\ethernet.c **** 
+1066:C:/StellarisWare/driverlib\ethernet.c ****     //
+1067:C:/StellarisWare/driverlib\ethernet.c ****     // Enable the specified interrupts.
+1068:C:/StellarisWare/driverlib\ethernet.c ****     //
+1069:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_IM) |= ulIntFlags;
+ 1372              		.loc 1 1069 0
+ 1373 000a 7B68     		ldr	r3, [r7, #4]
+ 1374 000c 03F10403 		add	r3, r3, #4
+ 1375 0010 7A68     		ldr	r2, [r7, #4]
+ 1376 0012 02F10402 		add	r2, r2, #4
+ 1377 0016 1168     		ldr	r1, [r2, #0]
+ 1378 0018 3A68     		ldr	r2, [r7, #0]
+ 1379 001a 0A43     		orrs	r2, r2, r1
+ 1380 001c 1A60     		str	r2, [r3, #0]
+1070:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1381              		.loc 1 1070 0
+ 1382 001e 07F10C07 		add	r7, r7, #12
+ 1383 0022 BD46     		mov	sp, r7
+ 1384 0024 80BC     		pop	{r7}
+ 1385 0026 7047     		bx	lr
+ 1386              		.cfi_endproc
+ 1387              	.LFE17:
+ 1389              		.section	.text.EthernetIntDisable,"ax",%progbits
+ 1390              		.align	2
+ 1391              		.global	EthernetIntDisable
+ 1392              		.thumb
+ 1393              		.thumb_func
+ 1395              	EthernetIntDisable:
+ 1396              	.LFB18:
+1071:C:/StellarisWare/driverlib\ethernet.c **** 
+1072:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1073:C:/StellarisWare/driverlib\ethernet.c **** //
+1074:C:/StellarisWare/driverlib\ethernet.c **** //! Disables individual Ethernet interrupt sources.
+1075:C:/StellarisWare/driverlib\ethernet.c **** //!
+1076:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1077:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be disabled.
+1078:C:/StellarisWare/driverlib\ethernet.c **** //!
+1079:C:/StellarisWare/driverlib\ethernet.c **** //! Disables the indicated Ethernet interrupt sources.  Only the sources that
+1080:C:/StellarisWare/driverlib\ethernet.c **** //! are enabled can be reflected to the processor interrupt; disabled sources
+1081:C:/StellarisWare/driverlib\ethernet.c **** //! have no effect on the processor.
+1082:C:/StellarisWare/driverlib\ethernet.c **** //!
+1083:C:/StellarisWare/driverlib\ethernet.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+1084:C:/StellarisWare/driverlib\ethernet.c **** //! parameter to EthernetIntEnable().
+1085:C:/StellarisWare/driverlib\ethernet.c **** //!
+1086:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1087:C:/StellarisWare/driverlib\ethernet.c **** //
+1088:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1089:C:/StellarisWare/driverlib\ethernet.c **** void
+1090:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+1091:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1397              		.loc 1 1091 0
+ 1398              		.cfi_startproc
+ 1399              		@ args = 0, pretend = 0, frame = 8
+ 1400              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1401              		@ link register save eliminated.
+ 1402 0000 80B4     		push	{r7}
+ 1403              	.LCFI54:
+ 1404              		.cfi_def_cfa_offset 4
+ 1405              		.cfi_offset 7, -4
+ 1406 0002 83B0     		sub	sp, sp, #12
+ 1407              	.LCFI55:
+ 1408              		.cfi_def_cfa_offset 16
+ 1409 0004 00AF     		add	r7, sp, #0
+ 1410              	.LCFI56:
+ 1411              		.cfi_def_cfa_register 7
+ 1412 0006 7860     		str	r0, [r7, #4]
+ 1413 0008 3960     		str	r1, [r7, #0]
+1092:C:/StellarisWare/driverlib\ethernet.c ****     //
+1093:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1094:C:/StellarisWare/driverlib\ethernet.c ****     //
+1095:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1096:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(!(ulIntFlags & ~(ETH_INT_PHY | ETH_INT_MDIO | ETH_INT_RXER |
+1097:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RXOF | ETH_INT_TX | ETH_INT_TXER |
+1098:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RX)));
+1099:C:/StellarisWare/driverlib\ethernet.c **** 
+1100:C:/StellarisWare/driverlib\ethernet.c ****     //
+1101:C:/StellarisWare/driverlib\ethernet.c ****     // Disable the specified interrupts.
+1102:C:/StellarisWare/driverlib\ethernet.c ****     //
+1103:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_IM) &= ~ulIntFlags;
+ 1414              		.loc 1 1103 0
+ 1415 000a 7B68     		ldr	r3, [r7, #4]
+ 1416 000c 03F10403 		add	r3, r3, #4
+ 1417 0010 7A68     		ldr	r2, [r7, #4]
+ 1418 0012 02F10402 		add	r2, r2, #4
+ 1419 0016 1168     		ldr	r1, [r2, #0]
+ 1420 0018 3A68     		ldr	r2, [r7, #0]
+ 1421 001a 6FEA0202 		mvn	r2, r2
+ 1422 001e 0A40     		ands	r2, r2, r1
+ 1423 0020 1A60     		str	r2, [r3, #0]
+1104:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1424              		.loc 1 1104 0
+ 1425 0022 07F10C07 		add	r7, r7, #12
+ 1426 0026 BD46     		mov	sp, r7
+ 1427 0028 80BC     		pop	{r7}
+ 1428 002a 7047     		bx	lr
+ 1429              		.cfi_endproc
+ 1430              	.LFE18:
+ 1432              		.section	.text.EthernetIntStatus,"ax",%progbits
+ 1433              		.align	2
+ 1434              		.global	EthernetIntStatus
+ 1435              		.thumb
+ 1436              		.thumb_func
+ 1438              	EthernetIntStatus:
+ 1439              	.LFB19:
+1105:C:/StellarisWare/driverlib\ethernet.c **** 
+1106:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1107:C:/StellarisWare/driverlib\ethernet.c **** //
+1108:C:/StellarisWare/driverlib\ethernet.c **** //! Gets the current Ethernet interrupt status.
+1109:C:/StellarisWare/driverlib\ethernet.c **** //!
+1110:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1111:C:/StellarisWare/driverlib\ethernet.c **** //! \param bMasked is false if the raw interrupt status is required and true
+1112:C:/StellarisWare/driverlib\ethernet.c **** //! if the masked interrupt status is required.
+1113:C:/StellarisWare/driverlib\ethernet.c **** //!
+1114:C:/StellarisWare/driverlib\ethernet.c **** //! This function returns the interrupt status for the Ethernet controller.
+1115:C:/StellarisWare/driverlib\ethernet.c **** //! Either the raw interrupt status or the status of interrupts that are
+1116:C:/StellarisWare/driverlib\ethernet.c **** //! allowed to reflect to the processor can be returned.
+1117:C:/StellarisWare/driverlib\ethernet.c **** //!
+1118:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the current interrupt status, enumerated as a bit field of
+1119:C:/StellarisWare/driverlib\ethernet.c **** //! values described in EthernetIntEnable().
+1120:C:/StellarisWare/driverlib\ethernet.c **** //
+1121:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1122:C:/StellarisWare/driverlib\ethernet.c **** unsigned long
+1123:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntStatus(unsigned long ulBase, tBoolean bMasked)
+1124:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1440              		.loc 1 1124 0
+ 1441              		.cfi_startproc
+ 1442              		@ args = 0, pretend = 0, frame = 16
+ 1443              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1444              		@ link register save eliminated.
+ 1445 0000 80B4     		push	{r7}
+ 1446              	.LCFI57:
+ 1447              		.cfi_def_cfa_offset 4
+ 1448              		.cfi_offset 7, -4
+ 1449 0002 85B0     		sub	sp, sp, #20
+ 1450              	.LCFI58:
+ 1451              		.cfi_def_cfa_offset 24
+ 1452 0004 00AF     		add	r7, sp, #0
+ 1453              	.LCFI59:
+ 1454              		.cfi_def_cfa_register 7
+ 1455 0006 7860     		str	r0, [r7, #4]
+ 1456 0008 0B46     		mov	r3, r1
+ 1457 000a FB70     		strb	r3, [r7, #3]
+1125:C:/StellarisWare/driverlib\ethernet.c ****     unsigned long ulStatus;
+1126:C:/StellarisWare/driverlib\ethernet.c **** 
+1127:C:/StellarisWare/driverlib\ethernet.c ****     //
+1128:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1129:C:/StellarisWare/driverlib\ethernet.c ****     //
+1130:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1131:C:/StellarisWare/driverlib\ethernet.c **** 
+1132:C:/StellarisWare/driverlib\ethernet.c ****     //
+1133:C:/StellarisWare/driverlib\ethernet.c ****     // Read the unmasked status.
+1134:C:/StellarisWare/driverlib\ethernet.c ****     //
+1135:C:/StellarisWare/driverlib\ethernet.c ****     ulStatus = HWREG(ulBase + MAC_O_RIS);
+ 1458              		.loc 1 1135 0
+ 1459 000c 7B68     		ldr	r3, [r7, #4]
+ 1460 000e 1B68     		ldr	r3, [r3, #0]
+ 1461 0010 FB60     		str	r3, [r7, #12]
+1136:C:/StellarisWare/driverlib\ethernet.c **** 
+1137:C:/StellarisWare/driverlib\ethernet.c ****     //
+1138:C:/StellarisWare/driverlib\ethernet.c ****     // If masked status is requested, mask it off.
+1139:C:/StellarisWare/driverlib\ethernet.c ****     //
+1140:C:/StellarisWare/driverlib\ethernet.c ****     if(bMasked)
+ 1462              		.loc 1 1140 0
+ 1463 0012 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1464 0014 002B     		cmp	r3, #0
+ 1465 0016 06D0     		beq	.L46
+1141:C:/StellarisWare/driverlib\ethernet.c ****     {
+1142:C:/StellarisWare/driverlib\ethernet.c ****         ulStatus &= HWREG(ulBase + MAC_O_IM);
+ 1466              		.loc 1 1142 0
+ 1467 0018 7B68     		ldr	r3, [r7, #4]
+ 1468 001a 03F10403 		add	r3, r3, #4
+ 1469 001e 1B68     		ldr	r3, [r3, #0]
+ 1470 0020 FA68     		ldr	r2, [r7, #12]
+ 1471 0022 1340     		ands	r3, r3, r2
+ 1472 0024 FB60     		str	r3, [r7, #12]
+ 1473              	.L46:
+1143:C:/StellarisWare/driverlib\ethernet.c ****     }
+1144:C:/StellarisWare/driverlib\ethernet.c **** 
+1145:C:/StellarisWare/driverlib\ethernet.c ****     //
+1146:C:/StellarisWare/driverlib\ethernet.c ****     // Return the interrupt status value.
+1147:C:/StellarisWare/driverlib\ethernet.c ****     //
+1148:C:/StellarisWare/driverlib\ethernet.c ****     return(ulStatus);
+ 1474              		.loc 1 1148 0
+ 1475 0026 FB68     		ldr	r3, [r7, #12]
+1149:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1476              		.loc 1 1149 0
+ 1477 0028 1846     		mov	r0, r3
+ 1478 002a 07F11407 		add	r7, r7, #20
+ 1479 002e BD46     		mov	sp, r7
+ 1480 0030 80BC     		pop	{r7}
+ 1481 0032 7047     		bx	lr
+ 1482              		.cfi_endproc
+ 1483              	.LFE19:
+ 1485              		.section	.text.EthernetIntClear,"ax",%progbits
+ 1486              		.align	2
+ 1487              		.global	EthernetIntClear
+ 1488              		.thumb
+ 1489              		.thumb_func
+ 1491              	EthernetIntClear:
+ 1492              	.LFB20:
+1150:C:/StellarisWare/driverlib\ethernet.c **** 
+1151:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1152:C:/StellarisWare/driverlib\ethernet.c **** //
+1153:C:/StellarisWare/driverlib\ethernet.c **** //! Clears Ethernet interrupt sources.
+1154:C:/StellarisWare/driverlib\ethernet.c **** //!
+1155:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1156:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+1157:C:/StellarisWare/driverlib\ethernet.c **** //!
+1158:C:/StellarisWare/driverlib\ethernet.c **** //! The specified Ethernet interrupt sources are cleared so that they no longer
+1159:C:/StellarisWare/driverlib\ethernet.c **** //! assert.  This function must be called in the interrupt handler to keep the
+1160:C:/StellarisWare/driverlib\ethernet.c **** //! interrupt from being triggered again immediately upon exit.
+1161:C:/StellarisWare/driverlib\ethernet.c **** //!
+1162:C:/StellarisWare/driverlib\ethernet.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+1163:C:/StellarisWare/driverlib\ethernet.c **** //! parameter to EthernetIntEnable().
+1164:C:/StellarisWare/driverlib\ethernet.c **** //!
+1165:C:/StellarisWare/driverlib\ethernet.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1166:C:/StellarisWare/driverlib\ethernet.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1167:C:/StellarisWare/driverlib\ethernet.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1168:C:/StellarisWare/driverlib\ethernet.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1169:C:/StellarisWare/driverlib\ethernet.c **** //! returning from the interrupt handler before the interrupt source is
+1170:C:/StellarisWare/driverlib\ethernet.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1171:C:/StellarisWare/driverlib\ethernet.c **** //! being immediately reentered (because the interrupt controller still sees
+1172:C:/StellarisWare/driverlib\ethernet.c **** //! the interrupt source asserted).
+1173:C:/StellarisWare/driverlib\ethernet.c **** //!
+1174:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1175:C:/StellarisWare/driverlib\ethernet.c **** //
+1176:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1177:C:/StellarisWare/driverlib\ethernet.c **** void
+1178:C:/StellarisWare/driverlib\ethernet.c **** EthernetIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+1179:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1493              		.loc 1 1179 0
+ 1494              		.cfi_startproc
+ 1495              		@ args = 0, pretend = 0, frame = 8
+ 1496              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1497              		@ link register save eliminated.
+ 1498 0000 80B4     		push	{r7}
+ 1499              	.LCFI60:
+ 1500              		.cfi_def_cfa_offset 4
+ 1501              		.cfi_offset 7, -4
+ 1502 0002 83B0     		sub	sp, sp, #12
+ 1503              	.LCFI61:
+ 1504              		.cfi_def_cfa_offset 16
+ 1505 0004 00AF     		add	r7, sp, #0
+ 1506              	.LCFI62:
+ 1507              		.cfi_def_cfa_register 7
+ 1508 0006 7860     		str	r0, [r7, #4]
+ 1509 0008 3960     		str	r1, [r7, #0]
+1180:C:/StellarisWare/driverlib\ethernet.c ****     //
+1181:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1182:C:/StellarisWare/driverlib\ethernet.c ****     //
+1183:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1184:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(!(ulIntFlags & ~(ETH_INT_PHY | ETH_INT_MDIO | ETH_INT_RXER |
+1185:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RXOF | ETH_INT_TX | ETH_INT_TXER |
+1186:C:/StellarisWare/driverlib\ethernet.c ****                             ETH_INT_RX)));
+1187:C:/StellarisWare/driverlib\ethernet.c **** 
+1188:C:/StellarisWare/driverlib\ethernet.c ****     //
+1189:C:/StellarisWare/driverlib\ethernet.c ****     // Clear the requested interrupt sources.
+1190:C:/StellarisWare/driverlib\ethernet.c ****     //
+1191:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_IACK) = ulIntFlags;
+ 1510              		.loc 1 1191 0
+ 1511 000a 7B68     		ldr	r3, [r7, #4]
+ 1512 000c 3A68     		ldr	r2, [r7, #0]
+ 1513 000e 1A60     		str	r2, [r3, #0]
+1192:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1514              		.loc 1 1192 0
+ 1515 0010 07F10C07 		add	r7, r7, #12
+ 1516 0014 BD46     		mov	sp, r7
+ 1517 0016 80BC     		pop	{r7}
+ 1518 0018 7047     		bx	lr
+ 1519              		.cfi_endproc
+ 1520              	.LFE20:
+ 1522 001a 00BF     		.section	.text.EthernetPHYAddrSet,"ax",%progbits
+ 1523              		.align	2
+ 1524              		.global	EthernetPHYAddrSet
+ 1525              		.thumb
+ 1526              		.thumb_func
+ 1528              	EthernetPHYAddrSet:
+ 1529              	.LFB21:
+1193:C:/StellarisWare/driverlib\ethernet.c **** 
+1194:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1195:C:/StellarisWare/driverlib\ethernet.c **** //
+1196:C:/StellarisWare/driverlib\ethernet.c **** //! Sets the PHY address.
+1197:C:/StellarisWare/driverlib\ethernet.c **** //!
+1198:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1199:C:/StellarisWare/driverlib\ethernet.c **** //! \param ucAddr is the address of the PHY.
+1200:C:/StellarisWare/driverlib\ethernet.c **** //!
+1201:C:/StellarisWare/driverlib\ethernet.c **** //! This function sets the address of the PHY that is accessed via
+1202:C:/StellarisWare/driverlib\ethernet.c **** //! EthernetPHYRead() and EthernePHYWrite().  This configuration is only needed
+1203:C:/StellarisWare/driverlib\ethernet.c **** //! when connecting to an external PHY via MII, and should not be used on
+1204:C:/StellarisWare/driverlib\ethernet.c **** //! devices that have integrated PHYs.
+1205:C:/StellarisWare/driverlib\ethernet.c **** //!
+1206:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1207:C:/StellarisWare/driverlib\ethernet.c **** //
+1208:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1209:C:/StellarisWare/driverlib\ethernet.c **** void
+1210:C:/StellarisWare/driverlib\ethernet.c **** EthernetPHYAddrSet(unsigned long ulBase, unsigned char ucAddr)
+1211:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1530              		.loc 1 1211 0
+ 1531              		.cfi_startproc
+ 1532              		@ args = 0, pretend = 0, frame = 8
+ 1533              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1534              		@ link register save eliminated.
+ 1535 0000 80B4     		push	{r7}
+ 1536              	.LCFI63:
+ 1537              		.cfi_def_cfa_offset 4
+ 1538              		.cfi_offset 7, -4
+ 1539 0002 83B0     		sub	sp, sp, #12
+ 1540              	.LCFI64:
+ 1541              		.cfi_def_cfa_offset 16
+ 1542 0004 00AF     		add	r7, sp, #0
+ 1543              	.LCFI65:
+ 1544              		.cfi_def_cfa_register 7
+ 1545 0006 7860     		str	r0, [r7, #4]
+ 1546 0008 0B46     		mov	r3, r1
+ 1547 000a FB70     		strb	r3, [r7, #3]
+1212:C:/StellarisWare/driverlib\ethernet.c ****     //
+1213:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1214:C:/StellarisWare/driverlib\ethernet.c ****     //
+1215:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1216:C:/StellarisWare/driverlib\ethernet.c **** 
+1217:C:/StellarisWare/driverlib\ethernet.c ****     //
+1218:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for any pending transaction to complete.
+1219:C:/StellarisWare/driverlib\ethernet.c ****     //
+1220:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_MCTL) & MAC_MCTL_START)
+ 1548              		.loc 1 1220 0
+ 1549 000c 00BF     		nop
+ 1550              	.L49:
+ 1551              		.loc 1 1220 0 is_stmt 0 discriminator 1
+ 1552 000e 7B68     		ldr	r3, [r7, #4]
+ 1553 0010 03F12003 		add	r3, r3, #32
+ 1554 0014 1B68     		ldr	r3, [r3, #0]
+ 1555 0016 03F00103 		and	r3, r3, #1
+ 1556 001a DBB2     		uxtb	r3, r3
+ 1557 001c 002B     		cmp	r3, #0
+ 1558 001e F6D1     		bne	.L49
+1221:C:/StellarisWare/driverlib\ethernet.c ****     {
+1222:C:/StellarisWare/driverlib\ethernet.c ****     }
+1223:C:/StellarisWare/driverlib\ethernet.c **** 
+1224:C:/StellarisWare/driverlib\ethernet.c ****     //
+1225:C:/StellarisWare/driverlib\ethernet.c ****     // Set the PHY address.
+1226:C:/StellarisWare/driverlib\ethernet.c ****     //
+1227:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MADD) = ucAddr;
+ 1559              		.loc 1 1227 0 is_stmt 1
+ 1560 0020 7B68     		ldr	r3, [r7, #4]
+ 1561 0022 03F12803 		add	r3, r3, #40
+ 1562 0026 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1563 0028 1A60     		str	r2, [r3, #0]
+1228:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1564              		.loc 1 1228 0
+ 1565 002a 07F10C07 		add	r7, r7, #12
+ 1566 002e BD46     		mov	sp, r7
+ 1567 0030 80BC     		pop	{r7}
+ 1568 0032 7047     		bx	lr
+ 1569              		.cfi_endproc
+ 1570              	.LFE21:
+ 1572              		.section	.text.EthernetPHYWrite,"ax",%progbits
+ 1573              		.align	2
+ 1574              		.global	EthernetPHYWrite
+ 1575              		.thumb
+ 1576              		.thumb_func
+ 1578              	EthernetPHYWrite:
+ 1579              	.LFB22:
+1229:C:/StellarisWare/driverlib\ethernet.c **** 
+1230:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1231:C:/StellarisWare/driverlib\ethernet.c **** //
+1232:C:/StellarisWare/driverlib\ethernet.c **** //! Writes to the PHY register.
+1233:C:/StellarisWare/driverlib\ethernet.c **** //!
+1234:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1235:C:/StellarisWare/driverlib\ethernet.c **** //! \param ucRegAddr is the address of the PHY register to be accessed.
+1236:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulData is the data to be written to the PHY register.
+1237:C:/StellarisWare/driverlib\ethernet.c **** //!
+1238:C:/StellarisWare/driverlib\ethernet.c **** //! This function writes the \e ulData to the PHY register specified by
+1239:C:/StellarisWare/driverlib\ethernet.c **** //! \e ucRegAddr.
+1240:C:/StellarisWare/driverlib\ethernet.c **** //!
+1241:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1242:C:/StellarisWare/driverlib\ethernet.c **** //
+1243:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1244:C:/StellarisWare/driverlib\ethernet.c **** void
+1245:C:/StellarisWare/driverlib\ethernet.c **** EthernetPHYWrite(unsigned long ulBase, unsigned char ucRegAddr,
+1246:C:/StellarisWare/driverlib\ethernet.c ****                  unsigned long ulData)
+1247:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1580              		.loc 1 1247 0
+ 1581              		.cfi_startproc
+ 1582              		@ args = 0, pretend = 0, frame = 16
+ 1583              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1584              		@ link register save eliminated.
+ 1585 0000 80B4     		push	{r7}
+ 1586              	.LCFI66:
+ 1587              		.cfi_def_cfa_offset 4
+ 1588              		.cfi_offset 7, -4
+ 1589 0002 85B0     		sub	sp, sp, #20
+ 1590              	.LCFI67:
+ 1591              		.cfi_def_cfa_offset 24
+ 1592 0004 00AF     		add	r7, sp, #0
+ 1593              	.LCFI68:
+ 1594              		.cfi_def_cfa_register 7
+ 1595 0006 F860     		str	r0, [r7, #12]
+ 1596 0008 0B46     		mov	r3, r1
+ 1597 000a 7A60     		str	r2, [r7, #4]
+ 1598 000c FB72     		strb	r3, [r7, #11]
+1248:C:/StellarisWare/driverlib\ethernet.c ****     //
+1249:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1250:C:/StellarisWare/driverlib\ethernet.c ****     //
+1251:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1252:C:/StellarisWare/driverlib\ethernet.c **** 
+1253:C:/StellarisWare/driverlib\ethernet.c ****     //
+1254:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for any pending transaction to complete.
+1255:C:/StellarisWare/driverlib\ethernet.c ****     //
+1256:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_MCTL) & MAC_MCTL_START)
+ 1599              		.loc 1 1256 0
+ 1600 000e 00BF     		nop
+ 1601              	.L51:
+ 1602              		.loc 1 1256 0 is_stmt 0 discriminator 1
+ 1603 0010 FB68     		ldr	r3, [r7, #12]
+ 1604 0012 03F12003 		add	r3, r3, #32
+ 1605 0016 1B68     		ldr	r3, [r3, #0]
+ 1606 0018 03F00103 		and	r3, r3, #1
+ 1607 001c DBB2     		uxtb	r3, r3
+ 1608 001e 002B     		cmp	r3, #0
+ 1609 0020 F6D1     		bne	.L51
+1257:C:/StellarisWare/driverlib\ethernet.c ****     {
+1258:C:/StellarisWare/driverlib\ethernet.c ****     }
+1259:C:/StellarisWare/driverlib\ethernet.c **** 
+1260:C:/StellarisWare/driverlib\ethernet.c ****     //
+1261:C:/StellarisWare/driverlib\ethernet.c ****     // Program the DATA to be written.
+1262:C:/StellarisWare/driverlib\ethernet.c ****     //
+1263:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MTXD) = ulData & MAC_MTXD_MDTX_M;
+ 1610              		.loc 1 1263 0 is_stmt 1
+ 1611 0022 FB68     		ldr	r3, [r7, #12]
+ 1612 0024 03F12C03 		add	r3, r3, #44
+ 1613 0028 1A46     		mov	r2, r3
+ 1614 002a 7B68     		ldr	r3, [r7, #4]
+ 1615 002c 4FEA0343 		lsl	r3, r3, #16
+ 1616 0030 4FEA1343 		lsr	r3, r3, #16
+ 1617 0034 1360     		str	r3, [r2, #0]
+1264:C:/StellarisWare/driverlib\ethernet.c **** 
+1265:C:/StellarisWare/driverlib\ethernet.c ****     //
+1266:C:/StellarisWare/driverlib\ethernet.c ****     // Program the PHY register address and initiate the transaction.
+1267:C:/StellarisWare/driverlib\ethernet.c ****     //
+1268:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MCTL) = (((ucRegAddr << 3) & MAC_MCTL_REGADR_M) |
+ 1618              		.loc 1 1268 0
+ 1619 0036 FB68     		ldr	r3, [r7, #12]
+ 1620 0038 03F12003 		add	r3, r3, #32
+ 1621 003c FA7A     		ldrb	r2, [r7, #11]	@ zero_extendqisi2
+ 1622 003e 4FEAC202 		lsl	r2, r2, #3
+ 1623 0042 D2B2     		uxtb	r2, r2
+1269:C:/StellarisWare/driverlib\ethernet.c ****                                   MAC_MCTL_WRITE | MAC_MCTL_START);
+ 1624              		.loc 1 1269 0
+ 1625 0044 42F00302 		orr	r2, r2, #3
+1268:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MCTL) = (((ucRegAddr << 3) & MAC_MCTL_REGADR_M) |
+ 1626              		.loc 1 1268 0
+ 1627 0048 1A60     		str	r2, [r3, #0]
+1270:C:/StellarisWare/driverlib\ethernet.c **** 
+1271:C:/StellarisWare/driverlib\ethernet.c ****     //
+1272:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for the write transaction to complete.
+1273:C:/StellarisWare/driverlib\ethernet.c ****     //
+1274:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_MCTL) & MAC_MCTL_START)
+ 1628              		.loc 1 1274 0
+ 1629 004a 00BF     		nop
+ 1630              	.L52:
+ 1631              		.loc 1 1274 0 is_stmt 0 discriminator 1
+ 1632 004c FB68     		ldr	r3, [r7, #12]
+ 1633 004e 03F12003 		add	r3, r3, #32
+ 1634 0052 1B68     		ldr	r3, [r3, #0]
+ 1635 0054 03F00103 		and	r3, r3, #1
+ 1636 0058 DBB2     		uxtb	r3, r3
+ 1637 005a 002B     		cmp	r3, #0
+ 1638 005c F6D1     		bne	.L52
+1275:C:/StellarisWare/driverlib\ethernet.c ****     {
+1276:C:/StellarisWare/driverlib\ethernet.c ****     }
+1277:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1639              		.loc 1 1277 0 is_stmt 1
+ 1640 005e 07F11407 		add	r7, r7, #20
+ 1641 0062 BD46     		mov	sp, r7
+ 1642 0064 80BC     		pop	{r7}
+ 1643 0066 7047     		bx	lr
+ 1644              		.cfi_endproc
+ 1645              	.LFE22:
+ 1647              		.section	.text.EthernetPHYRead,"ax",%progbits
+ 1648              		.align	2
+ 1649              		.global	EthernetPHYRead
+ 1650              		.thumb
+ 1651              		.thumb_func
+ 1653              	EthernetPHYRead:
+ 1654              	.LFB23:
+1278:C:/StellarisWare/driverlib\ethernet.c **** 
+1279:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1280:C:/StellarisWare/driverlib\ethernet.c **** //
+1281:C:/StellarisWare/driverlib\ethernet.c **** //! Reads from a PHY register.
+1282:C:/StellarisWare/driverlib\ethernet.c **** //!
+1283:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1284:C:/StellarisWare/driverlib\ethernet.c **** //! \param ucRegAddr is the address of the PHY register to be accessed.
+1285:C:/StellarisWare/driverlib\ethernet.c **** //!
+1286:C:/StellarisWare/driverlib\ethernet.c **** //! This function returns the contents of the PHY register specified by
+1287:C:/StellarisWare/driverlib\ethernet.c **** //! \e ucRegAddr.
+1288:C:/StellarisWare/driverlib\ethernet.c **** //!
+1289:C:/StellarisWare/driverlib\ethernet.c **** //! \return Returns the 16-bit value read from the PHY.
+1290:C:/StellarisWare/driverlib\ethernet.c **** //
+1291:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1292:C:/StellarisWare/driverlib\ethernet.c **** unsigned long
+1293:C:/StellarisWare/driverlib\ethernet.c **** EthernetPHYRead(unsigned long ulBase, unsigned char ucRegAddr)
+1294:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1655              		.loc 1 1294 0
+ 1656              		.cfi_startproc
+ 1657              		@ args = 0, pretend = 0, frame = 8
+ 1658              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1659              		@ link register save eliminated.
+ 1660 0000 80B4     		push	{r7}
+ 1661              	.LCFI69:
+ 1662              		.cfi_def_cfa_offset 4
+ 1663              		.cfi_offset 7, -4
+ 1664 0002 83B0     		sub	sp, sp, #12
+ 1665              	.LCFI70:
+ 1666              		.cfi_def_cfa_offset 16
+ 1667 0004 00AF     		add	r7, sp, #0
+ 1668              	.LCFI71:
+ 1669              		.cfi_def_cfa_register 7
+ 1670 0006 7860     		str	r0, [r7, #4]
+ 1671 0008 0B46     		mov	r3, r1
+ 1672 000a FB70     		strb	r3, [r7, #3]
+1295:C:/StellarisWare/driverlib\ethernet.c ****     //
+1296:C:/StellarisWare/driverlib\ethernet.c ****     // Check the arguments.
+1297:C:/StellarisWare/driverlib\ethernet.c ****     //
+1298:C:/StellarisWare/driverlib\ethernet.c ****     ASSERT(ulBase == ETH_BASE);
+1299:C:/StellarisWare/driverlib\ethernet.c **** 
+1300:C:/StellarisWare/driverlib\ethernet.c ****     //
+1301:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for any pending transaction to complete.
+1302:C:/StellarisWare/driverlib\ethernet.c ****     //
+1303:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_MCTL) & MAC_MCTL_START)
+ 1673              		.loc 1 1303 0
+ 1674 000c 00BF     		nop
+ 1675              	.L54:
+ 1676              		.loc 1 1303 0 is_stmt 0 discriminator 1
+ 1677 000e 7B68     		ldr	r3, [r7, #4]
+ 1678 0010 03F12003 		add	r3, r3, #32
+ 1679 0014 1B68     		ldr	r3, [r3, #0]
+ 1680 0016 03F00103 		and	r3, r3, #1
+ 1681 001a DBB2     		uxtb	r3, r3
+ 1682 001c 002B     		cmp	r3, #0
+ 1683 001e F6D1     		bne	.L54
+1304:C:/StellarisWare/driverlib\ethernet.c ****     {
+1305:C:/StellarisWare/driverlib\ethernet.c ****     }
+1306:C:/StellarisWare/driverlib\ethernet.c **** 
+1307:C:/StellarisWare/driverlib\ethernet.c ****     //
+1308:C:/StellarisWare/driverlib\ethernet.c ****     // Program the PHY register address and initiate the transaction.
+1309:C:/StellarisWare/driverlib\ethernet.c ****     //
+1310:C:/StellarisWare/driverlib\ethernet.c ****     HWREG(ulBase + MAC_O_MCTL) = (((ucRegAddr << 3) & MAC_MCTL_REGADR_M) |
+ 1684              		.loc 1 1310 0 is_stmt 1
+ 1685 0020 7B68     		ldr	r3, [r7, #4]
+ 1686 0022 03F12003 		add	r3, r3, #32
+ 1687 0026 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1688 0028 4FEAC202 		lsl	r2, r2, #3
+ 1689 002c D2B2     		uxtb	r2, r2
+ 1690 002e 42F00102 		orr	r2, r2, #1
+ 1691 0032 1A60     		str	r2, [r3, #0]
+1311:C:/StellarisWare/driverlib\ethernet.c ****                                   MAC_MCTL_START);
+1312:C:/StellarisWare/driverlib\ethernet.c **** 
+1313:C:/StellarisWare/driverlib\ethernet.c ****     //
+1314:C:/StellarisWare/driverlib\ethernet.c ****     // Wait for the transaction to complete.
+1315:C:/StellarisWare/driverlib\ethernet.c ****     //
+1316:C:/StellarisWare/driverlib\ethernet.c ****     while(HWREG(ulBase + MAC_O_MCTL) & MAC_MCTL_START)
+ 1692              		.loc 1 1316 0
+ 1693 0034 00BF     		nop
+ 1694              	.L55:
+ 1695              		.loc 1 1316 0 is_stmt 0 discriminator 1
+ 1696 0036 7B68     		ldr	r3, [r7, #4]
+ 1697 0038 03F12003 		add	r3, r3, #32
+ 1698 003c 1B68     		ldr	r3, [r3, #0]
+ 1699 003e 03F00103 		and	r3, r3, #1
+ 1700 0042 DBB2     		uxtb	r3, r3
+ 1701 0044 002B     		cmp	r3, #0
+ 1702 0046 F6D1     		bne	.L55
+1317:C:/StellarisWare/driverlib\ethernet.c ****     {
+1318:C:/StellarisWare/driverlib\ethernet.c ****     }
+1319:C:/StellarisWare/driverlib\ethernet.c **** 
+1320:C:/StellarisWare/driverlib\ethernet.c ****     //
+1321:C:/StellarisWare/driverlib\ethernet.c ****     // Return the PHY data that was read.
+1322:C:/StellarisWare/driverlib\ethernet.c ****     //
+1323:C:/StellarisWare/driverlib\ethernet.c ****     return(HWREG(ulBase + MAC_O_MRXD) & MAC_MRXD_MDRX_M);
+ 1703              		.loc 1 1323 0 is_stmt 1
+ 1704 0048 7B68     		ldr	r3, [r7, #4]
+ 1705 004a 03F13003 		add	r3, r3, #48
+ 1706 004e 1B68     		ldr	r3, [r3, #0]
+ 1707 0050 4FEA0343 		lsl	r3, r3, #16
+ 1708 0054 4FEA1343 		lsr	r3, r3, #16
+1324:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1709              		.loc 1 1324 0
+ 1710 0058 1846     		mov	r0, r3
+ 1711 005a 07F10C07 		add	r7, r7, #12
+ 1712 005e BD46     		mov	sp, r7
+ 1713 0060 80BC     		pop	{r7}
+ 1714 0062 7047     		bx	lr
+ 1715              		.cfi_endproc
+ 1716              	.LFE23:
+ 1718              		.section	.text.EthernetPHYPowerOff,"ax",%progbits
+ 1719              		.align	2
+ 1720              		.global	EthernetPHYPowerOff
+ 1721              		.thumb
+ 1722              		.thumb_func
+ 1724              	EthernetPHYPowerOff:
+ 1725              	.LFB24:
+1325:C:/StellarisWare/driverlib\ethernet.c **** 
+1326:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1327:C:/StellarisWare/driverlib\ethernet.c **** //
+1328:C:/StellarisWare/driverlib\ethernet.c **** //! Powers off the Ethernet PHY.
+1329:C:/StellarisWare/driverlib\ethernet.c **** //!
+1330:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1331:C:/StellarisWare/driverlib\ethernet.c **** //!
+1332:C:/StellarisWare/driverlib\ethernet.c **** //! This function powers off the Ethernet PHY, reducing the current
+1333:C:/StellarisWare/driverlib\ethernet.c **** //! consumption of the device.  While in the powered off state, the Ethernet
+1334:C:/StellarisWare/driverlib\ethernet.c **** //! controller is unable to connect to the Ethernet.
+1335:C:/StellarisWare/driverlib\ethernet.c **** //!
+1336:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1337:C:/StellarisWare/driverlib\ethernet.c **** //
+1338:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1339:C:/StellarisWare/driverlib\ethernet.c **** void
+1340:C:/StellarisWare/driverlib\ethernet.c **** EthernetPHYPowerOff(unsigned long ulBase)
+1341:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1726              		.loc 1 1341 0
+ 1727              		.cfi_startproc
+ 1728              		@ args = 0, pretend = 0, frame = 8
+ 1729              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1730 0000 80B5     		push	{r7, lr}
+ 1731              	.LCFI72:
+ 1732              		.cfi_def_cfa_offset 8
+ 1733              		.cfi_offset 14, -4
+ 1734              		.cfi_offset 7, -8
+ 1735 0002 82B0     		sub	sp, sp, #8
+ 1736              	.LCFI73:
+ 1737              		.cfi_def_cfa_offset 16
+ 1738 0004 00AF     		add	r7, sp, #0
+ 1739              	.LCFI74:
+ 1740              		.cfi_def_cfa_register 7
+ 1741 0006 7860     		str	r0, [r7, #4]
+1342:C:/StellarisWare/driverlib\ethernet.c ****     //
+1343:C:/StellarisWare/driverlib\ethernet.c ****     // Set the PWRDN bit and clear the ANEGEN bit in the PHY, putting it into
+1344:C:/StellarisWare/driverlib\ethernet.c ****     // its low power mode.
+1345:C:/StellarisWare/driverlib\ethernet.c ****     //
+1346:C:/StellarisWare/driverlib\ethernet.c ****     EthernetPHYWrite(ulBase, PHY_MR0,
+1347:C:/StellarisWare/driverlib\ethernet.c ****                      (EthernetPHYRead(ulBase, PHY_MR0) & ~PHY_MR0_ANEGEN) |
+ 1742              		.loc 1 1347 0
+ 1743 0008 7868     		ldr	r0, [r7, #4]
+ 1744 000a 4FF00001 		mov	r1, #0
+ 1745 000e FFF7FEFF 		bl	EthernetPHYRead
+ 1746 0012 0346     		mov	r3, r0
+ 1747 0014 23F4C053 		bic	r3, r3, #6144
+1346:C:/StellarisWare/driverlib\ethernet.c ****     EthernetPHYWrite(ulBase, PHY_MR0,
+ 1748              		.loc 1 1346 0
+ 1749 0018 43F40063 		orr	r3, r3, #2048
+ 1750 001c 7868     		ldr	r0, [r7, #4]
+ 1751 001e 4FF00001 		mov	r1, #0
+ 1752 0022 1A46     		mov	r2, r3
+ 1753 0024 FFF7FEFF 		bl	EthernetPHYWrite
+1348:C:/StellarisWare/driverlib\ethernet.c ****                      PHY_MR0_PWRDN);
+1349:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1754              		.loc 1 1349 0
+ 1755 0028 07F10807 		add	r7, r7, #8
+ 1756 002c BD46     		mov	sp, r7
+ 1757 002e 80BD     		pop	{r7, pc}
+ 1758              		.cfi_endproc
+ 1759              	.LFE24:
+ 1761              		.section	.text.EthernetPHYPowerOn,"ax",%progbits
+ 1762              		.align	2
+ 1763              		.global	EthernetPHYPowerOn
+ 1764              		.thumb
+ 1765              		.thumb_func
+ 1767              	EthernetPHYPowerOn:
+ 1768              	.LFB25:
+1350:C:/StellarisWare/driverlib\ethernet.c **** 
+1351:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1352:C:/StellarisWare/driverlib\ethernet.c **** //
+1353:C:/StellarisWare/driverlib\ethernet.c **** //! Powers on the Ethernet PHY.
+1354:C:/StellarisWare/driverlib\ethernet.c **** //!
+1355:C:/StellarisWare/driverlib\ethernet.c **** //! \param ulBase is the base address of the controller.
+1356:C:/StellarisWare/driverlib\ethernet.c **** //!
+1357:C:/StellarisWare/driverlib\ethernet.c **** //! This function powers on the Ethernet PHY, enabling it return to normal
+1358:C:/StellarisWare/driverlib\ethernet.c **** //! operation.  By default, the PHY is powered on, so this function is only
+1359:C:/StellarisWare/driverlib\ethernet.c **** //! called if EthernetPHYPowerOff() has previously been called.
+1360:C:/StellarisWare/driverlib\ethernet.c **** //!
+1361:C:/StellarisWare/driverlib\ethernet.c **** //! \return None.
+1362:C:/StellarisWare/driverlib\ethernet.c **** //
+1363:C:/StellarisWare/driverlib\ethernet.c **** //*****************************************************************************
+1364:C:/StellarisWare/driverlib\ethernet.c **** void
+1365:C:/StellarisWare/driverlib\ethernet.c **** EthernetPHYPowerOn(unsigned long ulBase)
+1366:C:/StellarisWare/driverlib\ethernet.c **** {
+ 1769              		.loc 1 1366 0
+ 1770              		.cfi_startproc
+ 1771              		@ args = 0, pretend = 0, frame = 8
+ 1772              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1773 0000 80B5     		push	{r7, lr}
+ 1774              	.LCFI75:
+ 1775              		.cfi_def_cfa_offset 8
+ 1776              		.cfi_offset 14, -4
+ 1777              		.cfi_offset 7, -8
+ 1778 0002 82B0     		sub	sp, sp, #8
+ 1779              	.LCFI76:
+ 1780              		.cfi_def_cfa_offset 16
+ 1781 0004 00AF     		add	r7, sp, #0
+ 1782              	.LCFI77:
+ 1783              		.cfi_def_cfa_register 7
+ 1784 0006 7860     		str	r0, [r7, #4]
+1367:C:/StellarisWare/driverlib\ethernet.c ****     //
+1368:C:/StellarisWare/driverlib\ethernet.c ****     // Clear the PWRDN bit and set the ANEGEN bit in the PHY, putting it into
+1369:C:/StellarisWare/driverlib\ethernet.c ****     // normal operating mode.
+1370:C:/StellarisWare/driverlib\ethernet.c ****     //
+1371:C:/StellarisWare/driverlib\ethernet.c ****     EthernetPHYWrite(ulBase, PHY_MR0,
+1372:C:/StellarisWare/driverlib\ethernet.c ****                      (EthernetPHYRead(ulBase, PHY_MR0) & ~PHY_MR0_PWRDN) |
+ 1785              		.loc 1 1372 0
+ 1786 0008 7868     		ldr	r0, [r7, #4]
+ 1787 000a 4FF00001 		mov	r1, #0
+ 1788 000e FFF7FEFF 		bl	EthernetPHYRead
+ 1789 0012 0346     		mov	r3, r0
+ 1790 0014 23F4C053 		bic	r3, r3, #6144
+1371:C:/StellarisWare/driverlib\ethernet.c ****     EthernetPHYWrite(ulBase, PHY_MR0,
+ 1791              		.loc 1 1371 0
+ 1792 0018 43F48053 		orr	r3, r3, #4096
+ 1793 001c 7868     		ldr	r0, [r7, #4]
+ 1794 001e 4FF00001 		mov	r1, #0
+ 1795 0022 1A46     		mov	r2, r3
+ 1796 0024 FFF7FEFF 		bl	EthernetPHYWrite
+1373:C:/StellarisWare/driverlib\ethernet.c ****                      PHY_MR0_ANEGEN);
+1374:C:/StellarisWare/driverlib\ethernet.c **** }
+ 1797              		.loc 1 1374 0
+ 1798 0028 07F10807 		add	r7, r7, #8
+ 1799 002c BD46     		mov	sp, r7
+ 1800 002e 80BD     		pop	{r7, pc}
+ 1801              		.cfi_endproc
+ 1802              	.LFE25:
+ 1804              		.text
+ 1805              	.Letext0:
+ 1806              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 ethernet.c
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:19     .text.EthernetInitExpClk:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:24     .text.EthernetInitExpClk:00000000 EthernetInitExpClk
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:66     .text.EthernetConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:71     .text.EthernetConfigSet:00000000 EthernetConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:161    .text.EthernetConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:166    .text.EthernetConfigGet:00000000 EthernetConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:219    .text.EthernetMACAddrSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:224    .text.EthernetMACAddrSet:00000000 EthernetMACAddrSet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:302    .text.EthernetMACAddrGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:307    .text.EthernetMACAddrGet:00000000 EthernetMACAddrGet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:383    .text.EthernetEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:388    .text.EthernetEnable:00000000 EthernetEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:447    .text.EthernetDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:452    .text.EthernetDisable:00000000 EthernetDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:511    .text.EthernetPacketAvail:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:516    .text.EthernetPacketAvail:00000000 EthernetPacketAvail
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:554    .text.EthernetSpaceAvail:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:559    .text.EthernetSpaceAvail:00000000 EthernetSpaceAvail
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:602    .text.EthernetPacketGetInternal:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:606    .text.EthernetPacketGetInternal:00000000 EthernetPacketGetInternal
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:850    .text.EthernetPacketGetNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:855    .text.EthernetPacketGetNonBlocking:00000000 EthernetPacketGetNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:902    .text.EthernetPacketGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:907    .text.EthernetPacketGet:00000000 EthernetPacketGet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:952    .text.EthernetPacketPutInternal:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:956    .text.EthernetPacketPutInternal:00000000 EthernetPacketPutInternal
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1168   .text.EthernetPacketPutNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1173   .text.EthernetPacketPutNonBlocking:00000000 EthernetPacketPutNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1221   .text.EthernetPacketPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1226   .text.EthernetPacketPut:00000000 EthernetPacketPut
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1272   .text.EthernetIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1277   .text.EthernetIntRegister:00000000 EthernetIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1311   .text.EthernetIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1316   .text.EthernetIntUnregister:00000000 EthernetIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1348   .text.EthernetIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1353   .text.EthernetIntEnable:00000000 EthernetIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1390   .text.EthernetIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1395   .text.EthernetIntDisable:00000000 EthernetIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1433   .text.EthernetIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1438   .text.EthernetIntStatus:00000000 EthernetIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1486   .text.EthernetIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1491   .text.EthernetIntClear:00000000 EthernetIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1523   .text.EthernetPHYAddrSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1528   .text.EthernetPHYAddrSet:00000000 EthernetPHYAddrSet
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1573   .text.EthernetPHYWrite:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1578   .text.EthernetPHYWrite:00000000 EthernetPHYWrite
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1648   .text.EthernetPHYRead:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1653   .text.EthernetPHYRead:00000000 EthernetPHYRead
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1719   .text.EthernetPHYPowerOff:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1724   .text.EthernetPHYPowerOff:00000000 EthernetPHYPowerOff
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1762   .text.EthernetPHYPowerOn:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccdJsH7S.s:1767   .text.EthernetPHYPowerOn:00000000 EthernetPHYPowerOn
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

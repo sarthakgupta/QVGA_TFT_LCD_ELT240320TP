@@ -1,0 +1,902 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"comp.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.ComparatorConfigure,"ax",%progbits
+  19              		.align	2
+  20              		.global	ComparatorConfigure
+  21              		.thumb
+  22              		.thumb_func
+  24              	ComparatorConfigure:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/comp.c"
+   1:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\comp.c **** //
+   3:C:/StellarisWare/driverlib\comp.c **** // comp.c - Driver for the analog comparator.
+   4:C:/StellarisWare/driverlib\comp.c **** //
+   5:C:/StellarisWare/driverlib\comp.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\comp.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\comp.c **** // 
+   8:C:/StellarisWare/driverlib\comp.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\comp.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\comp.c **** //   are met:
+  11:C:/StellarisWare/driverlib\comp.c **** // 
+  12:C:/StellarisWare/driverlib\comp.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\comp.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\comp.c **** // 
+  15:C:/StellarisWare/driverlib\comp.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\comp.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\comp.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\comp.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\comp.c **** // 
+  20:C:/StellarisWare/driverlib\comp.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\comp.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\comp.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\comp.c **** // 
+  24:C:/StellarisWare/driverlib\comp.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\comp.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\comp.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\comp.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\comp.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\comp.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\comp.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\comp.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\comp.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\comp.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\comp.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\comp.c **** // 
+  36:C:/StellarisWare/driverlib\comp.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\comp.c **** //
+  38:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\comp.c **** 
+  40:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\comp.c **** //
+  42:C:/StellarisWare/driverlib\comp.c **** //! \addtogroup comp_api
+  43:C:/StellarisWare/driverlib\comp.c **** //! @{
+  44:C:/StellarisWare/driverlib\comp.c **** //
+  45:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\comp.c **** 
+  47:C:/StellarisWare/driverlib\comp.c **** #include "inc/hw_comp.h"
+  48:C:/StellarisWare/driverlib\comp.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\comp.c **** #include "inc/hw_memmap.h"
+  50:C:/StellarisWare/driverlib\comp.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\comp.c **** #include "driverlib/comp.h"
+  52:C:/StellarisWare/driverlib\comp.c **** #include "driverlib/debug.h"
+  53:C:/StellarisWare/driverlib\comp.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\comp.c **** 
+  55:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\comp.c **** //
+  57:C:/StellarisWare/driverlib\comp.c **** //! Configures a comparator.
+  58:C:/StellarisWare/driverlib\comp.c **** //!
+  59:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+  60:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator to configure.
+  61:C:/StellarisWare/driverlib\comp.c **** //! \param ulConfig is the configuration of the comparator.
+  62:C:/StellarisWare/driverlib\comp.c **** //!
+  63:C:/StellarisWare/driverlib\comp.c **** //! This function configures a comparator.  The \e ulConfig parameter is the
+  64:C:/StellarisWare/driverlib\comp.c **** //! result of a logical OR operation between the \b COMP_TRIG_xxx,
+  65:C:/StellarisWare/driverlib\comp.c **** //! \b COMP_INT_xxx, \b COMP_ASRCP_xxx, and \b COMP_OUTPUT_xxx values.
+  66:C:/StellarisWare/driverlib\comp.c **** //!
+  67:C:/StellarisWare/driverlib\comp.c **** //! The \b COMP_TRIG_xxx term can take on the following values:
+  68:C:/StellarisWare/driverlib\comp.c **** //!
+  69:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_NONE to have no trigger to the ADC.
+  70:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_HIGH to trigger the ADC when the comparator output is high.
+  71:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_LOW to trigger the ADC when the comparator output is low.
+  72:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_FALL to trigger the ADC when the comparator output goes low.
+  73:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_RISE to trigger the ADC when the comparator output goes
+  74:C:/StellarisWare/driverlib\comp.c **** //! high.
+  75:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_TRIG_BOTH to trigger the ADC when the comparator output goes low
+  76:C:/StellarisWare/driverlib\comp.c **** //! or high.
+  77:C:/StellarisWare/driverlib\comp.c **** //!
+  78:C:/StellarisWare/driverlib\comp.c **** //! The \b COMP_INT_xxx term can take on the following values:
+  79:C:/StellarisWare/driverlib\comp.c **** //!
+  80:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_INT_HIGH to generate an interrupt when the comparator output is
+  81:C:/StellarisWare/driverlib\comp.c **** //! high.
+  82:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_INT_LOW to generate an interrupt when the comparator output is
+  83:C:/StellarisWare/driverlib\comp.c **** //! low.
+  84:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_INT_FALL to generate an interrupt when the comparator output goes
+  85:C:/StellarisWare/driverlib\comp.c **** //! low.
+  86:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_INT_RISE to generate an interrupt when the comparator output goes
+  87:C:/StellarisWare/driverlib\comp.c **** //! high.
+  88:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_INT_BOTH to generate an interrupt when the comparator output goes
+  89:C:/StellarisWare/driverlib\comp.c **** //! low or high.
+  90:C:/StellarisWare/driverlib\comp.c **** //!
+  91:C:/StellarisWare/driverlib\comp.c **** //! The \b COMP_ASRCP_xxx term can take on the following values:
+  92:C:/StellarisWare/driverlib\comp.c **** //!
+  93:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_ASRCP_PIN to use the dedicated Comp+ pin as the reference
+  94:C:/StellarisWare/driverlib\comp.c **** //! voltage.
+  95:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_ASRCP_PIN0 to use the Comp0+ pin as the reference voltage (this
+  96:C:/StellarisWare/driverlib\comp.c **** //! the same as \b COMP_ASRCP_PIN for the comparator 0).
+  97:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_ASRCP_REF to use the internally generated voltage as the
+  98:C:/StellarisWare/driverlib\comp.c **** //! reference voltage.
+  99:C:/StellarisWare/driverlib\comp.c **** //!
+ 100:C:/StellarisWare/driverlib\comp.c **** //! The \b COMP_OUTPUT_xxx term can take on the following values:
+ 101:C:/StellarisWare/driverlib\comp.c **** //!
+ 102:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_OUTPUT_NORMAL to enable a non-inverted output from the comparator
+ 103:C:/StellarisWare/driverlib\comp.c **** //! to a device pin.
+ 104:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_OUTPUT_INVERT to enable an inverted output from the comparator to
+ 105:C:/StellarisWare/driverlib\comp.c **** //! a device pin.
+ 106:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_OUTPUT_NONE is deprecated and behaves the same as
+ 107:C:/StellarisWare/driverlib\comp.c **** //! \b COMP_OUTPUT_NORMAL.
+ 108:C:/StellarisWare/driverlib\comp.c **** //!
+ 109:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 110:C:/StellarisWare/driverlib\comp.c **** //
+ 111:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 112:C:/StellarisWare/driverlib\comp.c **** void
+ 113:C:/StellarisWare/driverlib\comp.c **** ComparatorConfigure(unsigned long ulBase, unsigned long ulComp,
+ 114:C:/StellarisWare/driverlib\comp.c ****                     unsigned long ulConfig)
+ 115:C:/StellarisWare/driverlib\comp.c **** {
+  27              		.loc 1 115 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 85B0     		sub	sp, sp, #20
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 24
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 F860     		str	r0, [r7, #12]
+  43 0008 B960     		str	r1, [r7, #8]
+  44 000a 7A60     		str	r2, [r7, #4]
+ 116:C:/StellarisWare/driverlib\comp.c ****     //
+ 117:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 118:C:/StellarisWare/driverlib\comp.c ****     //
+ 119:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 120:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 121:C:/StellarisWare/driverlib\comp.c **** 
+ 122:C:/StellarisWare/driverlib\comp.c ****     //
+ 123:C:/StellarisWare/driverlib\comp.c ****     // Configure this comparator.
+ 124:C:/StellarisWare/driverlib\comp.c ****     //
+ 125:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + (ulComp * 0x20) + COMP_O_ACCTL0) = ulConfig;
+  45              		.loc 1 125 0
+  46 000c BB68     		ldr	r3, [r7, #8]
+  47 000e 4FEA4312 		lsl	r2, r3, #5
+  48 0012 FB68     		ldr	r3, [r7, #12]
+  49 0014 D318     		adds	r3, r2, r3
+  50 0016 03F12403 		add	r3, r3, #36
+  51 001a 7A68     		ldr	r2, [r7, #4]
+  52 001c 1A60     		str	r2, [r3, #0]
+ 126:C:/StellarisWare/driverlib\comp.c **** }
+  53              		.loc 1 126 0
+  54 001e 07F11407 		add	r7, r7, #20
+  55 0022 BD46     		mov	sp, r7
+  56 0024 80BC     		pop	{r7}
+  57 0026 7047     		bx	lr
+  58              		.cfi_endproc
+  59              	.LFE0:
+  61              		.section	.text.ComparatorRefSet,"ax",%progbits
+  62              		.align	2
+  63              		.global	ComparatorRefSet
+  64              		.thumb
+  65              		.thumb_func
+  67              	ComparatorRefSet:
+  68              	.LFB1:
+ 127:C:/StellarisWare/driverlib\comp.c **** 
+ 128:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 129:C:/StellarisWare/driverlib\comp.c **** //
+ 130:C:/StellarisWare/driverlib\comp.c **** //! Sets the internal reference voltage.
+ 131:C:/StellarisWare/driverlib\comp.c **** //!
+ 132:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 133:C:/StellarisWare/driverlib\comp.c **** //! \param ulRef is the desired reference voltage.
+ 134:C:/StellarisWare/driverlib\comp.c **** //!
+ 135:C:/StellarisWare/driverlib\comp.c **** //! This function sets the internal reference voltage value.  The voltage is
+ 136:C:/StellarisWare/driverlib\comp.c **** //! specified as one of the following values:
+ 137:C:/StellarisWare/driverlib\comp.c **** //!
+ 138:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_OFF to turn off the reference voltage
+ 139:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0V to set the reference voltage to 0 V
+ 140:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_1375V to set the reference voltage to 0.1375 V
+ 141:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_275V to set the reference voltage to 0.275 V
+ 142:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_4125V to set the reference voltage to 0.4125 V
+ 143:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_55V to set the reference voltage to 0.55 V
+ 144:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_6875V to set the reference voltage to 0.6875 V
+ 145:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_825V to set the reference voltage to 0.825 V
+ 146:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_928125V to set the reference voltage to 0.928125 V
+ 147:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_0_9625V to set the reference voltage to 0.9625 V
+ 148:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_03125V to set the reference voltage to 1.03125 V
+ 149:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_134375V to set the reference voltage to 1.134375 V
+ 150:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_1V to set the reference voltage to 1.1 V
+ 151:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_2375V to set the reference voltage to 1.2375 V
+ 152:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_340625V to set the reference voltage to 1.340625 V
+ 153:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_375V to set the reference voltage to 1.375 V
+ 154:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_44375V to set the reference voltage to 1.44375 V
+ 155:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_5125V to set the reference voltage to 1.5125 V
+ 156:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_546875V to set the reference voltage to 1.546875 V
+ 157:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_65V to set the reference voltage to 1.65 V
+ 158:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_753125V to set the reference voltage to 1.753125 V
+ 159:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_7875V to set the reference voltage to 1.7875 V
+ 160:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_85625V to set the reference voltage to 1.85625 V
+ 161:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_925V to set the reference voltage to 1.925 V
+ 162:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_1_959375V to set the reference voltage to 1.959375 V
+ 163:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_2_0625V to set the reference voltage to 2.0625 V
+ 164:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_2_165625V to set the reference voltage to 2.165625 V
+ 165:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_2_26875V to set the reference voltage to 2.26875 V
+ 166:C:/StellarisWare/driverlib\comp.c **** //! - \b COMP_REF_2_371875V to set the reference voltage to 2.371875 V
+ 167:C:/StellarisWare/driverlib\comp.c **** //!
+ 168:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 169:C:/StellarisWare/driverlib\comp.c **** //
+ 170:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 171:C:/StellarisWare/driverlib\comp.c **** void
+ 172:C:/StellarisWare/driverlib\comp.c **** ComparatorRefSet(unsigned long ulBase, unsigned long ulRef)
+ 173:C:/StellarisWare/driverlib\comp.c **** {
+  69              		.loc 1 173 0
+  70              		.cfi_startproc
+  71              		@ args = 0, pretend = 0, frame = 8
+  72              		@ frame_needed = 1, uses_anonymous_args = 0
+  73              		@ link register save eliminated.
+  74 0000 80B4     		push	{r7}
+  75              	.LCFI3:
+  76              		.cfi_def_cfa_offset 4
+  77              		.cfi_offset 7, -4
+  78 0002 83B0     		sub	sp, sp, #12
+  79              	.LCFI4:
+  80              		.cfi_def_cfa_offset 16
+  81 0004 00AF     		add	r7, sp, #0
+  82              	.LCFI5:
+  83              		.cfi_def_cfa_register 7
+  84 0006 7860     		str	r0, [r7, #4]
+  85 0008 3960     		str	r1, [r7, #0]
+ 174:C:/StellarisWare/driverlib\comp.c ****     //
+ 175:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 176:C:/StellarisWare/driverlib\comp.c ****     //
+ 177:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 178:C:/StellarisWare/driverlib\comp.c **** 
+ 179:C:/StellarisWare/driverlib\comp.c ****     //
+ 180:C:/StellarisWare/driverlib\comp.c ****     // Set the voltage reference voltage as requested.
+ 181:C:/StellarisWare/driverlib\comp.c ****     //
+ 182:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACREFCTL) = ulRef;
+  86              		.loc 1 182 0
+  87 000a 7B68     		ldr	r3, [r7, #4]
+  88 000c 03F11003 		add	r3, r3, #16
+  89 0010 3A68     		ldr	r2, [r7, #0]
+  90 0012 1A60     		str	r2, [r3, #0]
+ 183:C:/StellarisWare/driverlib\comp.c **** }
+  91              		.loc 1 183 0
+  92 0014 07F10C07 		add	r7, r7, #12
+  93 0018 BD46     		mov	sp, r7
+  94 001a 80BC     		pop	{r7}
+  95 001c 7047     		bx	lr
+  96              		.cfi_endproc
+  97              	.LFE1:
+  99 001e 00BF     		.section	.text.ComparatorValueGet,"ax",%progbits
+ 100              		.align	2
+ 101              		.global	ComparatorValueGet
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	ComparatorValueGet:
+ 106              	.LFB2:
+ 184:C:/StellarisWare/driverlib\comp.c **** 
+ 185:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 186:C:/StellarisWare/driverlib\comp.c **** //
+ 187:C:/StellarisWare/driverlib\comp.c **** //! Gets the current comparator output value.
+ 188:C:/StellarisWare/driverlib\comp.c **** //!
+ 189:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 190:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 191:C:/StellarisWare/driverlib\comp.c **** //!
+ 192:C:/StellarisWare/driverlib\comp.c **** //! This function retrieves the current value of the comparator output.
+ 193:C:/StellarisWare/driverlib\comp.c **** //!
+ 194:C:/StellarisWare/driverlib\comp.c **** //! \return Returns \b true if the comparator output is high and \b false if
+ 195:C:/StellarisWare/driverlib\comp.c **** //! the comparator output is low.
+ 196:C:/StellarisWare/driverlib\comp.c **** //
+ 197:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 198:C:/StellarisWare/driverlib\comp.c **** tBoolean
+ 199:C:/StellarisWare/driverlib\comp.c **** ComparatorValueGet(unsigned long ulBase, unsigned long ulComp)
+ 200:C:/StellarisWare/driverlib\comp.c **** {
+ 107              		.loc 1 200 0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 8
+ 110              		@ frame_needed = 1, uses_anonymous_args = 0
+ 111              		@ link register save eliminated.
+ 112 0000 80B4     		push	{r7}
+ 113              	.LCFI6:
+ 114              		.cfi_def_cfa_offset 4
+ 115              		.cfi_offset 7, -4
+ 116 0002 83B0     		sub	sp, sp, #12
+ 117              	.LCFI7:
+ 118              		.cfi_def_cfa_offset 16
+ 119 0004 00AF     		add	r7, sp, #0
+ 120              	.LCFI8:
+ 121              		.cfi_def_cfa_register 7
+ 122 0006 7860     		str	r0, [r7, #4]
+ 123 0008 3960     		str	r1, [r7, #0]
+ 201:C:/StellarisWare/driverlib\comp.c ****     //
+ 202:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 203:C:/StellarisWare/driverlib\comp.c ****     //
+ 204:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 205:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 206:C:/StellarisWare/driverlib\comp.c **** 
+ 207:C:/StellarisWare/driverlib\comp.c ****     //
+ 208:C:/StellarisWare/driverlib\comp.c ****     // Return the appropriate value based on the comparator's present output
+ 209:C:/StellarisWare/driverlib\comp.c ****     // value.
+ 210:C:/StellarisWare/driverlib\comp.c ****     //
+ 211:C:/StellarisWare/driverlib\comp.c ****     if(HWREG(ulBase + (ulComp * 0x20) + COMP_O_ACSTAT0) & COMP_ACSTAT0_OVAL)
+ 124              		.loc 1 211 0
+ 125 000a 3B68     		ldr	r3, [r7, #0]
+ 126 000c 4FEA4312 		lsl	r2, r3, #5
+ 127 0010 7B68     		ldr	r3, [r7, #4]
+ 128 0012 D318     		adds	r3, r2, r3
+ 129 0014 03F12003 		add	r3, r3, #32
+ 130 0018 1B68     		ldr	r3, [r3, #0]
+ 131 001a 03F00203 		and	r3, r3, #2
+ 132 001e 002B     		cmp	r3, #0
+ 133 0020 02D0     		beq	.L4
+ 212:C:/StellarisWare/driverlib\comp.c ****     {
+ 213:C:/StellarisWare/driverlib\comp.c ****         return(true);
+ 134              		.loc 1 213 0
+ 135 0022 4FF00103 		mov	r3, #1
+ 136 0026 01E0     		b	.L5
+ 137              	.L4:
+ 214:C:/StellarisWare/driverlib\comp.c ****     }
+ 215:C:/StellarisWare/driverlib\comp.c ****     else
+ 216:C:/StellarisWare/driverlib\comp.c ****     {
+ 217:C:/StellarisWare/driverlib\comp.c ****         return(false);
+ 138              		.loc 1 217 0
+ 139 0028 4FF00003 		mov	r3, #0
+ 140              	.L5:
+ 218:C:/StellarisWare/driverlib\comp.c ****     }
+ 219:C:/StellarisWare/driverlib\comp.c **** }
+ 141              		.loc 1 219 0
+ 142 002c 1846     		mov	r0, r3
+ 143 002e 07F10C07 		add	r7, r7, #12
+ 144 0032 BD46     		mov	sp, r7
+ 145 0034 80BC     		pop	{r7}
+ 146 0036 7047     		bx	lr
+ 147              		.cfi_endproc
+ 148              	.LFE2:
+ 150              		.section	.text.ComparatorIntRegister,"ax",%progbits
+ 151              		.align	2
+ 152              		.global	ComparatorIntRegister
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	ComparatorIntRegister:
+ 157              	.LFB3:
+ 220:C:/StellarisWare/driverlib\comp.c **** 
+ 221:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 222:C:/StellarisWare/driverlib\comp.c **** //
+ 223:C:/StellarisWare/driverlib\comp.c **** //! Registers an interrupt handler for the comparator interrupt.
+ 224:C:/StellarisWare/driverlib\comp.c **** //!
+ 225:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 226:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 227:C:/StellarisWare/driverlib\comp.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 228:C:/StellarisWare/driverlib\comp.c **** //! comparator interrupt occurs.
+ 229:C:/StellarisWare/driverlib\comp.c **** //!
+ 230:C:/StellarisWare/driverlib\comp.c **** //! This function sets the handler to be called when the comparator interrupt occurs
+ 231:C:/StellarisWare/driverlib\comp.c **** //! and enables the interrupt in the interrupt controller.  It is the interrupt
+ 232:C:/StellarisWare/driverlib\comp.c **** //! handler's responsibility to clear the interrupt source via
+ 233:C:/StellarisWare/driverlib\comp.c **** //! ComparatorIntClear().
+ 234:C:/StellarisWare/driverlib\comp.c **** //!
+ 235:C:/StellarisWare/driverlib\comp.c **** //! \sa IntRegister() for important information about registering interrupt
+ 236:C:/StellarisWare/driverlib\comp.c **** //! handlers.
+ 237:C:/StellarisWare/driverlib\comp.c **** //!
+ 238:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 239:C:/StellarisWare/driverlib\comp.c **** //
+ 240:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 241:C:/StellarisWare/driverlib\comp.c **** void
+ 242:C:/StellarisWare/driverlib\comp.c **** ComparatorIntRegister(unsigned long ulBase, unsigned long ulComp,
+ 243:C:/StellarisWare/driverlib\comp.c ****                       void (*pfnHandler)(void))
+ 244:C:/StellarisWare/driverlib\comp.c **** {
+ 158              		.loc 1 244 0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 16
+ 161              		@ frame_needed = 1, uses_anonymous_args = 0
+ 162 0000 80B5     		push	{r7, lr}
+ 163              	.LCFI9:
+ 164              		.cfi_def_cfa_offset 8
+ 165              		.cfi_offset 14, -4
+ 166              		.cfi_offset 7, -8
+ 167 0002 84B0     		sub	sp, sp, #16
+ 168              	.LCFI10:
+ 169              		.cfi_def_cfa_offset 24
+ 170 0004 00AF     		add	r7, sp, #0
+ 171              	.LCFI11:
+ 172              		.cfi_def_cfa_register 7
+ 173 0006 F860     		str	r0, [r7, #12]
+ 174 0008 B960     		str	r1, [r7, #8]
+ 175 000a 7A60     		str	r2, [r7, #4]
+ 245:C:/StellarisWare/driverlib\comp.c ****     //
+ 246:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 247:C:/StellarisWare/driverlib\comp.c ****     //
+ 248:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 249:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 250:C:/StellarisWare/driverlib\comp.c **** 
+ 251:C:/StellarisWare/driverlib\comp.c ****     //
+ 252:C:/StellarisWare/driverlib\comp.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 253:C:/StellarisWare/driverlib\comp.c ****     //
+ 254:C:/StellarisWare/driverlib\comp.c ****     IntRegister(INT_COMP0 + ulComp, pfnHandler);
+ 176              		.loc 1 254 0
+ 177 000c BB68     		ldr	r3, [r7, #8]
+ 178 000e 03F12903 		add	r3, r3, #41
+ 179 0012 1846     		mov	r0, r3
+ 180 0014 7968     		ldr	r1, [r7, #4]
+ 181 0016 FFF7FEFF 		bl	IntRegister
+ 255:C:/StellarisWare/driverlib\comp.c **** 
+ 256:C:/StellarisWare/driverlib\comp.c ****     //
+ 257:C:/StellarisWare/driverlib\comp.c ****     // Enable the interrupt in the interrupt controller.
+ 258:C:/StellarisWare/driverlib\comp.c ****     //
+ 259:C:/StellarisWare/driverlib\comp.c ****     IntEnable(INT_COMP0 + ulComp);
+ 182              		.loc 1 259 0
+ 183 001a BB68     		ldr	r3, [r7, #8]
+ 184 001c 03F12903 		add	r3, r3, #41
+ 185 0020 1846     		mov	r0, r3
+ 186 0022 FFF7FEFF 		bl	IntEnable
+ 260:C:/StellarisWare/driverlib\comp.c **** 
+ 261:C:/StellarisWare/driverlib\comp.c ****     //
+ 262:C:/StellarisWare/driverlib\comp.c ****     // Enable the comparator interrupt.
+ 263:C:/StellarisWare/driverlib\comp.c ****     //
+ 264:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACINTEN) |= 1 << ulComp;
+ 187              		.loc 1 264 0
+ 188 0026 FB68     		ldr	r3, [r7, #12]
+ 189 0028 03F10803 		add	r3, r3, #8
+ 190 002c FA68     		ldr	r2, [r7, #12]
+ 191 002e 02F10802 		add	r2, r2, #8
+ 192 0032 1168     		ldr	r1, [r2, #0]
+ 193 0034 BA68     		ldr	r2, [r7, #8]
+ 194 0036 4FF00100 		mov	r0, #1
+ 195 003a 00FA02F2 		lsl	r2, r0, r2
+ 196 003e 0A43     		orrs	r2, r2, r1
+ 197 0040 1A60     		str	r2, [r3, #0]
+ 265:C:/StellarisWare/driverlib\comp.c **** }
+ 198              		.loc 1 265 0
+ 199 0042 07F11007 		add	r7, r7, #16
+ 200 0046 BD46     		mov	sp, r7
+ 201 0048 80BD     		pop	{r7, pc}
+ 202              		.cfi_endproc
+ 203              	.LFE3:
+ 205 004a 00BF     		.section	.text.ComparatorIntUnregister,"ax",%progbits
+ 206              		.align	2
+ 207              		.global	ComparatorIntUnregister
+ 208              		.thumb
+ 209              		.thumb_func
+ 211              	ComparatorIntUnregister:
+ 212              	.LFB4:
+ 266:C:/StellarisWare/driverlib\comp.c **** 
+ 267:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 268:C:/StellarisWare/driverlib\comp.c **** //
+ 269:C:/StellarisWare/driverlib\comp.c **** //! Unregisters an interrupt handler for a comparator interrupt.
+ 270:C:/StellarisWare/driverlib\comp.c **** //!
+ 271:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 272:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 273:C:/StellarisWare/driverlib\comp.c **** //!
+ 274:C:/StellarisWare/driverlib\comp.c **** //! This function clears the handler to be called when a comparator interrupt
+ 275:C:/StellarisWare/driverlib\comp.c **** //! occurs.  This function also masks off the interrupt in the interrupt controller
+ 276:C:/StellarisWare/driverlib\comp.c **** //! so that the interrupt handler no longer is called.
+ 277:C:/StellarisWare/driverlib\comp.c **** //!
+ 278:C:/StellarisWare/driverlib\comp.c **** //! \sa IntRegister() for important information about registering interrupt
+ 279:C:/StellarisWare/driverlib\comp.c **** //! handlers.
+ 280:C:/StellarisWare/driverlib\comp.c **** //!
+ 281:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 282:C:/StellarisWare/driverlib\comp.c **** //
+ 283:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 284:C:/StellarisWare/driverlib\comp.c **** void
+ 285:C:/StellarisWare/driverlib\comp.c **** ComparatorIntUnregister(unsigned long ulBase, unsigned long ulComp)
+ 286:C:/StellarisWare/driverlib\comp.c **** {
+ 213              		.loc 1 286 0
+ 214              		.cfi_startproc
+ 215              		@ args = 0, pretend = 0, frame = 8
+ 216              		@ frame_needed = 1, uses_anonymous_args = 0
+ 217 0000 80B5     		push	{r7, lr}
+ 218              	.LCFI12:
+ 219              		.cfi_def_cfa_offset 8
+ 220              		.cfi_offset 14, -4
+ 221              		.cfi_offset 7, -8
+ 222 0002 82B0     		sub	sp, sp, #8
+ 223              	.LCFI13:
+ 224              		.cfi_def_cfa_offset 16
+ 225 0004 00AF     		add	r7, sp, #0
+ 226              	.LCFI14:
+ 227              		.cfi_def_cfa_register 7
+ 228 0006 7860     		str	r0, [r7, #4]
+ 229 0008 3960     		str	r1, [r7, #0]
+ 287:C:/StellarisWare/driverlib\comp.c ****     //
+ 288:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 289:C:/StellarisWare/driverlib\comp.c ****     //
+ 290:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 291:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 292:C:/StellarisWare/driverlib\comp.c **** 
+ 293:C:/StellarisWare/driverlib\comp.c ****     //
+ 294:C:/StellarisWare/driverlib\comp.c ****     // Disable the comparator interrupt.
+ 295:C:/StellarisWare/driverlib\comp.c ****     //
+ 296:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACINTEN) &= ~(1 << ulComp);
+ 230              		.loc 1 296 0
+ 231 000a 7B68     		ldr	r3, [r7, #4]
+ 232 000c 03F10803 		add	r3, r3, #8
+ 233 0010 7A68     		ldr	r2, [r7, #4]
+ 234 0012 02F10802 		add	r2, r2, #8
+ 235 0016 1168     		ldr	r1, [r2, #0]
+ 236 0018 3A68     		ldr	r2, [r7, #0]
+ 237 001a 4FF00100 		mov	r0, #1
+ 238 001e 00FA02F2 		lsl	r2, r0, r2
+ 239 0022 6FEA0202 		mvn	r2, r2
+ 240 0026 0A40     		ands	r2, r2, r1
+ 241 0028 1A60     		str	r2, [r3, #0]
+ 297:C:/StellarisWare/driverlib\comp.c **** 
+ 298:C:/StellarisWare/driverlib\comp.c ****     //
+ 299:C:/StellarisWare/driverlib\comp.c ****     // Disable the interrupt in the interrupt controller.
+ 300:C:/StellarisWare/driverlib\comp.c ****     //
+ 301:C:/StellarisWare/driverlib\comp.c ****     IntDisable(INT_COMP0 + ulComp);
+ 242              		.loc 1 301 0
+ 243 002a 3B68     		ldr	r3, [r7, #0]
+ 244 002c 03F12903 		add	r3, r3, #41
+ 245 0030 1846     		mov	r0, r3
+ 246 0032 FFF7FEFF 		bl	IntDisable
+ 302:C:/StellarisWare/driverlib\comp.c **** 
+ 303:C:/StellarisWare/driverlib\comp.c ****     //
+ 304:C:/StellarisWare/driverlib\comp.c ****     // Unregister the interrupt handler.
+ 305:C:/StellarisWare/driverlib\comp.c ****     //
+ 306:C:/StellarisWare/driverlib\comp.c ****     IntUnregister(INT_COMP0 + ulComp);
+ 247              		.loc 1 306 0
+ 248 0036 3B68     		ldr	r3, [r7, #0]
+ 249 0038 03F12903 		add	r3, r3, #41
+ 250 003c 1846     		mov	r0, r3
+ 251 003e FFF7FEFF 		bl	IntUnregister
+ 307:C:/StellarisWare/driverlib\comp.c **** }
+ 252              		.loc 1 307 0
+ 253 0042 07F10807 		add	r7, r7, #8
+ 254 0046 BD46     		mov	sp, r7
+ 255 0048 80BD     		pop	{r7, pc}
+ 256              		.cfi_endproc
+ 257              	.LFE4:
+ 259 004a 00BF     		.section	.text.ComparatorIntEnable,"ax",%progbits
+ 260              		.align	2
+ 261              		.global	ComparatorIntEnable
+ 262              		.thumb
+ 263              		.thumb_func
+ 265              	ComparatorIntEnable:
+ 266              	.LFB5:
+ 308:C:/StellarisWare/driverlib\comp.c **** 
+ 309:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 310:C:/StellarisWare/driverlib\comp.c **** //
+ 311:C:/StellarisWare/driverlib\comp.c **** //! Enables the comparator interrupt.
+ 312:C:/StellarisWare/driverlib\comp.c **** //!
+ 313:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 314:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 315:C:/StellarisWare/driverlib\comp.c **** //!
+ 316:C:/StellarisWare/driverlib\comp.c **** //! This function enables generation of an interrupt from the specified
+ 317:C:/StellarisWare/driverlib\comp.c **** //! comparator.  Only enabled comparator interrupts can be reflected
+ 318:C:/StellarisWare/driverlib\comp.c **** //! to the processor.
+ 319:C:/StellarisWare/driverlib\comp.c **** //!
+ 320:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 321:C:/StellarisWare/driverlib\comp.c **** //
+ 322:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 323:C:/StellarisWare/driverlib\comp.c **** void
+ 324:C:/StellarisWare/driverlib\comp.c **** ComparatorIntEnable(unsigned long ulBase, unsigned long ulComp)
+ 325:C:/StellarisWare/driverlib\comp.c **** {
+ 267              		.loc 1 325 0
+ 268              		.cfi_startproc
+ 269              		@ args = 0, pretend = 0, frame = 8
+ 270              		@ frame_needed = 1, uses_anonymous_args = 0
+ 271              		@ link register save eliminated.
+ 272 0000 80B4     		push	{r7}
+ 273              	.LCFI15:
+ 274              		.cfi_def_cfa_offset 4
+ 275              		.cfi_offset 7, -4
+ 276 0002 83B0     		sub	sp, sp, #12
+ 277              	.LCFI16:
+ 278              		.cfi_def_cfa_offset 16
+ 279 0004 00AF     		add	r7, sp, #0
+ 280              	.LCFI17:
+ 281              		.cfi_def_cfa_register 7
+ 282 0006 7860     		str	r0, [r7, #4]
+ 283 0008 3960     		str	r1, [r7, #0]
+ 326:C:/StellarisWare/driverlib\comp.c ****     //
+ 327:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 328:C:/StellarisWare/driverlib\comp.c ****     //
+ 329:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 330:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 331:C:/StellarisWare/driverlib\comp.c **** 
+ 332:C:/StellarisWare/driverlib\comp.c ****     //
+ 333:C:/StellarisWare/driverlib\comp.c ****     // Enable the comparator interrupt.
+ 334:C:/StellarisWare/driverlib\comp.c ****     //
+ 335:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACINTEN) |= 1 << ulComp;
+ 284              		.loc 1 335 0
+ 285 000a 7B68     		ldr	r3, [r7, #4]
+ 286 000c 03F10803 		add	r3, r3, #8
+ 287 0010 7A68     		ldr	r2, [r7, #4]
+ 288 0012 02F10802 		add	r2, r2, #8
+ 289 0016 1168     		ldr	r1, [r2, #0]
+ 290 0018 3A68     		ldr	r2, [r7, #0]
+ 291 001a 4FF00100 		mov	r0, #1
+ 292 001e 00FA02F2 		lsl	r2, r0, r2
+ 293 0022 0A43     		orrs	r2, r2, r1
+ 294 0024 1A60     		str	r2, [r3, #0]
+ 336:C:/StellarisWare/driverlib\comp.c **** }
+ 295              		.loc 1 336 0
+ 296 0026 07F10C07 		add	r7, r7, #12
+ 297 002a BD46     		mov	sp, r7
+ 298 002c 80BC     		pop	{r7}
+ 299 002e 7047     		bx	lr
+ 300              		.cfi_endproc
+ 301              	.LFE5:
+ 303              		.section	.text.ComparatorIntDisable,"ax",%progbits
+ 304              		.align	2
+ 305              		.global	ComparatorIntDisable
+ 306              		.thumb
+ 307              		.thumb_func
+ 309              	ComparatorIntDisable:
+ 310              	.LFB6:
+ 337:C:/StellarisWare/driverlib\comp.c **** 
+ 338:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 339:C:/StellarisWare/driverlib\comp.c **** //
+ 340:C:/StellarisWare/driverlib\comp.c **** //! Disables the comparator interrupt.
+ 341:C:/StellarisWare/driverlib\comp.c **** //!
+ 342:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 343:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 344:C:/StellarisWare/driverlib\comp.c **** //!
+ 345:C:/StellarisWare/driverlib\comp.c **** //! This function disables generation of an interrupt from the specified
+ 346:C:/StellarisWare/driverlib\comp.c **** //! comparator.  Only enabled comparator interrupts can be reflected
+ 347:C:/StellarisWare/driverlib\comp.c **** //! to the processor.
+ 348:C:/StellarisWare/driverlib\comp.c **** //!
+ 349:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 350:C:/StellarisWare/driverlib\comp.c **** //
+ 351:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 352:C:/StellarisWare/driverlib\comp.c **** void
+ 353:C:/StellarisWare/driverlib\comp.c **** ComparatorIntDisable(unsigned long ulBase, unsigned long ulComp)
+ 354:C:/StellarisWare/driverlib\comp.c **** {
+ 311              		.loc 1 354 0
+ 312              		.cfi_startproc
+ 313              		@ args = 0, pretend = 0, frame = 8
+ 314              		@ frame_needed = 1, uses_anonymous_args = 0
+ 315              		@ link register save eliminated.
+ 316 0000 80B4     		push	{r7}
+ 317              	.LCFI18:
+ 318              		.cfi_def_cfa_offset 4
+ 319              		.cfi_offset 7, -4
+ 320 0002 83B0     		sub	sp, sp, #12
+ 321              	.LCFI19:
+ 322              		.cfi_def_cfa_offset 16
+ 323 0004 00AF     		add	r7, sp, #0
+ 324              	.LCFI20:
+ 325              		.cfi_def_cfa_register 7
+ 326 0006 7860     		str	r0, [r7, #4]
+ 327 0008 3960     		str	r1, [r7, #0]
+ 355:C:/StellarisWare/driverlib\comp.c ****     //
+ 356:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 357:C:/StellarisWare/driverlib\comp.c ****     //
+ 358:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 359:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 360:C:/StellarisWare/driverlib\comp.c **** 
+ 361:C:/StellarisWare/driverlib\comp.c ****     //
+ 362:C:/StellarisWare/driverlib\comp.c ****     // Disable the comparator interrupt.
+ 363:C:/StellarisWare/driverlib\comp.c ****     //
+ 364:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACINTEN) &= ~(1 << ulComp);
+ 328              		.loc 1 364 0
+ 329 000a 7B68     		ldr	r3, [r7, #4]
+ 330 000c 03F10803 		add	r3, r3, #8
+ 331 0010 7A68     		ldr	r2, [r7, #4]
+ 332 0012 02F10802 		add	r2, r2, #8
+ 333 0016 1168     		ldr	r1, [r2, #0]
+ 334 0018 3A68     		ldr	r2, [r7, #0]
+ 335 001a 4FF00100 		mov	r0, #1
+ 336 001e 00FA02F2 		lsl	r2, r0, r2
+ 337 0022 6FEA0202 		mvn	r2, r2
+ 338 0026 0A40     		ands	r2, r2, r1
+ 339 0028 1A60     		str	r2, [r3, #0]
+ 365:C:/StellarisWare/driverlib\comp.c **** }
+ 340              		.loc 1 365 0
+ 341 002a 07F10C07 		add	r7, r7, #12
+ 342 002e BD46     		mov	sp, r7
+ 343 0030 80BC     		pop	{r7}
+ 344 0032 7047     		bx	lr
+ 345              		.cfi_endproc
+ 346              	.LFE6:
+ 348              		.section	.text.ComparatorIntStatus,"ax",%progbits
+ 349              		.align	2
+ 350              		.global	ComparatorIntStatus
+ 351              		.thumb
+ 352              		.thumb_func
+ 354              	ComparatorIntStatus:
+ 355              	.LFB7:
+ 366:C:/StellarisWare/driverlib\comp.c **** 
+ 367:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 368:C:/StellarisWare/driverlib\comp.c **** //
+ 369:C:/StellarisWare/driverlib\comp.c **** //! Gets the current interrupt status.
+ 370:C:/StellarisWare/driverlib\comp.c **** //!
+ 371:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 372:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 373:C:/StellarisWare/driverlib\comp.c **** //! \param bMasked is \b false if the raw interrupt status is required and
+ 374:C:/StellarisWare/driverlib\comp.c **** //! \b true if the masked interrupt status is required.
+ 375:C:/StellarisWare/driverlib\comp.c **** //!
+ 376:C:/StellarisWare/driverlib\comp.c **** //! This function returns the interrupt status for the comparator.  Either the raw or
+ 377:C:/StellarisWare/driverlib\comp.c **** //! the masked interrupt status can be returned.
+ 378:C:/StellarisWare/driverlib\comp.c **** //!
+ 379:C:/StellarisWare/driverlib\comp.c **** //! \return \b true if the interrupt is asserted and \b false if it is not
+ 380:C:/StellarisWare/driverlib\comp.c **** //! asserted.
+ 381:C:/StellarisWare/driverlib\comp.c **** //
+ 382:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 383:C:/StellarisWare/driverlib\comp.c **** tBoolean
+ 384:C:/StellarisWare/driverlib\comp.c **** ComparatorIntStatus(unsigned long ulBase, unsigned long ulComp,
+ 385:C:/StellarisWare/driverlib\comp.c ****                     tBoolean bMasked)
+ 386:C:/StellarisWare/driverlib\comp.c **** {
+ 356              		.loc 1 386 0
+ 357              		.cfi_startproc
+ 358              		@ args = 0, pretend = 0, frame = 16
+ 359              		@ frame_needed = 1, uses_anonymous_args = 0
+ 360              		@ link register save eliminated.
+ 361 0000 80B4     		push	{r7}
+ 362              	.LCFI21:
+ 363              		.cfi_def_cfa_offset 4
+ 364              		.cfi_offset 7, -4
+ 365 0002 85B0     		sub	sp, sp, #20
+ 366              	.LCFI22:
+ 367              		.cfi_def_cfa_offset 24
+ 368 0004 00AF     		add	r7, sp, #0
+ 369              	.LCFI23:
+ 370              		.cfi_def_cfa_register 7
+ 371 0006 F860     		str	r0, [r7, #12]
+ 372 0008 B960     		str	r1, [r7, #8]
+ 373 000a 1346     		mov	r3, r2
+ 374 000c FB71     		strb	r3, [r7, #7]
+ 387:C:/StellarisWare/driverlib\comp.c ****     //
+ 388:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 389:C:/StellarisWare/driverlib\comp.c ****     //
+ 390:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 391:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 392:C:/StellarisWare/driverlib\comp.c **** 
+ 393:C:/StellarisWare/driverlib\comp.c ****     //
+ 394:C:/StellarisWare/driverlib\comp.c ****     // Return either the interrupt status or the raw interrupt status as
+ 395:C:/StellarisWare/driverlib\comp.c ****     // requested.
+ 396:C:/StellarisWare/driverlib\comp.c ****     //
+ 397:C:/StellarisWare/driverlib\comp.c ****     if(bMasked)
+ 375              		.loc 1 397 0
+ 376 000e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 377 0010 002B     		cmp	r3, #0
+ 378 0012 09D0     		beq	.L11
+ 398:C:/StellarisWare/driverlib\comp.c ****     {
+ 399:C:/StellarisWare/driverlib\comp.c ****         return(((HWREG(ulBase + COMP_O_ACMIS) >> ulComp) & 1) ? true : false);
+ 379              		.loc 1 399 0
+ 380 0014 FB68     		ldr	r3, [r7, #12]
+ 381 0016 1A68     		ldr	r2, [r3, #0]
+ 382 0018 BB68     		ldr	r3, [r7, #8]
+ 383 001a 22FA03F3 		lsr	r3, r2, r3
+ 384 001e DBB2     		uxtb	r3, r3
+ 385 0020 03F00103 		and	r3, r3, #1
+ 386 0024 DBB2     		uxtb	r3, r3
+ 387 0026 0AE0     		b	.L12
+ 388              	.L11:
+ 400:C:/StellarisWare/driverlib\comp.c ****     }
+ 401:C:/StellarisWare/driverlib\comp.c ****     else
+ 402:C:/StellarisWare/driverlib\comp.c ****     {
+ 403:C:/StellarisWare/driverlib\comp.c ****         return(((HWREG(ulBase + COMP_O_ACRIS) >> ulComp) & 1) ? true : false);
+ 389              		.loc 1 403 0
+ 390 0028 FB68     		ldr	r3, [r7, #12]
+ 391 002a 03F10403 		add	r3, r3, #4
+ 392 002e 1A68     		ldr	r2, [r3, #0]
+ 393 0030 BB68     		ldr	r3, [r7, #8]
+ 394 0032 22FA03F3 		lsr	r3, r2, r3
+ 395 0036 DBB2     		uxtb	r3, r3
+ 396 0038 03F00103 		and	r3, r3, #1
+ 397 003c DBB2     		uxtb	r3, r3
+ 398              	.L12:
+ 404:C:/StellarisWare/driverlib\comp.c ****     }
+ 405:C:/StellarisWare/driverlib\comp.c **** }
+ 399              		.loc 1 405 0
+ 400 003e 1846     		mov	r0, r3
+ 401 0040 07F11407 		add	r7, r7, #20
+ 402 0044 BD46     		mov	sp, r7
+ 403 0046 80BC     		pop	{r7}
+ 404 0048 7047     		bx	lr
+ 405              		.cfi_endproc
+ 406              	.LFE7:
+ 408 004a 00BF     		.section	.text.ComparatorIntClear,"ax",%progbits
+ 409              		.align	2
+ 410              		.global	ComparatorIntClear
+ 411              		.thumb
+ 412              		.thumb_func
+ 414              	ComparatorIntClear:
+ 415              	.LFB8:
+ 406:C:/StellarisWare/driverlib\comp.c **** 
+ 407:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 408:C:/StellarisWare/driverlib\comp.c **** //
+ 409:C:/StellarisWare/driverlib\comp.c **** //! Clears a comparator interrupt.
+ 410:C:/StellarisWare/driverlib\comp.c **** //!
+ 411:C:/StellarisWare/driverlib\comp.c **** //! \param ulBase is the base address of the comparator module.
+ 412:C:/StellarisWare/driverlib\comp.c **** //! \param ulComp is the index of the comparator.
+ 413:C:/StellarisWare/driverlib\comp.c **** //!
+ 414:C:/StellarisWare/driverlib\comp.c **** //! The comparator interrupt is cleared, so that it no longer asserts.  This
+ 415:C:/StellarisWare/driverlib\comp.c **** //! fucntion must be called in the interrupt handler to keep the handler from
+ 416:C:/StellarisWare/driverlib\comp.c **** //! being called again immediately upon exit.  Note that for a level-triggered
+ 417:C:/StellarisWare/driverlib\comp.c **** //! interrupt, the interrupt cannot be cleared until it stops asserting.
+ 418:C:/StellarisWare/driverlib\comp.c **** //!
+ 419:C:/StellarisWare/driverlib\comp.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 420:C:/StellarisWare/driverlib\comp.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 421:C:/StellarisWare/driverlib\comp.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 422:C:/StellarisWare/driverlib\comp.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 423:C:/StellarisWare/driverlib\comp.c **** //! returning from the interrupt handler before the interrupt source is
+ 424:C:/StellarisWare/driverlib\comp.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 425:C:/StellarisWare/driverlib\comp.c **** //! being immediately reentered (because the interrupt controller still sees
+ 426:C:/StellarisWare/driverlib\comp.c **** //! the interrupt source asserted).
+ 427:C:/StellarisWare/driverlib\comp.c **** //!
+ 428:C:/StellarisWare/driverlib\comp.c **** //! \return None.
+ 429:C:/StellarisWare/driverlib\comp.c **** //
+ 430:C:/StellarisWare/driverlib\comp.c **** //*****************************************************************************
+ 431:C:/StellarisWare/driverlib\comp.c **** void
+ 432:C:/StellarisWare/driverlib\comp.c **** ComparatorIntClear(unsigned long ulBase, unsigned long ulComp)
+ 433:C:/StellarisWare/driverlib\comp.c **** {
+ 416              		.loc 1 433 0
+ 417              		.cfi_startproc
+ 418              		@ args = 0, pretend = 0, frame = 8
+ 419              		@ frame_needed = 1, uses_anonymous_args = 0
+ 420              		@ link register save eliminated.
+ 421 0000 80B4     		push	{r7}
+ 422              	.LCFI24:
+ 423              		.cfi_def_cfa_offset 4
+ 424              		.cfi_offset 7, -4
+ 425 0002 83B0     		sub	sp, sp, #12
+ 426              	.LCFI25:
+ 427              		.cfi_def_cfa_offset 16
+ 428 0004 00AF     		add	r7, sp, #0
+ 429              	.LCFI26:
+ 430              		.cfi_def_cfa_register 7
+ 431 0006 7860     		str	r0, [r7, #4]
+ 432 0008 3960     		str	r1, [r7, #0]
+ 434:C:/StellarisWare/driverlib\comp.c ****     //
+ 435:C:/StellarisWare/driverlib\comp.c ****     // Check the arguments.
+ 436:C:/StellarisWare/driverlib\comp.c ****     //
+ 437:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulBase == COMP_BASE);
+ 438:C:/StellarisWare/driverlib\comp.c ****     ASSERT(ulComp < 3);
+ 439:C:/StellarisWare/driverlib\comp.c **** 
+ 440:C:/StellarisWare/driverlib\comp.c ****     //
+ 441:C:/StellarisWare/driverlib\comp.c ****     // Clear the interrupt.
+ 442:C:/StellarisWare/driverlib\comp.c ****     //
+ 443:C:/StellarisWare/driverlib\comp.c ****     HWREG(ulBase + COMP_O_ACMIS) = 1 << ulComp;
+ 433              		.loc 1 443 0
+ 434 000a 7B68     		ldr	r3, [r7, #4]
+ 435 000c 3A68     		ldr	r2, [r7, #0]
+ 436 000e 4FF00101 		mov	r1, #1
+ 437 0012 01FA02F2 		lsl	r2, r1, r2
+ 438 0016 1A60     		str	r2, [r3, #0]
+ 444:C:/StellarisWare/driverlib\comp.c **** }
+ 439              		.loc 1 444 0
+ 440 0018 07F10C07 		add	r7, r7, #12
+ 441 001c BD46     		mov	sp, r7
+ 442 001e 80BC     		pop	{r7}
+ 443 0020 7047     		bx	lr
+ 444              		.cfi_endproc
+ 445              	.LFE8:
+ 447 0022 00BF     		.text
+ 448              	.Letext0:
+ 449              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 comp.c
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:19     .text.ComparatorConfigure:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:24     .text.ComparatorConfigure:00000000 ComparatorConfigure
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:62     .text.ComparatorRefSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:67     .text.ComparatorRefSet:00000000 ComparatorRefSet
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:100    .text.ComparatorValueGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:105    .text.ComparatorValueGet:00000000 ComparatorValueGet
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:151    .text.ComparatorIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:156    .text.ComparatorIntRegister:00000000 ComparatorIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:206    .text.ComparatorIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:211    .text.ComparatorIntUnregister:00000000 ComparatorIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:260    .text.ComparatorIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:265    .text.ComparatorIntEnable:00000000 ComparatorIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:304    .text.ComparatorIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:309    .text.ComparatorIntDisable:00000000 ComparatorIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:349    .text.ComparatorIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:354    .text.ComparatorIntStatus:00000000 ComparatorIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:409    .text.ComparatorIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccwrfd0u.s:414    .text.ComparatorIntClear:00000000 ComparatorIntClear
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

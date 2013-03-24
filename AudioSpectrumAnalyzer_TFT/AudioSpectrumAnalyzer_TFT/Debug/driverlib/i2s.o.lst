@@ -1,0 +1,2404 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"i2s.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.I2STxEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	I2STxEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	I2STxEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/i2s.c"
+   1:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\i2s.c **** //
+   3:C:/StellarisWare/driverlib\i2s.c **** // i2s.c - Driver for the I2S controller.
+   4:C:/StellarisWare/driverlib\i2s.c **** //
+   5:C:/StellarisWare/driverlib\i2s.c **** // Copyright (c) 2008-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\i2s.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\i2s.c **** // 
+   8:C:/StellarisWare/driverlib\i2s.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\i2s.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\i2s.c **** //   are met:
+  11:C:/StellarisWare/driverlib\i2s.c **** // 
+  12:C:/StellarisWare/driverlib\i2s.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\i2s.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\i2s.c **** // 
+  15:C:/StellarisWare/driverlib\i2s.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\i2s.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\i2s.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\i2s.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\i2s.c **** // 
+  20:C:/StellarisWare/driverlib\i2s.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\i2s.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\i2s.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\i2s.c **** // 
+  24:C:/StellarisWare/driverlib\i2s.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\i2s.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\i2s.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\i2s.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\i2s.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\i2s.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\i2s.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\i2s.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\i2s.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\i2s.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\i2s.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\i2s.c **** // 
+  36:C:/StellarisWare/driverlib\i2s.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\i2s.c **** //
+  38:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\i2s.c **** 
+  40:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\i2s.c **** //
+  42:C:/StellarisWare/driverlib\i2s.c **** //! \addtogroup i2s_api
+  43:C:/StellarisWare/driverlib\i2s.c **** //! @{
+  44:C:/StellarisWare/driverlib\i2s.c **** //
+  45:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\i2s.c **** 
+  47:C:/StellarisWare/driverlib\i2s.c **** #include "inc/hw_i2s.h"
+  48:C:/StellarisWare/driverlib\i2s.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\i2s.c **** #include "inc/hw_memmap.h"
+  50:C:/StellarisWare/driverlib\i2s.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\i2s.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\i2s.c **** #include "driverlib/i2s.h"
+  53:C:/StellarisWare/driverlib\i2s.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\i2s.c **** 
+  55:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\i2s.c **** //
+  57:C:/StellarisWare/driverlib\i2s.c **** //! Enables the I2S transmit module for operation.
+  58:C:/StellarisWare/driverlib\i2s.c **** //!
+  59:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+  60:C:/StellarisWare/driverlib\i2s.c **** //!
+  61:C:/StellarisWare/driverlib\i2s.c **** //! This function enables the transmit module for operation.  The module
+  62:C:/StellarisWare/driverlib\i2s.c **** //! should be enabled after configuration.  When the module is disabled,
+  63:C:/StellarisWare/driverlib\i2s.c **** //! no data or clocks are generated on the I2S signals.
+  64:C:/StellarisWare/driverlib\i2s.c **** //!
+  65:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+  66:C:/StellarisWare/driverlib\i2s.c **** //
+  67:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  68:C:/StellarisWare/driverlib\i2s.c **** void
+  69:C:/StellarisWare/driverlib\i2s.c **** I2STxEnable(unsigned long ulBase)
+  70:C:/StellarisWare/driverlib\i2s.c **** {
+  27              		.loc 1 70 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 83B0     		sub	sp, sp, #12
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  71:C:/StellarisWare/driverlib\i2s.c ****     //
+  72:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+  73:C:/StellarisWare/driverlib\i2s.c ****     //
+  74:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+  75:C:/StellarisWare/driverlib\i2s.c **** 
+  76:C:/StellarisWare/driverlib\i2s.c ****     //
+  77:C:/StellarisWare/driverlib\i2s.c ****     // Enable the tx FIFO service request.
+  78:C:/StellarisWare/driverlib\i2s.c ****     //
+  79:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXISM) = I2S_TXISM_FFM;
+  43              		.loc 1 79 0
+  44 0008 7B68     		ldr	r3, [r7, #4]
+  45 000a 03F11003 		add	r3, r3, #16
+  46 000e 4FF00102 		mov	r2, #1
+  47 0012 1A60     		str	r2, [r3, #0]
+  80:C:/StellarisWare/driverlib\i2s.c **** 
+  81:C:/StellarisWare/driverlib\i2s.c ****     //
+  82:C:/StellarisWare/driverlib\i2s.c ****     // Read-modify-write the enable bit.
+  83:C:/StellarisWare/driverlib\i2s.c ****     //
+  84:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) |= I2S_CFG_TXEN;
+  48              		.loc 1 84 0
+  49 0014 7B68     		ldr	r3, [r7, #4]
+  50 0016 03F54063 		add	r3, r3, #3072
+  51 001a 7A68     		ldr	r2, [r7, #4]
+  52 001c 02F54062 		add	r2, r2, #3072
+  53 0020 1268     		ldr	r2, [r2, #0]
+  54 0022 42F00102 		orr	r2, r2, #1
+  55 0026 1A60     		str	r2, [r3, #0]
+  85:C:/StellarisWare/driverlib\i2s.c **** }
+  56              		.loc 1 85 0
+  57 0028 07F10C07 		add	r7, r7, #12
+  58 002c BD46     		mov	sp, r7
+  59 002e 80BC     		pop	{r7}
+  60 0030 7047     		bx	lr
+  61              		.cfi_endproc
+  62              	.LFE0:
+  64 0032 00BF     		.section	.text.I2STxDisable,"ax",%progbits
+  65              		.align	2
+  66              		.global	I2STxDisable
+  67              		.thumb
+  68              		.thumb_func
+  70              	I2STxDisable:
+  71              	.LFB1:
+  86:C:/StellarisWare/driverlib\i2s.c **** 
+  87:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+  88:C:/StellarisWare/driverlib\i2s.c **** //
+  89:C:/StellarisWare/driverlib\i2s.c **** //! Disables the I2S transmit module for operation.
+  90:C:/StellarisWare/driverlib\i2s.c **** //!
+  91:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+  92:C:/StellarisWare/driverlib\i2s.c **** //!
+  93:C:/StellarisWare/driverlib\i2s.c **** //! This function disables the transmit module for operation.  The module
+  94:C:/StellarisWare/driverlib\i2s.c **** //! should be disabled before configuration.  When the module is disabled,
+  95:C:/StellarisWare/driverlib\i2s.c **** //! no data or clocks are generated on the I2S signals.
+  96:C:/StellarisWare/driverlib\i2s.c **** //!
+  97:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+  98:C:/StellarisWare/driverlib\i2s.c **** //
+  99:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 100:C:/StellarisWare/driverlib\i2s.c **** void
+ 101:C:/StellarisWare/driverlib\i2s.c **** I2STxDisable(unsigned long ulBase)
+ 102:C:/StellarisWare/driverlib\i2s.c **** {
+  72              		.loc 1 102 0
+  73              		.cfi_startproc
+  74              		@ args = 0, pretend = 0, frame = 8
+  75              		@ frame_needed = 1, uses_anonymous_args = 0
+  76              		@ link register save eliminated.
+  77 0000 80B4     		push	{r7}
+  78              	.LCFI3:
+  79              		.cfi_def_cfa_offset 4
+  80              		.cfi_offset 7, -4
+  81 0002 83B0     		sub	sp, sp, #12
+  82              	.LCFI4:
+  83              		.cfi_def_cfa_offset 16
+  84 0004 00AF     		add	r7, sp, #0
+  85              	.LCFI5:
+  86              		.cfi_def_cfa_register 7
+  87 0006 7860     		str	r0, [r7, #4]
+ 103:C:/StellarisWare/driverlib\i2s.c ****     //
+ 104:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 105:C:/StellarisWare/driverlib\i2s.c ****     //
+ 106:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 107:C:/StellarisWare/driverlib\i2s.c **** 
+ 108:C:/StellarisWare/driverlib\i2s.c ****     //
+ 109:C:/StellarisWare/driverlib\i2s.c ****     // Read-modify-write the enable bit.
+ 110:C:/StellarisWare/driverlib\i2s.c ****     //
+ 111:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) &= ~I2S_CFG_TXEN;
+  88              		.loc 1 111 0
+  89 0008 7B68     		ldr	r3, [r7, #4]
+  90 000a 03F54063 		add	r3, r3, #3072
+  91 000e 7A68     		ldr	r2, [r7, #4]
+  92 0010 02F54062 		add	r2, r2, #3072
+  93 0014 1268     		ldr	r2, [r2, #0]
+  94 0016 22F00102 		bic	r2, r2, #1
+  95 001a 1A60     		str	r2, [r3, #0]
+ 112:C:/StellarisWare/driverlib\i2s.c **** }
+  96              		.loc 1 112 0
+  97 001c 07F10C07 		add	r7, r7, #12
+  98 0020 BD46     		mov	sp, r7
+  99 0022 80BC     		pop	{r7}
+ 100 0024 7047     		bx	lr
+ 101              		.cfi_endproc
+ 102              	.LFE1:
+ 104 0026 00BF     		.section	.text.I2STxDataPut,"ax",%progbits
+ 105              		.align	2
+ 106              		.global	I2STxDataPut
+ 107              		.thumb
+ 108              		.thumb_func
+ 110              	I2STxDataPut:
+ 111              	.LFB2:
+ 113:C:/StellarisWare/driverlib\i2s.c **** 
+ 114:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 115:C:/StellarisWare/driverlib\i2s.c **** //
+ 116:C:/StellarisWare/driverlib\i2s.c **** //! Writes data samples to the I2S transmit FIFO with blocking.
+ 117:C:/StellarisWare/driverlib\i2s.c **** //!
+ 118:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 119:C:/StellarisWare/driverlib\i2s.c **** //! \param ulData is the single- or dual-channel I2S data.
+ 120:C:/StellarisWare/driverlib\i2s.c **** //!
+ 121:C:/StellarisWare/driverlib\i2s.c **** //! This function writes a single-channel sample or combined left-right
+ 122:C:/StellarisWare/driverlib\i2s.c **** //! samples to the I2S transmit FIFO.  The format of the sample is determined
+ 123:C:/StellarisWare/driverlib\i2s.c **** //! by the configuration that was used with the function I2STxConfigSet().
+ 124:C:/StellarisWare/driverlib\i2s.c **** //! If the transmit mode is \b I2S_MODE_DUAL_STEREO then the \e ulData
+ 125:C:/StellarisWare/driverlib\i2s.c **** //! parameter contains either the left or right sample.  The left and right
+ 126:C:/StellarisWare/driverlib\i2s.c **** //! sample alternate with each write to the FIFO, left sample first.  If the
+ 127:C:/StellarisWare/driverlib\i2s.c **** //! transmit mode is \b I2S_MODE_COMPACT_STEREO_16 or
+ 128:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_MODE_COMPACT_STEREO_8, then the \e ulData parameter contains both
+ 129:C:/StellarisWare/driverlib\i2s.c **** //! the left and right samples.  If the transmit mode is
+ 130:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_MODE_SINGLE_MONO then the \e ulData parameter contains the single
+ 131:C:/StellarisWare/driverlib\i2s.c **** //! channel sample.
+ 132:C:/StellarisWare/driverlib\i2s.c **** //!
+ 133:C:/StellarisWare/driverlib\i2s.c **** //! For the compact modes, both the left and right samples are written at
+ 134:C:/StellarisWare/driverlib\i2s.c **** //! the same time.  If 16-bit compact mode is used, then the least significant
+ 135:C:/StellarisWare/driverlib\i2s.c **** //! 16 bits contain the left sample, and the most significant 16 bits contain
+ 136:C:/StellarisWare/driverlib\i2s.c **** //! the right sample.  If 8-bit compact mode is used, then the lower 8 bits
+ 137:C:/StellarisWare/driverlib\i2s.c **** //! contain the left sample, and the next 8 bits contain the right sample,
+ 138:C:/StellarisWare/driverlib\i2s.c **** //! with the upper 16 bits unused.
+ 139:C:/StellarisWare/driverlib\i2s.c **** //!
+ 140:C:/StellarisWare/driverlib\i2s.c **** //! If there is no room in the transmit FIFO, then this function waits
+ 141:C:/StellarisWare/driverlib\i2s.c **** //! in a polling loop until the data can be written.
+ 142:C:/StellarisWare/driverlib\i2s.c **** //!
+ 143:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 144:C:/StellarisWare/driverlib\i2s.c **** //
+ 145:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 146:C:/StellarisWare/driverlib\i2s.c **** void
+ 147:C:/StellarisWare/driverlib\i2s.c **** I2STxDataPut(unsigned long ulBase, unsigned long ulData)
+ 148:C:/StellarisWare/driverlib\i2s.c **** {
+ 112              		.loc 1 148 0
+ 113              		.cfi_startproc
+ 114              		@ args = 0, pretend = 0, frame = 8
+ 115              		@ frame_needed = 1, uses_anonymous_args = 0
+ 116              		@ link register save eliminated.
+ 117 0000 80B4     		push	{r7}
+ 118              	.LCFI6:
+ 119              		.cfi_def_cfa_offset 4
+ 120              		.cfi_offset 7, -4
+ 121 0002 83B0     		sub	sp, sp, #12
+ 122              	.LCFI7:
+ 123              		.cfi_def_cfa_offset 16
+ 124 0004 00AF     		add	r7, sp, #0
+ 125              	.LCFI8:
+ 126              		.cfi_def_cfa_register 7
+ 127 0006 7860     		str	r0, [r7, #4]
+ 128 0008 3960     		str	r1, [r7, #0]
+ 149:C:/StellarisWare/driverlib\i2s.c ****     //
+ 150:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 151:C:/StellarisWare/driverlib\i2s.c ****     //
+ 152:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 153:C:/StellarisWare/driverlib\i2s.c **** 
+ 154:C:/StellarisWare/driverlib\i2s.c ****     //
+ 155:C:/StellarisWare/driverlib\i2s.c ****     // Wait until there is space.
+ 156:C:/StellarisWare/driverlib\i2s.c ****     //
+ 157:C:/StellarisWare/driverlib\i2s.c ****     while(HWREG(ulBase + I2S_O_TXLEV) >= 16)
+ 129              		.loc 1 157 0
+ 130 000a 00BF     		nop
+ 131              	.L4:
+ 132              		.loc 1 157 0 is_stmt 0 discriminator 1
+ 133 000c 7B68     		ldr	r3, [r7, #4]
+ 134 000e 03F11803 		add	r3, r3, #24
+ 135 0012 1B68     		ldr	r3, [r3, #0]
+ 136 0014 0F2B     		cmp	r3, #15
+ 137 0016 F9D8     		bhi	.L4
+ 158:C:/StellarisWare/driverlib\i2s.c ****     {
+ 159:C:/StellarisWare/driverlib\i2s.c ****     }
+ 160:C:/StellarisWare/driverlib\i2s.c **** 
+ 161:C:/StellarisWare/driverlib\i2s.c ****     //
+ 162:C:/StellarisWare/driverlib\i2s.c ****     // Write the data to the I2S.
+ 163:C:/StellarisWare/driverlib\i2s.c ****     //
+ 164:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXFIFO) = ulData;
+ 138              		.loc 1 164 0 is_stmt 1
+ 139 0018 7B68     		ldr	r3, [r7, #4]
+ 140 001a 3A68     		ldr	r2, [r7, #0]
+ 141 001c 1A60     		str	r2, [r3, #0]
+ 165:C:/StellarisWare/driverlib\i2s.c **** }
+ 142              		.loc 1 165 0
+ 143 001e 07F10C07 		add	r7, r7, #12
+ 144 0022 BD46     		mov	sp, r7
+ 145 0024 80BC     		pop	{r7}
+ 146 0026 7047     		bx	lr
+ 147              		.cfi_endproc
+ 148              	.LFE2:
+ 150              		.section	.text.I2STxDataPutNonBlocking,"ax",%progbits
+ 151              		.align	2
+ 152              		.global	I2STxDataPutNonBlocking
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	I2STxDataPutNonBlocking:
+ 157              	.LFB3:
+ 166:C:/StellarisWare/driverlib\i2s.c **** 
+ 167:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 168:C:/StellarisWare/driverlib\i2s.c **** //
+ 169:C:/StellarisWare/driverlib\i2s.c **** //! Writes data samples to the I2S transmit FIFO without blocking.
+ 170:C:/StellarisWare/driverlib\i2s.c **** //!
+ 171:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 172:C:/StellarisWare/driverlib\i2s.c **** //! \param ulData is the single- or dual-channel I2S data.
+ 173:C:/StellarisWare/driverlib\i2s.c **** //!
+ 174:C:/StellarisWare/driverlib\i2s.c **** //! This function writes a single-channel sample or combined left-right
+ 175:C:/StellarisWare/driverlib\i2s.c **** //! samples to the I2S transmit FIFO.  The format of the sample is determined
+ 176:C:/StellarisWare/driverlib\i2s.c **** //! by the configuration that was used with the function I2STxConfigSet().
+ 177:C:/StellarisWare/driverlib\i2s.c **** //! If the transmit mode is \b I2S_MODE_DUAL_STEREO then the \e ulData
+ 178:C:/StellarisWare/driverlib\i2s.c **** //! parameter contains either the left or right sample.  The left and right
+ 179:C:/StellarisWare/driverlib\i2s.c **** //! sample alternate with each write to the FIFO, left sample first.  If the
+ 180:C:/StellarisWare/driverlib\i2s.c **** //! transmit mode is \b I2S_MODE_COMPACT_STEREO_16 or
+ 181:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_MODE_COMPACT_STEREO_8, then the \e ulData parameter contains both
+ 182:C:/StellarisWare/driverlib\i2s.c **** //! the left and right samples.  If the transmit mode is
+ 183:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_MODE_SINGLE_MONO then the \e ulData parameter contains the single-
+ 184:C:/StellarisWare/driverlib\i2s.c **** //! channel sample.
+ 185:C:/StellarisWare/driverlib\i2s.c **** //!
+ 186:C:/StellarisWare/driverlib\i2s.c **** //! For the compact modes, both the left and right samples are written at
+ 187:C:/StellarisWare/driverlib\i2s.c **** //! the same time.  If 16-bit compact mode is used, then the least significant
+ 188:C:/StellarisWare/driverlib\i2s.c **** //! 16 bits contain the left sample, and the most significant 16 bits contain
+ 189:C:/StellarisWare/driverlib\i2s.c **** //! the right sample.  If 8-bit compact mode is used, then the lower 8 bits
+ 190:C:/StellarisWare/driverlib\i2s.c **** //! contain the left sample, and the next 8 bits contain the right sample,
+ 191:C:/StellarisWare/driverlib\i2s.c **** //! with the upper 16 bits unused.
+ 192:C:/StellarisWare/driverlib\i2s.c **** //!
+ 193:C:/StellarisWare/driverlib\i2s.c **** //! If there is no room in the transmit FIFO, then this function returns
+ 194:C:/StellarisWare/driverlib\i2s.c **** //! immediately without writing any data to the FIFO.
+ 195:C:/StellarisWare/driverlib\i2s.c **** //!
+ 196:C:/StellarisWare/driverlib\i2s.c **** //! \return The number of elements written to the I2S transmit FIFO (1 or 0).
+ 197:C:/StellarisWare/driverlib\i2s.c **** //
+ 198:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 199:C:/StellarisWare/driverlib\i2s.c **** long
+ 200:C:/StellarisWare/driverlib\i2s.c **** I2STxDataPutNonBlocking(unsigned long ulBase, unsigned long ulData)
+ 201:C:/StellarisWare/driverlib\i2s.c **** {
+ 158              		.loc 1 201 0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 8
+ 161              		@ frame_needed = 1, uses_anonymous_args = 0
+ 162              		@ link register save eliminated.
+ 163 0000 80B4     		push	{r7}
+ 164              	.LCFI9:
+ 165              		.cfi_def_cfa_offset 4
+ 166              		.cfi_offset 7, -4
+ 167 0002 83B0     		sub	sp, sp, #12
+ 168              	.LCFI10:
+ 169              		.cfi_def_cfa_offset 16
+ 170 0004 00AF     		add	r7, sp, #0
+ 171              	.LCFI11:
+ 172              		.cfi_def_cfa_register 7
+ 173 0006 7860     		str	r0, [r7, #4]
+ 174 0008 3960     		str	r1, [r7, #0]
+ 202:C:/StellarisWare/driverlib\i2s.c ****     //
+ 203:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 204:C:/StellarisWare/driverlib\i2s.c ****     //
+ 205:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 206:C:/StellarisWare/driverlib\i2s.c **** 
+ 207:C:/StellarisWare/driverlib\i2s.c ****     //
+ 208:C:/StellarisWare/driverlib\i2s.c ****     // Check for space to write.
+ 209:C:/StellarisWare/driverlib\i2s.c ****     //
+ 210:C:/StellarisWare/driverlib\i2s.c ****     if(HWREG(ulBase + I2S_O_TXLEV) < 16)
+ 175              		.loc 1 210 0
+ 176 000a 7B68     		ldr	r3, [r7, #4]
+ 177 000c 03F11803 		add	r3, r3, #24
+ 178 0010 1B68     		ldr	r3, [r3, #0]
+ 179 0012 0F2B     		cmp	r3, #15
+ 180 0014 05D8     		bhi	.L6
+ 211:C:/StellarisWare/driverlib\i2s.c ****     {
+ 212:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_TXFIFO) = ulData;
+ 181              		.loc 1 212 0
+ 182 0016 7B68     		ldr	r3, [r7, #4]
+ 183 0018 3A68     		ldr	r2, [r7, #0]
+ 184 001a 1A60     		str	r2, [r3, #0]
+ 213:C:/StellarisWare/driverlib\i2s.c ****         return(1);
+ 185              		.loc 1 213 0
+ 186 001c 4FF00103 		mov	r3, #1
+ 187 0020 01E0     		b	.L7
+ 188              	.L6:
+ 214:C:/StellarisWare/driverlib\i2s.c ****     }
+ 215:C:/StellarisWare/driverlib\i2s.c ****     else
+ 216:C:/StellarisWare/driverlib\i2s.c ****     {
+ 217:C:/StellarisWare/driverlib\i2s.c ****         return(0);
+ 189              		.loc 1 217 0
+ 190 0022 4FF00003 		mov	r3, #0
+ 191              	.L7:
+ 218:C:/StellarisWare/driverlib\i2s.c ****     }
+ 219:C:/StellarisWare/driverlib\i2s.c **** }
+ 192              		.loc 1 219 0
+ 193 0026 1846     		mov	r0, r3
+ 194 0028 07F10C07 		add	r7, r7, #12
+ 195 002c BD46     		mov	sp, r7
+ 196 002e 80BC     		pop	{r7}
+ 197 0030 7047     		bx	lr
+ 198              		.cfi_endproc
+ 199              	.LFE3:
+ 201 0032 00BF     		.section	.text.I2STxConfigSet,"ax",%progbits
+ 202              		.align	2
+ 203              		.global	I2STxConfigSet
+ 204              		.thumb
+ 205              		.thumb_func
+ 207              	I2STxConfigSet:
+ 208              	.LFB4:
+ 220:C:/StellarisWare/driverlib\i2s.c **** 
+ 221:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 222:C:/StellarisWare/driverlib\i2s.c **** //
+ 223:C:/StellarisWare/driverlib\i2s.c **** //! Configures the I2S transmit module.
+ 224:C:/StellarisWare/driverlib\i2s.c **** //!
+ 225:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 226:C:/StellarisWare/driverlib\i2s.c **** //! \param ulConfig is the logical OR of the configuration options.
+ 227:C:/StellarisWare/driverlib\i2s.c **** //!
+ 228:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to configure the options for the I2S transmit
+ 229:C:/StellarisWare/driverlib\i2s.c **** //! channel.  The parameter \e ulConfig is the logical OR of the following
+ 230:C:/StellarisWare/driverlib\i2s.c **** //! options:
+ 231:C:/StellarisWare/driverlib\i2s.c **** //!
+ 232:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_FORMAT_I2S for standard I2S format,
+ 233:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_LEFT_JUST for left justified format, or
+ 234:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_RIGHT_JUST for right justified format.
+ 235:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SCLK_INVERT to invert the polarity of the serial bit clock.
+ 236:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_MODE_DUAL for dual channel stereo,
+ 237:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_16 for 16-bit compact stereo mode,
+ 238:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_8 for 8-bit compact stereo mode, or
+ 239:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_MONO for single channel mono format.
+ 240:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_CLK_MASTER or \b I2S_CONFIG_CLK_SLAVE to select whether
+ 241:C:/StellarisWare/driverlib\i2s.c **** //!   the I2S transmitter is the clock master or slave.
+ 242:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SAMPLE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 243:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per sample.
+ 244:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_WIRE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 245:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per word that are transferred on the data
+ 246:C:/StellarisWare/driverlib\i2s.c **** //!   line.
+ 247:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_EMPTY_ZERO or \b I2S_CONFIG_EMPTY_REPEAT to select whether
+ 248:C:/StellarisWare/driverlib\i2s.c **** //!   the module transmits zeroes or repeats the last sample when the FIFO is
+ 249:C:/StellarisWare/driverlib\i2s.c **** //!   empty.
+ 250:C:/StellarisWare/driverlib\i2s.c **** //!
+ 251:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 252:C:/StellarisWare/driverlib\i2s.c **** //
+ 253:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 254:C:/StellarisWare/driverlib\i2s.c **** void
+ 255:C:/StellarisWare/driverlib\i2s.c **** I2STxConfigSet(unsigned long ulBase, unsigned long ulConfig)
+ 256:C:/StellarisWare/driverlib\i2s.c **** {
+ 209              		.loc 1 256 0
+ 210              		.cfi_startproc
+ 211              		@ args = 0, pretend = 0, frame = 8
+ 212              		@ frame_needed = 1, uses_anonymous_args = 0
+ 213              		@ link register save eliminated.
+ 214 0000 80B4     		push	{r7}
+ 215              	.LCFI12:
+ 216              		.cfi_def_cfa_offset 4
+ 217              		.cfi_offset 7, -4
+ 218 0002 83B0     		sub	sp, sp, #12
+ 219              	.LCFI13:
+ 220              		.cfi_def_cfa_offset 16
+ 221 0004 00AF     		add	r7, sp, #0
+ 222              	.LCFI14:
+ 223              		.cfi_def_cfa_register 7
+ 224 0006 7860     		str	r0, [r7, #4]
+ 225 0008 3960     		str	r1, [r7, #0]
+ 257:C:/StellarisWare/driverlib\i2s.c ****     //
+ 258:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 259:C:/StellarisWare/driverlib\i2s.c ****     //
+ 260:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 261:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulConfig & (I2S_CONFIG_FORMAT_MASK | I2S_CONFIG_MODE_MASK |
+ 262:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_EMPTY_MASK | I2S_CONFIG_CLK_MASK |
+ 263:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_SAMPLE_SIZE_MASK |
+ 264:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_WIRE_SIZE_MASK)) == ulConfig);
+ 265:C:/StellarisWare/driverlib\i2s.c **** 
+ 266:C:/StellarisWare/driverlib\i2s.c ****     //
+ 267:C:/StellarisWare/driverlib\i2s.c ****     // Check to see if a compact mode is used.
+ 268:C:/StellarisWare/driverlib\i2s.c ****     //
+ 269:C:/StellarisWare/driverlib\i2s.c ****     if((ulConfig & I2S_CONFIG_MODE_MASK) == I2S_CONFIG_MODE_COMPACT_8)
+ 226              		.loc 1 269 0
+ 227 000a 3B68     		ldr	r3, [r7, #0]
+ 228 000c 03F04073 		and	r3, r3, #50331648
+ 229 0010 B3F1407F 		cmp	r3, #50331648
+ 230 0014 0AD1     		bne	.L9
+ 270:C:/StellarisWare/driverlib\i2s.c ****     {
+ 271:C:/StellarisWare/driverlib\i2s.c ****         //
+ 272:C:/StellarisWare/driverlib\i2s.c ****         // If compact 8 mode is used, then need to adjust some bits
+ 273:C:/StellarisWare/driverlib\i2s.c ****         // before writing the config register.  Also set the FIFO
+ 274:C:/StellarisWare/driverlib\i2s.c ****         // config register for 8-bit compact samples.
+ 275:C:/StellarisWare/driverlib\i2s.c ****         //
+ 276:C:/StellarisWare/driverlib\i2s.c ****         ulConfig &= ~I2S_CONFIG_MODE_MONO;
+ 231              		.loc 1 276 0
+ 232 0016 3B68     		ldr	r3, [r7, #0]
+ 233 0018 23F00073 		bic	r3, r3, #33554432
+ 234 001c 3B60     		str	r3, [r7, #0]
+ 277:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_TXFIFOCFG) = I2S_TXFIFOCFG_CSS;
+ 235              		.loc 1 277 0
+ 236 001e 7B68     		ldr	r3, [r7, #4]
+ 237 0020 03F10403 		add	r3, r3, #4
+ 238 0024 4FF00202 		mov	r2, #2
+ 239 0028 1A60     		str	r2, [r3, #0]
+ 240 002a 05E0     		b	.L10
+ 241              	.L9:
+ 278:C:/StellarisWare/driverlib\i2s.c ****     }
+ 279:C:/StellarisWare/driverlib\i2s.c ****     else
+ 280:C:/StellarisWare/driverlib\i2s.c ****     {
+ 281:C:/StellarisWare/driverlib\i2s.c ****         //
+ 282:C:/StellarisWare/driverlib\i2s.c ****         // If compact 8 mode is not used, then set the FIFO config
+ 283:C:/StellarisWare/driverlib\i2s.c ****         // register for 16 bit.  This setting is okay if a compact
+ 284:C:/StellarisWare/driverlib\i2s.c ****         // mode is not used.
+ 285:C:/StellarisWare/driverlib\i2s.c ****         //
+ 286:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_TXFIFOCFG) = 0;
+ 242              		.loc 1 286 0
+ 243 002c 7B68     		ldr	r3, [r7, #4]
+ 244 002e 03F10403 		add	r3, r3, #4
+ 245 0032 4FF00002 		mov	r2, #0
+ 246 0036 1A60     		str	r2, [r3, #0]
+ 247              	.L10:
+ 287:C:/StellarisWare/driverlib\i2s.c ****     }
+ 288:C:/StellarisWare/driverlib\i2s.c **** 
+ 289:C:/StellarisWare/driverlib\i2s.c ****     //
+ 290:C:/StellarisWare/driverlib\i2s.c ****     // Write the configuration register.  Because all the fields are
+ 291:C:/StellarisWare/driverlib\i2s.c ****     // specified by the configuration parameter, it is not necessary
+ 292:C:/StellarisWare/driverlib\i2s.c ****     // to do a read-modify-write.
+ 293:C:/StellarisWare/driverlib\i2s.c ****     //
+ 294:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXCFG) = ulConfig;
+ 248              		.loc 1 294 0
+ 249 0038 7B68     		ldr	r3, [r7, #4]
+ 250 003a 03F10803 		add	r3, r3, #8
+ 251 003e 3A68     		ldr	r2, [r7, #0]
+ 252 0040 1A60     		str	r2, [r3, #0]
+ 295:C:/StellarisWare/driverlib\i2s.c **** }
+ 253              		.loc 1 295 0
+ 254 0042 07F10C07 		add	r7, r7, #12
+ 255 0046 BD46     		mov	sp, r7
+ 256 0048 80BC     		pop	{r7}
+ 257 004a 7047     		bx	lr
+ 258              		.cfi_endproc
+ 259              	.LFE4:
+ 261              		.section	.text.I2STxFIFOLimitSet,"ax",%progbits
+ 262              		.align	2
+ 263              		.global	I2STxFIFOLimitSet
+ 264              		.thumb
+ 265              		.thumb_func
+ 267              	I2STxFIFOLimitSet:
+ 268              	.LFB5:
+ 296:C:/StellarisWare/driverlib\i2s.c **** 
+ 297:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 298:C:/StellarisWare/driverlib\i2s.c **** //
+ 299:C:/StellarisWare/driverlib\i2s.c **** //! Sets the FIFO level at which a service request is generated.
+ 300:C:/StellarisWare/driverlib\i2s.c **** //!
+ 301:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 302:C:/StellarisWare/driverlib\i2s.c **** //! \param ulLevel is the FIFO service request limit.
+ 303:C:/StellarisWare/driverlib\i2s.c **** //!
+ 304:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to set the transmit FIFO fullness level at which a
+ 305:C:/StellarisWare/driverlib\i2s.c **** //! service request occurs.  The service request is used to generate an
+ 306:C:/StellarisWare/driverlib\i2s.c **** //! interrupt or a DMA transfer request.  The transmit FIFO generates a
+ 307:C:/StellarisWare/driverlib\i2s.c **** //! service request when the number of items in the FIFO is less than the level
+ 308:C:/StellarisWare/driverlib\i2s.c **** //! specified in the \e ulLevel parameter.  For example, if \e ulLevel is 8,
+ 309:C:/StellarisWare/driverlib\i2s.c **** //! then a service request is generated when there are less than 8 samples
+ 310:C:/StellarisWare/driverlib\i2s.c **** //! remaining in the transmit FIFO.
+ 311:C:/StellarisWare/driverlib\i2s.c **** //!
+ 312:C:/StellarisWare/driverlib\i2s.c **** //! For the purposes of counting the FIFO level, a left-right sample pair
+ 313:C:/StellarisWare/driverlib\i2s.c **** //! counts as 2, whether the mode is dual or compact stereo.  When mono mode is
+ 314:C:/StellarisWare/driverlib\i2s.c **** //! used, internally the mono sample is still treated as a sample pair, so a
+ 315:C:/StellarisWare/driverlib\i2s.c **** //! single mono sample counts as 2.  Because the FIFO always deals with sample
+ 316:C:/StellarisWare/driverlib\i2s.c **** //! pairs, the level must be an even number from 0 to 16.  The maximum value is
+ 317:C:/StellarisWare/driverlib\i2s.c **** //! 16, which causes a service request when there is any room in the FIFO.
+ 318:C:/StellarisWare/driverlib\i2s.c **** //! The minimum value is 0, which disables the service request.
+ 319:C:/StellarisWare/driverlib\i2s.c **** //!
+ 320:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 321:C:/StellarisWare/driverlib\i2s.c **** //
+ 322:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 323:C:/StellarisWare/driverlib\i2s.c **** void
+ 324:C:/StellarisWare/driverlib\i2s.c **** I2STxFIFOLimitSet(unsigned long ulBase, unsigned long ulLevel)
+ 325:C:/StellarisWare/driverlib\i2s.c **** {
+ 269              		.loc 1 325 0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 8
+ 272              		@ frame_needed = 1, uses_anonymous_args = 0
+ 273              		@ link register save eliminated.
+ 274 0000 80B4     		push	{r7}
+ 275              	.LCFI15:
+ 276              		.cfi_def_cfa_offset 4
+ 277              		.cfi_offset 7, -4
+ 278 0002 83B0     		sub	sp, sp, #12
+ 279              	.LCFI16:
+ 280              		.cfi_def_cfa_offset 16
+ 281 0004 00AF     		add	r7, sp, #0
+ 282              	.LCFI17:
+ 283              		.cfi_def_cfa_register 7
+ 284 0006 7860     		str	r0, [r7, #4]
+ 285 0008 3960     		str	r1, [r7, #0]
+ 326:C:/StellarisWare/driverlib\i2s.c ****     //
+ 327:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 328:C:/StellarisWare/driverlib\i2s.c ****     //
+ 329:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 330:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulLevel <= 16);
+ 331:C:/StellarisWare/driverlib\i2s.c **** 
+ 332:C:/StellarisWare/driverlib\i2s.c ****     //
+ 333:C:/StellarisWare/driverlib\i2s.c ****     // Write the FIFO limit
+ 334:C:/StellarisWare/driverlib\i2s.c ****     //
+ 335:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXLIMIT) = ulLevel;
+ 286              		.loc 1 335 0
+ 287 000a 7B68     		ldr	r3, [r7, #4]
+ 288 000c 03F10C03 		add	r3, r3, #12
+ 289 0010 3A68     		ldr	r2, [r7, #0]
+ 290 0012 1A60     		str	r2, [r3, #0]
+ 336:C:/StellarisWare/driverlib\i2s.c **** }
+ 291              		.loc 1 336 0
+ 292 0014 07F10C07 		add	r7, r7, #12
+ 293 0018 BD46     		mov	sp, r7
+ 294 001a 80BC     		pop	{r7}
+ 295 001c 7047     		bx	lr
+ 296              		.cfi_endproc
+ 297              	.LFE5:
+ 299 001e 00BF     		.section	.text.I2STxFIFOLimitGet,"ax",%progbits
+ 300              		.align	2
+ 301              		.global	I2STxFIFOLimitGet
+ 302              		.thumb
+ 303              		.thumb_func
+ 305              	I2STxFIFOLimitGet:
+ 306              	.LFB6:
+ 337:C:/StellarisWare/driverlib\i2s.c **** 
+ 338:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 339:C:/StellarisWare/driverlib\i2s.c **** //
+ 340:C:/StellarisWare/driverlib\i2s.c **** //! Gets the current setting of the FIFO service request level.
+ 341:C:/StellarisWare/driverlib\i2s.c **** //!
+ 342:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 343:C:/StellarisWare/driverlib\i2s.c **** //!
+ 344:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to get the value of the transmit FIFO service
+ 345:C:/StellarisWare/driverlib\i2s.c **** //! request level.  This value is set using the I2STxFIFOLimitSet()
+ 346:C:/StellarisWare/driverlib\i2s.c **** //! function.
+ 347:C:/StellarisWare/driverlib\i2s.c **** //!
+ 348:C:/StellarisWare/driverlib\i2s.c **** //! \return Returns the current value of the FIFO service request limit.
+ 349:C:/StellarisWare/driverlib\i2s.c **** //
+ 350:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 351:C:/StellarisWare/driverlib\i2s.c **** unsigned long
+ 352:C:/StellarisWare/driverlib\i2s.c **** I2STxFIFOLimitGet(unsigned long ulBase)
+ 353:C:/StellarisWare/driverlib\i2s.c **** {
+ 307              		.loc 1 353 0
+ 308              		.cfi_startproc
+ 309              		@ args = 0, pretend = 0, frame = 8
+ 310              		@ frame_needed = 1, uses_anonymous_args = 0
+ 311              		@ link register save eliminated.
+ 312 0000 80B4     		push	{r7}
+ 313              	.LCFI18:
+ 314              		.cfi_def_cfa_offset 4
+ 315              		.cfi_offset 7, -4
+ 316 0002 83B0     		sub	sp, sp, #12
+ 317              	.LCFI19:
+ 318              		.cfi_def_cfa_offset 16
+ 319 0004 00AF     		add	r7, sp, #0
+ 320              	.LCFI20:
+ 321              		.cfi_def_cfa_register 7
+ 322 0006 7860     		str	r0, [r7, #4]
+ 354:C:/StellarisWare/driverlib\i2s.c ****     //
+ 355:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 356:C:/StellarisWare/driverlib\i2s.c ****     //
+ 357:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 358:C:/StellarisWare/driverlib\i2s.c **** 
+ 359:C:/StellarisWare/driverlib\i2s.c ****     //
+ 360:C:/StellarisWare/driverlib\i2s.c ****     // Read and return the FIFO limit
+ 361:C:/StellarisWare/driverlib\i2s.c ****     //
+ 362:C:/StellarisWare/driverlib\i2s.c ****     return(HWREG(ulBase + I2S_O_TXLIMIT));
+ 323              		.loc 1 362 0
+ 324 0008 7B68     		ldr	r3, [r7, #4]
+ 325 000a 03F10C03 		add	r3, r3, #12
+ 326 000e 1B68     		ldr	r3, [r3, #0]
+ 363:C:/StellarisWare/driverlib\i2s.c **** }
+ 327              		.loc 1 363 0
+ 328 0010 1846     		mov	r0, r3
+ 329 0012 07F10C07 		add	r7, r7, #12
+ 330 0016 BD46     		mov	sp, r7
+ 331 0018 80BC     		pop	{r7}
+ 332 001a 7047     		bx	lr
+ 333              		.cfi_endproc
+ 334              	.LFE6:
+ 336              		.section	.text.I2STxFIFOLevelGet,"ax",%progbits
+ 337              		.align	2
+ 338              		.global	I2STxFIFOLevelGet
+ 339              		.thumb
+ 340              		.thumb_func
+ 342              	I2STxFIFOLevelGet:
+ 343              	.LFB7:
+ 364:C:/StellarisWare/driverlib\i2s.c **** 
+ 365:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 366:C:/StellarisWare/driverlib\i2s.c **** //
+ 367:C:/StellarisWare/driverlib\i2s.c **** //! Gets the number of samples in the transmit FIFO.
+ 368:C:/StellarisWare/driverlib\i2s.c **** //!
+ 369:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 370:C:/StellarisWare/driverlib\i2s.c **** //!
+ 371:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to get the number of samples in the transmit FIFO.
+ 372:C:/StellarisWare/driverlib\i2s.c **** //! For the purposes of measuring the FIFO level, a left-right sample pair
+ 373:C:/StellarisWare/driverlib\i2s.c **** //! counts as 2, whether the mode is dual or compact stereo.  When mono mode is
+ 374:C:/StellarisWare/driverlib\i2s.c **** //! used, internally the mono sample is still treated as a sample pair, so a
+ 375:C:/StellarisWare/driverlib\i2s.c **** //! single mono sample counts as 2.  Because the FIFO always deals with sample
+ 376:C:/StellarisWare/driverlib\i2s.c **** //! pairs, normally the level is an even number from 0 to 16.  If dual stereo
+ 377:C:/StellarisWare/driverlib\i2s.c **** //! mode is used and only the left sample has been written without the matching
+ 378:C:/StellarisWare/driverlib\i2s.c **** //! right sample, then the FIFO level is an odd value.  If the FIFO level is
+ 379:C:/StellarisWare/driverlib\i2s.c **** //! odd, it indicates a left-right sample mismatch.
+ 380:C:/StellarisWare/driverlib\i2s.c **** //!
+ 381:C:/StellarisWare/driverlib\i2s.c **** //! \return Returns the number of samples in the transmit FIFO, which is
+ 382:C:/StellarisWare/driverlib\i2s.c **** //! normally an even number.
+ 383:C:/StellarisWare/driverlib\i2s.c **** //
+ 384:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 385:C:/StellarisWare/driverlib\i2s.c **** unsigned long
+ 386:C:/StellarisWare/driverlib\i2s.c **** I2STxFIFOLevelGet(unsigned long ulBase)
+ 387:C:/StellarisWare/driverlib\i2s.c **** {
+ 344              		.loc 1 387 0
+ 345              		.cfi_startproc
+ 346              		@ args = 0, pretend = 0, frame = 8
+ 347              		@ frame_needed = 1, uses_anonymous_args = 0
+ 348              		@ link register save eliminated.
+ 349 0000 80B4     		push	{r7}
+ 350              	.LCFI21:
+ 351              		.cfi_def_cfa_offset 4
+ 352              		.cfi_offset 7, -4
+ 353 0002 83B0     		sub	sp, sp, #12
+ 354              	.LCFI22:
+ 355              		.cfi_def_cfa_offset 16
+ 356 0004 00AF     		add	r7, sp, #0
+ 357              	.LCFI23:
+ 358              		.cfi_def_cfa_register 7
+ 359 0006 7860     		str	r0, [r7, #4]
+ 388:C:/StellarisWare/driverlib\i2s.c ****     //
+ 389:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 390:C:/StellarisWare/driverlib\i2s.c ****     //
+ 391:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 392:C:/StellarisWare/driverlib\i2s.c **** 
+ 393:C:/StellarisWare/driverlib\i2s.c ****     //
+ 394:C:/StellarisWare/driverlib\i2s.c ****     // Read and return the transmit FIFO level.
+ 395:C:/StellarisWare/driverlib\i2s.c ****     //
+ 396:C:/StellarisWare/driverlib\i2s.c ****     return(HWREG(ulBase + I2S_O_TXLEV));
+ 360              		.loc 1 396 0
+ 361 0008 7B68     		ldr	r3, [r7, #4]
+ 362 000a 03F11803 		add	r3, r3, #24
+ 363 000e 1B68     		ldr	r3, [r3, #0]
+ 397:C:/StellarisWare/driverlib\i2s.c **** }
+ 364              		.loc 1 397 0
+ 365 0010 1846     		mov	r0, r3
+ 366 0012 07F10C07 		add	r7, r7, #12
+ 367 0016 BD46     		mov	sp, r7
+ 368 0018 80BC     		pop	{r7}
+ 369 001a 7047     		bx	lr
+ 370              		.cfi_endproc
+ 371              	.LFE7:
+ 373              		.section	.text.I2SRxEnable,"ax",%progbits
+ 374              		.align	2
+ 375              		.global	I2SRxEnable
+ 376              		.thumb
+ 377              		.thumb_func
+ 379              	I2SRxEnable:
+ 380              	.LFB8:
+ 398:C:/StellarisWare/driverlib\i2s.c **** 
+ 399:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 400:C:/StellarisWare/driverlib\i2s.c **** //
+ 401:C:/StellarisWare/driverlib\i2s.c **** //! Enables the I2S receive module for operation.
+ 402:C:/StellarisWare/driverlib\i2s.c **** //!
+ 403:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 404:C:/StellarisWare/driverlib\i2s.c **** //!
+ 405:C:/StellarisWare/driverlib\i2s.c **** //! This function enables the receive module for operation.  The module should
+ 406:C:/StellarisWare/driverlib\i2s.c **** //! be enabled after configuration.  When the module is disabled, no data is
+ 407:C:/StellarisWare/driverlib\i2s.c **** //! clocked in regardless of the signals on the I2S interface.
+ 408:C:/StellarisWare/driverlib\i2s.c **** //!
+ 409:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 410:C:/StellarisWare/driverlib\i2s.c **** //
+ 411:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 412:C:/StellarisWare/driverlib\i2s.c **** void
+ 413:C:/StellarisWare/driverlib\i2s.c **** I2SRxEnable(unsigned long ulBase)
+ 414:C:/StellarisWare/driverlib\i2s.c **** {
+ 381              		.loc 1 414 0
+ 382              		.cfi_startproc
+ 383              		@ args = 0, pretend = 0, frame = 8
+ 384              		@ frame_needed = 1, uses_anonymous_args = 0
+ 385              		@ link register save eliminated.
+ 386 0000 80B4     		push	{r7}
+ 387              	.LCFI24:
+ 388              		.cfi_def_cfa_offset 4
+ 389              		.cfi_offset 7, -4
+ 390 0002 83B0     		sub	sp, sp, #12
+ 391              	.LCFI25:
+ 392              		.cfi_def_cfa_offset 16
+ 393 0004 00AF     		add	r7, sp, #0
+ 394              	.LCFI26:
+ 395              		.cfi_def_cfa_register 7
+ 396 0006 7860     		str	r0, [r7, #4]
+ 415:C:/StellarisWare/driverlib\i2s.c ****     //
+ 416:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 417:C:/StellarisWare/driverlib\i2s.c ****     //
+ 418:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 419:C:/StellarisWare/driverlib\i2s.c **** 
+ 420:C:/StellarisWare/driverlib\i2s.c ****     //
+ 421:C:/StellarisWare/driverlib\i2s.c ****     // Enable the tx FIFO service request.
+ 422:C:/StellarisWare/driverlib\i2s.c ****     //
+ 423:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXISM) = I2S_RXISM_FFM;
+ 397              		.loc 1 423 0
+ 398 0008 7B68     		ldr	r3, [r7, #4]
+ 399 000a 03F50163 		add	r3, r3, #2064
+ 400 000e 4FF00102 		mov	r2, #1
+ 401 0012 1A60     		str	r2, [r3, #0]
+ 424:C:/StellarisWare/driverlib\i2s.c **** 
+ 425:C:/StellarisWare/driverlib\i2s.c ****     //
+ 426:C:/StellarisWare/driverlib\i2s.c ****     // Read-modify-write the enable bit.
+ 427:C:/StellarisWare/driverlib\i2s.c ****     //
+ 428:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) |= I2S_CFG_RXEN;
+ 402              		.loc 1 428 0
+ 403 0014 7B68     		ldr	r3, [r7, #4]
+ 404 0016 03F54063 		add	r3, r3, #3072
+ 405 001a 7A68     		ldr	r2, [r7, #4]
+ 406 001c 02F54062 		add	r2, r2, #3072
+ 407 0020 1268     		ldr	r2, [r2, #0]
+ 408 0022 42F00202 		orr	r2, r2, #2
+ 409 0026 1A60     		str	r2, [r3, #0]
+ 429:C:/StellarisWare/driverlib\i2s.c **** }
+ 410              		.loc 1 429 0
+ 411 0028 07F10C07 		add	r7, r7, #12
+ 412 002c BD46     		mov	sp, r7
+ 413 002e 80BC     		pop	{r7}
+ 414 0030 7047     		bx	lr
+ 415              		.cfi_endproc
+ 416              	.LFE8:
+ 418 0032 00BF     		.section	.text.I2SRxDisable,"ax",%progbits
+ 419              		.align	2
+ 420              		.global	I2SRxDisable
+ 421              		.thumb
+ 422              		.thumb_func
+ 424              	I2SRxDisable:
+ 425              	.LFB9:
+ 430:C:/StellarisWare/driverlib\i2s.c **** 
+ 431:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 432:C:/StellarisWare/driverlib\i2s.c **** //
+ 433:C:/StellarisWare/driverlib\i2s.c **** //! Disables the I2S receive module for operation.
+ 434:C:/StellarisWare/driverlib\i2s.c **** //!
+ 435:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 436:C:/StellarisWare/driverlib\i2s.c **** //!
+ 437:C:/StellarisWare/driverlib\i2s.c **** //! This function disables the receive module for operation.  The module should
+ 438:C:/StellarisWare/driverlib\i2s.c **** //! be disabled before configuration.  When the module is disabled, no data is
+ 439:C:/StellarisWare/driverlib\i2s.c **** //! clocked in regardless of the signals on the I2S interface.
+ 440:C:/StellarisWare/driverlib\i2s.c **** //!
+ 441:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 442:C:/StellarisWare/driverlib\i2s.c **** //
+ 443:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 444:C:/StellarisWare/driverlib\i2s.c **** void
+ 445:C:/StellarisWare/driverlib\i2s.c **** I2SRxDisable(unsigned long ulBase)
+ 446:C:/StellarisWare/driverlib\i2s.c **** {
+ 426              		.loc 1 446 0
+ 427              		.cfi_startproc
+ 428              		@ args = 0, pretend = 0, frame = 8
+ 429              		@ frame_needed = 1, uses_anonymous_args = 0
+ 430              		@ link register save eliminated.
+ 431 0000 80B4     		push	{r7}
+ 432              	.LCFI27:
+ 433              		.cfi_def_cfa_offset 4
+ 434              		.cfi_offset 7, -4
+ 435 0002 83B0     		sub	sp, sp, #12
+ 436              	.LCFI28:
+ 437              		.cfi_def_cfa_offset 16
+ 438 0004 00AF     		add	r7, sp, #0
+ 439              	.LCFI29:
+ 440              		.cfi_def_cfa_register 7
+ 441 0006 7860     		str	r0, [r7, #4]
+ 447:C:/StellarisWare/driverlib\i2s.c ****     //
+ 448:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 449:C:/StellarisWare/driverlib\i2s.c ****     //
+ 450:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 451:C:/StellarisWare/driverlib\i2s.c **** 
+ 452:C:/StellarisWare/driverlib\i2s.c ****     //
+ 453:C:/StellarisWare/driverlib\i2s.c ****     // Read-modify-write the enable bit.
+ 454:C:/StellarisWare/driverlib\i2s.c ****     //
+ 455:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) &= ~I2S_CFG_RXEN;
+ 442              		.loc 1 455 0
+ 443 0008 7B68     		ldr	r3, [r7, #4]
+ 444 000a 03F54063 		add	r3, r3, #3072
+ 445 000e 7A68     		ldr	r2, [r7, #4]
+ 446 0010 02F54062 		add	r2, r2, #3072
+ 447 0014 1268     		ldr	r2, [r2, #0]
+ 448 0016 22F00202 		bic	r2, r2, #2
+ 449 001a 1A60     		str	r2, [r3, #0]
+ 456:C:/StellarisWare/driverlib\i2s.c **** }
+ 450              		.loc 1 456 0
+ 451 001c 07F10C07 		add	r7, r7, #12
+ 452 0020 BD46     		mov	sp, r7
+ 453 0022 80BC     		pop	{r7}
+ 454 0024 7047     		bx	lr
+ 455              		.cfi_endproc
+ 456              	.LFE9:
+ 458 0026 00BF     		.section	.text.I2SRxDataGet,"ax",%progbits
+ 459              		.align	2
+ 460              		.global	I2SRxDataGet
+ 461              		.thumb
+ 462              		.thumb_func
+ 464              	I2SRxDataGet:
+ 465              	.LFB10:
+ 457:C:/StellarisWare/driverlib\i2s.c **** 
+ 458:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 459:C:/StellarisWare/driverlib\i2s.c **** //
+ 460:C:/StellarisWare/driverlib\i2s.c **** //! Reads data samples from the I2S receive FIFO with blocking.
+ 461:C:/StellarisWare/driverlib\i2s.c **** //!
+ 462:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 463:C:/StellarisWare/driverlib\i2s.c **** //! \param pulData points to storage for the returned I2S sample data.
+ 464:C:/StellarisWare/driverlib\i2s.c **** //!
+ 465:C:/StellarisWare/driverlib\i2s.c **** //! This function reads a single channel sample or combined left-right
+ 466:C:/StellarisWare/driverlib\i2s.c **** //! samples from the I2S receive FIFO.  The format of the sample is determined
+ 467:C:/StellarisWare/driverlib\i2s.c **** //! by the configuration that was used with the function I2SRxConfigSet().
+ 468:C:/StellarisWare/driverlib\i2s.c **** //! If the receive mode is \b I2S_MODE_DUAL_STEREO then the returned value
+ 469:C:/StellarisWare/driverlib\i2s.c **** //! contains either the left or right sample.  The left and right sample
+ 470:C:/StellarisWare/driverlib\i2s.c **** //! alternate with each read from the FIFO, left sample first.  If the receive
+ 471:C:/StellarisWare/driverlib\i2s.c **** //! mode is \b I2S_MODE_COMPACT_STEREO_16 or \b I2S_MODE_COMPACT_STEREO_8, then
+ 472:C:/StellarisWare/driverlib\i2s.c **** //! the returned data contains both the left and right samples.  If the
+ 473:C:/StellarisWare/driverlib\i2s.c **** //! receive mode is \b I2S_MODE_SINGLE_MONO then the returned data
+ 474:C:/StellarisWare/driverlib\i2s.c **** //! contains the single channel sample.
+ 475:C:/StellarisWare/driverlib\i2s.c **** //!
+ 476:C:/StellarisWare/driverlib\i2s.c **** //! For the compact modes, both the left and right samples are read at
+ 477:C:/StellarisWare/driverlib\i2s.c **** //! the same time.  If 16-bit compact mode is used, then the least significant
+ 478:C:/StellarisWare/driverlib\i2s.c **** //! 16 bits contain the left sample, and the most significant 16 bits contain
+ 479:C:/StellarisWare/driverlib\i2s.c **** //! the right sample.  If 8-bit compact mode is used, then the lower 8 bits
+ 480:C:/StellarisWare/driverlib\i2s.c **** //! contain the left sample, and the next 8 bits contain the right sample,
+ 481:C:/StellarisWare/driverlib\i2s.c **** //! with the upper 16 bits unused.
+ 482:C:/StellarisWare/driverlib\i2s.c **** //!
+ 483:C:/StellarisWare/driverlib\i2s.c **** //! If there is no data in the receive FIFO, then this function waits
+ 484:C:/StellarisWare/driverlib\i2s.c **** //! in a polling loop until data is available.
+ 485:C:/StellarisWare/driverlib\i2s.c **** //!
+ 486:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 487:C:/StellarisWare/driverlib\i2s.c **** //
+ 488:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 489:C:/StellarisWare/driverlib\i2s.c **** void
+ 490:C:/StellarisWare/driverlib\i2s.c **** I2SRxDataGet(unsigned long ulBase, unsigned long *pulData)
+ 491:C:/StellarisWare/driverlib\i2s.c **** {
+ 466              		.loc 1 491 0
+ 467              		.cfi_startproc
+ 468              		@ args = 0, pretend = 0, frame = 8
+ 469              		@ frame_needed = 1, uses_anonymous_args = 0
+ 470              		@ link register save eliminated.
+ 471 0000 80B4     		push	{r7}
+ 472              	.LCFI30:
+ 473              		.cfi_def_cfa_offset 4
+ 474              		.cfi_offset 7, -4
+ 475 0002 83B0     		sub	sp, sp, #12
+ 476              	.LCFI31:
+ 477              		.cfi_def_cfa_offset 16
+ 478 0004 00AF     		add	r7, sp, #0
+ 479              	.LCFI32:
+ 480              		.cfi_def_cfa_register 7
+ 481 0006 7860     		str	r0, [r7, #4]
+ 482 0008 3960     		str	r1, [r7, #0]
+ 492:C:/StellarisWare/driverlib\i2s.c ****     //
+ 493:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 494:C:/StellarisWare/driverlib\i2s.c ****     //
+ 495:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 496:C:/StellarisWare/driverlib\i2s.c **** 
+ 497:C:/StellarisWare/driverlib\i2s.c ****     //
+ 498:C:/StellarisWare/driverlib\i2s.c ****     // Wait until there is data available.
+ 499:C:/StellarisWare/driverlib\i2s.c ****     //
+ 500:C:/StellarisWare/driverlib\i2s.c ****     while(HWREG(ulBase + I2S_O_RXLEV) == 0)
+ 483              		.loc 1 500 0
+ 484 000a 00BF     		nop
+ 485              	.L17:
+ 486              		.loc 1 500 0 is_stmt 0 discriminator 1
+ 487 000c 7B68     		ldr	r3, [r7, #4]
+ 488 000e 03F50063 		add	r3, r3, #2048
+ 489 0012 03F11803 		add	r3, r3, #24
+ 490 0016 1B68     		ldr	r3, [r3, #0]
+ 491 0018 002B     		cmp	r3, #0
+ 492 001a F7D0     		beq	.L17
+ 501:C:/StellarisWare/driverlib\i2s.c ****     {
+ 502:C:/StellarisWare/driverlib\i2s.c ****     }
+ 503:C:/StellarisWare/driverlib\i2s.c **** 
+ 504:C:/StellarisWare/driverlib\i2s.c ****     //
+ 505:C:/StellarisWare/driverlib\i2s.c ****     // Read data from the I2S receive FIFO.
+ 506:C:/StellarisWare/driverlib\i2s.c ****     //
+ 507:C:/StellarisWare/driverlib\i2s.c ****     *pulData = HWREG(ulBase + I2S_O_RXFIFO);
+ 493              		.loc 1 507 0 is_stmt 1
+ 494 001c 7B68     		ldr	r3, [r7, #4]
+ 495 001e 03F50063 		add	r3, r3, #2048
+ 496 0022 1A68     		ldr	r2, [r3, #0]
+ 497 0024 3B68     		ldr	r3, [r7, #0]
+ 498 0026 1A60     		str	r2, [r3, #0]
+ 508:C:/StellarisWare/driverlib\i2s.c **** }
+ 499              		.loc 1 508 0
+ 500 0028 07F10C07 		add	r7, r7, #12
+ 501 002c BD46     		mov	sp, r7
+ 502 002e 80BC     		pop	{r7}
+ 503 0030 7047     		bx	lr
+ 504              		.cfi_endproc
+ 505              	.LFE10:
+ 507 0032 00BF     		.section	.text.I2SRxDataGetNonBlocking,"ax",%progbits
+ 508              		.align	2
+ 509              		.global	I2SRxDataGetNonBlocking
+ 510              		.thumb
+ 511              		.thumb_func
+ 513              	I2SRxDataGetNonBlocking:
+ 514              	.LFB11:
+ 509:C:/StellarisWare/driverlib\i2s.c **** 
+ 510:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 511:C:/StellarisWare/driverlib\i2s.c **** //
+ 512:C:/StellarisWare/driverlib\i2s.c **** //! Reads data samples from the I2S receive FIFO without blocking.
+ 513:C:/StellarisWare/driverlib\i2s.c **** //!
+ 514:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 515:C:/StellarisWare/driverlib\i2s.c **** //! \param pulData points to storage for the returned I2S sample data.
+ 516:C:/StellarisWare/driverlib\i2s.c **** //!
+ 517:C:/StellarisWare/driverlib\i2s.c **** //! This function reads a single channel sample or combined left-right
+ 518:C:/StellarisWare/driverlib\i2s.c **** //! samples from the I2S receive FIFO.  The format of the sample is determined
+ 519:C:/StellarisWare/driverlib\i2s.c **** //! by the configuration that was used with the function I2SRxConfigSet().
+ 520:C:/StellarisWare/driverlib\i2s.c **** //! If the receive mode is \b I2S_MODE_DUAL_STEREO then the received data
+ 521:C:/StellarisWare/driverlib\i2s.c **** //! contains either the left or right sample.  The left and right sample
+ 522:C:/StellarisWare/driverlib\i2s.c **** //! alternate with each read from the FIFO, left sample first.  If the receive
+ 523:C:/StellarisWare/driverlib\i2s.c **** //! mode is \b I2S_MODE_COMPACT_STEREO_16 or \b I2S_MODE_COMPACT_STEREO_8, then
+ 524:C:/StellarisWare/driverlib\i2s.c **** //! the received data contains both the left and right samples.  If the
+ 525:C:/StellarisWare/driverlib\i2s.c **** //! receive mode is \b I2S_MODE_SINGLE_MONO then the received data
+ 526:C:/StellarisWare/driverlib\i2s.c **** //! contains the single channel sample.
+ 527:C:/StellarisWare/driverlib\i2s.c **** //!
+ 528:C:/StellarisWare/driverlib\i2s.c **** //! For the compact modes, both the left and right samples are read at
+ 529:C:/StellarisWare/driverlib\i2s.c **** //! the same time.  If 16-bit compact mode is used, then the least significant
+ 530:C:/StellarisWare/driverlib\i2s.c **** //! 16 bits contain the left sample, and the most significant 16 bits contain
+ 531:C:/StellarisWare/driverlib\i2s.c **** //! the right sample.  If 8-bit compact mode is used, then the lower 8 bits
+ 532:C:/StellarisWare/driverlib\i2s.c **** //! contain the left sample, and the next 8 bits contain the right sample,
+ 533:C:/StellarisWare/driverlib\i2s.c **** //! with the upper 16 bits unused.
+ 534:C:/StellarisWare/driverlib\i2s.c **** //!
+ 535:C:/StellarisWare/driverlib\i2s.c **** //! If there is no data in the receive FIFO, then this function returns
+ 536:C:/StellarisWare/driverlib\i2s.c **** //! immediately without reading any data from the FIFO.
+ 537:C:/StellarisWare/driverlib\i2s.c **** //!
+ 538:C:/StellarisWare/driverlib\i2s.c **** //! \return The number of elements read from the I2S receive FIFO (1 or 0).
+ 539:C:/StellarisWare/driverlib\i2s.c **** //
+ 540:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 541:C:/StellarisWare/driverlib\i2s.c **** long
+ 542:C:/StellarisWare/driverlib\i2s.c **** I2SRxDataGetNonBlocking(unsigned long ulBase, unsigned long *pulData)
+ 543:C:/StellarisWare/driverlib\i2s.c **** {
+ 515              		.loc 1 543 0
+ 516              		.cfi_startproc
+ 517              		@ args = 0, pretend = 0, frame = 8
+ 518              		@ frame_needed = 1, uses_anonymous_args = 0
+ 519              		@ link register save eliminated.
+ 520 0000 80B4     		push	{r7}
+ 521              	.LCFI33:
+ 522              		.cfi_def_cfa_offset 4
+ 523              		.cfi_offset 7, -4
+ 524 0002 83B0     		sub	sp, sp, #12
+ 525              	.LCFI34:
+ 526              		.cfi_def_cfa_offset 16
+ 527 0004 00AF     		add	r7, sp, #0
+ 528              	.LCFI35:
+ 529              		.cfi_def_cfa_register 7
+ 530 0006 7860     		str	r0, [r7, #4]
+ 531 0008 3960     		str	r1, [r7, #0]
+ 544:C:/StellarisWare/driverlib\i2s.c ****     //
+ 545:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 546:C:/StellarisWare/driverlib\i2s.c ****     //
+ 547:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 548:C:/StellarisWare/driverlib\i2s.c **** 
+ 549:C:/StellarisWare/driverlib\i2s.c ****     //
+ 550:C:/StellarisWare/driverlib\i2s.c ****     // Check for available samples.
+ 551:C:/StellarisWare/driverlib\i2s.c ****     //
+ 552:C:/StellarisWare/driverlib\i2s.c ****     if(HWREG(ulBase + I2S_O_RXLEV) != 0)
+ 532              		.loc 1 552 0
+ 533 000a 7B68     		ldr	r3, [r7, #4]
+ 534 000c 03F50063 		add	r3, r3, #2048
+ 535 0010 03F11803 		add	r3, r3, #24
+ 536 0014 1B68     		ldr	r3, [r3, #0]
+ 537 0016 002B     		cmp	r3, #0
+ 538 0018 08D0     		beq	.L19
+ 553:C:/StellarisWare/driverlib\i2s.c ****     {
+ 554:C:/StellarisWare/driverlib\i2s.c ****         *pulData = HWREG(ulBase + I2S_O_RXFIFO);
+ 539              		.loc 1 554 0
+ 540 001a 7B68     		ldr	r3, [r7, #4]
+ 541 001c 03F50063 		add	r3, r3, #2048
+ 542 0020 1A68     		ldr	r2, [r3, #0]
+ 543 0022 3B68     		ldr	r3, [r7, #0]
+ 544 0024 1A60     		str	r2, [r3, #0]
+ 555:C:/StellarisWare/driverlib\i2s.c ****         return(1);
+ 545              		.loc 1 555 0
+ 546 0026 4FF00103 		mov	r3, #1
+ 547 002a 01E0     		b	.L20
+ 548              	.L19:
+ 556:C:/StellarisWare/driverlib\i2s.c ****     }
+ 557:C:/StellarisWare/driverlib\i2s.c ****     else
+ 558:C:/StellarisWare/driverlib\i2s.c ****     {
+ 559:C:/StellarisWare/driverlib\i2s.c ****         return(0);
+ 549              		.loc 1 559 0
+ 550 002c 4FF00003 		mov	r3, #0
+ 551              	.L20:
+ 560:C:/StellarisWare/driverlib\i2s.c ****     }
+ 561:C:/StellarisWare/driverlib\i2s.c **** }
+ 552              		.loc 1 561 0
+ 553 0030 1846     		mov	r0, r3
+ 554 0032 07F10C07 		add	r7, r7, #12
+ 555 0036 BD46     		mov	sp, r7
+ 556 0038 80BC     		pop	{r7}
+ 557 003a 7047     		bx	lr
+ 558              		.cfi_endproc
+ 559              	.LFE11:
+ 561              		.section	.text.I2SRxConfigSet,"ax",%progbits
+ 562              		.align	2
+ 563              		.global	I2SRxConfigSet
+ 564              		.thumb
+ 565              		.thumb_func
+ 567              	I2SRxConfigSet:
+ 568              	.LFB12:
+ 562:C:/StellarisWare/driverlib\i2s.c **** 
+ 563:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 564:C:/StellarisWare/driverlib\i2s.c **** //
+ 565:C:/StellarisWare/driverlib\i2s.c **** //! Configures the I2S receive module.
+ 566:C:/StellarisWare/driverlib\i2s.c **** //!
+ 567:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 568:C:/StellarisWare/driverlib\i2s.c **** //! \param ulConfig is the logical OR of the configuration options.
+ 569:C:/StellarisWare/driverlib\i2s.c **** //!
+ 570:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to configure the options for the I2S receive
+ 571:C:/StellarisWare/driverlib\i2s.c **** //! channel.  The parameter \e ulConfig is the logical OR of the following
+ 572:C:/StellarisWare/driverlib\i2s.c **** //! options:
+ 573:C:/StellarisWare/driverlib\i2s.c **** //!
+ 574:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_FORMAT_I2S for standard I2S format,
+ 575:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_LEFT_JUST for left justified format, or
+ 576:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_RIGHT_JUST for right justified format.
+ 577:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SCLK_INVERT to invert the polarity of the serial bit clock.
+ 578:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_MODE_DUAL for dual channel stereo,
+ 579:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_16 for 16-bit compact stereo mode,
+ 580:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_8 for 8-bit compact stereo mode, or
+ 581:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_MONO for single channel mono format.
+ 582:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_CLK_MASTER or \b I2S_CONFIG_CLK_SLAVE to select whether
+ 583:C:/StellarisWare/driverlib\i2s.c **** //!   the I2S receiver is the clock master or slave.
+ 584:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SAMPLE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 585:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per sample.
+ 586:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_WIRE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 587:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per word that are transferred on the data
+ 588:C:/StellarisWare/driverlib\i2s.c **** //!   line.
+ 589:C:/StellarisWare/driverlib\i2s.c **** //!
+ 590:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 591:C:/StellarisWare/driverlib\i2s.c **** //
+ 592:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 593:C:/StellarisWare/driverlib\i2s.c **** void
+ 594:C:/StellarisWare/driverlib\i2s.c **** I2SRxConfigSet(unsigned long ulBase, unsigned long ulConfig)
+ 595:C:/StellarisWare/driverlib\i2s.c **** {
+ 569              		.loc 1 595 0
+ 570              		.cfi_startproc
+ 571              		@ args = 0, pretend = 0, frame = 8
+ 572              		@ frame_needed = 1, uses_anonymous_args = 0
+ 573              		@ link register save eliminated.
+ 574 0000 80B4     		push	{r7}
+ 575              	.LCFI36:
+ 576              		.cfi_def_cfa_offset 4
+ 577              		.cfi_offset 7, -4
+ 578 0002 83B0     		sub	sp, sp, #12
+ 579              	.LCFI37:
+ 580              		.cfi_def_cfa_offset 16
+ 581 0004 00AF     		add	r7, sp, #0
+ 582              	.LCFI38:
+ 583              		.cfi_def_cfa_register 7
+ 584 0006 7860     		str	r0, [r7, #4]
+ 585 0008 3960     		str	r1, [r7, #0]
+ 596:C:/StellarisWare/driverlib\i2s.c ****     //
+ 597:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 598:C:/StellarisWare/driverlib\i2s.c ****     //
+ 599:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 600:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulConfig & (I2S_CONFIG_FORMAT_MASK | I2S_CONFIG_MODE_MASK |
+ 601:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_CLK_MASK | I2S_CONFIG_SAMPLE_SIZE_MASK |
+ 602:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_WIRE_SIZE_MASK)) == ulConfig);
+ 603:C:/StellarisWare/driverlib\i2s.c **** 
+ 604:C:/StellarisWare/driverlib\i2s.c ****     //
+ 605:C:/StellarisWare/driverlib\i2s.c ****     // Clear out any prior config of the RX FIFO config register.
+ 606:C:/StellarisWare/driverlib\i2s.c ****     //
+ 607:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXFIFOCFG) = 0;
+ 586              		.loc 1 607 0
+ 587 000a 7B68     		ldr	r3, [r7, #4]
+ 588 000c 03F50063 		add	r3, r3, #2048
+ 589 0010 03F10403 		add	r3, r3, #4
+ 590 0014 4FF00002 		mov	r2, #0
+ 591 0018 1A60     		str	r2, [r3, #0]
+ 608:C:/StellarisWare/driverlib\i2s.c **** 
+ 609:C:/StellarisWare/driverlib\i2s.c ****     //
+ 610:C:/StellarisWare/driverlib\i2s.c ****     // If mono mode is used, then the FMM bit needs to be set.
+ 611:C:/StellarisWare/driverlib\i2s.c ****     //
+ 612:C:/StellarisWare/driverlib\i2s.c ****     if((ulConfig & I2S_CONFIG_MODE_MASK) == I2S_CONFIG_MODE_MONO)
+ 592              		.loc 1 612 0
+ 593 001a 3B68     		ldr	r3, [r7, #0]
+ 594 001c 03F04073 		and	r3, r3, #50331648
+ 595 0020 B3F1007F 		cmp	r3, #33554432
+ 596 0024 0FD1     		bne	.L22
+ 613:C:/StellarisWare/driverlib\i2s.c ****     {
+ 614:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_RXFIFOCFG) |= I2S_RXFIFOCFG_FMM;
+ 597              		.loc 1 614 0
+ 598 0026 7B68     		ldr	r3, [r7, #4]
+ 599 0028 03F50063 		add	r3, r3, #2048
+ 600 002c 03F10403 		add	r3, r3, #4
+ 601 0030 1A46     		mov	r2, r3
+ 602 0032 7B68     		ldr	r3, [r7, #4]
+ 603 0034 03F50063 		add	r3, r3, #2048
+ 604 0038 03F10403 		add	r3, r3, #4
+ 605 003c 1B68     		ldr	r3, [r3, #0]
+ 606 003e 43F00403 		orr	r3, r3, #4
+ 607 0042 1360     		str	r3, [r2, #0]
+ 608 0044 14E0     		b	.L23
+ 609              	.L22:
+ 615:C:/StellarisWare/driverlib\i2s.c ****     }
+ 616:C:/StellarisWare/driverlib\i2s.c **** 
+ 617:C:/StellarisWare/driverlib\i2s.c ****     //
+ 618:C:/StellarisWare/driverlib\i2s.c ****     // If a compact mode is used, then the CSS bit needs to be set.
+ 619:C:/StellarisWare/driverlib\i2s.c ****     //
+ 620:C:/StellarisWare/driverlib\i2s.c ****     else if((ulConfig & I2S_CONFIG_MODE_MASK) == I2S_CONFIG_MODE_COMPACT_8)
+ 610              		.loc 1 620 0
+ 611 0046 3B68     		ldr	r3, [r7, #0]
+ 612 0048 03F04073 		and	r3, r3, #50331648
+ 613 004c B3F1407F 		cmp	r3, #50331648
+ 614 0050 0ED1     		bne	.L23
+ 621:C:/StellarisWare/driverlib\i2s.c ****     {
+ 622:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_RXFIFOCFG) |= I2S_RXFIFOCFG_CSS;
+ 615              		.loc 1 622 0
+ 616 0052 7B68     		ldr	r3, [r7, #4]
+ 617 0054 03F50063 		add	r3, r3, #2048
+ 618 0058 03F10403 		add	r3, r3, #4
+ 619 005c 1A46     		mov	r2, r3
+ 620 005e 7B68     		ldr	r3, [r7, #4]
+ 621 0060 03F50063 		add	r3, r3, #2048
+ 622 0064 03F10403 		add	r3, r3, #4
+ 623 0068 1B68     		ldr	r3, [r3, #0]
+ 624 006a 43F00203 		orr	r3, r3, #2
+ 625 006e 1360     		str	r3, [r2, #0]
+ 626              	.L23:
+ 623:C:/StellarisWare/driverlib\i2s.c ****     }
+ 624:C:/StellarisWare/driverlib\i2s.c **** 
+ 625:C:/StellarisWare/driverlib\i2s.c ****     //
+ 626:C:/StellarisWare/driverlib\i2s.c ****     // The "mono" bits must be removed from the configuration word
+ 627:C:/StellarisWare/driverlib\i2s.c ****     // prior to writing to hardware, because the RX configuration register
+ 628:C:/StellarisWare/driverlib\i2s.c ****     // does not actually use these bits.
+ 629:C:/StellarisWare/driverlib\i2s.c ****     //
+ 630:C:/StellarisWare/driverlib\i2s.c ****     ulConfig &= ~I2S_CONFIG_MODE_MONO;
+ 627              		.loc 1 630 0
+ 628 0070 3B68     		ldr	r3, [r7, #0]
+ 629 0072 23F00073 		bic	r3, r3, #33554432
+ 630 0076 3B60     		str	r3, [r7, #0]
+ 631:C:/StellarisWare/driverlib\i2s.c **** 
+ 632:C:/StellarisWare/driverlib\i2s.c ****     //
+ 633:C:/StellarisWare/driverlib\i2s.c ****     // Write the configuration register.  Because all the fields are
+ 634:C:/StellarisWare/driverlib\i2s.c ****     // specified by the configuration parameter, it is not necessary
+ 635:C:/StellarisWare/driverlib\i2s.c ****     // to do a read-modify-write.
+ 636:C:/StellarisWare/driverlib\i2s.c ****     //
+ 637:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXCFG) = ulConfig;
+ 631              		.loc 1 637 0
+ 632 0078 7B68     		ldr	r3, [r7, #4]
+ 633 007a 03F50063 		add	r3, r3, #2048
+ 634 007e 03F10803 		add	r3, r3, #8
+ 635 0082 3A68     		ldr	r2, [r7, #0]
+ 636 0084 1A60     		str	r2, [r3, #0]
+ 638:C:/StellarisWare/driverlib\i2s.c **** }
+ 637              		.loc 1 638 0
+ 638 0086 07F10C07 		add	r7, r7, #12
+ 639 008a BD46     		mov	sp, r7
+ 640 008c 80BC     		pop	{r7}
+ 641 008e 7047     		bx	lr
+ 642              		.cfi_endproc
+ 643              	.LFE12:
+ 645              		.section	.text.I2SRxFIFOLimitSet,"ax",%progbits
+ 646              		.align	2
+ 647              		.global	I2SRxFIFOLimitSet
+ 648              		.thumb
+ 649              		.thumb_func
+ 651              	I2SRxFIFOLimitSet:
+ 652              	.LFB13:
+ 639:C:/StellarisWare/driverlib\i2s.c **** 
+ 640:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 641:C:/StellarisWare/driverlib\i2s.c **** //
+ 642:C:/StellarisWare/driverlib\i2s.c **** //! Sets the FIFO level at which a service request is generated.
+ 643:C:/StellarisWare/driverlib\i2s.c **** //!
+ 644:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 645:C:/StellarisWare/driverlib\i2s.c **** //! \param ulLevel is the FIFO service request limit.
+ 646:C:/StellarisWare/driverlib\i2s.c **** //!
+ 647:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to set the receive FIFO fullness level at which a
+ 648:C:/StellarisWare/driverlib\i2s.c **** //! service request occurs.  The service request is used to generate an
+ 649:C:/StellarisWare/driverlib\i2s.c **** //! interrupt or a DMA transfer request.  The receive FIFO generates a
+ 650:C:/StellarisWare/driverlib\i2s.c **** //! service request when the number of items in the FIFO is greater than the
+ 651:C:/StellarisWare/driverlib\i2s.c **** //! level specified in the \e ulLevel parameter.  For example, if \e ulLevel is
+ 652:C:/StellarisWare/driverlib\i2s.c **** //! 4, then a service request is generated when there are more than 4 samples
+ 653:C:/StellarisWare/driverlib\i2s.c **** //! available in the receive FIFO.
+ 654:C:/StellarisWare/driverlib\i2s.c **** //!
+ 655:C:/StellarisWare/driverlib\i2s.c **** //! For the purposes of counting the FIFO level, a left-right sample pair
+ 656:C:/StellarisWare/driverlib\i2s.c **** //! counts as 2, whether the mode is dual or compact stereo.  When mono mode is
+ 657:C:/StellarisWare/driverlib\i2s.c **** //! used, internally the mono sample is still treated as a sample pair, so a
+ 658:C:/StellarisWare/driverlib\i2s.c **** //! single mono sample counts as 2.  Because the FIFO always deals with sample
+ 659:C:/StellarisWare/driverlib\i2s.c **** //! pairs, the level must be an even number from 0 to 16.  The minimum value is
+ 660:C:/StellarisWare/driverlib\i2s.c **** //! 0, which causes a service request when there is any data available in
+ 661:C:/StellarisWare/driverlib\i2s.c **** //! the FIFO.  The maximum value is 16, which disables the service request
+ 662:C:/StellarisWare/driverlib\i2s.c **** //! (because there cannot be more than 16 items in the FIFO).
+ 663:C:/StellarisWare/driverlib\i2s.c **** //!
+ 664:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 665:C:/StellarisWare/driverlib\i2s.c **** //
+ 666:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 667:C:/StellarisWare/driverlib\i2s.c **** void
+ 668:C:/StellarisWare/driverlib\i2s.c **** I2SRxFIFOLimitSet(unsigned long ulBase, unsigned long ulLevel)
+ 669:C:/StellarisWare/driverlib\i2s.c **** {
+ 653              		.loc 1 669 0
+ 654              		.cfi_startproc
+ 655              		@ args = 0, pretend = 0, frame = 8
+ 656              		@ frame_needed = 1, uses_anonymous_args = 0
+ 657              		@ link register save eliminated.
+ 658 0000 80B4     		push	{r7}
+ 659              	.LCFI39:
+ 660              		.cfi_def_cfa_offset 4
+ 661              		.cfi_offset 7, -4
+ 662 0002 83B0     		sub	sp, sp, #12
+ 663              	.LCFI40:
+ 664              		.cfi_def_cfa_offset 16
+ 665 0004 00AF     		add	r7, sp, #0
+ 666              	.LCFI41:
+ 667              		.cfi_def_cfa_register 7
+ 668 0006 7860     		str	r0, [r7, #4]
+ 669 0008 3960     		str	r1, [r7, #0]
+ 670:C:/StellarisWare/driverlib\i2s.c ****     //
+ 671:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 672:C:/StellarisWare/driverlib\i2s.c ****     //
+ 673:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 674:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulLevel <= 16);
+ 675:C:/StellarisWare/driverlib\i2s.c **** 
+ 676:C:/StellarisWare/driverlib\i2s.c ****     //
+ 677:C:/StellarisWare/driverlib\i2s.c ****     // Write the FIFO limit
+ 678:C:/StellarisWare/driverlib\i2s.c ****     //
+ 679:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXLIMIT) = ulLevel;
+ 670              		.loc 1 679 0
+ 671 000a 7B68     		ldr	r3, [r7, #4]
+ 672 000c 03F50063 		add	r3, r3, #2048
+ 673 0010 03F10C03 		add	r3, r3, #12
+ 674 0014 3A68     		ldr	r2, [r7, #0]
+ 675 0016 1A60     		str	r2, [r3, #0]
+ 680:C:/StellarisWare/driverlib\i2s.c **** }
+ 676              		.loc 1 680 0
+ 677 0018 07F10C07 		add	r7, r7, #12
+ 678 001c BD46     		mov	sp, r7
+ 679 001e 80BC     		pop	{r7}
+ 680 0020 7047     		bx	lr
+ 681              		.cfi_endproc
+ 682              	.LFE13:
+ 684 0022 00BF     		.section	.text.I2SRxFIFOLimitGet,"ax",%progbits
+ 685              		.align	2
+ 686              		.global	I2SRxFIFOLimitGet
+ 687              		.thumb
+ 688              		.thumb_func
+ 690              	I2SRxFIFOLimitGet:
+ 691              	.LFB14:
+ 681:C:/StellarisWare/driverlib\i2s.c **** 
+ 682:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 683:C:/StellarisWare/driverlib\i2s.c **** //
+ 684:C:/StellarisWare/driverlib\i2s.c **** //! Gets the current setting of the FIFO service request level.
+ 685:C:/StellarisWare/driverlib\i2s.c **** //!
+ 686:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 687:C:/StellarisWare/driverlib\i2s.c **** //!
+ 688:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to get the value of the receive FIFO service
+ 689:C:/StellarisWare/driverlib\i2s.c **** //! request level.  This value is set using the I2SRxFIFOLimitSet()
+ 690:C:/StellarisWare/driverlib\i2s.c **** //! function.
+ 691:C:/StellarisWare/driverlib\i2s.c **** //!
+ 692:C:/StellarisWare/driverlib\i2s.c **** //! \return Returns the current value of the FIFO service request limit.
+ 693:C:/StellarisWare/driverlib\i2s.c **** //
+ 694:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 695:C:/StellarisWare/driverlib\i2s.c **** unsigned long
+ 696:C:/StellarisWare/driverlib\i2s.c **** I2SRxFIFOLimitGet(unsigned long ulBase)
+ 697:C:/StellarisWare/driverlib\i2s.c **** {
+ 692              		.loc 1 697 0
+ 693              		.cfi_startproc
+ 694              		@ args = 0, pretend = 0, frame = 8
+ 695              		@ frame_needed = 1, uses_anonymous_args = 0
+ 696              		@ link register save eliminated.
+ 697 0000 80B4     		push	{r7}
+ 698              	.LCFI42:
+ 699              		.cfi_def_cfa_offset 4
+ 700              		.cfi_offset 7, -4
+ 701 0002 83B0     		sub	sp, sp, #12
+ 702              	.LCFI43:
+ 703              		.cfi_def_cfa_offset 16
+ 704 0004 00AF     		add	r7, sp, #0
+ 705              	.LCFI44:
+ 706              		.cfi_def_cfa_register 7
+ 707 0006 7860     		str	r0, [r7, #4]
+ 698:C:/StellarisWare/driverlib\i2s.c ****     //
+ 699:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 700:C:/StellarisWare/driverlib\i2s.c ****     //
+ 701:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 702:C:/StellarisWare/driverlib\i2s.c **** 
+ 703:C:/StellarisWare/driverlib\i2s.c ****     //
+ 704:C:/StellarisWare/driverlib\i2s.c ****     // Read and return the FIFO limit.  The lower bit is masked
+ 705:C:/StellarisWare/driverlib\i2s.c ****     // because it always reads as 1 and has no meaning.
+ 706:C:/StellarisWare/driverlib\i2s.c ****     //
+ 707:C:/StellarisWare/driverlib\i2s.c ****     return(HWREG(ulBase + I2S_O_RXLIMIT) & 0xFFFE);
+ 708              		.loc 1 707 0
+ 709 0008 7B68     		ldr	r3, [r7, #4]
+ 710 000a 03F50063 		add	r3, r3, #2048
+ 711 000e 03F10C03 		add	r3, r3, #12
+ 712 0012 1A68     		ldr	r2, [r3, #0]
+ 713 0014 4FF6FE73 		movw	r3, #65534
+ 714 0018 1340     		ands	r3, r3, r2
+ 708:C:/StellarisWare/driverlib\i2s.c **** }
+ 715              		.loc 1 708 0
+ 716 001a 1846     		mov	r0, r3
+ 717 001c 07F10C07 		add	r7, r7, #12
+ 718 0020 BD46     		mov	sp, r7
+ 719 0022 80BC     		pop	{r7}
+ 720 0024 7047     		bx	lr
+ 721              		.cfi_endproc
+ 722              	.LFE14:
+ 724 0026 00BF     		.section	.text.I2SRxFIFOLevelGet,"ax",%progbits
+ 725              		.align	2
+ 726              		.global	I2SRxFIFOLevelGet
+ 727              		.thumb
+ 728              		.thumb_func
+ 730              	I2SRxFIFOLevelGet:
+ 731              	.LFB15:
+ 709:C:/StellarisWare/driverlib\i2s.c **** 
+ 710:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 711:C:/StellarisWare/driverlib\i2s.c **** //
+ 712:C:/StellarisWare/driverlib\i2s.c **** //! Gets the number of samples in the receive FIFO.
+ 713:C:/StellarisWare/driverlib\i2s.c **** //!
+ 714:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 715:C:/StellarisWare/driverlib\i2s.c **** //!
+ 716:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to get the number of samples in the receive FIFO.
+ 717:C:/StellarisWare/driverlib\i2s.c **** //! For the purposes of measuring the FIFO level, a left-right sample pair
+ 718:C:/StellarisWare/driverlib\i2s.c **** //! counts as 2, whether the mode is dual or compact stereo.  When mono mode is
+ 719:C:/StellarisWare/driverlib\i2s.c **** //! used, internally the mono sample is still treated as a sample pair, so a
+ 720:C:/StellarisWare/driverlib\i2s.c **** //! single mono sample counts as 2.  Because the FIFO always deals with sample
+ 721:C:/StellarisWare/driverlib\i2s.c **** //! pairs, normally the level is an even number from 0 to 16.  If dual stereo
+ 722:C:/StellarisWare/driverlib\i2s.c **** //! mode is used and only the left sample has been read without reading the
+ 723:C:/StellarisWare/driverlib\i2s.c **** //! matching right sample, then the FIFO level is an odd value.  If the FIFO
+ 724:C:/StellarisWare/driverlib\i2s.c **** //! level is odd, it indicates a left-right sample mismatch.
+ 725:C:/StellarisWare/driverlib\i2s.c **** //!
+ 726:C:/StellarisWare/driverlib\i2s.c **** //! \return Returns the number of samples in the transmit FIFO, which is
+ 727:C:/StellarisWare/driverlib\i2s.c **** //! normally an even number.
+ 728:C:/StellarisWare/driverlib\i2s.c **** //
+ 729:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 730:C:/StellarisWare/driverlib\i2s.c **** unsigned long
+ 731:C:/StellarisWare/driverlib\i2s.c **** I2SRxFIFOLevelGet(unsigned long ulBase)
+ 732:C:/StellarisWare/driverlib\i2s.c **** {
+ 732              		.loc 1 732 0
+ 733              		.cfi_startproc
+ 734              		@ args = 0, pretend = 0, frame = 8
+ 735              		@ frame_needed = 1, uses_anonymous_args = 0
+ 736              		@ link register save eliminated.
+ 737 0000 80B4     		push	{r7}
+ 738              	.LCFI45:
+ 739              		.cfi_def_cfa_offset 4
+ 740              		.cfi_offset 7, -4
+ 741 0002 83B0     		sub	sp, sp, #12
+ 742              	.LCFI46:
+ 743              		.cfi_def_cfa_offset 16
+ 744 0004 00AF     		add	r7, sp, #0
+ 745              	.LCFI47:
+ 746              		.cfi_def_cfa_register 7
+ 747 0006 7860     		str	r0, [r7, #4]
+ 733:C:/StellarisWare/driverlib\i2s.c ****     //
+ 734:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 735:C:/StellarisWare/driverlib\i2s.c ****     //
+ 736:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 737:C:/StellarisWare/driverlib\i2s.c **** 
+ 738:C:/StellarisWare/driverlib\i2s.c ****     //
+ 739:C:/StellarisWare/driverlib\i2s.c ****     // Read and return the receive FIFO level.
+ 740:C:/StellarisWare/driverlib\i2s.c ****     //
+ 741:C:/StellarisWare/driverlib\i2s.c ****     return(HWREG(ulBase + I2S_O_RXLEV));
+ 748              		.loc 1 741 0
+ 749 0008 7B68     		ldr	r3, [r7, #4]
+ 750 000a 03F50063 		add	r3, r3, #2048
+ 751 000e 03F11803 		add	r3, r3, #24
+ 752 0012 1B68     		ldr	r3, [r3, #0]
+ 742:C:/StellarisWare/driverlib\i2s.c **** }
+ 753              		.loc 1 742 0
+ 754 0014 1846     		mov	r0, r3
+ 755 0016 07F10C07 		add	r7, r7, #12
+ 756 001a BD46     		mov	sp, r7
+ 757 001c 80BC     		pop	{r7}
+ 758 001e 7047     		bx	lr
+ 759              		.cfi_endproc
+ 760              	.LFE15:
+ 762              		.section	.text.I2STxRxEnable,"ax",%progbits
+ 763              		.align	2
+ 764              		.global	I2STxRxEnable
+ 765              		.thumb
+ 766              		.thumb_func
+ 768              	I2STxRxEnable:
+ 769              	.LFB16:
+ 743:C:/StellarisWare/driverlib\i2s.c **** 
+ 744:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 745:C:/StellarisWare/driverlib\i2s.c **** //
+ 746:C:/StellarisWare/driverlib\i2s.c **** //! Enables the I2S transmit and receive modules for operation.
+ 747:C:/StellarisWare/driverlib\i2s.c **** //!
+ 748:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 749:C:/StellarisWare/driverlib\i2s.c **** //!
+ 750:C:/StellarisWare/driverlib\i2s.c **** //! This function simultaneously enables the transmit and receive modules for
+ 751:C:/StellarisWare/driverlib\i2s.c **** //! operation, providing a synchronized SCLK and LRCLK.  The module should be
+ 752:C:/StellarisWare/driverlib\i2s.c **** //! enabled after configuration.  When the module is disabled, no data or
+ 753:C:/StellarisWare/driverlib\i2s.c **** //! clocks are generated on the I2S signals.
+ 754:C:/StellarisWare/driverlib\i2s.c **** //!
+ 755:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 756:C:/StellarisWare/driverlib\i2s.c **** //
+ 757:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 758:C:/StellarisWare/driverlib\i2s.c **** void
+ 759:C:/StellarisWare/driverlib\i2s.c **** I2STxRxEnable(unsigned long ulBase)
+ 760:C:/StellarisWare/driverlib\i2s.c **** {
+ 770              		.loc 1 760 0
+ 771              		.cfi_startproc
+ 772              		@ args = 0, pretend = 0, frame = 8
+ 773              		@ frame_needed = 1, uses_anonymous_args = 0
+ 774              		@ link register save eliminated.
+ 775 0000 80B4     		push	{r7}
+ 776              	.LCFI48:
+ 777              		.cfi_def_cfa_offset 4
+ 778              		.cfi_offset 7, -4
+ 779 0002 83B0     		sub	sp, sp, #12
+ 780              	.LCFI49:
+ 781              		.cfi_def_cfa_offset 16
+ 782 0004 00AF     		add	r7, sp, #0
+ 783              	.LCFI50:
+ 784              		.cfi_def_cfa_register 7
+ 785 0006 7860     		str	r0, [r7, #4]
+ 761:C:/StellarisWare/driverlib\i2s.c ****     //
+ 762:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 763:C:/StellarisWare/driverlib\i2s.c ****     //
+ 764:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 765:C:/StellarisWare/driverlib\i2s.c **** 
+ 766:C:/StellarisWare/driverlib\i2s.c ****     //
+ 767:C:/StellarisWare/driverlib\i2s.c ****     // Enable the Tx FIFO service request.
+ 768:C:/StellarisWare/driverlib\i2s.c ****     //
+ 769:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXISM) = I2S_TXISM_FFM;
+ 786              		.loc 1 769 0
+ 787 0008 7B68     		ldr	r3, [r7, #4]
+ 788 000a 03F11003 		add	r3, r3, #16
+ 789 000e 4FF00102 		mov	r2, #1
+ 790 0012 1A60     		str	r2, [r3, #0]
+ 770:C:/StellarisWare/driverlib\i2s.c **** 
+ 771:C:/StellarisWare/driverlib\i2s.c ****     //
+ 772:C:/StellarisWare/driverlib\i2s.c ****     // Enable the Rx FIFO service request.
+ 773:C:/StellarisWare/driverlib\i2s.c ****     //
+ 774:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXISM) = I2S_RXISM_FFM;
+ 791              		.loc 1 774 0
+ 792 0014 7B68     		ldr	r3, [r7, #4]
+ 793 0016 03F50163 		add	r3, r3, #2064
+ 794 001a 4FF00102 		mov	r2, #1
+ 795 001e 1A60     		str	r2, [r3, #0]
+ 775:C:/StellarisWare/driverlib\i2s.c **** 
+ 776:C:/StellarisWare/driverlib\i2s.c ****     //
+ 777:C:/StellarisWare/driverlib\i2s.c ****     // Enable the transmit and receive modules.
+ 778:C:/StellarisWare/driverlib\i2s.c ****     //
+ 779:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) |= I2S_CFG_TXEN | I2S_CFG_RXEN;
+ 796              		.loc 1 779 0
+ 797 0020 7B68     		ldr	r3, [r7, #4]
+ 798 0022 03F54063 		add	r3, r3, #3072
+ 799 0026 7A68     		ldr	r2, [r7, #4]
+ 800 0028 02F54062 		add	r2, r2, #3072
+ 801 002c 1268     		ldr	r2, [r2, #0]
+ 802 002e 42F00302 		orr	r2, r2, #3
+ 803 0032 1A60     		str	r2, [r3, #0]
+ 780:C:/StellarisWare/driverlib\i2s.c **** }
+ 804              		.loc 1 780 0
+ 805 0034 07F10C07 		add	r7, r7, #12
+ 806 0038 BD46     		mov	sp, r7
+ 807 003a 80BC     		pop	{r7}
+ 808 003c 7047     		bx	lr
+ 809              		.cfi_endproc
+ 810              	.LFE16:
+ 812 003e 00BF     		.section	.text.I2STxRxDisable,"ax",%progbits
+ 813              		.align	2
+ 814              		.global	I2STxRxDisable
+ 815              		.thumb
+ 816              		.thumb_func
+ 818              	I2STxRxDisable:
+ 819              	.LFB17:
+ 781:C:/StellarisWare/driverlib\i2s.c **** 
+ 782:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 783:C:/StellarisWare/driverlib\i2s.c **** //
+ 784:C:/StellarisWare/driverlib\i2s.c **** //! Disables the I2S transmit and receive modules.
+ 785:C:/StellarisWare/driverlib\i2s.c **** //!
+ 786:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 787:C:/StellarisWare/driverlib\i2s.c **** //!
+ 788:C:/StellarisWare/driverlib\i2s.c **** //! This function simultaneously disables the transmit and receive modules.
+ 789:C:/StellarisWare/driverlib\i2s.c **** //! When the module is disabled, no data or clocks are generated on the I2S
+ 790:C:/StellarisWare/driverlib\i2s.c **** //! signals.
+ 791:C:/StellarisWare/driverlib\i2s.c **** //!
+ 792:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 793:C:/StellarisWare/driverlib\i2s.c **** //
+ 794:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 795:C:/StellarisWare/driverlib\i2s.c **** void
+ 796:C:/StellarisWare/driverlib\i2s.c **** I2STxRxDisable(unsigned long ulBase)
+ 797:C:/StellarisWare/driverlib\i2s.c **** {
+ 820              		.loc 1 797 0
+ 821              		.cfi_startproc
+ 822              		@ args = 0, pretend = 0, frame = 8
+ 823              		@ frame_needed = 1, uses_anonymous_args = 0
+ 824              		@ link register save eliminated.
+ 825 0000 80B4     		push	{r7}
+ 826              	.LCFI51:
+ 827              		.cfi_def_cfa_offset 4
+ 828              		.cfi_offset 7, -4
+ 829 0002 83B0     		sub	sp, sp, #12
+ 830              	.LCFI52:
+ 831              		.cfi_def_cfa_offset 16
+ 832 0004 00AF     		add	r7, sp, #0
+ 833              	.LCFI53:
+ 834              		.cfi_def_cfa_register 7
+ 835 0006 7860     		str	r0, [r7, #4]
+ 798:C:/StellarisWare/driverlib\i2s.c ****     //
+ 799:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 800:C:/StellarisWare/driverlib\i2s.c ****     //
+ 801:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 802:C:/StellarisWare/driverlib\i2s.c **** 
+ 803:C:/StellarisWare/driverlib\i2s.c ****     //
+ 804:C:/StellarisWare/driverlib\i2s.c ****     // Disable the transmit and receive modules.
+ 805:C:/StellarisWare/driverlib\i2s.c ****     //
+ 806:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) &= ~(I2S_CFG_TXEN | I2S_CFG_RXEN);
+ 836              		.loc 1 806 0
+ 837 0008 7B68     		ldr	r3, [r7, #4]
+ 838 000a 03F54063 		add	r3, r3, #3072
+ 839 000e 7A68     		ldr	r2, [r7, #4]
+ 840 0010 02F54062 		add	r2, r2, #3072
+ 841 0014 1268     		ldr	r2, [r2, #0]
+ 842 0016 22F00302 		bic	r2, r2, #3
+ 843 001a 1A60     		str	r2, [r3, #0]
+ 807:C:/StellarisWare/driverlib\i2s.c **** }
+ 844              		.loc 1 807 0
+ 845 001c 07F10C07 		add	r7, r7, #12
+ 846 0020 BD46     		mov	sp, r7
+ 847 0022 80BC     		pop	{r7}
+ 848 0024 7047     		bx	lr
+ 849              		.cfi_endproc
+ 850              	.LFE17:
+ 852 0026 00BF     		.section	.text.I2STxRxConfigSet,"ax",%progbits
+ 853              		.align	2
+ 854              		.global	I2STxRxConfigSet
+ 855              		.thumb
+ 856              		.thumb_func
+ 858              	I2STxRxConfigSet:
+ 859              	.LFB18:
+ 808:C:/StellarisWare/driverlib\i2s.c **** 
+ 809:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 810:C:/StellarisWare/driverlib\i2s.c **** //
+ 811:C:/StellarisWare/driverlib\i2s.c **** //! Configures the I2S transmit and receive modules.
+ 812:C:/StellarisWare/driverlib\i2s.c **** //!
+ 813:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 814:C:/StellarisWare/driverlib\i2s.c **** //! \param ulConfig is the logical OR of the configuration options.
+ 815:C:/StellarisWare/driverlib\i2s.c **** //!
+ 816:C:/StellarisWare/driverlib\i2s.c **** //! This function is used to configure the options for the I2S transmit and
+ 817:C:/StellarisWare/driverlib\i2s.c **** //! receive channels with identical parameters.  The parameter \e ulConfig is
+ 818:C:/StellarisWare/driverlib\i2s.c **** //! the logical OR of the following options:
+ 819:C:/StellarisWare/driverlib\i2s.c **** //!
+ 820:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_FORMAT_I2S for standard I2S format,
+ 821:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_LEFT_JUST for left justified format, or
+ 822:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_FORMAT_RIGHT_JUST for right justified format.
+ 823:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SCLK_INVERT to invert the polarity of the serial bit clock.
+ 824:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_MODE_DUAL for dual-channel stereo,
+ 825:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_16 for 16-bit compact stereo mode,
+ 826:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_COMPACT_8 for 8-bit compact stereo mode, or
+ 827:C:/StellarisWare/driverlib\i2s.c **** //!   \b I2S_CONFIG_MODE_MONO for single-channel mono format.
+ 828:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_CLK_MASTER or \b I2S_CONFIG_CLK_SLAVE to select whether
+ 829:C:/StellarisWare/driverlib\i2s.c **** //!   the I2S transmitter is the clock master or slave.
+ 830:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_SAMPLE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 831:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per sample.
+ 832:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_WIRE_SIZE_32, \b _24, \b _20, \b _16, or \b _8
+ 833:C:/StellarisWare/driverlib\i2s.c **** //!   to select the number of bits per word that are transferred on the data
+ 834:C:/StellarisWare/driverlib\i2s.c **** //!   line.
+ 835:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_CONFIG_EMPTY_ZERO or \b I2S_CONFIG_EMPTY_REPEAT to select whether
+ 836:C:/StellarisWare/driverlib\i2s.c **** //!   the module transmits zeroes or repeats the last sample when the FIFO is
+ 837:C:/StellarisWare/driverlib\i2s.c **** //!   empty.
+ 838:C:/StellarisWare/driverlib\i2s.c **** //!
+ 839:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 840:C:/StellarisWare/driverlib\i2s.c **** //
+ 841:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 842:C:/StellarisWare/driverlib\i2s.c **** void
+ 843:C:/StellarisWare/driverlib\i2s.c **** I2STxRxConfigSet(unsigned long ulBase, unsigned long ulConfig)
+ 844:C:/StellarisWare/driverlib\i2s.c **** {
+ 860              		.loc 1 844 0
+ 861              		.cfi_startproc
+ 862              		@ args = 0, pretend = 0, frame = 8
+ 863              		@ frame_needed = 1, uses_anonymous_args = 0
+ 864              		@ link register save eliminated.
+ 865 0000 80B4     		push	{r7}
+ 866              	.LCFI54:
+ 867              		.cfi_def_cfa_offset 4
+ 868              		.cfi_offset 7, -4
+ 869 0002 83B0     		sub	sp, sp, #12
+ 870              	.LCFI55:
+ 871              		.cfi_def_cfa_offset 16
+ 872 0004 00AF     		add	r7, sp, #0
+ 873              	.LCFI56:
+ 874              		.cfi_def_cfa_register 7
+ 875 0006 7860     		str	r0, [r7, #4]
+ 876 0008 3960     		str	r1, [r7, #0]
+ 845:C:/StellarisWare/driverlib\i2s.c ****     //
+ 846:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 847:C:/StellarisWare/driverlib\i2s.c ****     //
+ 848:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 849:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulConfig & (I2S_CONFIG_FORMAT_MASK | I2S_CONFIG_MODE_MASK |
+ 850:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_EMPTY_MASK | I2S_CONFIG_CLK_MASK |
+ 851:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_SAMPLE_SIZE_MASK |
+ 852:C:/StellarisWare/driverlib\i2s.c ****                         I2S_CONFIG_WIRE_SIZE_MASK)) == ulConfig);
+ 853:C:/StellarisWare/driverlib\i2s.c **** 
+ 854:C:/StellarisWare/driverlib\i2s.c ****     //
+ 855:C:/StellarisWare/driverlib\i2s.c ****     // Clear out any prior configuration of the FIFO config registers.
+ 856:C:/StellarisWare/driverlib\i2s.c ****     //
+ 857:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXFIFOCFG) = 0;
+ 877              		.loc 1 857 0
+ 878 000a 7B68     		ldr	r3, [r7, #4]
+ 879 000c 03F10403 		add	r3, r3, #4
+ 880 0010 4FF00002 		mov	r2, #0
+ 881 0014 1A60     		str	r2, [r3, #0]
+ 858:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXFIFOCFG) = 0;
+ 882              		.loc 1 858 0
+ 883 0016 7B68     		ldr	r3, [r7, #4]
+ 884 0018 03F50063 		add	r3, r3, #2048
+ 885 001c 03F10403 		add	r3, r3, #4
+ 886 0020 4FF00002 		mov	r2, #0
+ 887 0024 1A60     		str	r2, [r3, #0]
+ 859:C:/StellarisWare/driverlib\i2s.c **** 
+ 860:C:/StellarisWare/driverlib\i2s.c ****     //
+ 861:C:/StellarisWare/driverlib\i2s.c ****     // If mono mode is used, then the FMM bit needs to be set.
+ 862:C:/StellarisWare/driverlib\i2s.c ****     //
+ 863:C:/StellarisWare/driverlib\i2s.c ****     if((ulConfig & I2S_CONFIG_MODE_MASK) == I2S_CONFIG_MODE_MONO)
+ 888              		.loc 1 863 0
+ 889 0026 3B68     		ldr	r3, [r7, #0]
+ 890 0028 03F04073 		and	r3, r3, #50331648
+ 891 002c B3F1007F 		cmp	r3, #33554432
+ 892 0030 12D1     		bne	.L30
+ 864:C:/StellarisWare/driverlib\i2s.c ****     {
+ 865:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_RXFIFOCFG) |= I2S_RXFIFOCFG_FMM;
+ 893              		.loc 1 865 0
+ 894 0032 7B68     		ldr	r3, [r7, #4]
+ 895 0034 03F50063 		add	r3, r3, #2048
+ 896 0038 03F10403 		add	r3, r3, #4
+ 897 003c 1A46     		mov	r2, r3
+ 898 003e 7B68     		ldr	r3, [r7, #4]
+ 899 0040 03F50063 		add	r3, r3, #2048
+ 900 0044 03F10403 		add	r3, r3, #4
+ 901 0048 1B68     		ldr	r3, [r3, #0]
+ 902 004a 43F00403 		orr	r3, r3, #4
+ 903 004e 1360     		str	r3, [r2, #0]
+ 866:C:/StellarisWare/driverlib\i2s.c ****         ulConfig &= ~(I2S_CONFIG_MODE_MONO);
+ 904              		.loc 1 866 0
+ 905 0050 3B68     		ldr	r3, [r7, #0]
+ 906 0052 23F00073 		bic	r3, r3, #33554432
+ 907 0056 3B60     		str	r3, [r7, #0]
+ 908              	.L30:
+ 867:C:/StellarisWare/driverlib\i2s.c ****     }
+ 868:C:/StellarisWare/driverlib\i2s.c **** 
+ 869:C:/StellarisWare/driverlib\i2s.c ****     //
+ 870:C:/StellarisWare/driverlib\i2s.c ****     // If a compact mode is used, then the CSS bit needs to be set.
+ 871:C:/StellarisWare/driverlib\i2s.c ****     //
+ 872:C:/StellarisWare/driverlib\i2s.c ****     if((ulConfig & I2S_CONFIG_MODE_MASK) == I2S_CONFIG_MODE_COMPACT_8)
+ 909              		.loc 1 872 0
+ 910 0058 3B68     		ldr	r3, [r7, #0]
+ 911 005a 03F04073 		and	r3, r3, #50331648
+ 912 005e B3F1407F 		cmp	r3, #50331648
+ 913 0062 18D1     		bne	.L31
+ 873:C:/StellarisWare/driverlib\i2s.c ****     {
+ 874:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_TXFIFOCFG) |= I2S_TXFIFOCFG_CSS;
+ 914              		.loc 1 874 0
+ 915 0064 7B68     		ldr	r3, [r7, #4]
+ 916 0066 03F10403 		add	r3, r3, #4
+ 917 006a 7A68     		ldr	r2, [r7, #4]
+ 918 006c 02F10402 		add	r2, r2, #4
+ 919 0070 1268     		ldr	r2, [r2, #0]
+ 920 0072 42F00202 		orr	r2, r2, #2
+ 921 0076 1A60     		str	r2, [r3, #0]
+ 875:C:/StellarisWare/driverlib\i2s.c ****         HWREG(ulBase + I2S_O_RXFIFOCFG) |= I2S_RXFIFOCFG_CSS;
+ 922              		.loc 1 875 0
+ 923 0078 7B68     		ldr	r3, [r7, #4]
+ 924 007a 03F50063 		add	r3, r3, #2048
+ 925 007e 03F10403 		add	r3, r3, #4
+ 926 0082 1A46     		mov	r2, r3
+ 927 0084 7B68     		ldr	r3, [r7, #4]
+ 928 0086 03F50063 		add	r3, r3, #2048
+ 929 008a 03F10403 		add	r3, r3, #4
+ 930 008e 1B68     		ldr	r3, [r3, #0]
+ 931 0090 43F00203 		orr	r3, r3, #2
+ 932 0094 1360     		str	r3, [r2, #0]
+ 933              	.L31:
+ 876:C:/StellarisWare/driverlib\i2s.c ****     }
+ 877:C:/StellarisWare/driverlib\i2s.c **** 
+ 878:C:/StellarisWare/driverlib\i2s.c ****     //
+ 879:C:/StellarisWare/driverlib\i2s.c ****     // Write the configuration register.  Because all the fields are specified
+ 880:C:/StellarisWare/driverlib\i2s.c ****     // by the configuration parameter, it is not necessary to do a
+ 881:C:/StellarisWare/driverlib\i2s.c ****     // read-modify-write.
+ 882:C:/StellarisWare/driverlib\i2s.c ****     //
+ 883:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_TXCFG) = ulConfig;
+ 934              		.loc 1 883 0
+ 935 0096 7B68     		ldr	r3, [r7, #4]
+ 936 0098 03F10803 		add	r3, r3, #8
+ 937 009c 3A68     		ldr	r2, [r7, #0]
+ 938 009e 1A60     		str	r2, [r3, #0]
+ 884:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_RXCFG) = ulConfig;
+ 939              		.loc 1 884 0
+ 940 00a0 7B68     		ldr	r3, [r7, #4]
+ 941 00a2 03F50063 		add	r3, r3, #2048
+ 942 00a6 03F10803 		add	r3, r3, #8
+ 943 00aa 3A68     		ldr	r2, [r7, #0]
+ 944 00ac 1A60     		str	r2, [r3, #0]
+ 885:C:/StellarisWare/driverlib\i2s.c **** }
+ 945              		.loc 1 885 0
+ 946 00ae 07F10C07 		add	r7, r7, #12
+ 947 00b2 BD46     		mov	sp, r7
+ 948 00b4 80BC     		pop	{r7}
+ 949 00b6 7047     		bx	lr
+ 950              		.cfi_endproc
+ 951              	.LFE18:
+ 953              		.section	.text.I2SMasterClockSelect,"ax",%progbits
+ 954              		.align	2
+ 955              		.global	I2SMasterClockSelect
+ 956              		.thumb
+ 957              		.thumb_func
+ 959              	I2SMasterClockSelect:
+ 960              	.LFB19:
+ 886:C:/StellarisWare/driverlib\i2s.c **** 
+ 887:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 888:C:/StellarisWare/driverlib\i2s.c **** //
+ 889:C:/StellarisWare/driverlib\i2s.c **** //! Selects the source of the master clock, internal or external.
+ 890:C:/StellarisWare/driverlib\i2s.c **** //!
+ 891:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 892:C:/StellarisWare/driverlib\i2s.c **** //! \param ulMClock is the logical OR of the master clock configuration
+ 893:C:/StellarisWare/driverlib\i2s.c **** //! choices.
+ 894:C:/StellarisWare/driverlib\i2s.c **** //!
+ 895:C:/StellarisWare/driverlib\i2s.c **** //! This function selects whether the master clock is sourced from the device
+ 896:C:/StellarisWare/driverlib\i2s.c **** //! internal PLL or comes from an external pin.  The I2S serial bit clock
+ 897:C:/StellarisWare/driverlib\i2s.c **** //! (SCLK) and left-right word clock (LRCLK) are derived from the I2S master
+ 898:C:/StellarisWare/driverlib\i2s.c **** //! clock.  The transmit and receive modules can be configured independently.
+ 899:C:/StellarisWare/driverlib\i2s.c **** //!  The \e ulMClock parameter is chosen from the following:
+ 900:C:/StellarisWare/driverlib\i2s.c **** //!
+ 901:C:/StellarisWare/driverlib\i2s.c **** //! - one of \b I2S_TX_MCLK_EXT or \b I2S_TX_MCLK_INT
+ 902:C:/StellarisWare/driverlib\i2s.c **** //! - one of \b I2S_RX_MCLK_EXT or \b I2S_RX_MCLK_INT
+ 903:C:/StellarisWare/driverlib\i2s.c **** //!
+ 904:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 905:C:/StellarisWare/driverlib\i2s.c **** //
+ 906:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 907:C:/StellarisWare/driverlib\i2s.c **** void
+ 908:C:/StellarisWare/driverlib\i2s.c **** I2SMasterClockSelect(unsigned long ulBase, unsigned long ulMClock)
+ 909:C:/StellarisWare/driverlib\i2s.c **** {
+ 961              		.loc 1 909 0
+ 962              		.cfi_startproc
+ 963              		@ args = 0, pretend = 0, frame = 16
+ 964              		@ frame_needed = 1, uses_anonymous_args = 0
+ 965              		@ link register save eliminated.
+ 966 0000 80B4     		push	{r7}
+ 967              	.LCFI57:
+ 968              		.cfi_def_cfa_offset 4
+ 969              		.cfi_offset 7, -4
+ 970 0002 85B0     		sub	sp, sp, #20
+ 971              	.LCFI58:
+ 972              		.cfi_def_cfa_offset 24
+ 973 0004 00AF     		add	r7, sp, #0
+ 974              	.LCFI59:
+ 975              		.cfi_def_cfa_register 7
+ 976 0006 7860     		str	r0, [r7, #4]
+ 977 0008 3960     		str	r1, [r7, #0]
+ 910:C:/StellarisWare/driverlib\i2s.c ****     unsigned long ulConfig;
+ 911:C:/StellarisWare/driverlib\i2s.c **** 
+ 912:C:/StellarisWare/driverlib\i2s.c ****     //
+ 913:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 914:C:/StellarisWare/driverlib\i2s.c ****     //
+ 915:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 916:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulMClock & (I2S_TX_MCLK_EXT | I2S_RX_MCLK_EXT)) == ulMClock);
+ 917:C:/StellarisWare/driverlib\i2s.c **** 
+ 918:C:/StellarisWare/driverlib\i2s.c ****     //
+ 919:C:/StellarisWare/driverlib\i2s.c ****     // Set the clock selection bits in the configuation word.
+ 920:C:/StellarisWare/driverlib\i2s.c ****     //
+ 921:C:/StellarisWare/driverlib\i2s.c ****     ulConfig = HWREG(ulBase + I2S_O_CFG) &
+ 978              		.loc 1 921 0
+ 979 000a 7B68     		ldr	r3, [r7, #4]
+ 980 000c 03F54063 		add	r3, r3, #3072
+ 981 0010 1B68     		ldr	r3, [r3, #0]
+ 982 0012 23F03003 		bic	r3, r3, #48
+ 983 0016 FB60     		str	r3, [r7, #12]
+ 922:C:/StellarisWare/driverlib\i2s.c ****                    ~(I2S_TX_MCLK_EXT | I2S_RX_MCLK_EXT);
+ 923:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_CFG) = ulConfig | ulMClock;
+ 984              		.loc 1 923 0
+ 985 0018 7B68     		ldr	r3, [r7, #4]
+ 986 001a 03F54063 		add	r3, r3, #3072
+ 987 001e F968     		ldr	r1, [r7, #12]
+ 988 0020 3A68     		ldr	r2, [r7, #0]
+ 989 0022 0A43     		orrs	r2, r2, r1
+ 990 0024 1A60     		str	r2, [r3, #0]
+ 924:C:/StellarisWare/driverlib\i2s.c **** }
+ 991              		.loc 1 924 0
+ 992 0026 07F11407 		add	r7, r7, #20
+ 993 002a BD46     		mov	sp, r7
+ 994 002c 80BC     		pop	{r7}
+ 995 002e 7047     		bx	lr
+ 996              		.cfi_endproc
+ 997              	.LFE19:
+ 999              		.section	.text.I2SIntEnable,"ax",%progbits
+ 1000              		.align	2
+ 1001              		.global	I2SIntEnable
+ 1002              		.thumb
+ 1003              		.thumb_func
+ 1005              	I2SIntEnable:
+ 1006              	.LFB20:
+ 925:C:/StellarisWare/driverlib\i2s.c **** 
+ 926:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 927:C:/StellarisWare/driverlib\i2s.c **** //
+ 928:C:/StellarisWare/driverlib\i2s.c **** //! Enables I2S interrupt sources.
+ 929:C:/StellarisWare/driverlib\i2s.c **** //!
+ 930:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 931:C:/StellarisWare/driverlib\i2s.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 932:C:/StellarisWare/driverlib\i2s.c **** //!
+ 933:C:/StellarisWare/driverlib\i2s.c **** //! This function enables the specified I2S sources to generate interrupts.
+ 934:C:/StellarisWare/driverlib\i2s.c **** //! The \e ulIntFlags parameter can be the logical OR of any of the following
+ 935:C:/StellarisWare/driverlib\i2s.c **** //! values:
+ 936:C:/StellarisWare/driverlib\i2s.c **** //!
+ 937:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_INT_RXERR for receive errors
+ 938:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_INT_RXREQ for receive FIFO service requests
+ 939:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_INT_TXERR for transmit errors
+ 940:C:/StellarisWare/driverlib\i2s.c **** //! - \b I2S_INT_TXREQ for transmit FIFO service requests
+ 941:C:/StellarisWare/driverlib\i2s.c **** //!
+ 942:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 943:C:/StellarisWare/driverlib\i2s.c **** //
+ 944:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 945:C:/StellarisWare/driverlib\i2s.c **** void
+ 946:C:/StellarisWare/driverlib\i2s.c **** I2SIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+ 947:C:/StellarisWare/driverlib\i2s.c **** {
+ 1007              		.loc 1 947 0
+ 1008              		.cfi_startproc
+ 1009              		@ args = 0, pretend = 0, frame = 8
+ 1010              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1011              		@ link register save eliminated.
+ 1012 0000 80B4     		push	{r7}
+ 1013              	.LCFI60:
+ 1014              		.cfi_def_cfa_offset 4
+ 1015              		.cfi_offset 7, -4
+ 1016 0002 83B0     		sub	sp, sp, #12
+ 1017              	.LCFI61:
+ 1018              		.cfi_def_cfa_offset 16
+ 1019 0004 00AF     		add	r7, sp, #0
+ 1020              	.LCFI62:
+ 1021              		.cfi_def_cfa_register 7
+ 1022 0006 7860     		str	r0, [r7, #4]
+ 1023 0008 3960     		str	r1, [r7, #0]
+ 948:C:/StellarisWare/driverlib\i2s.c ****     //
+ 949:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 950:C:/StellarisWare/driverlib\i2s.c ****     //
+ 951:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 952:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulIntFlags & (I2S_INT_RXERR | I2S_INT_RXREQ |
+ 953:C:/StellarisWare/driverlib\i2s.c ****                           I2S_INT_TXERR | I2S_INT_TXREQ)) == ulIntFlags);
+ 954:C:/StellarisWare/driverlib\i2s.c **** 
+ 955:C:/StellarisWare/driverlib\i2s.c ****     //
+ 956:C:/StellarisWare/driverlib\i2s.c ****     // Enable the specified interrupts.
+ 957:C:/StellarisWare/driverlib\i2s.c ****     //
+ 958:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_IM) |= ulIntFlags;
+ 1024              		.loc 1 958 0
+ 1025 000a 7B68     		ldr	r3, [r7, #4]
+ 1026 000c 03F54163 		add	r3, r3, #3088
+ 1027 0010 7A68     		ldr	r2, [r7, #4]
+ 1028 0012 02F54162 		add	r2, r2, #3088
+ 1029 0016 1168     		ldr	r1, [r2, #0]
+ 1030 0018 3A68     		ldr	r2, [r7, #0]
+ 1031 001a 0A43     		orrs	r2, r2, r1
+ 1032 001c 1A60     		str	r2, [r3, #0]
+ 959:C:/StellarisWare/driverlib\i2s.c **** }
+ 1033              		.loc 1 959 0
+ 1034 001e 07F10C07 		add	r7, r7, #12
+ 1035 0022 BD46     		mov	sp, r7
+ 1036 0024 80BC     		pop	{r7}
+ 1037 0026 7047     		bx	lr
+ 1038              		.cfi_endproc
+ 1039              	.LFE20:
+ 1041              		.section	.text.I2SIntDisable,"ax",%progbits
+ 1042              		.align	2
+ 1043              		.global	I2SIntDisable
+ 1044              		.thumb
+ 1045              		.thumb_func
+ 1047              	I2SIntDisable:
+ 1048              	.LFB21:
+ 960:C:/StellarisWare/driverlib\i2s.c **** 
+ 961:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 962:C:/StellarisWare/driverlib\i2s.c **** //
+ 963:C:/StellarisWare/driverlib\i2s.c **** //! Disables I2S interrupt sources.
+ 964:C:/StellarisWare/driverlib\i2s.c **** //!
+ 965:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 966:C:/StellarisWare/driverlib\i2s.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 967:C:/StellarisWare/driverlib\i2s.c **** //!
+ 968:C:/StellarisWare/driverlib\i2s.c **** //! This function disables the specified I2S sources for interrupt
+ 969:C:/StellarisWare/driverlib\i2s.c **** //! generation.  The \e ulIntFlags parameter can be the logical OR
+ 970:C:/StellarisWare/driverlib\i2s.c **** //! of any of the following values: \b I2S_INT_RXERR, \b I2S_INT_RXREQ,
+ 971:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_INT_TXERR, or \b I2S_INT_TXREQ.
+ 972:C:/StellarisWare/driverlib\i2s.c **** //!
+ 973:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+ 974:C:/StellarisWare/driverlib\i2s.c **** //
+ 975:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 976:C:/StellarisWare/driverlib\i2s.c **** void
+ 977:C:/StellarisWare/driverlib\i2s.c **** I2SIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 978:C:/StellarisWare/driverlib\i2s.c **** {
+ 1049              		.loc 1 978 0
+ 1050              		.cfi_startproc
+ 1051              		@ args = 0, pretend = 0, frame = 8
+ 1052              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1053              		@ link register save eliminated.
+ 1054 0000 80B4     		push	{r7}
+ 1055              	.LCFI63:
+ 1056              		.cfi_def_cfa_offset 4
+ 1057              		.cfi_offset 7, -4
+ 1058 0002 83B0     		sub	sp, sp, #12
+ 1059              	.LCFI64:
+ 1060              		.cfi_def_cfa_offset 16
+ 1061 0004 00AF     		add	r7, sp, #0
+ 1062              	.LCFI65:
+ 1063              		.cfi_def_cfa_register 7
+ 1064 0006 7860     		str	r0, [r7, #4]
+ 1065 0008 3960     		str	r1, [r7, #0]
+ 979:C:/StellarisWare/driverlib\i2s.c ****     //
+ 980:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+ 981:C:/StellarisWare/driverlib\i2s.c ****     //
+ 982:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+ 983:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulIntFlags & (I2S_INT_RXERR | I2S_INT_RXREQ |
+ 984:C:/StellarisWare/driverlib\i2s.c ****                           I2S_INT_TXERR | I2S_INT_TXREQ)) == ulIntFlags);
+ 985:C:/StellarisWare/driverlib\i2s.c **** 
+ 986:C:/StellarisWare/driverlib\i2s.c ****     //
+ 987:C:/StellarisWare/driverlib\i2s.c ****     // Enable the specified interrupts.
+ 988:C:/StellarisWare/driverlib\i2s.c ****     //
+ 989:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_IM) &= ~ulIntFlags;
+ 1066              		.loc 1 989 0
+ 1067 000a 7B68     		ldr	r3, [r7, #4]
+ 1068 000c 03F54163 		add	r3, r3, #3088
+ 1069 0010 7A68     		ldr	r2, [r7, #4]
+ 1070 0012 02F54162 		add	r2, r2, #3088
+ 1071 0016 1168     		ldr	r1, [r2, #0]
+ 1072 0018 3A68     		ldr	r2, [r7, #0]
+ 1073 001a 6FEA0202 		mvn	r2, r2
+ 1074 001e 0A40     		ands	r2, r2, r1
+ 1075 0020 1A60     		str	r2, [r3, #0]
+ 990:C:/StellarisWare/driverlib\i2s.c **** }
+ 1076              		.loc 1 990 0
+ 1077 0022 07F10C07 		add	r7, r7, #12
+ 1078 0026 BD46     		mov	sp, r7
+ 1079 0028 80BC     		pop	{r7}
+ 1080 002a 7047     		bx	lr
+ 1081              		.cfi_endproc
+ 1082              	.LFE21:
+ 1084              		.section	.text.I2SIntStatus,"ax",%progbits
+ 1085              		.align	2
+ 1086              		.global	I2SIntStatus
+ 1087              		.thumb
+ 1088              		.thumb_func
+ 1090              	I2SIntStatus:
+ 1091              	.LFB22:
+ 991:C:/StellarisWare/driverlib\i2s.c **** 
+ 992:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+ 993:C:/StellarisWare/driverlib\i2s.c **** //
+ 994:C:/StellarisWare/driverlib\i2s.c **** //! Gets the I2S interrupt status.
+ 995:C:/StellarisWare/driverlib\i2s.c **** //!
+ 996:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+ 997:C:/StellarisWare/driverlib\i2s.c **** //! \param bMasked is set \b true to get the masked interrupt status, or
+ 998:C:/StellarisWare/driverlib\i2s.c **** //! \b false to get the raw interrupt status.
+ 999:C:/StellarisWare/driverlib\i2s.c **** //!
+1000:C:/StellarisWare/driverlib\i2s.c **** //! This function returns the I2S interrupt status.  It can return either
+1001:C:/StellarisWare/driverlib\i2s.c **** //! the raw or masked interrupt status.
+1002:C:/StellarisWare/driverlib\i2s.c **** //!
+1003:C:/StellarisWare/driverlib\i2s.c **** //! \return Returns the masked or raw I2S interrupt status, as a bit field
+1004:C:/StellarisWare/driverlib\i2s.c **** //! of any of the following values: \b I2S_INT_RXERR, \b I2S_INT_RXREQ,
+1005:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_INT_TXERR, or \b I2S_INT_TXREQ
+1006:C:/StellarisWare/driverlib\i2s.c **** //
+1007:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1008:C:/StellarisWare/driverlib\i2s.c **** unsigned long
+1009:C:/StellarisWare/driverlib\i2s.c **** I2SIntStatus(unsigned long ulBase, tBoolean bMasked)
+1010:C:/StellarisWare/driverlib\i2s.c **** {
+ 1092              		.loc 1 1010 0
+ 1093              		.cfi_startproc
+ 1094              		@ args = 0, pretend = 0, frame = 8
+ 1095              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1096              		@ link register save eliminated.
+ 1097 0000 80B4     		push	{r7}
+ 1098              	.LCFI66:
+ 1099              		.cfi_def_cfa_offset 4
+ 1100              		.cfi_offset 7, -4
+ 1101 0002 83B0     		sub	sp, sp, #12
+ 1102              	.LCFI67:
+ 1103              		.cfi_def_cfa_offset 16
+ 1104 0004 00AF     		add	r7, sp, #0
+ 1105              	.LCFI68:
+ 1106              		.cfi_def_cfa_register 7
+ 1107 0006 7860     		str	r0, [r7, #4]
+ 1108 0008 0B46     		mov	r3, r1
+ 1109 000a FB70     		strb	r3, [r7, #3]
+1011:C:/StellarisWare/driverlib\i2s.c ****     //
+1012:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+1013:C:/StellarisWare/driverlib\i2s.c ****     //
+1014:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+1015:C:/StellarisWare/driverlib\i2s.c **** 
+1016:C:/StellarisWare/driverlib\i2s.c ****     //
+1017:C:/StellarisWare/driverlib\i2s.c ****     // Return either the interrupt status or the raw interrupt status as
+1018:C:/StellarisWare/driverlib\i2s.c ****     // requested.
+1019:C:/StellarisWare/driverlib\i2s.c ****     //
+1020:C:/StellarisWare/driverlib\i2s.c ****     if(bMasked)
+ 1110              		.loc 1 1020 0
+ 1111 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1112 000e 002B     		cmp	r3, #0
+ 1113 0010 06D0     		beq	.L36
+1021:C:/StellarisWare/driverlib\i2s.c ****     {
+1022:C:/StellarisWare/driverlib\i2s.c ****         return(HWREG(ulBase + I2S_O_MIS));
+ 1114              		.loc 1 1022 0
+ 1115 0012 7B68     		ldr	r3, [r7, #4]
+ 1116 0014 03F54063 		add	r3, r3, #3072
+ 1117 0018 03F11803 		add	r3, r3, #24
+ 1118 001c 1B68     		ldr	r3, [r3, #0]
+ 1119 001e 05E0     		b	.L37
+ 1120              	.L36:
+1023:C:/StellarisWare/driverlib\i2s.c ****     }
+1024:C:/StellarisWare/driverlib\i2s.c ****     else
+1025:C:/StellarisWare/driverlib\i2s.c ****     {
+1026:C:/StellarisWare/driverlib\i2s.c ****         return(HWREG(ulBase + I2S_O_RIS));
+ 1121              		.loc 1 1026 0
+ 1122 0020 7B68     		ldr	r3, [r7, #4]
+ 1123 0022 03F54063 		add	r3, r3, #3072
+ 1124 0026 03F11403 		add	r3, r3, #20
+ 1125 002a 1B68     		ldr	r3, [r3, #0]
+ 1126              	.L37:
+1027:C:/StellarisWare/driverlib\i2s.c ****     }
+1028:C:/StellarisWare/driverlib\i2s.c **** }
+ 1127              		.loc 1 1028 0
+ 1128 002c 1846     		mov	r0, r3
+ 1129 002e 07F10C07 		add	r7, r7, #12
+ 1130 0032 BD46     		mov	sp, r7
+ 1131 0034 80BC     		pop	{r7}
+ 1132 0036 7047     		bx	lr
+ 1133              		.cfi_endproc
+ 1134              	.LFE22:
+ 1136              		.section	.text.I2SIntClear,"ax",%progbits
+ 1137              		.align	2
+ 1138              		.global	I2SIntClear
+ 1139              		.thumb
+ 1140              		.thumb_func
+ 1142              	I2SIntClear:
+ 1143              	.LFB23:
+1029:C:/StellarisWare/driverlib\i2s.c **** 
+1030:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1031:C:/StellarisWare/driverlib\i2s.c **** //
+1032:C:/StellarisWare/driverlib\i2s.c **** //! Clears pending I2S interrupt sources.
+1033:C:/StellarisWare/driverlib\i2s.c **** //!
+1034:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+1035:C:/StellarisWare/driverlib\i2s.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+1036:C:/StellarisWare/driverlib\i2s.c **** //!
+1037:C:/StellarisWare/driverlib\i2s.c **** //! This function clears the specified pending I2S interrupts.  This function
+1038:C:/StellarisWare/driverlib\i2s.c **** //! must be called in the interrupt handler to keep the interrupt from being
+1039:C:/StellarisWare/driverlib\i2s.c **** //! triggered again immediately upon exit.  The \e ulIntFlags parameter can be
+1040:C:/StellarisWare/driverlib\i2s.c **** //! the logical OR of any of the following values: \b I2S_INT_RXERR,
+1041:C:/StellarisWare/driverlib\i2s.c **** //! \b I2S_INT_RXREQ, \b I2S_INT_TXERR, or \b I2S_INT_TXREQ.
+1042:C:/StellarisWare/driverlib\i2s.c **** //!
+1043:C:/StellarisWare/driverlib\i2s.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1044:C:/StellarisWare/driverlib\i2s.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1045:C:/StellarisWare/driverlib\i2s.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1046:C:/StellarisWare/driverlib\i2s.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1047:C:/StellarisWare/driverlib\i2s.c **** //! returning from the interrupt handler before the interrupt source is
+1048:C:/StellarisWare/driverlib\i2s.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1049:C:/StellarisWare/driverlib\i2s.c **** //! being immediately reentered (because the interrupt controller still sees
+1050:C:/StellarisWare/driverlib\i2s.c **** //! the interrupt source asserted).
+1051:C:/StellarisWare/driverlib\i2s.c **** //!
+1052:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+1053:C:/StellarisWare/driverlib\i2s.c **** //
+1054:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1055:C:/StellarisWare/driverlib\i2s.c **** void
+1056:C:/StellarisWare/driverlib\i2s.c **** I2SIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+1057:C:/StellarisWare/driverlib\i2s.c **** {
+ 1144              		.loc 1 1057 0
+ 1145              		.cfi_startproc
+ 1146              		@ args = 0, pretend = 0, frame = 8
+ 1147              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1148              		@ link register save eliminated.
+ 1149 0000 80B4     		push	{r7}
+ 1150              	.LCFI69:
+ 1151              		.cfi_def_cfa_offset 4
+ 1152              		.cfi_offset 7, -4
+ 1153 0002 83B0     		sub	sp, sp, #12
+ 1154              	.LCFI70:
+ 1155              		.cfi_def_cfa_offset 16
+ 1156 0004 00AF     		add	r7, sp, #0
+ 1157              	.LCFI71:
+ 1158              		.cfi_def_cfa_register 7
+ 1159 0006 7860     		str	r0, [r7, #4]
+ 1160 0008 3960     		str	r1, [r7, #0]
+1058:C:/StellarisWare/driverlib\i2s.c ****     //
+1059:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+1060:C:/StellarisWare/driverlib\i2s.c ****     //
+1061:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+1062:C:/StellarisWare/driverlib\i2s.c ****     ASSERT((ulIntFlags & (I2S_INT_RXERR | I2S_INT_RXREQ |
+1063:C:/StellarisWare/driverlib\i2s.c ****                           I2S_INT_TXERR | I2S_INT_TXREQ)) == ulIntFlags);
+1064:C:/StellarisWare/driverlib\i2s.c **** 
+1065:C:/StellarisWare/driverlib\i2s.c ****     //
+1066:C:/StellarisWare/driverlib\i2s.c ****     // Clear the requested interrupt sources.
+1067:C:/StellarisWare/driverlib\i2s.c ****     //
+1068:C:/StellarisWare/driverlib\i2s.c ****     HWREG(ulBase + I2S_O_IC) = ulIntFlags;
+ 1161              		.loc 1 1068 0
+ 1162 000a 7B68     		ldr	r3, [r7, #4]
+ 1163 000c 03F54063 		add	r3, r3, #3072
+ 1164 0010 03F11C03 		add	r3, r3, #28
+ 1165 0014 3A68     		ldr	r2, [r7, #0]
+ 1166 0016 1A60     		str	r2, [r3, #0]
+1069:C:/StellarisWare/driverlib\i2s.c **** }
+ 1167              		.loc 1 1069 0
+ 1168 0018 07F10C07 		add	r7, r7, #12
+ 1169 001c BD46     		mov	sp, r7
+ 1170 001e 80BC     		pop	{r7}
+ 1171 0020 7047     		bx	lr
+ 1172              		.cfi_endproc
+ 1173              	.LFE23:
+ 1175 0022 00BF     		.section	.text.I2SIntRegister,"ax",%progbits
+ 1176              		.align	2
+ 1177              		.global	I2SIntRegister
+ 1178              		.thumb
+ 1179              		.thumb_func
+ 1181              	I2SIntRegister:
+ 1182              	.LFB24:
+1070:C:/StellarisWare/driverlib\i2s.c **** 
+1071:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1072:C:/StellarisWare/driverlib\i2s.c **** //
+1073:C:/StellarisWare/driverlib\i2s.c **** //! Registers an interrupt handler for the I2S controller.
+1074:C:/StellarisWare/driverlib\i2s.c **** //!
+1075:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+1076:C:/StellarisWare/driverlib\i2s.c **** //! \param pfnHandler is a pointer to the function to be called when the
+1077:C:/StellarisWare/driverlib\i2s.c **** //! interrupt is activated.
+1078:C:/StellarisWare/driverlib\i2s.c **** //!
+1079:C:/StellarisWare/driverlib\i2s.c **** //! This function sets and enables the handler to be called when the I2S
+1080:C:/StellarisWare/driverlib\i2s.c **** //! controller generates an interrupt.  Specific I2S interrupts must still be
+1081:C:/StellarisWare/driverlib\i2s.c **** //! enabled with the I2SIntEnable() function.  It is the responsibility of the
+1082:C:/StellarisWare/driverlib\i2s.c **** //! interrupt handler to clear any pending interrupts with I2SIntClear().
+1083:C:/StellarisWare/driverlib\i2s.c **** //!
+1084:C:/StellarisWare/driverlib\i2s.c **** //! \sa IntRegister() for important information about registering interrupt
+1085:C:/StellarisWare/driverlib\i2s.c **** //! handlers.
+1086:C:/StellarisWare/driverlib\i2s.c **** //!
+1087:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+1088:C:/StellarisWare/driverlib\i2s.c **** //
+1089:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1090:C:/StellarisWare/driverlib\i2s.c **** void
+1091:C:/StellarisWare/driverlib\i2s.c **** I2SIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+1092:C:/StellarisWare/driverlib\i2s.c **** {
+ 1183              		.loc 1 1092 0
+ 1184              		.cfi_startproc
+ 1185              		@ args = 0, pretend = 0, frame = 8
+ 1186              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1187 0000 80B5     		push	{r7, lr}
+ 1188              	.LCFI72:
+ 1189              		.cfi_def_cfa_offset 8
+ 1190              		.cfi_offset 14, -4
+ 1191              		.cfi_offset 7, -8
+ 1192 0002 82B0     		sub	sp, sp, #8
+ 1193              	.LCFI73:
+ 1194              		.cfi_def_cfa_offset 16
+ 1195 0004 00AF     		add	r7, sp, #0
+ 1196              	.LCFI74:
+ 1197              		.cfi_def_cfa_register 7
+ 1198 0006 7860     		str	r0, [r7, #4]
+ 1199 0008 3960     		str	r1, [r7, #0]
+1093:C:/StellarisWare/driverlib\i2s.c ****     //
+1094:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+1095:C:/StellarisWare/driverlib\i2s.c ****     //
+1096:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+1097:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(pfnHandler);
+1098:C:/StellarisWare/driverlib\i2s.c **** 
+1099:C:/StellarisWare/driverlib\i2s.c ****     //
+1100:C:/StellarisWare/driverlib\i2s.c ****     // Register the interrupt handler.
+1101:C:/StellarisWare/driverlib\i2s.c ****     //
+1102:C:/StellarisWare/driverlib\i2s.c ****     IntRegister(INT_I2S0, pfnHandler);
+ 1200              		.loc 1 1102 0
+ 1201 000a 4FF04400 		mov	r0, #68
+ 1202 000e 3968     		ldr	r1, [r7, #0]
+ 1203 0010 FFF7FEFF 		bl	IntRegister
+1103:C:/StellarisWare/driverlib\i2s.c **** 
+1104:C:/StellarisWare/driverlib\i2s.c ****     //
+1105:C:/StellarisWare/driverlib\i2s.c ****     // Enable the I2S interface interrupt.
+1106:C:/StellarisWare/driverlib\i2s.c ****     //
+1107:C:/StellarisWare/driverlib\i2s.c ****     IntEnable(INT_I2S0);
+ 1204              		.loc 1 1107 0
+ 1205 0014 4FF04400 		mov	r0, #68
+ 1206 0018 FFF7FEFF 		bl	IntEnable
+1108:C:/StellarisWare/driverlib\i2s.c **** }
+ 1207              		.loc 1 1108 0
+ 1208 001c 07F10807 		add	r7, r7, #8
+ 1209 0020 BD46     		mov	sp, r7
+ 1210 0022 80BD     		pop	{r7, pc}
+ 1211              		.cfi_endproc
+ 1212              	.LFE24:
+ 1214              		.section	.text.I2SIntUnregister,"ax",%progbits
+ 1215              		.align	2
+ 1216              		.global	I2SIntUnregister
+ 1217              		.thumb
+ 1218              		.thumb_func
+ 1220              	I2SIntUnregister:
+ 1221              	.LFB25:
+1109:C:/StellarisWare/driverlib\i2s.c **** 
+1110:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1111:C:/StellarisWare/driverlib\i2s.c **** //
+1112:C:/StellarisWare/driverlib\i2s.c **** //! Unregisters an interrupt handler for the I2S controller.
+1113:C:/StellarisWare/driverlib\i2s.c **** //!
+1114:C:/StellarisWare/driverlib\i2s.c **** //! \param ulBase is the I2S module base address.
+1115:C:/StellarisWare/driverlib\i2s.c **** //!
+1116:C:/StellarisWare/driverlib\i2s.c **** //! This function disables and clears the handler to be called when the
+1117:C:/StellarisWare/driverlib\i2s.c **** //! I2S interrupt occurs.
+1118:C:/StellarisWare/driverlib\i2s.c **** //!
+1119:C:/StellarisWare/driverlib\i2s.c **** //! \sa IntRegister() for important information about registering interrupt
+1120:C:/StellarisWare/driverlib\i2s.c **** //! handlers.
+1121:C:/StellarisWare/driverlib\i2s.c **** //!
+1122:C:/StellarisWare/driverlib\i2s.c **** //! \return None.
+1123:C:/StellarisWare/driverlib\i2s.c **** //
+1124:C:/StellarisWare/driverlib\i2s.c **** //*****************************************************************************
+1125:C:/StellarisWare/driverlib\i2s.c **** void
+1126:C:/StellarisWare/driverlib\i2s.c **** I2SIntUnregister(unsigned long ulBase)
+1127:C:/StellarisWare/driverlib\i2s.c **** {
+ 1222              		.loc 1 1127 0
+ 1223              		.cfi_startproc
+ 1224              		@ args = 0, pretend = 0, frame = 8
+ 1225              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1226 0000 80B5     		push	{r7, lr}
+ 1227              	.LCFI75:
+ 1228              		.cfi_def_cfa_offset 8
+ 1229              		.cfi_offset 14, -4
+ 1230              		.cfi_offset 7, -8
+ 1231 0002 82B0     		sub	sp, sp, #8
+ 1232              	.LCFI76:
+ 1233              		.cfi_def_cfa_offset 16
+ 1234 0004 00AF     		add	r7, sp, #0
+ 1235              	.LCFI77:
+ 1236              		.cfi_def_cfa_register 7
+ 1237 0006 7860     		str	r0, [r7, #4]
+1128:C:/StellarisWare/driverlib\i2s.c ****     //
+1129:C:/StellarisWare/driverlib\i2s.c ****     // Check the arguments.
+1130:C:/StellarisWare/driverlib\i2s.c ****     //
+1131:C:/StellarisWare/driverlib\i2s.c ****     ASSERT(ulBase == I2S0_BASE);
+1132:C:/StellarisWare/driverlib\i2s.c **** 
+1133:C:/StellarisWare/driverlib\i2s.c ****     //
+1134:C:/StellarisWare/driverlib\i2s.c ****     // Disable the I2S interface interrupt.
+1135:C:/StellarisWare/driverlib\i2s.c ****     //
+1136:C:/StellarisWare/driverlib\i2s.c ****     IntDisable(INT_I2S0);
+ 1238              		.loc 1 1136 0
+ 1239 0008 4FF04400 		mov	r0, #68
+ 1240 000c FFF7FEFF 		bl	IntDisable
+1137:C:/StellarisWare/driverlib\i2s.c **** 
+1138:C:/StellarisWare/driverlib\i2s.c ****     //
+1139:C:/StellarisWare/driverlib\i2s.c ****     // Unregister the interrupt handler.
+1140:C:/StellarisWare/driverlib\i2s.c ****     //
+1141:C:/StellarisWare/driverlib\i2s.c ****     IntUnregister(INT_I2S0);
+ 1241              		.loc 1 1141 0
+ 1242 0010 4FF04400 		mov	r0, #68
+ 1243 0014 FFF7FEFF 		bl	IntUnregister
+1142:C:/StellarisWare/driverlib\i2s.c **** }
+ 1244              		.loc 1 1142 0
+ 1245 0018 07F10807 		add	r7, r7, #8
+ 1246 001c BD46     		mov	sp, r7
+ 1247 001e 80BD     		pop	{r7, pc}
+ 1248              		.cfi_endproc
+ 1249              	.LFE25:
+ 1251              		.text
+ 1252              	.Letext0:
+ 1253              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 i2s.c
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:19     .text.I2STxEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:24     .text.I2STxEnable:00000000 I2STxEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:65     .text.I2STxDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:70     .text.I2STxDisable:00000000 I2STxDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:105    .text.I2STxDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:110    .text.I2STxDataPut:00000000 I2STxDataPut
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:151    .text.I2STxDataPutNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:156    .text.I2STxDataPutNonBlocking:00000000 I2STxDataPutNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:202    .text.I2STxConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:207    .text.I2STxConfigSet:00000000 I2STxConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:262    .text.I2STxFIFOLimitSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:267    .text.I2STxFIFOLimitSet:00000000 I2STxFIFOLimitSet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:300    .text.I2STxFIFOLimitGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:305    .text.I2STxFIFOLimitGet:00000000 I2STxFIFOLimitGet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:337    .text.I2STxFIFOLevelGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:342    .text.I2STxFIFOLevelGet:00000000 I2STxFIFOLevelGet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:374    .text.I2SRxEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:379    .text.I2SRxEnable:00000000 I2SRxEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:419    .text.I2SRxDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:424    .text.I2SRxDisable:00000000 I2SRxDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:459    .text.I2SRxDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:464    .text.I2SRxDataGet:00000000 I2SRxDataGet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:508    .text.I2SRxDataGetNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:513    .text.I2SRxDataGetNonBlocking:00000000 I2SRxDataGetNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:562    .text.I2SRxConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:567    .text.I2SRxConfigSet:00000000 I2SRxConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:646    .text.I2SRxFIFOLimitSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:651    .text.I2SRxFIFOLimitSet:00000000 I2SRxFIFOLimitSet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:685    .text.I2SRxFIFOLimitGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:690    .text.I2SRxFIFOLimitGet:00000000 I2SRxFIFOLimitGet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:725    .text.I2SRxFIFOLevelGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:730    .text.I2SRxFIFOLevelGet:00000000 I2SRxFIFOLevelGet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:763    .text.I2STxRxEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:768    .text.I2STxRxEnable:00000000 I2STxRxEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:813    .text.I2STxRxDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:818    .text.I2STxRxDisable:00000000 I2STxRxDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:853    .text.I2STxRxConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:858    .text.I2STxRxConfigSet:00000000 I2STxRxConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:954    .text.I2SMasterClockSelect:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:959    .text.I2SMasterClockSelect:00000000 I2SMasterClockSelect
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1000   .text.I2SIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1005   .text.I2SIntEnable:00000000 I2SIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1042   .text.I2SIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1047   .text.I2SIntDisable:00000000 I2SIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1085   .text.I2SIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1090   .text.I2SIntStatus:00000000 I2SIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1137   .text.I2SIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1142   .text.I2SIntClear:00000000 I2SIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1176   .text.I2SIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1181   .text.I2SIntRegister:00000000 I2SIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1215   .text.I2SIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccuqXfZD.s:1220   .text.I2SIntUnregister:00000000 I2SIntUnregister
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

@@ -1,0 +1,1360 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"fan.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.FanChannelEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	FanChannelEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	FanChannelEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/fan.c"
+   1:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\fan.c **** //
+   3:C:/StellarisWare/driverlib\fan.c **** // fan.c - Driver for the FAN controller.
+   4:C:/StellarisWare/driverlib\fan.c **** //
+   5:C:/StellarisWare/driverlib\fan.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\fan.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\fan.c **** // 
+   8:C:/StellarisWare/driverlib\fan.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\fan.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\fan.c **** //   are met:
+  11:C:/StellarisWare/driverlib\fan.c **** // 
+  12:C:/StellarisWare/driverlib\fan.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\fan.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\fan.c **** // 
+  15:C:/StellarisWare/driverlib\fan.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\fan.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\fan.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\fan.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\fan.c **** // 
+  20:C:/StellarisWare/driverlib\fan.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\fan.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\fan.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\fan.c **** // 
+  24:C:/StellarisWare/driverlib\fan.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\fan.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\fan.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\fan.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\fan.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\fan.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\fan.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\fan.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\fan.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\fan.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\fan.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\fan.c **** // 
+  36:C:/StellarisWare/driverlib\fan.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\fan.c **** //
+  38:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\fan.c **** 
+  40:C:/StellarisWare/driverlib\fan.c **** #include "inc/hw_types.h"
+  41:C:/StellarisWare/driverlib\fan.c **** #include "inc/hw_memmap.h"
+  42:C:/StellarisWare/driverlib\fan.c **** #include "inc/hw_fan.h"
+  43:C:/StellarisWare/driverlib\fan.c **** #include "inc/hw_ints.h"
+  44:C:/StellarisWare/driverlib\fan.c **** #include "driverlib/fan.h"
+  45:C:/StellarisWare/driverlib\fan.c **** #include "driverlib/debug.h"
+  46:C:/StellarisWare/driverlib\fan.c **** #include "driverlib/interrupt.h"
+  47:C:/StellarisWare/driverlib\fan.c **** 
+  48:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  49:C:/StellarisWare/driverlib\fan.c **** //
+  50:C:/StellarisWare/driverlib\fan.c **** //! \addtogroup fan_api
+  51:C:/StellarisWare/driverlib\fan.c **** //! @{
+  52:C:/StellarisWare/driverlib\fan.c **** //
+  53:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  54:C:/StellarisWare/driverlib\fan.c **** 
+  55:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\fan.c **** //
+  57:C:/StellarisWare/driverlib\fan.c **** //! Enables a FAN channel for operation.
+  58:C:/StellarisWare/driverlib\fan.c **** //!
+  59:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+  60:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to enable.
+  61:C:/StellarisWare/driverlib\fan.c **** //!
+  62:C:/StellarisWare/driverlib\fan.c **** //! This function enables the specified FAN channel for operation.
+  63:C:/StellarisWare/driverlib\fan.c **** //!
+  64:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+  65:C:/StellarisWare/driverlib\fan.c **** //
+  66:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  67:C:/StellarisWare/driverlib\fan.c **** void
+  68:C:/StellarisWare/driverlib\fan.c **** FanChannelEnable(unsigned long ulBase, unsigned long ulChannel)
+  69:C:/StellarisWare/driverlib\fan.c **** {
+  27              		.loc 1 69 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 83B0     		sub	sp, sp, #12
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 3960     		str	r1, [r7, #0]
+  70:C:/StellarisWare/driverlib\fan.c ****     //
+  71:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+  72:C:/StellarisWare/driverlib\fan.c ****     //
+  73:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+  74:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+  75:C:/StellarisWare/driverlib\fan.c **** 
+  76:C:/StellarisWare/driverlib\fan.c ****     //
+  77:C:/StellarisWare/driverlib\fan.c ****     // Enable the requested channel
+  78:C:/StellarisWare/driverlib\fan.c ****     //
+  79:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CTL) |= 1 << ulChannel;
+  44              		.loc 1 79 0
+  45 000a 7B68     		ldr	r3, [r7, #4]
+  46 000c 03F10403 		add	r3, r3, #4
+  47 0010 7A68     		ldr	r2, [r7, #4]
+  48 0012 02F10402 		add	r2, r2, #4
+  49 0016 1168     		ldr	r1, [r2, #0]
+  50 0018 3A68     		ldr	r2, [r7, #0]
+  51 001a 4FF00100 		mov	r0, #1
+  52 001e 00FA02F2 		lsl	r2, r0, r2
+  53 0022 0A43     		orrs	r2, r2, r1
+  54 0024 1A60     		str	r2, [r3, #0]
+  80:C:/StellarisWare/driverlib\fan.c **** }
+  55              		.loc 1 80 0
+  56 0026 07F10C07 		add	r7, r7, #12
+  57 002a BD46     		mov	sp, r7
+  58 002c 80BC     		pop	{r7}
+  59 002e 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE0:
+  63              		.section	.text.FanChannelDisable,"ax",%progbits
+  64              		.align	2
+  65              		.global	FanChannelDisable
+  66              		.thumb
+  67              		.thumb_func
+  69              	FanChannelDisable:
+  70              	.LFB1:
+  81:C:/StellarisWare/driverlib\fan.c **** 
+  82:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  83:C:/StellarisWare/driverlib\fan.c **** //
+  84:C:/StellarisWare/driverlib\fan.c **** //! Disables a FAN channel.
+  85:C:/StellarisWare/driverlib\fan.c **** //!
+  86:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+  87:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to disable.
+  88:C:/StellarisWare/driverlib\fan.c **** //!
+  89:C:/StellarisWare/driverlib\fan.c **** //! This function disables the specified FAN channel for operation.
+  90:C:/StellarisWare/driverlib\fan.c **** //!
+  91:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+  92:C:/StellarisWare/driverlib\fan.c **** //
+  93:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+  94:C:/StellarisWare/driverlib\fan.c **** void
+  95:C:/StellarisWare/driverlib\fan.c **** FanChannelDisable(unsigned long ulBase, unsigned long ulChannel)
+  96:C:/StellarisWare/driverlib\fan.c **** {
+  71              		.loc 1 96 0
+  72              		.cfi_startproc
+  73              		@ args = 0, pretend = 0, frame = 8
+  74              		@ frame_needed = 1, uses_anonymous_args = 0
+  75              		@ link register save eliminated.
+  76 0000 80B4     		push	{r7}
+  77              	.LCFI3:
+  78              		.cfi_def_cfa_offset 4
+  79              		.cfi_offset 7, -4
+  80 0002 83B0     		sub	sp, sp, #12
+  81              	.LCFI4:
+  82              		.cfi_def_cfa_offset 16
+  83 0004 00AF     		add	r7, sp, #0
+  84              	.LCFI5:
+  85              		.cfi_def_cfa_register 7
+  86 0006 7860     		str	r0, [r7, #4]
+  87 0008 3960     		str	r1, [r7, #0]
+  97:C:/StellarisWare/driverlib\fan.c ****     //
+  98:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+  99:C:/StellarisWare/driverlib\fan.c ****     //
+ 100:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 101:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 102:C:/StellarisWare/driverlib\fan.c **** 
+ 103:C:/StellarisWare/driverlib\fan.c ****     //
+ 104:C:/StellarisWare/driverlib\fan.c ****     // Disable the requested channel
+ 105:C:/StellarisWare/driverlib\fan.c ****     //
+ 106:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CTL) &= ~(1 << ulChannel);
+  88              		.loc 1 106 0
+  89 000a 7B68     		ldr	r3, [r7, #4]
+  90 000c 03F10403 		add	r3, r3, #4
+  91 0010 7A68     		ldr	r2, [r7, #4]
+  92 0012 02F10402 		add	r2, r2, #4
+  93 0016 1168     		ldr	r1, [r2, #0]
+  94 0018 3A68     		ldr	r2, [r7, #0]
+  95 001a 4FF00100 		mov	r0, #1
+  96 001e 00FA02F2 		lsl	r2, r0, r2
+  97 0022 6FEA0202 		mvn	r2, r2
+  98 0026 0A40     		ands	r2, r2, r1
+  99 0028 1A60     		str	r2, [r3, #0]
+ 107:C:/StellarisWare/driverlib\fan.c **** }
+ 100              		.loc 1 107 0
+ 101 002a 07F10C07 		add	r7, r7, #12
+ 102 002e BD46     		mov	sp, r7
+ 103 0030 80BC     		pop	{r7}
+ 104 0032 7047     		bx	lr
+ 105              		.cfi_endproc
+ 106              	.LFE1:
+ 108              		.section	.text.FanChannelStatus,"ax",%progbits
+ 109              		.align	2
+ 110              		.global	FanChannelStatus
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	FanChannelStatus:
+ 115              	.LFB2:
+ 108:C:/StellarisWare/driverlib\fan.c **** 
+ 109:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 110:C:/StellarisWare/driverlib\fan.c **** //
+ 111:C:/StellarisWare/driverlib\fan.c **** //! Gets the status of a FAN channel.
+ 112:C:/StellarisWare/driverlib\fan.c **** //!
+ 113:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 114:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to query for status.
+ 115:C:/StellarisWare/driverlib\fan.c **** //!
+ 116:C:/StellarisWare/driverlib\fan.c **** //! This function queries and returns the status of the specified channel.
+ 117:C:/StellarisWare/driverlib\fan.c **** //! The returned value is one of:
+ 118:C:/StellarisWare/driverlib\fan.c **** //!
+ 119:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_STATUS_STALLED if the cooling fan is stalled
+ 120:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_STATUS_CHANGING if the fan is changing to the commanded speed
+ 121:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_STATUS_LOCKED if the fan is locked at the commanded speed
+ 122:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_STATUS_NOATTAIN if the fan cannot achieve the commanded speed
+ 123:C:/StellarisWare/driverlib\fan.c **** //!
+ 124:C:/StellarisWare/driverlib\fan.c **** //! \return Returns the status of the specified FAN channel.
+ 125:C:/StellarisWare/driverlib\fan.c **** //
+ 126:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 127:C:/StellarisWare/driverlib\fan.c **** unsigned long
+ 128:C:/StellarisWare/driverlib\fan.c **** FanChannelStatus(unsigned long ulBase, unsigned long ulChannel)
+ 129:C:/StellarisWare/driverlib\fan.c **** {
+ 116              		.loc 1 129 0
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 8
+ 119              		@ frame_needed = 1, uses_anonymous_args = 0
+ 120              		@ link register save eliminated.
+ 121 0000 80B4     		push	{r7}
+ 122              	.LCFI6:
+ 123              		.cfi_def_cfa_offset 4
+ 124              		.cfi_offset 7, -4
+ 125 0002 83B0     		sub	sp, sp, #12
+ 126              	.LCFI7:
+ 127              		.cfi_def_cfa_offset 16
+ 128 0004 00AF     		add	r7, sp, #0
+ 129              	.LCFI8:
+ 130              		.cfi_def_cfa_register 7
+ 131 0006 7860     		str	r0, [r7, #4]
+ 132 0008 3960     		str	r1, [r7, #0]
+ 130:C:/StellarisWare/driverlib\fan.c ****     //
+ 131:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 132:C:/StellarisWare/driverlib\fan.c ****     //
+ 133:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 134:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 135:C:/StellarisWare/driverlib\fan.c **** 
+ 136:C:/StellarisWare/driverlib\fan.c ****     //
+ 137:C:/StellarisWare/driverlib\fan.c ****     // Read and return the status for the specified fan channel
+ 138:C:/StellarisWare/driverlib\fan.c ****     //
+ 139:C:/StellarisWare/driverlib\fan.c ****     return((HWREG(ulBase + FAN_O_STS) >> (ulChannel * 2)) & FAN_STS_ST0_M);
+ 133              		.loc 1 139 0
+ 134 000a 7B68     		ldr	r3, [r7, #4]
+ 135 000c 1A68     		ldr	r2, [r3, #0]
+ 136 000e 3B68     		ldr	r3, [r7, #0]
+ 137 0010 4FEA4303 		lsl	r3, r3, #1
+ 138 0014 22FA03F3 		lsr	r3, r2, r3
+ 139 0018 03F00303 		and	r3, r3, #3
+ 140:C:/StellarisWare/driverlib\fan.c **** }
+ 140              		.loc 1 140 0
+ 141 001c 1846     		mov	r0, r3
+ 142 001e 07F10C07 		add	r7, r7, #12
+ 143 0022 BD46     		mov	sp, r7
+ 144 0024 80BC     		pop	{r7}
+ 145 0026 7047     		bx	lr
+ 146              		.cfi_endproc
+ 147              	.LFE2:
+ 149              		.section	.text.FanChannelConfigManual,"ax",%progbits
+ 150              		.align	2
+ 151              		.global	FanChannelConfigManual
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	FanChannelConfigManual:
+ 156              	.LFB3:
+ 141:C:/StellarisWare/driverlib\fan.c **** 
+ 142:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 143:C:/StellarisWare/driverlib\fan.c **** //
+ 144:C:/StellarisWare/driverlib\fan.c **** //! Configures a FAN channel for manual operation.
+ 145:C:/StellarisWare/driverlib\fan.c **** //!
+ 146:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 147:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to configure.
+ 148:C:/StellarisWare/driverlib\fan.c **** //! \param ulConfig is the logical OR of manual configuration flags.
+ 149:C:/StellarisWare/driverlib\fan.c **** //!
+ 150:C:/StellarisWare/driverlib\fan.c **** //! This function configures a specific FAN channel to operate in manual
+ 151:C:/StellarisWare/driverlib\fan.c **** //! mode.  The \e ulConfig parameter is the logical OR of several choices of
+ 152:C:/StellarisWare/driverlib\fan.c **** //! configuration flags as follows:
+ 153:C:/StellarisWare/driverlib\fan.c **** //!
+ 154:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the number of tachometer pulses used for
+ 155:C:/StellarisWare/driverlib\fan.c **** //! speed averaging:
+ 156:C:/StellarisWare/driverlib\fan.c **** //!
+ 157:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_NONE to disable fan speed averaging
+ 158:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_2 to select 2 pulses for speed averaging
+ 159:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_4 to select 4 pulses for speed averaging
+ 160:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_8 to select 8 pulses for speed averaging
+ 161:C:/StellarisWare/driverlib\fan.c **** //!
+ 162:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the tachometer pulses per revolution:
+ 163:C:/StellarisWare/driverlib\fan.c **** //!
+ 164:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_1 to select 1 pulse per revolution
+ 165:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_2 to select 2 pulses per revolution
+ 166:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_4 to select 4 pulses per revolution
+ 167:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_8 to select 8 pulses per revolution
+ 168:C:/StellarisWare/driverlib\fan.c **** //!
+ 169:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 170:C:/StellarisWare/driverlib\fan.c **** //
+ 171:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 172:C:/StellarisWare/driverlib\fan.c **** void
+ 173:C:/StellarisWare/driverlib\fan.c **** FanChannelConfigManual(unsigned long ulBase, unsigned long ulChannel,
+ 174:C:/StellarisWare/driverlib\fan.c ****                        unsigned long ulConfig)
+ 175:C:/StellarisWare/driverlib\fan.c **** {
+ 157              		.loc 1 175 0
+ 158              		.cfi_startproc
+ 159              		@ args = 0, pretend = 0, frame = 16
+ 160              		@ frame_needed = 1, uses_anonymous_args = 0
+ 161              		@ link register save eliminated.
+ 162 0000 80B4     		push	{r7}
+ 163              	.LCFI9:
+ 164              		.cfi_def_cfa_offset 4
+ 165              		.cfi_offset 7, -4
+ 166 0002 85B0     		sub	sp, sp, #20
+ 167              	.LCFI10:
+ 168              		.cfi_def_cfa_offset 24
+ 169 0004 00AF     		add	r7, sp, #0
+ 170              	.LCFI11:
+ 171              		.cfi_def_cfa_register 7
+ 172 0006 F860     		str	r0, [r7, #12]
+ 173 0008 B960     		str	r1, [r7, #8]
+ 174 000a 7A60     		str	r2, [r7, #4]
+ 176:C:/StellarisWare/driverlib\fan.c ****     //
+ 177:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 178:C:/StellarisWare/driverlib\fan.c ****     //
+ 179:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 180:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 181:C:/StellarisWare/driverlib\fan.c **** 
+ 182:C:/StellarisWare/driverlib\fan.c ****     //
+ 183:C:/StellarisWare/driverlib\fan.c ****     // Program the fan channel for manual mode with parameters.
+ 184:C:/StellarisWare/driverlib\fan.c ****     //
+ 185:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CH0 + (ulChannel * 0x10)) =  FAN_CH0_MAN | ulConfig;
+ 175              		.loc 1 185 0
+ 176 000c BB68     		ldr	r3, [r7, #8]
+ 177 000e 4FEA0312 		lsl	r2, r3, #4
+ 178 0012 FB68     		ldr	r3, [r7, #12]
+ 179 0014 D318     		adds	r3, r2, r3
+ 180 0016 03F11003 		add	r3, r3, #16
+ 181 001a 7A68     		ldr	r2, [r7, #4]
+ 182 001c 42F00102 		orr	r2, r2, #1
+ 183 0020 1A60     		str	r2, [r3, #0]
+ 186:C:/StellarisWare/driverlib\fan.c **** }
+ 184              		.loc 1 186 0
+ 185 0022 07F11407 		add	r7, r7, #20
+ 186 0026 BD46     		mov	sp, r7
+ 187 0028 80BC     		pop	{r7}
+ 188 002a 7047     		bx	lr
+ 189              		.cfi_endproc
+ 190              	.LFE3:
+ 192              		.section	.text.FanChannelConfigAuto,"ax",%progbits
+ 193              		.align	2
+ 194              		.global	FanChannelConfigAuto
+ 195              		.thumb
+ 196              		.thumb_func
+ 198              	FanChannelConfigAuto:
+ 199              	.LFB4:
+ 187:C:/StellarisWare/driverlib\fan.c **** 
+ 188:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 189:C:/StellarisWare/driverlib\fan.c **** //
+ 190:C:/StellarisWare/driverlib\fan.c **** //! Configures a FAN channel for automatic operation.
+ 191:C:/StellarisWare/driverlib\fan.c **** //!
+ 192:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 193:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to configure.
+ 194:C:/StellarisWare/driverlib\fan.c **** //! \param ulConfig is the logical OR of configuration flags.
+ 195:C:/StellarisWare/driverlib\fan.c **** //!
+ 196:C:/StellarisWare/driverlib\fan.c **** //! This function configures a specific FAN channel to operate in automatic
+ 197:C:/StellarisWare/driverlib\fan.c **** //! mode.  The \e ulConfig parameter is the logical OR of several choices of
+ 198:C:/StellarisWare/driverlib\fan.c **** //! configuration flags as follows:
+ 199:C:/StellarisWare/driverlib\fan.c **** //!
+ 200:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the automatic restart mode:
+ 201:C:/StellarisWare/driverlib\fan.c **** //!
+ 202:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_RESTART to enable automatic restart after stall
+ 203:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_NORESTART to disable automatic restart after stall
+ 204:C:/StellarisWare/driverlib\fan.c **** //!
+ 205:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the acceleration rate when changing speed:
+ 206:C:/StellarisWare/driverlib\fan.c **** //!
+ 207:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_ACCEL_FAST to select fast acceleration
+ 208:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_ACCEL_SLOW to select slow acceleration
+ 209:C:/StellarisWare/driverlib\fan.c **** //!
+ 210:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the number of tachometer pulses to use
+ 211:C:/StellarisWare/driverlib\fan.c **** //! for the hysteresis count:
+ 212:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_HYST_1, \b FAN_CONFIG_HYST_2, \b FAN_CONFIG_HYST_4,
+ 213:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_HYST_8, \b FAN_CONFIG_HYST_16, \b FAN_CONFIG_HYST_32,
+ 214:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_HYST_64, or \b FAN_CONFIG_HYST_128
+ 215:C:/StellarisWare/driverlib\fan.c **** //!
+ 216:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the start period as the number of tachometer
+ 217:C:/StellarisWare/driverlib\fan.c **** //! pulses.  The start period is the amount of time that a starting PWM duty
+ 218:C:/StellarisWare/driverlib\fan.c **** //! cycle is used after the FAN channel is commended to a certain speed:
+ 219:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_START_2, \b FAN_CONFIG_START_4, \b FAN_CONFIG_START_8,
+ 220:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_START_16, \b FAN_CONFIG_START_32, \b FAN_CONFIG_START_64,
+ 221:C:/StellarisWare/driverlib\fan.c **** //! \b FAN_CONFIG_START_128, or \b FAN_CONFIG_START_256
+ 222:C:/StellarisWare/driverlib\fan.c **** //!
+ 223:C:/StellarisWare/driverlib\fan.c **** //! One of the following to specify the duty cycle that is used when the FAN
+ 224:C:/StellarisWare/driverlib\fan.c **** //! channel is starting, during the starting period (above):
+ 225:C:/StellarisWare/driverlib\fan.c **** //!
+ 226:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_START_DUTY_OFF to disable the use of startup duty cycle
+ 227:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_START_DUTY_50 to select 50% startup duty cycle
+ 228:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_START_DUTY_75 to select 75% startup duty cycle
+ 229:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_START_DUTY_100 to select 100% startup duty cycle
+ 230:C:/StellarisWare/driverlib\fan.c **** //!
+ 231:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the number of tachometer pulses used for
+ 232:C:/StellarisWare/driverlib\fan.c **** //! speed averaging:
+ 233:C:/StellarisWare/driverlib\fan.c **** //!
+ 234:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_NONE to disable fan speed averaging
+ 235:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_2 to select 2 pulses for speed averaging
+ 236:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_4 to select 4 pulses for speed averaging
+ 237:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_AVG_8 to select 8 pulses for speed averaging
+ 238:C:/StellarisWare/driverlib\fan.c **** //!
+ 239:C:/StellarisWare/driverlib\fan.c **** //! One of the following to select the tachometer pulses per revolution:
+ 240:C:/StellarisWare/driverlib\fan.c **** //!
+ 241:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_1 to select 1 pulse per revolution
+ 242:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_2 to select 2 pulses per revolution
+ 243:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_4 to select 4 pulses per revolution
+ 244:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CONFIG_TACH_8 to select 8 pulses per revolution
+ 245:C:/StellarisWare/driverlib\fan.c **** //!
+ 246:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 247:C:/StellarisWare/driverlib\fan.c **** //
+ 248:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 249:C:/StellarisWare/driverlib\fan.c **** void
+ 250:C:/StellarisWare/driverlib\fan.c **** FanChannelConfigAuto(unsigned long ulBase, unsigned long ulChannel,
+ 251:C:/StellarisWare/driverlib\fan.c ****                      unsigned long ulConfig)
+ 252:C:/StellarisWare/driverlib\fan.c **** {
+ 200              		.loc 1 252 0
+ 201              		.cfi_startproc
+ 202              		@ args = 0, pretend = 0, frame = 16
+ 203              		@ frame_needed = 1, uses_anonymous_args = 0
+ 204              		@ link register save eliminated.
+ 205 0000 80B4     		push	{r7}
+ 206              	.LCFI12:
+ 207              		.cfi_def_cfa_offset 4
+ 208              		.cfi_offset 7, -4
+ 209 0002 85B0     		sub	sp, sp, #20
+ 210              	.LCFI13:
+ 211              		.cfi_def_cfa_offset 24
+ 212 0004 00AF     		add	r7, sp, #0
+ 213              	.LCFI14:
+ 214              		.cfi_def_cfa_register 7
+ 215 0006 F860     		str	r0, [r7, #12]
+ 216 0008 B960     		str	r1, [r7, #8]
+ 217 000a 7A60     		str	r2, [r7, #4]
+ 253:C:/StellarisWare/driverlib\fan.c ****     //
+ 254:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 255:C:/StellarisWare/driverlib\fan.c ****     //
+ 256:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 257:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 258:C:/StellarisWare/driverlib\fan.c **** 
+ 259:C:/StellarisWare/driverlib\fan.c ****     //
+ 260:C:/StellarisWare/driverlib\fan.c ****     // Program the fan channel for automatic mode with parameters.
+ 261:C:/StellarisWare/driverlib\fan.c ****     //
+ 262:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CH0 + (ulChannel * 0x10)) = ~FAN_CH0_MAN & ulConfig;
+ 218              		.loc 1 262 0
+ 219 000c BB68     		ldr	r3, [r7, #8]
+ 220 000e 4FEA0312 		lsl	r2, r3, #4
+ 221 0012 FB68     		ldr	r3, [r7, #12]
+ 222 0014 D318     		adds	r3, r2, r3
+ 223 0016 03F11003 		add	r3, r3, #16
+ 224 001a 7A68     		ldr	r2, [r7, #4]
+ 225 001c 22F00102 		bic	r2, r2, #1
+ 226 0020 1A60     		str	r2, [r3, #0]
+ 263:C:/StellarisWare/driverlib\fan.c **** }
+ 227              		.loc 1 263 0
+ 228 0022 07F11407 		add	r7, r7, #20
+ 229 0026 BD46     		mov	sp, r7
+ 230 0028 80BC     		pop	{r7}
+ 231 002a 7047     		bx	lr
+ 232              		.cfi_endproc
+ 233              	.LFE4:
+ 235              		.section	.text.FanChannelDutySet,"ax",%progbits
+ 236              		.align	2
+ 237              		.global	FanChannelDutySet
+ 238              		.thumb
+ 239              		.thumb_func
+ 241              	FanChannelDutySet:
+ 242              	.LFB5:
+ 264:C:/StellarisWare/driverlib\fan.c **** 
+ 265:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 266:C:/StellarisWare/driverlib\fan.c **** //
+ 267:C:/StellarisWare/driverlib\fan.c **** //! Sets the duty cycle of a FAN channel when in manual mode.
+ 268:C:/StellarisWare/driverlib\fan.c **** //!
+ 269:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 270:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to program the duty cycle.
+ 271:C:/StellarisWare/driverlib\fan.c **** //! \param ulDuty is the duty cycle in clocks from 0-511.
+ 272:C:/StellarisWare/driverlib\fan.c **** //!
+ 273:C:/StellarisWare/driverlib\fan.c **** //! This function sets the duty cycle of a FAN channel if the channel is
+ 274:C:/StellarisWare/driverlib\fan.c **** //! configured for manual mode.  The duty cycle is specified in clocks from
+ 275:C:/StellarisWare/driverlib\fan.c **** //! 0-511 out of a 512-clock PWM period.
+ 276:C:/StellarisWare/driverlib\fan.c **** //!
+ 277:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 278:C:/StellarisWare/driverlib\fan.c **** //
+ 279:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 280:C:/StellarisWare/driverlib\fan.c **** void
+ 281:C:/StellarisWare/driverlib\fan.c **** FanChannelDutySet(unsigned long ulBase, unsigned long ulChannel,
+ 282:C:/StellarisWare/driverlib\fan.c ****                   unsigned long ulDuty)
+ 283:C:/StellarisWare/driverlib\fan.c **** {
+ 243              		.loc 1 283 0
+ 244              		.cfi_startproc
+ 245              		@ args = 0, pretend = 0, frame = 16
+ 246              		@ frame_needed = 1, uses_anonymous_args = 0
+ 247              		@ link register save eliminated.
+ 248 0000 80B4     		push	{r7}
+ 249              	.LCFI15:
+ 250              		.cfi_def_cfa_offset 4
+ 251              		.cfi_offset 7, -4
+ 252 0002 85B0     		sub	sp, sp, #20
+ 253              	.LCFI16:
+ 254              		.cfi_def_cfa_offset 24
+ 255 0004 00AF     		add	r7, sp, #0
+ 256              	.LCFI17:
+ 257              		.cfi_def_cfa_register 7
+ 258 0006 F860     		str	r0, [r7, #12]
+ 259 0008 B960     		str	r1, [r7, #8]
+ 260 000a 7A60     		str	r2, [r7, #4]
+ 284:C:/StellarisWare/driverlib\fan.c ****     //
+ 285:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 286:C:/StellarisWare/driverlib\fan.c ****     //
+ 287:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 288:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 289:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulDuty < 512);
+ 290:C:/StellarisWare/driverlib\fan.c **** 
+ 291:C:/StellarisWare/driverlib\fan.c ****     //
+ 292:C:/StellarisWare/driverlib\fan.c ****     // Program the specified duty cycle for the specified channel
+ 293:C:/StellarisWare/driverlib\fan.c ****     //
+ 294:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CMD0 + (ulChannel * 0x10)) =
+ 261              		.loc 1 294 0
+ 262 000c BB68     		ldr	r3, [r7, #8]
+ 263 000e 4FEA0312 		lsl	r2, r3, #4
+ 264 0012 FB68     		ldr	r3, [r7, #12]
+ 265 0014 D318     		adds	r3, r2, r3
+ 266 0016 03F11403 		add	r3, r3, #20
+ 267 001a 1A46     		mov	r2, r3
+ 295:C:/StellarisWare/driverlib\fan.c ****             (ulDuty << FAN_CMD0_DC_S) & FAN_CMD0_DC_M;
+ 268              		.loc 1 295 0
+ 269 001c 7B68     		ldr	r3, [r7, #4]
+ 270 001e 4FEA0341 		lsl	r1, r3, #16
+ 271 0022 4FF00003 		mov	r3, #0
+ 272 0026 C0F2FF13 		movt	r3, 511
+ 273 002a 0B40     		ands	r3, r3, r1
+ 294:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CMD0 + (ulChannel * 0x10)) =
+ 274              		.loc 1 294 0
+ 275 002c 1360     		str	r3, [r2, #0]
+ 296:C:/StellarisWare/driverlib\fan.c **** }
+ 276              		.loc 1 296 0
+ 277 002e 07F11407 		add	r7, r7, #20
+ 278 0032 BD46     		mov	sp, r7
+ 279 0034 80BC     		pop	{r7}
+ 280 0036 7047     		bx	lr
+ 281              		.cfi_endproc
+ 282              	.LFE5:
+ 284              		.section	.text.FanChannelDutyGet,"ax",%progbits
+ 285              		.align	2
+ 286              		.global	FanChannelDutyGet
+ 287              		.thumb
+ 288              		.thumb_func
+ 290              	FanChannelDutyGet:
+ 291              	.LFB6:
+ 297:C:/StellarisWare/driverlib\fan.c **** 
+ 298:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 299:C:/StellarisWare/driverlib\fan.c **** //
+ 300:C:/StellarisWare/driverlib\fan.c **** //! Reads the duty cycle of a FAN channel.
+ 301:C:/StellarisWare/driverlib\fan.c **** //!
+ 302:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 303:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to query for duty cycle.
+ 304:C:/StellarisWare/driverlib\fan.c **** //!
+ 305:C:/StellarisWare/driverlib\fan.c **** //! This function reads the duty cycle of a FAN channel.  If the channel is in
+ 306:C:/StellarisWare/driverlib\fan.c **** //! manual mode, then this is the value that was programmed.  If the FAN
+ 307:C:/StellarisWare/driverlib\fan.c **** //! channel is configured for automatic mode, then this is the value that is
+ 308:C:/StellarisWare/driverlib\fan.c **** //! calculated by the Fan Control peripheral.
+ 309:C:/StellarisWare/driverlib\fan.c **** //!
+ 310:C:/StellarisWare/driverlib\fan.c **** //! \return Returns the FAN channel duty cycle as a number of clocks from
+ 311:C:/StellarisWare/driverlib\fan.c **** //! 0-511, out of a 512-clock PWM period.
+ 312:C:/StellarisWare/driverlib\fan.c **** //
+ 313:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 314:C:/StellarisWare/driverlib\fan.c **** unsigned long
+ 315:C:/StellarisWare/driverlib\fan.c **** FanChannelDutyGet(unsigned long ulBase, unsigned long ulChannel)
+ 316:C:/StellarisWare/driverlib\fan.c **** {
+ 292              		.loc 1 316 0
+ 293              		.cfi_startproc
+ 294              		@ args = 0, pretend = 0, frame = 16
+ 295              		@ frame_needed = 1, uses_anonymous_args = 0
+ 296              		@ link register save eliminated.
+ 297 0000 80B4     		push	{r7}
+ 298              	.LCFI18:
+ 299              		.cfi_def_cfa_offset 4
+ 300              		.cfi_offset 7, -4
+ 301 0002 85B0     		sub	sp, sp, #20
+ 302              	.LCFI19:
+ 303              		.cfi_def_cfa_offset 24
+ 304 0004 00AF     		add	r7, sp, #0
+ 305              	.LCFI20:
+ 306              		.cfi_def_cfa_register 7
+ 307 0006 7860     		str	r0, [r7, #4]
+ 308 0008 3960     		str	r1, [r7, #0]
+ 317:C:/StellarisWare/driverlib\fan.c ****     unsigned long ulDuty;
+ 318:C:/StellarisWare/driverlib\fan.c **** 
+ 319:C:/StellarisWare/driverlib\fan.c ****     //
+ 320:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 321:C:/StellarisWare/driverlib\fan.c ****     //
+ 322:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 323:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 324:C:/StellarisWare/driverlib\fan.c **** 
+ 325:C:/StellarisWare/driverlib\fan.c ****     //
+ 326:C:/StellarisWare/driverlib\fan.c ****     // Read the duty cycle field from the command register and shift to
+ 327:C:/StellarisWare/driverlib\fan.c ****     // lower bits for return value.
+ 328:C:/StellarisWare/driverlib\fan.c ****     //
+ 329:C:/StellarisWare/driverlib\fan.c ****     ulDuty = HWREG(ulBase + FAN_O_CMD0 + (ulChannel * 0x10)) & FAN_CMD0_DC_M;
+ 309              		.loc 1 329 0
+ 310 000a 3B68     		ldr	r3, [r7, #0]
+ 311 000c 4FEA0312 		lsl	r2, r3, #4
+ 312 0010 7B68     		ldr	r3, [r7, #4]
+ 313 0012 D318     		adds	r3, r2, r3
+ 314 0014 03F11403 		add	r3, r3, #20
+ 315 0018 1A68     		ldr	r2, [r3, #0]
+ 316 001a 4FF00003 		mov	r3, #0
+ 317 001e C0F2FF13 		movt	r3, 511
+ 318 0022 1340     		ands	r3, r3, r2
+ 319 0024 FB60     		str	r3, [r7, #12]
+ 330:C:/StellarisWare/driverlib\fan.c ****     ulDuty >>= FAN_CMD0_DC_S;
+ 320              		.loc 1 330 0
+ 321 0026 FB68     		ldr	r3, [r7, #12]
+ 322 0028 4FEA1343 		lsr	r3, r3, #16
+ 323 002c FB60     		str	r3, [r7, #12]
+ 331:C:/StellarisWare/driverlib\fan.c **** 
+ 332:C:/StellarisWare/driverlib\fan.c ****     //
+ 333:C:/StellarisWare/driverlib\fan.c ****     // Return the duty cycle for the specified channel.
+ 334:C:/StellarisWare/driverlib\fan.c ****     //
+ 335:C:/StellarisWare/driverlib\fan.c ****     return(ulDuty);
+ 324              		.loc 1 335 0
+ 325 002e FB68     		ldr	r3, [r7, #12]
+ 336:C:/StellarisWare/driverlib\fan.c **** }
+ 326              		.loc 1 336 0
+ 327 0030 1846     		mov	r0, r3
+ 328 0032 07F11407 		add	r7, r7, #20
+ 329 0036 BD46     		mov	sp, r7
+ 330 0038 80BC     		pop	{r7}
+ 331 003a 7047     		bx	lr
+ 332              		.cfi_endproc
+ 333              	.LFE6:
+ 335              		.section	.text.FanChannelRPMSet,"ax",%progbits
+ 336              		.align	2
+ 337              		.global	FanChannelRPMSet
+ 338              		.thumb
+ 339              		.thumb_func
+ 341              	FanChannelRPMSet:
+ 342              	.LFB7:
+ 337:C:/StellarisWare/driverlib\fan.c **** 
+ 338:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 339:C:/StellarisWare/driverlib\fan.c **** //
+ 340:C:/StellarisWare/driverlib\fan.c **** //! Sets the RPM of a FAN channel when in automatic mode.
+ 341:C:/StellarisWare/driverlib\fan.c **** //!
+ 342:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 343:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to program the RPM.
+ 344:C:/StellarisWare/driverlib\fan.c **** //! \param ulRPM is the RPM as a value from 0-8191.
+ 345:C:/StellarisWare/driverlib\fan.c **** //!
+ 346:C:/StellarisWare/driverlib\fan.c **** //! This function sets the RPM of the fan channel if the fan channel is
+ 347:C:/StellarisWare/driverlib\fan.c **** //! configured for automatic mode.  If configured for manual mode, then this
+ 348:C:/StellarisWare/driverlib\fan.c **** //! function has no effect.
+ 349:C:/StellarisWare/driverlib\fan.c **** //!
+ 350:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 351:C:/StellarisWare/driverlib\fan.c **** //
+ 352:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 353:C:/StellarisWare/driverlib\fan.c **** void
+ 354:C:/StellarisWare/driverlib\fan.c **** FanChannelRPMSet(unsigned long ulBase, unsigned long ulChannel,
+ 355:C:/StellarisWare/driverlib\fan.c ****                  unsigned long ulRPM)
+ 356:C:/StellarisWare/driverlib\fan.c **** {
+ 343              		.loc 1 356 0
+ 344              		.cfi_startproc
+ 345              		@ args = 0, pretend = 0, frame = 16
+ 346              		@ frame_needed = 1, uses_anonymous_args = 0
+ 347              		@ link register save eliminated.
+ 348 0000 80B4     		push	{r7}
+ 349              	.LCFI21:
+ 350              		.cfi_def_cfa_offset 4
+ 351              		.cfi_offset 7, -4
+ 352 0002 85B0     		sub	sp, sp, #20
+ 353              	.LCFI22:
+ 354              		.cfi_def_cfa_offset 24
+ 355 0004 00AF     		add	r7, sp, #0
+ 356              	.LCFI23:
+ 357              		.cfi_def_cfa_register 7
+ 358 0006 F860     		str	r0, [r7, #12]
+ 359 0008 B960     		str	r1, [r7, #8]
+ 360 000a 7A60     		str	r2, [r7, #4]
+ 357:C:/StellarisWare/driverlib\fan.c ****     //
+ 358:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 359:C:/StellarisWare/driverlib\fan.c ****     //
+ 360:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 361:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 362:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulRPM < 8192);
+ 363:C:/StellarisWare/driverlib\fan.c **** 
+ 364:C:/StellarisWare/driverlib\fan.c ****     //
+ 365:C:/StellarisWare/driverlib\fan.c ****     // Program the specified RPM for the specified channel
+ 366:C:/StellarisWare/driverlib\fan.c ****     //
+ 367:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_CMD0 + (ulChannel * 0x10)) = ulRPM;
+ 361              		.loc 1 367 0
+ 362 000c BB68     		ldr	r3, [r7, #8]
+ 363 000e 4FEA0312 		lsl	r2, r3, #4
+ 364 0012 FB68     		ldr	r3, [r7, #12]
+ 365 0014 D318     		adds	r3, r2, r3
+ 366 0016 03F11403 		add	r3, r3, #20
+ 367 001a 7A68     		ldr	r2, [r7, #4]
+ 368 001c 1A60     		str	r2, [r3, #0]
+ 368:C:/StellarisWare/driverlib\fan.c **** }
+ 369              		.loc 1 368 0
+ 370 001e 07F11407 		add	r7, r7, #20
+ 371 0022 BD46     		mov	sp, r7
+ 372 0024 80BC     		pop	{r7}
+ 373 0026 7047     		bx	lr
+ 374              		.cfi_endproc
+ 375              	.LFE7:
+ 377              		.section	.text.FanChannelRPMGet,"ax",%progbits
+ 378              		.align	2
+ 379              		.global	FanChannelRPMGet
+ 380              		.thumb
+ 381              		.thumb_func
+ 383              	FanChannelRPMGet:
+ 384              	.LFB8:
+ 369:C:/StellarisWare/driverlib\fan.c **** 
+ 370:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 371:C:/StellarisWare/driverlib\fan.c **** //
+ 372:C:/StellarisWare/driverlib\fan.c **** //! Reads the RPM of a FAN channel.
+ 373:C:/StellarisWare/driverlib\fan.c **** //!
+ 374:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 375:C:/StellarisWare/driverlib\fan.c **** //! \param ulChannel is the FAN channel to query for RPM.
+ 376:C:/StellarisWare/driverlib\fan.c **** //!
+ 377:C:/StellarisWare/driverlib\fan.c **** //! This function reads the RPM of a FAN channel.
+ 378:C:/StellarisWare/driverlib\fan.c **** //!
+ 379:C:/StellarisWare/driverlib\fan.c **** //! \return Returns the FAN channel RPM as a number from 0-4095.
+ 380:C:/StellarisWare/driverlib\fan.c **** //
+ 381:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 382:C:/StellarisWare/driverlib\fan.c **** unsigned long
+ 383:C:/StellarisWare/driverlib\fan.c **** FanChannelRPMGet(unsigned long ulBase, unsigned long ulChannel)
+ 384:C:/StellarisWare/driverlib\fan.c **** {
+ 385              		.loc 1 384 0
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 8
+ 388              		@ frame_needed = 1, uses_anonymous_args = 0
+ 389              		@ link register save eliminated.
+ 390 0000 80B4     		push	{r7}
+ 391              	.LCFI24:
+ 392              		.cfi_def_cfa_offset 4
+ 393              		.cfi_offset 7, -4
+ 394 0002 83B0     		sub	sp, sp, #12
+ 395              	.LCFI25:
+ 396              		.cfi_def_cfa_offset 16
+ 397 0004 00AF     		add	r7, sp, #0
+ 398              	.LCFI26:
+ 399              		.cfi_def_cfa_register 7
+ 400 0006 7860     		str	r0, [r7, #4]
+ 401 0008 3960     		str	r1, [r7, #0]
+ 385:C:/StellarisWare/driverlib\fan.c ****     //
+ 386:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 387:C:/StellarisWare/driverlib\fan.c ****     //
+ 388:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 389:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulChannel <= 5);
+ 390:C:/StellarisWare/driverlib\fan.c **** 
+ 391:C:/StellarisWare/driverlib\fan.c ****     //
+ 392:C:/StellarisWare/driverlib\fan.c ****     // Read and return the RPM for the specified channel.
+ 393:C:/StellarisWare/driverlib\fan.c ****     //
+ 394:C:/StellarisWare/driverlib\fan.c ****     return(HWREG(ulBase + FAN_O_CST0 + (ulChannel * 0x10)) & FAN_CST0_RPM_M);
+ 402              		.loc 1 394 0
+ 403 000a 3B68     		ldr	r3, [r7, #0]
+ 404 000c 4FEA0312 		lsl	r2, r3, #4
+ 405 0010 7B68     		ldr	r3, [r7, #4]
+ 406 0012 D318     		adds	r3, r2, r3
+ 407 0014 03F11803 		add	r3, r3, #24
+ 408 0018 1B68     		ldr	r3, [r3, #0]
+ 409 001a 4FEAC343 		lsl	r3, r3, #19
+ 410 001e 4FEAD343 		lsr	r3, r3, #19
+ 395:C:/StellarisWare/driverlib\fan.c **** }
+ 411              		.loc 1 395 0
+ 412 0022 1846     		mov	r0, r3
+ 413 0024 07F10C07 		add	r7, r7, #12
+ 414 0028 BD46     		mov	sp, r7
+ 415 002a 80BC     		pop	{r7}
+ 416 002c 7047     		bx	lr
+ 417              		.cfi_endproc
+ 418              	.LFE8:
+ 420 002e 00BF     		.section	.text.FanIntEnable,"ax",%progbits
+ 421              		.align	2
+ 422              		.global	FanIntEnable
+ 423              		.thumb
+ 424              		.thumb_func
+ 426              	FanIntEnable:
+ 427              	.LFB9:
+ 396:C:/StellarisWare/driverlib\fan.c **** 
+ 397:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 398:C:/StellarisWare/driverlib\fan.c **** //
+ 399:C:/StellarisWare/driverlib\fan.c **** //! Enables FAN module interrupts.
+ 400:C:/StellarisWare/driverlib\fan.c **** //!
+ 401:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 402:C:/StellarisWare/driverlib\fan.c **** //! \param ulFlags is the logical OR of all the interrupts to be enabled.
+ 403:C:/StellarisWare/driverlib\fan.c **** //!
+ 404:C:/StellarisWare/driverlib\fan.c **** //! This function enables one or more interrupts from the FAN module.  The
+ 405:C:/StellarisWare/driverlib\fan.c **** //! \e ulFlags parameter is the logical OR of all the possible interrupts that
+ 406:C:/StellarisWare/driverlib\fan.c **** //! can be enabled.  For each channel, the following interrupt flags are
+ 407:C:/StellarisWare/driverlib\fan.c **** //! available:
+ 408:C:/StellarisWare/driverlib\fan.c **** //!
+ 409:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CHn_INT_STALL means that a stall was detected (in either mode).
+ 410:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CHn_INT_AUTO_SPEED_ERROR means that in automatic mode, the cooling
+ 411:C:/StellarisWare/driverlib\fan.c **** //! fan cannot attain the commanded speed.
+ 412:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CHn_INT_AUTO_SPEED_OK means that in automatic mode, the cooling
+ 413:C:/StellarisWare/driverlib\fan.c **** //! fan has attained the commanded speed.
+ 414:C:/StellarisWare/driverlib\fan.c **** //!
+ 415:C:/StellarisWare/driverlib\fan.c **** //! The interrupt flags have a different meaning if the FAN channel is
+ 416:C:/StellarisWare/driverlib\fan.c **** //! configured for manual mode.  The following alternate set of flag names is
+ 417:C:/StellarisWare/driverlib\fan.c **** //! available for convenience to use in manual mode:
+ 418:C:/StellarisWare/driverlib\fan.c **** //!
+ 419:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CHn_INT_MANUAL_SPEED_UPDATE means that in manual mode, the speed
+ 420:C:/StellarisWare/driverlib\fan.c **** //! was calculated.
+ 421:C:/StellarisWare/driverlib\fan.c **** //! - \b FAN_CHn_INT_MANUAL_SPEED_CHANGE means that in manual mode, the speed
+ 422:C:/StellarisWare/driverlib\fan.c **** //! changed.
+ 423:C:/StellarisWare/driverlib\fan.c **** //!
+ 424:C:/StellarisWare/driverlib\fan.c **** //! In the above flag names, the \b CHn placeholder should be replaced with
+ 425:C:/StellarisWare/driverlib\fan.c **** //! the actual channel number, 0-5 (for example, CH1).
+ 426:C:/StellarisWare/driverlib\fan.c **** //!
+ 427:C:/StellarisWare/driverlib\fan.c **** //! Note that even though the names are different for manual mode, the values
+ 428:C:/StellarisWare/driverlib\fan.c **** //! are the same.  For example \b _AUTO_SPEED_ERROR is the same value as
+ 429:C:/StellarisWare/driverlib\fan.c **** //! \b _MANUAL_SPEED_UPDATE.  The different names are provided just to make it
+ 430:C:/StellarisWare/driverlib\fan.c **** //! easier to associate a meaning with each interrupt flag.
+ 431:C:/StellarisWare/driverlib\fan.c **** //!
+ 432:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 433:C:/StellarisWare/driverlib\fan.c **** //
+ 434:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 435:C:/StellarisWare/driverlib\fan.c **** void
+ 436:C:/StellarisWare/driverlib\fan.c **** FanIntEnable(unsigned long ulBase, unsigned long ulFlags)
+ 437:C:/StellarisWare/driverlib\fan.c **** {
+ 428              		.loc 1 437 0
+ 429              		.cfi_startproc
+ 430              		@ args = 0, pretend = 0, frame = 8
+ 431              		@ frame_needed = 1, uses_anonymous_args = 0
+ 432              		@ link register save eliminated.
+ 433 0000 80B4     		push	{r7}
+ 434              	.LCFI27:
+ 435              		.cfi_def_cfa_offset 4
+ 436              		.cfi_offset 7, -4
+ 437 0002 83B0     		sub	sp, sp, #12
+ 438              	.LCFI28:
+ 439              		.cfi_def_cfa_offset 16
+ 440 0004 00AF     		add	r7, sp, #0
+ 441              	.LCFI29:
+ 442              		.cfi_def_cfa_register 7
+ 443 0006 7860     		str	r0, [r7, #4]
+ 444 0008 3960     		str	r1, [r7, #0]
+ 438:C:/StellarisWare/driverlib\fan.c ****     //
+ 439:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 440:C:/StellarisWare/driverlib\fan.c ****     //
+ 441:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 442:C:/StellarisWare/driverlib\fan.c **** 
+ 443:C:/StellarisWare/driverlib\fan.c ****     //
+ 444:C:/StellarisWare/driverlib\fan.c ****     // Enable the requested interrupt sources.
+ 445:C:/StellarisWare/driverlib\fan.c ****     //
+ 446:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_IM) |= ulFlags;
+ 445              		.loc 1 446 0
+ 446 000a 7B68     		ldr	r3, [r7, #4]
+ 447 000c 03F19003 		add	r3, r3, #144
+ 448 0010 7A68     		ldr	r2, [r7, #4]
+ 449 0012 02F19002 		add	r2, r2, #144
+ 450 0016 1168     		ldr	r1, [r2, #0]
+ 451 0018 3A68     		ldr	r2, [r7, #0]
+ 452 001a 0A43     		orrs	r2, r2, r1
+ 453 001c 1A60     		str	r2, [r3, #0]
+ 447:C:/StellarisWare/driverlib\fan.c **** }
+ 454              		.loc 1 447 0
+ 455 001e 07F10C07 		add	r7, r7, #12
+ 456 0022 BD46     		mov	sp, r7
+ 457 0024 80BC     		pop	{r7}
+ 458 0026 7047     		bx	lr
+ 459              		.cfi_endproc
+ 460              	.LFE9:
+ 462              		.section	.text.FanIntDisable,"ax",%progbits
+ 463              		.align	2
+ 464              		.global	FanIntDisable
+ 465              		.thumb
+ 466              		.thumb_func
+ 468              	FanIntDisable:
+ 469              	.LFB10:
+ 448:C:/StellarisWare/driverlib\fan.c **** 
+ 449:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 450:C:/StellarisWare/driverlib\fan.c **** //
+ 451:C:/StellarisWare/driverlib\fan.c **** //! Disables FAN module interrupts.
+ 452:C:/StellarisWare/driverlib\fan.c **** //!
+ 453:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 454:C:/StellarisWare/driverlib\fan.c **** //! \param ulFlags is the logical OR of all the interrupts to be disabled.
+ 455:C:/StellarisWare/driverlib\fan.c **** //!
+ 456:C:/StellarisWare/driverlib\fan.c **** //! This function disables one or more interrupts from the FAN module.  The
+ 457:C:/StellarisWare/driverlib\fan.c **** //! \e ulFlags parameter is the logical OR of all the possible interrupts that
+ 458:C:/StellarisWare/driverlib\fan.c **** //! can be enabled.  For a list of possible interrupt flags, refer to the
+ 459:C:/StellarisWare/driverlib\fan.c **** //! documentation for the function FanIntEnable().
+ 460:C:/StellarisWare/driverlib\fan.c **** //!
+ 461:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 462:C:/StellarisWare/driverlib\fan.c **** //
+ 463:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 464:C:/StellarisWare/driverlib\fan.c **** void
+ 465:C:/StellarisWare/driverlib\fan.c **** FanIntDisable(unsigned long ulBase, unsigned long ulFlags)
+ 466:C:/StellarisWare/driverlib\fan.c **** {
+ 470              		.loc 1 466 0
+ 471              		.cfi_startproc
+ 472              		@ args = 0, pretend = 0, frame = 8
+ 473              		@ frame_needed = 1, uses_anonymous_args = 0
+ 474              		@ link register save eliminated.
+ 475 0000 80B4     		push	{r7}
+ 476              	.LCFI30:
+ 477              		.cfi_def_cfa_offset 4
+ 478              		.cfi_offset 7, -4
+ 479 0002 83B0     		sub	sp, sp, #12
+ 480              	.LCFI31:
+ 481              		.cfi_def_cfa_offset 16
+ 482 0004 00AF     		add	r7, sp, #0
+ 483              	.LCFI32:
+ 484              		.cfi_def_cfa_register 7
+ 485 0006 7860     		str	r0, [r7, #4]
+ 486 0008 3960     		str	r1, [r7, #0]
+ 467:C:/StellarisWare/driverlib\fan.c ****     //
+ 468:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 469:C:/StellarisWare/driverlib\fan.c ****     //
+ 470:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 471:C:/StellarisWare/driverlib\fan.c **** 
+ 472:C:/StellarisWare/driverlib\fan.c ****     //
+ 473:C:/StellarisWare/driverlib\fan.c ****     // Disable the requested interrupt sources.
+ 474:C:/StellarisWare/driverlib\fan.c ****     //
+ 475:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_IM) &= ~ulFlags;
+ 487              		.loc 1 475 0
+ 488 000a 7B68     		ldr	r3, [r7, #4]
+ 489 000c 03F19003 		add	r3, r3, #144
+ 490 0010 7A68     		ldr	r2, [r7, #4]
+ 491 0012 02F19002 		add	r2, r2, #144
+ 492 0016 1168     		ldr	r1, [r2, #0]
+ 493 0018 3A68     		ldr	r2, [r7, #0]
+ 494 001a 6FEA0202 		mvn	r2, r2
+ 495 001e 0A40     		ands	r2, r2, r1
+ 496 0020 1A60     		str	r2, [r3, #0]
+ 476:C:/StellarisWare/driverlib\fan.c **** }
+ 497              		.loc 1 476 0
+ 498 0022 07F10C07 		add	r7, r7, #12
+ 499 0026 BD46     		mov	sp, r7
+ 500 0028 80BC     		pop	{r7}
+ 501 002a 7047     		bx	lr
+ 502              		.cfi_endproc
+ 503              	.LFE10:
+ 505              		.section	.text.FanIntStatus,"ax",%progbits
+ 506              		.align	2
+ 507              		.global	FanIntStatus
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	FanIntStatus:
+ 512              	.LFB11:
+ 477:C:/StellarisWare/driverlib\fan.c **** 
+ 478:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 479:C:/StellarisWare/driverlib\fan.c **** //
+ 480:C:/StellarisWare/driverlib\fan.c **** //! Gets the FAN module interrupt status.
+ 481:C:/StellarisWare/driverlib\fan.c **** //!
+ 482:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 483:C:/StellarisWare/driverlib\fan.c **** //! \param bMasked is \b true to get the masked interrupt status, or
+ 484:C:/StellarisWare/driverlib\fan.c **** //! \b false to get the raw interrupt status.
+ 485:C:/StellarisWare/driverlib\fan.c **** //!
+ 486:C:/StellarisWare/driverlib\fan.c **** //! This function returns the interrupt status of the FAN module.  It can
+ 487:C:/StellarisWare/driverlib\fan.c **** //! return either the raw or masked interrupt status.
+ 488:C:/StellarisWare/driverlib\fan.c **** //!
+ 489:C:/StellarisWare/driverlib\fan.c **** //! \return Returns the masked or raw FAN interrupt status, as a bit field
+ 490:C:/StellarisWare/driverlib\fan.c **** //! of multiple FAN interrupt flags.  For a list of all the possible interrupt
+ 491:C:/StellarisWare/driverlib\fan.c **** //! flags, refer to the documentation for the function FanIntEnable().
+ 492:C:/StellarisWare/driverlib\fan.c **** //
+ 493:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 494:C:/StellarisWare/driverlib\fan.c **** unsigned long
+ 495:C:/StellarisWare/driverlib\fan.c **** FanIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 496:C:/StellarisWare/driverlib\fan.c **** {
+ 513              		.loc 1 496 0
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 8
+ 516              		@ frame_needed = 1, uses_anonymous_args = 0
+ 517              		@ link register save eliminated.
+ 518 0000 80B4     		push	{r7}
+ 519              	.LCFI33:
+ 520              		.cfi_def_cfa_offset 4
+ 521              		.cfi_offset 7, -4
+ 522 0002 83B0     		sub	sp, sp, #12
+ 523              	.LCFI34:
+ 524              		.cfi_def_cfa_offset 16
+ 525 0004 00AF     		add	r7, sp, #0
+ 526              	.LCFI35:
+ 527              		.cfi_def_cfa_register 7
+ 528 0006 7860     		str	r0, [r7, #4]
+ 529 0008 0B46     		mov	r3, r1
+ 530 000a FB70     		strb	r3, [r7, #3]
+ 497:C:/StellarisWare/driverlib\fan.c ****     //
+ 498:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 499:C:/StellarisWare/driverlib\fan.c ****     //
+ 500:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 501:C:/StellarisWare/driverlib\fan.c **** 
+ 502:C:/StellarisWare/driverlib\fan.c ****     //
+ 503:C:/StellarisWare/driverlib\fan.c ****     // Return either the interrupt status or the raw interrupt status as
+ 504:C:/StellarisWare/driverlib\fan.c ****     // requested.
+ 505:C:/StellarisWare/driverlib\fan.c ****     //
+ 506:C:/StellarisWare/driverlib\fan.c ****     if(bMasked)
+ 531              		.loc 1 506 0
+ 532 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 533 000e 002B     		cmp	r3, #0
+ 534 0010 04D0     		beq	.L13
+ 507:C:/StellarisWare/driverlib\fan.c ****     {
+ 508:C:/StellarisWare/driverlib\fan.c ****         return(HWREG(ulBase + FAN_O_MIS));
+ 535              		.loc 1 508 0
+ 536 0012 7B68     		ldr	r3, [r7, #4]
+ 537 0014 03F19803 		add	r3, r3, #152
+ 538 0018 1B68     		ldr	r3, [r3, #0]
+ 539 001a 03E0     		b	.L14
+ 540              	.L13:
+ 509:C:/StellarisWare/driverlib\fan.c ****     }
+ 510:C:/StellarisWare/driverlib\fan.c ****     else
+ 511:C:/StellarisWare/driverlib\fan.c ****     {
+ 512:C:/StellarisWare/driverlib\fan.c ****         return(HWREG(ulBase + FAN_O_RIS));
+ 541              		.loc 1 512 0
+ 542 001c 7B68     		ldr	r3, [r7, #4]
+ 543 001e 03F19403 		add	r3, r3, #148
+ 544 0022 1B68     		ldr	r3, [r3, #0]
+ 545              	.L14:
+ 513:C:/StellarisWare/driverlib\fan.c ****     }
+ 514:C:/StellarisWare/driverlib\fan.c **** }
+ 546              		.loc 1 514 0
+ 547 0024 1846     		mov	r0, r3
+ 548 0026 07F10C07 		add	r7, r7, #12
+ 549 002a BD46     		mov	sp, r7
+ 550 002c 80BC     		pop	{r7}
+ 551 002e 7047     		bx	lr
+ 552              		.cfi_endproc
+ 553              	.LFE11:
+ 555              		.section	.text.FanIntClear,"ax",%progbits
+ 556              		.align	2
+ 557              		.global	FanIntClear
+ 558              		.thumb
+ 559              		.thumb_func
+ 561              	FanIntClear:
+ 562              	.LFB12:
+ 515:C:/StellarisWare/driverlib\fan.c **** 
+ 516:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 517:C:/StellarisWare/driverlib\fan.c **** //
+ 518:C:/StellarisWare/driverlib\fan.c **** //! Clears pending FAN module interrupts.
+ 519:C:/StellarisWare/driverlib\fan.c **** //!
+ 520:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 521:C:/StellarisWare/driverlib\fan.c **** //! \param ulFlags is the logical OR of all the interrupts to be cleared.
+ 522:C:/StellarisWare/driverlib\fan.c **** //!
+ 523:C:/StellarisWare/driverlib\fan.c **** //! This function clears one or more interrupts from the FAN module.  The
+ 524:C:/StellarisWare/driverlib\fan.c **** //! \e ulFlags parameter is the logical OR of all the possible interrupts that
+ 525:C:/StellarisWare/driverlib\fan.c **** //! can be cleared.  For a list of possible interrupt flags, refer to the
+ 526:C:/StellarisWare/driverlib\fan.c **** //! documentation for the function FanIntEnable().
+ 527:C:/StellarisWare/driverlib\fan.c **** //!
+ 528:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 529:C:/StellarisWare/driverlib\fan.c **** //
+ 530:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 531:C:/StellarisWare/driverlib\fan.c **** void
+ 532:C:/StellarisWare/driverlib\fan.c **** FanIntClear(unsigned long ulBase, unsigned long ulFlags)
+ 533:C:/StellarisWare/driverlib\fan.c **** {
+ 563              		.loc 1 533 0
+ 564              		.cfi_startproc
+ 565              		@ args = 0, pretend = 0, frame = 8
+ 566              		@ frame_needed = 1, uses_anonymous_args = 0
+ 567              		@ link register save eliminated.
+ 568 0000 80B4     		push	{r7}
+ 569              	.LCFI36:
+ 570              		.cfi_def_cfa_offset 4
+ 571              		.cfi_offset 7, -4
+ 572 0002 83B0     		sub	sp, sp, #12
+ 573              	.LCFI37:
+ 574              		.cfi_def_cfa_offset 16
+ 575 0004 00AF     		add	r7, sp, #0
+ 576              	.LCFI38:
+ 577              		.cfi_def_cfa_register 7
+ 578 0006 7860     		str	r0, [r7, #4]
+ 579 0008 3960     		str	r1, [r7, #0]
+ 534:C:/StellarisWare/driverlib\fan.c ****     //
+ 535:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 536:C:/StellarisWare/driverlib\fan.c ****     //
+ 537:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 538:C:/StellarisWare/driverlib\fan.c **** 
+ 539:C:/StellarisWare/driverlib\fan.c ****     //
+ 540:C:/StellarisWare/driverlib\fan.c ****     // Clear the requested pending interrupts
+ 541:C:/StellarisWare/driverlib\fan.c ****     //
+ 542:C:/StellarisWare/driverlib\fan.c ****     HWREG(ulBase + FAN_O_IC) = ulFlags;
+ 580              		.loc 1 542 0
+ 581 000a 7B68     		ldr	r3, [r7, #4]
+ 582 000c 03F19C03 		add	r3, r3, #156
+ 583 0010 3A68     		ldr	r2, [r7, #0]
+ 584 0012 1A60     		str	r2, [r3, #0]
+ 543:C:/StellarisWare/driverlib\fan.c **** }
+ 585              		.loc 1 543 0
+ 586 0014 07F10C07 		add	r7, r7, #12
+ 587 0018 BD46     		mov	sp, r7
+ 588 001a 80BC     		pop	{r7}
+ 589 001c 7047     		bx	lr
+ 590              		.cfi_endproc
+ 591              	.LFE12:
+ 593 001e 00BF     		.section	.text.FanIntRegister,"ax",%progbits
+ 594              		.align	2
+ 595              		.global	FanIntRegister
+ 596              		.thumb
+ 597              		.thumb_func
+ 599              	FanIntRegister:
+ 600              	.LFB13:
+ 544:C:/StellarisWare/driverlib\fan.c **** 
+ 545:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 546:C:/StellarisWare/driverlib\fan.c **** //
+ 547:C:/StellarisWare/driverlib\fan.c **** //! Registers an interrupt handler for the FAN module.
+ 548:C:/StellarisWare/driverlib\fan.c **** //!
+ 549:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 550:C:/StellarisWare/driverlib\fan.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 551:C:/StellarisWare/driverlib\fan.c **** //! interrupt is activated.
+ 552:C:/StellarisWare/driverlib\fan.c **** //!
+ 553:C:/StellarisWare/driverlib\fan.c **** //! This function registers and enables the handler to be called when the FAN
+ 554:C:/StellarisWare/driverlib\fan.c **** //! module generates an interrupt.  Specific FAN interrupts must still be
+ 555:C:/StellarisWare/driverlib\fan.c **** //! enabled with the FanIntEnable() function.
+ 556:C:/StellarisWare/driverlib\fan.c **** //!
+ 557:C:/StellarisWare/driverlib\fan.c **** //! \sa IntRegister() for important information about registering interrupt
+ 558:C:/StellarisWare/driverlib\fan.c **** //! handlers.
+ 559:C:/StellarisWare/driverlib\fan.c **** //!
+ 560:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 561:C:/StellarisWare/driverlib\fan.c **** //
+ 562:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 563:C:/StellarisWare/driverlib\fan.c **** void
+ 564:C:/StellarisWare/driverlib\fan.c **** FanIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 565:C:/StellarisWare/driverlib\fan.c **** {
+ 601              		.loc 1 565 0
+ 602              		.cfi_startproc
+ 603              		@ args = 0, pretend = 0, frame = 8
+ 604              		@ frame_needed = 1, uses_anonymous_args = 0
+ 605 0000 80B5     		push	{r7, lr}
+ 606              	.LCFI39:
+ 607              		.cfi_def_cfa_offset 8
+ 608              		.cfi_offset 14, -4
+ 609              		.cfi_offset 7, -8
+ 610 0002 82B0     		sub	sp, sp, #8
+ 611              	.LCFI40:
+ 612              		.cfi_def_cfa_offset 16
+ 613 0004 00AF     		add	r7, sp, #0
+ 614              	.LCFI41:
+ 615              		.cfi_def_cfa_register 7
+ 616 0006 7860     		str	r0, [r7, #4]
+ 617 0008 3960     		str	r1, [r7, #0]
+ 566:C:/StellarisWare/driverlib\fan.c ****     //
+ 567:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 568:C:/StellarisWare/driverlib\fan.c ****     //
+ 569:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 570:C:/StellarisWare/driverlib\fan.c ****     ASSERT(pfnHandler);
+ 571:C:/StellarisWare/driverlib\fan.c **** 
+ 572:C:/StellarisWare/driverlib\fan.c ****     //
+ 573:C:/StellarisWare/driverlib\fan.c ****     // Register the interrupt handler.
+ 574:C:/StellarisWare/driverlib\fan.c ****     //
+ 575:C:/StellarisWare/driverlib\fan.c ****     IntRegister(INT_FAN0, pfnHandler);
+ 618              		.loc 1 575 0
+ 619 000a 4FF08200 		mov	r0, #130
+ 620 000e 3968     		ldr	r1, [r7, #0]
+ 621 0010 FFF7FEFF 		bl	IntRegister
+ 576:C:/StellarisWare/driverlib\fan.c **** 
+ 577:C:/StellarisWare/driverlib\fan.c ****     //
+ 578:C:/StellarisWare/driverlib\fan.c ****     // Enable the FAN peripheral interrupt.
+ 579:C:/StellarisWare/driverlib\fan.c ****     //
+ 580:C:/StellarisWare/driverlib\fan.c ****     IntEnable(INT_FAN0);
+ 622              		.loc 1 580 0
+ 623 0014 4FF08200 		mov	r0, #130
+ 624 0018 FFF7FEFF 		bl	IntEnable
+ 581:C:/StellarisWare/driverlib\fan.c **** }
+ 625              		.loc 1 581 0
+ 626 001c 07F10807 		add	r7, r7, #8
+ 627 0020 BD46     		mov	sp, r7
+ 628 0022 80BD     		pop	{r7, pc}
+ 629              		.cfi_endproc
+ 630              	.LFE13:
+ 632              		.section	.text.FanIntUnregister,"ax",%progbits
+ 633              		.align	2
+ 634              		.global	FanIntUnregister
+ 635              		.thumb
+ 636              		.thumb_func
+ 638              	FanIntUnregister:
+ 639              	.LFB14:
+ 582:C:/StellarisWare/driverlib\fan.c **** 
+ 583:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 584:C:/StellarisWare/driverlib\fan.c **** //
+ 585:C:/StellarisWare/driverlib\fan.c **** //! Unregisters an interrupt handler for the FAN module.
+ 586:C:/StellarisWare/driverlib\fan.c **** //!
+ 587:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 588:C:/StellarisWare/driverlib\fan.c **** //!
+ 589:C:/StellarisWare/driverlib\fan.c **** //! This function unregisters and clears the handler to be called when the
+ 590:C:/StellarisWare/driverlib\fan.c **** //! FAN module interrupt occurs.
+ 591:C:/StellarisWare/driverlib\fan.c **** //!
+ 592:C:/StellarisWare/driverlib\fan.c **** //! \sa IntRegister() for important information about registering interrupt
+ 593:C:/StellarisWare/driverlib\fan.c **** //! handlers.
+ 594:C:/StellarisWare/driverlib\fan.c **** //!
+ 595:C:/StellarisWare/driverlib\fan.c **** //! \return None.
+ 596:C:/StellarisWare/driverlib\fan.c **** //
+ 597:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 598:C:/StellarisWare/driverlib\fan.c **** void
+ 599:C:/StellarisWare/driverlib\fan.c **** FanIntUnregister(unsigned long ulBase)
+ 600:C:/StellarisWare/driverlib\fan.c **** {
+ 640              		.loc 1 600 0
+ 641              		.cfi_startproc
+ 642              		@ args = 0, pretend = 0, frame = 8
+ 643              		@ frame_needed = 1, uses_anonymous_args = 0
+ 644 0000 80B5     		push	{r7, lr}
+ 645              	.LCFI42:
+ 646              		.cfi_def_cfa_offset 8
+ 647              		.cfi_offset 14, -4
+ 648              		.cfi_offset 7, -8
+ 649 0002 82B0     		sub	sp, sp, #8
+ 650              	.LCFI43:
+ 651              		.cfi_def_cfa_offset 16
+ 652 0004 00AF     		add	r7, sp, #0
+ 653              	.LCFI44:
+ 654              		.cfi_def_cfa_register 7
+ 655 0006 7860     		str	r0, [r7, #4]
+ 601:C:/StellarisWare/driverlib\fan.c ****     //
+ 602:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 603:C:/StellarisWare/driverlib\fan.c ****     //
+ 604:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 605:C:/StellarisWare/driverlib\fan.c **** 
+ 606:C:/StellarisWare/driverlib\fan.c ****     //
+ 607:C:/StellarisWare/driverlib\fan.c ****     // Disable the FAN peripheral interrupt.
+ 608:C:/StellarisWare/driverlib\fan.c ****     //
+ 609:C:/StellarisWare/driverlib\fan.c ****     IntDisable(INT_FAN0);
+ 656              		.loc 1 609 0
+ 657 0008 4FF08200 		mov	r0, #130
+ 658 000c FFF7FEFF 		bl	IntDisable
+ 610:C:/StellarisWare/driverlib\fan.c **** 
+ 611:C:/StellarisWare/driverlib\fan.c ****     //
+ 612:C:/StellarisWare/driverlib\fan.c ****     // Unregister the interrupt handler.
+ 613:C:/StellarisWare/driverlib\fan.c ****     //
+ 614:C:/StellarisWare/driverlib\fan.c ****     IntUnregister(INT_FAN0);
+ 659              		.loc 1 614 0
+ 660 0010 4FF08200 		mov	r0, #130
+ 661 0014 FFF7FEFF 		bl	IntUnregister
+ 615:C:/StellarisWare/driverlib\fan.c **** }
+ 662              		.loc 1 615 0
+ 663 0018 07F10807 		add	r7, r7, #8
+ 664 001c BD46     		mov	sp, r7
+ 665 001e 80BD     		pop	{r7, pc}
+ 666              		.cfi_endproc
+ 667              	.LFE14:
+ 669              		.section	.text.FanChannelsGet,"ax",%progbits
+ 670              		.align	2
+ 671              		.global	FanChannelsGet
+ 672              		.thumb
+ 673              		.thumb_func
+ 675              	FanChannelsGet:
+ 676              	.LFB15:
+ 616:C:/StellarisWare/driverlib\fan.c **** 
+ 617:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 618:C:/StellarisWare/driverlib\fan.c **** //
+ 619:C:/StellarisWare/driverlib\fan.c **** //! Gets the number of supported FAN channels.
+ 620:C:/StellarisWare/driverlib\fan.c **** //!
+ 621:C:/StellarisWare/driverlib\fan.c **** //! \param ulBase is the base address of the FAN module.
+ 622:C:/StellarisWare/driverlib\fan.c **** //!
+ 623:C:/StellarisWare/driverlib\fan.c **** //! This function gets the number of FAN channels that are supported by the
+ 624:C:/StellarisWare/driverlib\fan.c **** //! Fan Control peripheral.
+ 625:C:/StellarisWare/driverlib\fan.c **** //!
+ 626:C:/StellarisWare/driverlib\fan.c **** //! \return Returns the number of FAN channels.
+ 627:C:/StellarisWare/driverlib\fan.c **** //
+ 628:C:/StellarisWare/driverlib\fan.c **** //*****************************************************************************
+ 629:C:/StellarisWare/driverlib\fan.c **** unsigned long
+ 630:C:/StellarisWare/driverlib\fan.c **** FanChannelsGet(unsigned long ulBase)
+ 631:C:/StellarisWare/driverlib\fan.c **** {
+ 677              		.loc 1 631 0
+ 678              		.cfi_startproc
+ 679              		@ args = 0, pretend = 0, frame = 8
+ 680              		@ frame_needed = 1, uses_anonymous_args = 0
+ 681              		@ link register save eliminated.
+ 682 0000 80B4     		push	{r7}
+ 683              	.LCFI45:
+ 684              		.cfi_def_cfa_offset 4
+ 685              		.cfi_offset 7, -4
+ 686 0002 83B0     		sub	sp, sp, #12
+ 687              	.LCFI46:
+ 688              		.cfi_def_cfa_offset 16
+ 689 0004 00AF     		add	r7, sp, #0
+ 690              	.LCFI47:
+ 691              		.cfi_def_cfa_register 7
+ 692 0006 7860     		str	r0, [r7, #4]
+ 632:C:/StellarisWare/driverlib\fan.c ****     //
+ 633:C:/StellarisWare/driverlib\fan.c ****     // Check the arguments.
+ 634:C:/StellarisWare/driverlib\fan.c ****     //
+ 635:C:/StellarisWare/driverlib\fan.c ****     ASSERT(ulBase == FAN0_BASE);
+ 636:C:/StellarisWare/driverlib\fan.c **** 
+ 637:C:/StellarisWare/driverlib\fan.c ****     //
+ 638:C:/StellarisWare/driverlib\fan.c ****     // Read and return the fan channel count
+ 639:C:/StellarisWare/driverlib\fan.c ****     //
+ 640:C:/StellarisWare/driverlib\fan.c ****     return(HWREG(ulBase + FAN_O_PP) & FAN_PP_CHAN_M);
+ 693              		.loc 1 640 0
+ 694 0008 7B68     		ldr	r3, [r7, #4]
+ 695 000a 03F57C63 		add	r3, r3, #4032
+ 696 000e 1B68     		ldr	r3, [r3, #0]
+ 697 0010 03F00F03 		and	r3, r3, #15
+ 641:C:/StellarisWare/driverlib\fan.c **** }
+ 698              		.loc 1 641 0
+ 699 0014 1846     		mov	r0, r3
+ 700 0016 07F10C07 		add	r7, r7, #12
+ 701 001a BD46     		mov	sp, r7
+ 702 001c 80BC     		pop	{r7}
+ 703 001e 7047     		bx	lr
+ 704              		.cfi_endproc
+ 705              	.LFE15:
+ 707              		.text
+ 708              	.Letext0:
+ 709              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 fan.c
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:19     .text.FanChannelEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:24     .text.FanChannelEnable:00000000 FanChannelEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:64     .text.FanChannelDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:69     .text.FanChannelDisable:00000000 FanChannelDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:109    .text.FanChannelStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:114    .text.FanChannelStatus:00000000 FanChannelStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:150    .text.FanChannelConfigManual:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:155    .text.FanChannelConfigManual:00000000 FanChannelConfigManual
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:193    .text.FanChannelConfigAuto:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:198    .text.FanChannelConfigAuto:00000000 FanChannelConfigAuto
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:236    .text.FanChannelDutySet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:241    .text.FanChannelDutySet:00000000 FanChannelDutySet
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:285    .text.FanChannelDutyGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:290    .text.FanChannelDutyGet:00000000 FanChannelDutyGet
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:336    .text.FanChannelRPMSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:341    .text.FanChannelRPMSet:00000000 FanChannelRPMSet
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:378    .text.FanChannelRPMGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:383    .text.FanChannelRPMGet:00000000 FanChannelRPMGet
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:421    .text.FanIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:426    .text.FanIntEnable:00000000 FanIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:463    .text.FanIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:468    .text.FanIntDisable:00000000 FanIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:506    .text.FanIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:511    .text.FanIntStatus:00000000 FanIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:556    .text.FanIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:561    .text.FanIntClear:00000000 FanIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:594    .text.FanIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:599    .text.FanIntRegister:00000000 FanIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:633    .text.FanIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:638    .text.FanIntUnregister:00000000 FanIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:670    .text.FanChannelsGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccNdO0Ni.s:675    .text.FanChannelsGet:00000000 FanChannelsGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

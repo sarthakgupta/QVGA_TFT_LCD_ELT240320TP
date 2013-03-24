@@ -1,0 +1,1387 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"qei.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.QEIEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	QEIEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	QEIEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/qei.c"
+   1:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\qei.c **** //
+   3:C:/StellarisWare/driverlib\qei.c **** // qei.c - Driver for the Quadrature Encoder with Index.
+   4:C:/StellarisWare/driverlib\qei.c **** //
+   5:C:/StellarisWare/driverlib\qei.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\qei.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\qei.c **** // 
+   8:C:/StellarisWare/driverlib\qei.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\qei.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\qei.c **** //   are met:
+  11:C:/StellarisWare/driverlib\qei.c **** // 
+  12:C:/StellarisWare/driverlib\qei.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\qei.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\qei.c **** // 
+  15:C:/StellarisWare/driverlib\qei.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\qei.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\qei.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\qei.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\qei.c **** // 
+  20:C:/StellarisWare/driverlib\qei.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\qei.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\qei.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\qei.c **** // 
+  24:C:/StellarisWare/driverlib\qei.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\qei.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\qei.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\qei.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\qei.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\qei.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\qei.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\qei.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\qei.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\qei.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\qei.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\qei.c **** // 
+  36:C:/StellarisWare/driverlib\qei.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\qei.c **** //
+  38:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\qei.c **** 
+  40:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\qei.c **** //
+  42:C:/StellarisWare/driverlib\qei.c **** //! \addtogroup qei_api
+  43:C:/StellarisWare/driverlib\qei.c **** //! @{
+  44:C:/StellarisWare/driverlib\qei.c **** //
+  45:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\qei.c **** 
+  47:C:/StellarisWare/driverlib\qei.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\qei.c **** #include "inc/hw_memmap.h"
+  49:C:/StellarisWare/driverlib\qei.c **** #include "inc/hw_qei.h"
+  50:C:/StellarisWare/driverlib\qei.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\qei.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\qei.c **** #include "driverlib/interrupt.h"
+  53:C:/StellarisWare/driverlib\qei.c **** #include "driverlib/qei.h"
+  54:C:/StellarisWare/driverlib\qei.c **** 
+  55:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\qei.c **** //
+  57:C:/StellarisWare/driverlib\qei.c **** //! Enables the quadrature encoder.
+  58:C:/StellarisWare/driverlib\qei.c **** //!
+  59:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+  60:C:/StellarisWare/driverlib\qei.c **** //!
+  61:C:/StellarisWare/driverlib\qei.c **** //! This function enables operation of the quadrature encoder module.  The
+  62:C:/StellarisWare/driverlib\qei.c **** //! module must be configured before it is enabled.
+  63:C:/StellarisWare/driverlib\qei.c **** //!
+  64:C:/StellarisWare/driverlib\qei.c **** //! \sa QEIConfigure()
+  65:C:/StellarisWare/driverlib\qei.c **** //!
+  66:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+  67:C:/StellarisWare/driverlib\qei.c **** //
+  68:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  69:C:/StellarisWare/driverlib\qei.c **** void
+  70:C:/StellarisWare/driverlib\qei.c **** QEIEnable(unsigned long ulBase)
+  71:C:/StellarisWare/driverlib\qei.c **** {
+  27              		.loc 1 71 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 83B0     		sub	sp, sp, #12
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  72:C:/StellarisWare/driverlib\qei.c ****     //
+  73:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+  74:C:/StellarisWare/driverlib\qei.c ****     //
+  75:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+  76:C:/StellarisWare/driverlib\qei.c **** 
+  77:C:/StellarisWare/driverlib\qei.c ****     //
+  78:C:/StellarisWare/driverlib\qei.c ****     // Enable the QEI module.
+  79:C:/StellarisWare/driverlib\qei.c ****     //
+  80:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) |= QEI_CTL_ENABLE;
+  43              		.loc 1 80 0
+  44 0008 7B68     		ldr	r3, [r7, #4]
+  45 000a 7A68     		ldr	r2, [r7, #4]
+  46 000c 1268     		ldr	r2, [r2, #0]
+  47 000e 42F00102 		orr	r2, r2, #1
+  48 0012 1A60     		str	r2, [r3, #0]
+  81:C:/StellarisWare/driverlib\qei.c **** }
+  49              		.loc 1 81 0
+  50 0014 07F10C07 		add	r7, r7, #12
+  51 0018 BD46     		mov	sp, r7
+  52 001a 80BC     		pop	{r7}
+  53 001c 7047     		bx	lr
+  54              		.cfi_endproc
+  55              	.LFE0:
+  57 001e 00BF     		.section	.text.QEIDisable,"ax",%progbits
+  58              		.align	2
+  59              		.global	QEIDisable
+  60              		.thumb
+  61              		.thumb_func
+  63              	QEIDisable:
+  64              	.LFB1:
+  82:C:/StellarisWare/driverlib\qei.c **** 
+  83:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  84:C:/StellarisWare/driverlib\qei.c **** //
+  85:C:/StellarisWare/driverlib\qei.c **** //! Disables the quadrature encoder.
+  86:C:/StellarisWare/driverlib\qei.c **** //!
+  87:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+  88:C:/StellarisWare/driverlib\qei.c **** //!
+  89:C:/StellarisWare/driverlib\qei.c **** //! This function disables operation of the quadrature encoder module.
+  90:C:/StellarisWare/driverlib\qei.c **** //!
+  91:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+  92:C:/StellarisWare/driverlib\qei.c **** //
+  93:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+  94:C:/StellarisWare/driverlib\qei.c **** void
+  95:C:/StellarisWare/driverlib\qei.c **** QEIDisable(unsigned long ulBase)
+  96:C:/StellarisWare/driverlib\qei.c **** {
+  65              		.loc 1 96 0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 8
+  68              		@ frame_needed = 1, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  70 0000 80B4     		push	{r7}
+  71              	.LCFI3:
+  72              		.cfi_def_cfa_offset 4
+  73              		.cfi_offset 7, -4
+  74 0002 83B0     		sub	sp, sp, #12
+  75              	.LCFI4:
+  76              		.cfi_def_cfa_offset 16
+  77 0004 00AF     		add	r7, sp, #0
+  78              	.LCFI5:
+  79              		.cfi_def_cfa_register 7
+  80 0006 7860     		str	r0, [r7, #4]
+  97:C:/StellarisWare/driverlib\qei.c ****     //
+  98:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+  99:C:/StellarisWare/driverlib\qei.c ****     //
+ 100:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 101:C:/StellarisWare/driverlib\qei.c **** 
+ 102:C:/StellarisWare/driverlib\qei.c ****     //
+ 103:C:/StellarisWare/driverlib\qei.c ****     // Disable the QEI module.
+ 104:C:/StellarisWare/driverlib\qei.c ****     //
+ 105:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) &= ~(QEI_CTL_ENABLE);
+  81              		.loc 1 105 0
+  82 0008 7B68     		ldr	r3, [r7, #4]
+  83 000a 7A68     		ldr	r2, [r7, #4]
+  84 000c 1268     		ldr	r2, [r2, #0]
+  85 000e 22F00102 		bic	r2, r2, #1
+  86 0012 1A60     		str	r2, [r3, #0]
+ 106:C:/StellarisWare/driverlib\qei.c **** }
+  87              		.loc 1 106 0
+  88 0014 07F10C07 		add	r7, r7, #12
+  89 0018 BD46     		mov	sp, r7
+  90 001a 80BC     		pop	{r7}
+  91 001c 7047     		bx	lr
+  92              		.cfi_endproc
+  93              	.LFE1:
+  95 001e 00BF     		.section	.text.QEIConfigure,"ax",%progbits
+  96              		.align	2
+  97              		.global	QEIConfigure
+  98              		.thumb
+  99              		.thumb_func
+ 101              	QEIConfigure:
+ 102              	.LFB2:
+ 107:C:/StellarisWare/driverlib\qei.c **** 
+ 108:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 109:C:/StellarisWare/driverlib\qei.c **** //
+ 110:C:/StellarisWare/driverlib\qei.c **** //! Configures the quadrature encoder.
+ 111:C:/StellarisWare/driverlib\qei.c **** //!
+ 112:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 113:C:/StellarisWare/driverlib\qei.c **** //! \param ulConfig is the configuration for the quadrature encoder.  See below
+ 114:C:/StellarisWare/driverlib\qei.c **** //! for a description of this parameter.
+ 115:C:/StellarisWare/driverlib\qei.c **** //! \param ulMaxPosition specifies the maximum position value.
+ 116:C:/StellarisWare/driverlib\qei.c **** //!
+ 117:C:/StellarisWare/driverlib\qei.c **** //! This function configures the operation of the quadrature encoder.  The
+ 118:C:/StellarisWare/driverlib\qei.c **** //! \e ulConfig parameter provides the configuration of the encoder and is the
+ 119:C:/StellarisWare/driverlib\qei.c **** //! logical OR of several values:
+ 120:C:/StellarisWare/driverlib\qei.c **** //!
+ 121:C:/StellarisWare/driverlib\qei.c **** //! - \b QEI_CONFIG_CAPTURE_A or \b QEI_CONFIG_CAPTURE_A_B specify if edges
+ 122:C:/StellarisWare/driverlib\qei.c **** //!   on channel A or on both channels A and B should be counted by the
+ 123:C:/StellarisWare/driverlib\qei.c **** //!   position integrator and velocity accumulator.
+ 124:C:/StellarisWare/driverlib\qei.c **** //! - \b QEI_CONFIG_NO_RESET or \b QEI_CONFIG_RESET_IDX specify if the
+ 125:C:/StellarisWare/driverlib\qei.c **** //!   position integrator should be reset when the index pulse is detected.
+ 126:C:/StellarisWare/driverlib\qei.c **** //! - \b QEI_CONFIG_QUADRATURE or \b QEI_CONFIG_CLOCK_DIR specify if
+ 127:C:/StellarisWare/driverlib\qei.c **** //!   quadrature signals are being provided on ChA and ChB, or if a direction
+ 128:C:/StellarisWare/driverlib\qei.c **** //!   signal and a clock are being provided instead.
+ 129:C:/StellarisWare/driverlib\qei.c **** //! - \b QEI_CONFIG_NO_SWAP or \b QEI_CONFIG_SWAP to specify if the signals
+ 130:C:/StellarisWare/driverlib\qei.c **** //!   provided on ChA and ChB should be swapped before being processed.
+ 131:C:/StellarisWare/driverlib\qei.c **** //!
+ 132:C:/StellarisWare/driverlib\qei.c **** //! \e ulMaxPosition is the maximum value of the position integrator and is
+ 133:C:/StellarisWare/driverlib\qei.c **** //! the value used to reset the position capture when in index reset mode and
+ 134:C:/StellarisWare/driverlib\qei.c **** //! moving in the reverse (negative) direction.
+ 135:C:/StellarisWare/driverlib\qei.c **** //!
+ 136:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 137:C:/StellarisWare/driverlib\qei.c **** //
+ 138:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 139:C:/StellarisWare/driverlib\qei.c **** void
+ 140:C:/StellarisWare/driverlib\qei.c **** QEIConfigure(unsigned long ulBase, unsigned long ulConfig,
+ 141:C:/StellarisWare/driverlib\qei.c ****              unsigned long ulMaxPosition)
+ 142:C:/StellarisWare/driverlib\qei.c **** {
+ 103              		.loc 1 142 0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 16
+ 106              		@ frame_needed = 1, uses_anonymous_args = 0
+ 107              		@ link register save eliminated.
+ 108 0000 80B4     		push	{r7}
+ 109              	.LCFI6:
+ 110              		.cfi_def_cfa_offset 4
+ 111              		.cfi_offset 7, -4
+ 112 0002 85B0     		sub	sp, sp, #20
+ 113              	.LCFI7:
+ 114              		.cfi_def_cfa_offset 24
+ 115 0004 00AF     		add	r7, sp, #0
+ 116              	.LCFI8:
+ 117              		.cfi_def_cfa_register 7
+ 118 0006 F860     		str	r0, [r7, #12]
+ 119 0008 B960     		str	r1, [r7, #8]
+ 120 000a 7A60     		str	r2, [r7, #4]
+ 143:C:/StellarisWare/driverlib\qei.c ****     //
+ 144:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 145:C:/StellarisWare/driverlib\qei.c ****     //
+ 146:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 147:C:/StellarisWare/driverlib\qei.c **** 
+ 148:C:/StellarisWare/driverlib\qei.c ****     //
+ 149:C:/StellarisWare/driverlib\qei.c ****     // Write the new configuration to the hardware.
+ 150:C:/StellarisWare/driverlib\qei.c ****     //
+ 151:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) = ((HWREG(ulBase + QEI_O_CTL) &
+ 121              		.loc 1 151 0
+ 122 000c FB68     		ldr	r3, [r7, #12]
+ 123 000e FA68     		ldr	r2, [r7, #12]
+ 124 0010 1268     		ldr	r2, [r2, #0]
+ 125 0012 22F01E01 		bic	r1, r2, #30
+ 152:C:/StellarisWare/driverlib\qei.c ****                                   ~(QEI_CTL_CAPMODE | QEI_CTL_RESMODE |
+ 153:C:/StellarisWare/driverlib\qei.c ****                                     QEI_CTL_SIGMODE | QEI_CTL_SWAP)) |
+ 126              		.loc 1 153 0
+ 127 0016 BA68     		ldr	r2, [r7, #8]
+ 128 0018 0A43     		orrs	r2, r2, r1
+ 151:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) = ((HWREG(ulBase + QEI_O_CTL) &
+ 129              		.loc 1 151 0
+ 130 001a 1A60     		str	r2, [r3, #0]
+ 154:C:/StellarisWare/driverlib\qei.c ****                                  ulConfig);
+ 155:C:/StellarisWare/driverlib\qei.c **** 
+ 156:C:/StellarisWare/driverlib\qei.c ****     //
+ 157:C:/StellarisWare/driverlib\qei.c ****     // Set the maximum position.
+ 158:C:/StellarisWare/driverlib\qei.c ****     //
+ 159:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_MAXPOS) = ulMaxPosition;
+ 131              		.loc 1 159 0
+ 132 001c FB68     		ldr	r3, [r7, #12]
+ 133 001e 03F10C03 		add	r3, r3, #12
+ 134 0022 7A68     		ldr	r2, [r7, #4]
+ 135 0024 1A60     		str	r2, [r3, #0]
+ 160:C:/StellarisWare/driverlib\qei.c **** }
+ 136              		.loc 1 160 0
+ 137 0026 07F11407 		add	r7, r7, #20
+ 138 002a BD46     		mov	sp, r7
+ 139 002c 80BC     		pop	{r7}
+ 140 002e 7047     		bx	lr
+ 141              		.cfi_endproc
+ 142              	.LFE2:
+ 144              		.section	.text.QEIPositionGet,"ax",%progbits
+ 145              		.align	2
+ 146              		.global	QEIPositionGet
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	QEIPositionGet:
+ 151              	.LFB3:
+ 161:C:/StellarisWare/driverlib\qei.c **** 
+ 162:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 163:C:/StellarisWare/driverlib\qei.c **** //
+ 164:C:/StellarisWare/driverlib\qei.c **** //! Gets the current encoder position.
+ 165:C:/StellarisWare/driverlib\qei.c **** //!
+ 166:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 167:C:/StellarisWare/driverlib\qei.c **** //!
+ 168:C:/StellarisWare/driverlib\qei.c **** //! This function returns the current position of the encoder.  Depending upon
+ 169:C:/StellarisWare/driverlib\qei.c **** //! the configuration of the encoder, and the incident of an index pulse, this
+ 170:C:/StellarisWare/driverlib\qei.c **** //! value may or may not contain the expected data (that is, if in reset on
+ 171:C:/StellarisWare/driverlib\qei.c **** //! index mode, if an index pulse has not been encountered, the position
+ 172:C:/StellarisWare/driverlib\qei.c **** //! counter is not yet aligned with the index pulse).
+ 173:C:/StellarisWare/driverlib\qei.c **** //!
+ 174:C:/StellarisWare/driverlib\qei.c **** //! \return The current position of the encoder.
+ 175:C:/StellarisWare/driverlib\qei.c **** //
+ 176:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 177:C:/StellarisWare/driverlib\qei.c **** unsigned long
+ 178:C:/StellarisWare/driverlib\qei.c **** QEIPositionGet(unsigned long ulBase)
+ 179:C:/StellarisWare/driverlib\qei.c **** {
+ 152              		.loc 1 179 0
+ 153              		.cfi_startproc
+ 154              		@ args = 0, pretend = 0, frame = 8
+ 155              		@ frame_needed = 1, uses_anonymous_args = 0
+ 156              		@ link register save eliminated.
+ 157 0000 80B4     		push	{r7}
+ 158              	.LCFI9:
+ 159              		.cfi_def_cfa_offset 4
+ 160              		.cfi_offset 7, -4
+ 161 0002 83B0     		sub	sp, sp, #12
+ 162              	.LCFI10:
+ 163              		.cfi_def_cfa_offset 16
+ 164 0004 00AF     		add	r7, sp, #0
+ 165              	.LCFI11:
+ 166              		.cfi_def_cfa_register 7
+ 167 0006 7860     		str	r0, [r7, #4]
+ 180:C:/StellarisWare/driverlib\qei.c ****     //
+ 181:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 182:C:/StellarisWare/driverlib\qei.c ****     //
+ 183:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 184:C:/StellarisWare/driverlib\qei.c **** 
+ 185:C:/StellarisWare/driverlib\qei.c ****     //
+ 186:C:/StellarisWare/driverlib\qei.c ****     // Return the current position counter.
+ 187:C:/StellarisWare/driverlib\qei.c ****     //
+ 188:C:/StellarisWare/driverlib\qei.c ****     return(HWREG(ulBase + QEI_O_POS));
+ 168              		.loc 1 188 0
+ 169 0008 7B68     		ldr	r3, [r7, #4]
+ 170 000a 03F10803 		add	r3, r3, #8
+ 171 000e 1B68     		ldr	r3, [r3, #0]
+ 189:C:/StellarisWare/driverlib\qei.c **** }
+ 172              		.loc 1 189 0
+ 173 0010 1846     		mov	r0, r3
+ 174 0012 07F10C07 		add	r7, r7, #12
+ 175 0016 BD46     		mov	sp, r7
+ 176 0018 80BC     		pop	{r7}
+ 177 001a 7047     		bx	lr
+ 178              		.cfi_endproc
+ 179              	.LFE3:
+ 181              		.section	.text.QEIPositionSet,"ax",%progbits
+ 182              		.align	2
+ 183              		.global	QEIPositionSet
+ 184              		.thumb
+ 185              		.thumb_func
+ 187              	QEIPositionSet:
+ 188              	.LFB4:
+ 190:C:/StellarisWare/driverlib\qei.c **** 
+ 191:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 192:C:/StellarisWare/driverlib\qei.c **** //
+ 193:C:/StellarisWare/driverlib\qei.c **** //! Sets the current encoder position.
+ 194:C:/StellarisWare/driverlib\qei.c **** //!
+ 195:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 196:C:/StellarisWare/driverlib\qei.c **** //! \param ulPosition is the new position for the encoder.
+ 197:C:/StellarisWare/driverlib\qei.c **** //!
+ 198:C:/StellarisWare/driverlib\qei.c **** //! This function sets the current position of the encoder; the encoder
+ 199:C:/StellarisWare/driverlib\qei.c **** //! position is then measured relative to this value.
+ 200:C:/StellarisWare/driverlib\qei.c **** //!
+ 201:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 202:C:/StellarisWare/driverlib\qei.c **** //
+ 203:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 204:C:/StellarisWare/driverlib\qei.c **** void
+ 205:C:/StellarisWare/driverlib\qei.c **** QEIPositionSet(unsigned long ulBase, unsigned long ulPosition)
+ 206:C:/StellarisWare/driverlib\qei.c **** {
+ 189              		.loc 1 206 0
+ 190              		.cfi_startproc
+ 191              		@ args = 0, pretend = 0, frame = 8
+ 192              		@ frame_needed = 1, uses_anonymous_args = 0
+ 193              		@ link register save eliminated.
+ 194 0000 80B4     		push	{r7}
+ 195              	.LCFI12:
+ 196              		.cfi_def_cfa_offset 4
+ 197              		.cfi_offset 7, -4
+ 198 0002 83B0     		sub	sp, sp, #12
+ 199              	.LCFI13:
+ 200              		.cfi_def_cfa_offset 16
+ 201 0004 00AF     		add	r7, sp, #0
+ 202              	.LCFI14:
+ 203              		.cfi_def_cfa_register 7
+ 204 0006 7860     		str	r0, [r7, #4]
+ 205 0008 3960     		str	r1, [r7, #0]
+ 207:C:/StellarisWare/driverlib\qei.c ****     //
+ 208:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 209:C:/StellarisWare/driverlib\qei.c ****     //
+ 210:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 211:C:/StellarisWare/driverlib\qei.c **** 
+ 212:C:/StellarisWare/driverlib\qei.c ****     //
+ 213:C:/StellarisWare/driverlib\qei.c ****     // Set the position counter.
+ 214:C:/StellarisWare/driverlib\qei.c ****     //
+ 215:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_POS) = ulPosition;
+ 206              		.loc 1 215 0
+ 207 000a 7B68     		ldr	r3, [r7, #4]
+ 208 000c 03F10803 		add	r3, r3, #8
+ 209 0010 3A68     		ldr	r2, [r7, #0]
+ 210 0012 1A60     		str	r2, [r3, #0]
+ 216:C:/StellarisWare/driverlib\qei.c **** }
+ 211              		.loc 1 216 0
+ 212 0014 07F10C07 		add	r7, r7, #12
+ 213 0018 BD46     		mov	sp, r7
+ 214 001a 80BC     		pop	{r7}
+ 215 001c 7047     		bx	lr
+ 216              		.cfi_endproc
+ 217              	.LFE4:
+ 219 001e 00BF     		.section	.text.QEIDirectionGet,"ax",%progbits
+ 220              		.align	2
+ 221              		.global	QEIDirectionGet
+ 222              		.thumb
+ 223              		.thumb_func
+ 225              	QEIDirectionGet:
+ 226              	.LFB5:
+ 217:C:/StellarisWare/driverlib\qei.c **** 
+ 218:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 219:C:/StellarisWare/driverlib\qei.c **** //
+ 220:C:/StellarisWare/driverlib\qei.c **** //! Gets the current direction of rotation.
+ 221:C:/StellarisWare/driverlib\qei.c **** //!
+ 222:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 223:C:/StellarisWare/driverlib\qei.c **** //!
+ 224:C:/StellarisWare/driverlib\qei.c **** //! This function returns the current direction of rotation.  In this case,
+ 225:C:/StellarisWare/driverlib\qei.c **** //! current means the most recently detected direction of the encoder; it may
+ 226:C:/StellarisWare/driverlib\qei.c **** //! not be presently moving but this is the direction it last moved before it
+ 227:C:/StellarisWare/driverlib\qei.c **** //! stopped.
+ 228:C:/StellarisWare/driverlib\qei.c **** //!
+ 229:C:/StellarisWare/driverlib\qei.c **** //! \return Returns 1 if moving in the forward direction or -1 if moving in the
+ 230:C:/StellarisWare/driverlib\qei.c **** //! reverse direction.
+ 231:C:/StellarisWare/driverlib\qei.c **** //
+ 232:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 233:C:/StellarisWare/driverlib\qei.c **** long
+ 234:C:/StellarisWare/driverlib\qei.c **** QEIDirectionGet(unsigned long ulBase)
+ 235:C:/StellarisWare/driverlib\qei.c **** {
+ 227              		.loc 1 235 0
+ 228              		.cfi_startproc
+ 229              		@ args = 0, pretend = 0, frame = 8
+ 230              		@ frame_needed = 1, uses_anonymous_args = 0
+ 231              		@ link register save eliminated.
+ 232 0000 80B4     		push	{r7}
+ 233              	.LCFI15:
+ 234              		.cfi_def_cfa_offset 4
+ 235              		.cfi_offset 7, -4
+ 236 0002 83B0     		sub	sp, sp, #12
+ 237              	.LCFI16:
+ 238              		.cfi_def_cfa_offset 16
+ 239 0004 00AF     		add	r7, sp, #0
+ 240              	.LCFI17:
+ 241              		.cfi_def_cfa_register 7
+ 242 0006 7860     		str	r0, [r7, #4]
+ 236:C:/StellarisWare/driverlib\qei.c ****     //
+ 237:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 238:C:/StellarisWare/driverlib\qei.c ****     //
+ 239:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 240:C:/StellarisWare/driverlib\qei.c **** 
+ 241:C:/StellarisWare/driverlib\qei.c ****     //
+ 242:C:/StellarisWare/driverlib\qei.c ****     // Return the direction of rotation.
+ 243:C:/StellarisWare/driverlib\qei.c ****     //
+ 244:C:/StellarisWare/driverlib\qei.c ****     return((HWREG(ulBase + QEI_O_STAT) & QEI_STAT_DIRECTION) ? -1 : 1);
+ 243              		.loc 1 244 0
+ 244 0008 7B68     		ldr	r3, [r7, #4]
+ 245 000a 03F10403 		add	r3, r3, #4
+ 246 000e 1B68     		ldr	r3, [r3, #0]
+ 247 0010 03F00203 		and	r3, r3, #2
+ 248 0014 002B     		cmp	r3, #0
+ 249 0016 02D0     		beq	.L7
+ 250              		.loc 1 244 0 is_stmt 0 discriminator 1
+ 251 0018 4FF0FF33 		mov	r3, #-1
+ 252 001c 01E0     		b	.L8
+ 253              	.L7:
+ 254              		.loc 1 244 0 discriminator 2
+ 255 001e 4FF00103 		mov	r3, #1
+ 256              	.L8:
+ 245:C:/StellarisWare/driverlib\qei.c **** }
+ 257              		.loc 1 245 0 is_stmt 1 discriminator 3
+ 258 0022 1846     		mov	r0, r3
+ 259 0024 07F10C07 		add	r7, r7, #12
+ 260 0028 BD46     		mov	sp, r7
+ 261 002a 80BC     		pop	{r7}
+ 262 002c 7047     		bx	lr
+ 263              		.cfi_endproc
+ 264              	.LFE5:
+ 266 002e 00BF     		.section	.text.QEIErrorGet,"ax",%progbits
+ 267              		.align	2
+ 268              		.global	QEIErrorGet
+ 269              		.thumb
+ 270              		.thumb_func
+ 272              	QEIErrorGet:
+ 273              	.LFB6:
+ 246:C:/StellarisWare/driverlib\qei.c **** 
+ 247:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 248:C:/StellarisWare/driverlib\qei.c **** //
+ 249:C:/StellarisWare/driverlib\qei.c **** //! Gets the encoder error indicator.
+ 250:C:/StellarisWare/driverlib\qei.c **** //!
+ 251:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 252:C:/StellarisWare/driverlib\qei.c **** //!
+ 253:C:/StellarisWare/driverlib\qei.c **** //! This function returns the error indicator for the quadrature encoder.  It
+ 254:C:/StellarisWare/driverlib\qei.c **** //! is an error for both of the signals of the quadrature input to change at
+ 255:C:/StellarisWare/driverlib\qei.c **** //! the same time.
+ 256:C:/StellarisWare/driverlib\qei.c **** //!
+ 257:C:/StellarisWare/driverlib\qei.c **** //! \return Returns \b true if an error has occurred and \b false otherwise.
+ 258:C:/StellarisWare/driverlib\qei.c **** //
+ 259:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 260:C:/StellarisWare/driverlib\qei.c **** tBoolean
+ 261:C:/StellarisWare/driverlib\qei.c **** QEIErrorGet(unsigned long ulBase)
+ 262:C:/StellarisWare/driverlib\qei.c **** {
+ 274              		.loc 1 262 0
+ 275              		.cfi_startproc
+ 276              		@ args = 0, pretend = 0, frame = 8
+ 277              		@ frame_needed = 1, uses_anonymous_args = 0
+ 278              		@ link register save eliminated.
+ 279 0000 80B4     		push	{r7}
+ 280              	.LCFI18:
+ 281              		.cfi_def_cfa_offset 4
+ 282              		.cfi_offset 7, -4
+ 283 0002 83B0     		sub	sp, sp, #12
+ 284              	.LCFI19:
+ 285              		.cfi_def_cfa_offset 16
+ 286 0004 00AF     		add	r7, sp, #0
+ 287              	.LCFI20:
+ 288              		.cfi_def_cfa_register 7
+ 289 0006 7860     		str	r0, [r7, #4]
+ 263:C:/StellarisWare/driverlib\qei.c ****     //
+ 264:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 265:C:/StellarisWare/driverlib\qei.c ****     //
+ 266:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 267:C:/StellarisWare/driverlib\qei.c **** 
+ 268:C:/StellarisWare/driverlib\qei.c ****     //
+ 269:C:/StellarisWare/driverlib\qei.c ****     // Return the error indicator.
+ 270:C:/StellarisWare/driverlib\qei.c ****     //
+ 271:C:/StellarisWare/driverlib\qei.c ****     return((HWREG(ulBase + QEI_O_STAT) & QEI_STAT_ERROR) ? true : false);
+ 290              		.loc 1 271 0
+ 291 0008 7B68     		ldr	r3, [r7, #4]
+ 292 000a 03F10403 		add	r3, r3, #4
+ 293 000e 1B68     		ldr	r3, [r3, #0]
+ 294 0010 DBB2     		uxtb	r3, r3
+ 295 0012 03F00103 		and	r3, r3, #1
+ 296 0016 DBB2     		uxtb	r3, r3
+ 272:C:/StellarisWare/driverlib\qei.c **** }
+ 297              		.loc 1 272 0
+ 298 0018 1846     		mov	r0, r3
+ 299 001a 07F10C07 		add	r7, r7, #12
+ 300 001e BD46     		mov	sp, r7
+ 301 0020 80BC     		pop	{r7}
+ 302 0022 7047     		bx	lr
+ 303              		.cfi_endproc
+ 304              	.LFE6:
+ 306              		.section	.text.QEIVelocityEnable,"ax",%progbits
+ 307              		.align	2
+ 308              		.global	QEIVelocityEnable
+ 309              		.thumb
+ 310              		.thumb_func
+ 312              	QEIVelocityEnable:
+ 313              	.LFB7:
+ 273:C:/StellarisWare/driverlib\qei.c **** 
+ 274:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 275:C:/StellarisWare/driverlib\qei.c **** //
+ 276:C:/StellarisWare/driverlib\qei.c **** //! Enables the velocity capture.
+ 277:C:/StellarisWare/driverlib\qei.c **** //!
+ 278:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 279:C:/StellarisWare/driverlib\qei.c **** //!
+ 280:C:/StellarisWare/driverlib\qei.c **** //! This function enables operation of the velocity capture in the quadrature
+ 281:C:/StellarisWare/driverlib\qei.c **** //! encoder module.  The module must be configured before velocity capture is
+ 282:C:/StellarisWare/driverlib\qei.c **** //! enabled.
+ 283:C:/StellarisWare/driverlib\qei.c **** //!
+ 284:C:/StellarisWare/driverlib\qei.c **** //! \sa QEIVelocityConfigure() and QEIEnable()
+ 285:C:/StellarisWare/driverlib\qei.c **** //!
+ 286:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 287:C:/StellarisWare/driverlib\qei.c **** //
+ 288:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 289:C:/StellarisWare/driverlib\qei.c **** void
+ 290:C:/StellarisWare/driverlib\qei.c **** QEIVelocityEnable(unsigned long ulBase)
+ 291:C:/StellarisWare/driverlib\qei.c **** {
+ 314              		.loc 1 291 0
+ 315              		.cfi_startproc
+ 316              		@ args = 0, pretend = 0, frame = 8
+ 317              		@ frame_needed = 1, uses_anonymous_args = 0
+ 318              		@ link register save eliminated.
+ 319 0000 80B4     		push	{r7}
+ 320              	.LCFI21:
+ 321              		.cfi_def_cfa_offset 4
+ 322              		.cfi_offset 7, -4
+ 323 0002 83B0     		sub	sp, sp, #12
+ 324              	.LCFI22:
+ 325              		.cfi_def_cfa_offset 16
+ 326 0004 00AF     		add	r7, sp, #0
+ 327              	.LCFI23:
+ 328              		.cfi_def_cfa_register 7
+ 329 0006 7860     		str	r0, [r7, #4]
+ 292:C:/StellarisWare/driverlib\qei.c ****     //
+ 293:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 294:C:/StellarisWare/driverlib\qei.c ****     //
+ 295:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 296:C:/StellarisWare/driverlib\qei.c **** 
+ 297:C:/StellarisWare/driverlib\qei.c ****     //
+ 298:C:/StellarisWare/driverlib\qei.c ****     // Enable the velocity capture.
+ 299:C:/StellarisWare/driverlib\qei.c ****     //
+ 300:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) |= QEI_CTL_VELEN;
+ 330              		.loc 1 300 0
+ 331 0008 7B68     		ldr	r3, [r7, #4]
+ 332 000a 7A68     		ldr	r2, [r7, #4]
+ 333 000c 1268     		ldr	r2, [r2, #0]
+ 334 000e 42F02002 		orr	r2, r2, #32
+ 335 0012 1A60     		str	r2, [r3, #0]
+ 301:C:/StellarisWare/driverlib\qei.c **** }
+ 336              		.loc 1 301 0
+ 337 0014 07F10C07 		add	r7, r7, #12
+ 338 0018 BD46     		mov	sp, r7
+ 339 001a 80BC     		pop	{r7}
+ 340 001c 7047     		bx	lr
+ 341              		.cfi_endproc
+ 342              	.LFE7:
+ 344 001e 00BF     		.section	.text.QEIVelocityDisable,"ax",%progbits
+ 345              		.align	2
+ 346              		.global	QEIVelocityDisable
+ 347              		.thumb
+ 348              		.thumb_func
+ 350              	QEIVelocityDisable:
+ 351              	.LFB8:
+ 302:C:/StellarisWare/driverlib\qei.c **** 
+ 303:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 304:C:/StellarisWare/driverlib\qei.c **** //
+ 305:C:/StellarisWare/driverlib\qei.c **** //! Disables the velocity capture.
+ 306:C:/StellarisWare/driverlib\qei.c **** //!
+ 307:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 308:C:/StellarisWare/driverlib\qei.c **** //!
+ 309:C:/StellarisWare/driverlib\qei.c **** //! This function disables operation of the velocity capture in the quadrature
+ 310:C:/StellarisWare/driverlib\qei.c **** //! encoder module.
+ 311:C:/StellarisWare/driverlib\qei.c **** //!
+ 312:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 313:C:/StellarisWare/driverlib\qei.c **** //
+ 314:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 315:C:/StellarisWare/driverlib\qei.c **** void
+ 316:C:/StellarisWare/driverlib\qei.c **** QEIVelocityDisable(unsigned long ulBase)
+ 317:C:/StellarisWare/driverlib\qei.c **** {
+ 352              		.loc 1 317 0
+ 353              		.cfi_startproc
+ 354              		@ args = 0, pretend = 0, frame = 8
+ 355              		@ frame_needed = 1, uses_anonymous_args = 0
+ 356              		@ link register save eliminated.
+ 357 0000 80B4     		push	{r7}
+ 358              	.LCFI24:
+ 359              		.cfi_def_cfa_offset 4
+ 360              		.cfi_offset 7, -4
+ 361 0002 83B0     		sub	sp, sp, #12
+ 362              	.LCFI25:
+ 363              		.cfi_def_cfa_offset 16
+ 364 0004 00AF     		add	r7, sp, #0
+ 365              	.LCFI26:
+ 366              		.cfi_def_cfa_register 7
+ 367 0006 7860     		str	r0, [r7, #4]
+ 318:C:/StellarisWare/driverlib\qei.c ****     //
+ 319:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 320:C:/StellarisWare/driverlib\qei.c ****     //
+ 321:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 322:C:/StellarisWare/driverlib\qei.c **** 
+ 323:C:/StellarisWare/driverlib\qei.c ****     //
+ 324:C:/StellarisWare/driverlib\qei.c ****     // Disable the velocity capture.
+ 325:C:/StellarisWare/driverlib\qei.c ****     //
+ 326:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) &= ~(QEI_CTL_VELEN);
+ 368              		.loc 1 326 0
+ 369 0008 7B68     		ldr	r3, [r7, #4]
+ 370 000a 7A68     		ldr	r2, [r7, #4]
+ 371 000c 1268     		ldr	r2, [r2, #0]
+ 372 000e 22F02002 		bic	r2, r2, #32
+ 373 0012 1A60     		str	r2, [r3, #0]
+ 327:C:/StellarisWare/driverlib\qei.c **** }
+ 374              		.loc 1 327 0
+ 375 0014 07F10C07 		add	r7, r7, #12
+ 376 0018 BD46     		mov	sp, r7
+ 377 001a 80BC     		pop	{r7}
+ 378 001c 7047     		bx	lr
+ 379              		.cfi_endproc
+ 380              	.LFE8:
+ 382 001e 00BF     		.section	.text.QEIVelocityConfigure,"ax",%progbits
+ 383              		.align	2
+ 384              		.global	QEIVelocityConfigure
+ 385              		.thumb
+ 386              		.thumb_func
+ 388              	QEIVelocityConfigure:
+ 389              	.LFB9:
+ 328:C:/StellarisWare/driverlib\qei.c **** 
+ 329:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 330:C:/StellarisWare/driverlib\qei.c **** //
+ 331:C:/StellarisWare/driverlib\qei.c **** //! Configures the velocity capture.
+ 332:C:/StellarisWare/driverlib\qei.c **** //!
+ 333:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 334:C:/StellarisWare/driverlib\qei.c **** //! \param ulPreDiv specifies the predivider applied to the input quadrature
+ 335:C:/StellarisWare/driverlib\qei.c **** //! signal before it is counted; can be one of \b QEI_VELDIV_1,
+ 336:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_VELDIV_2, \b QEI_VELDIV_4, \b QEI_VELDIV_8, \b QEI_VELDIV_16,
+ 337:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_VELDIV_32, \b QEI_VELDIV_64, or \b QEI_VELDIV_128.
+ 338:C:/StellarisWare/driverlib\qei.c **** //! \param ulPeriod specifies the number of clock ticks over which to measure
+ 339:C:/StellarisWare/driverlib\qei.c **** //! the velocity; must be non-zero.
+ 340:C:/StellarisWare/driverlib\qei.c **** //!
+ 341:C:/StellarisWare/driverlib\qei.c **** //! This function configures the operation of the velocity capture portion of
+ 342:C:/StellarisWare/driverlib\qei.c **** //! the quadrature encoder.  The position increment signal is predivided as
+ 343:C:/StellarisWare/driverlib\qei.c **** //! specified by \e ulPreDiv before being accumulated by the velocity capture.
+ 344:C:/StellarisWare/driverlib\qei.c **** //! The divided signal is accumulated over \e ulPeriod system clock before
+ 345:C:/StellarisWare/driverlib\qei.c **** //! being saved and resetting the accumulator.
+ 346:C:/StellarisWare/driverlib\qei.c **** //!
+ 347:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 348:C:/StellarisWare/driverlib\qei.c **** //
+ 349:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 350:C:/StellarisWare/driverlib\qei.c **** void
+ 351:C:/StellarisWare/driverlib\qei.c **** QEIVelocityConfigure(unsigned long ulBase, unsigned long ulPreDiv,
+ 352:C:/StellarisWare/driverlib\qei.c ****                      unsigned long ulPeriod)
+ 353:C:/StellarisWare/driverlib\qei.c **** {
+ 390              		.loc 1 353 0
+ 391              		.cfi_startproc
+ 392              		@ args = 0, pretend = 0, frame = 16
+ 393              		@ frame_needed = 1, uses_anonymous_args = 0
+ 394              		@ link register save eliminated.
+ 395 0000 80B4     		push	{r7}
+ 396              	.LCFI27:
+ 397              		.cfi_def_cfa_offset 4
+ 398              		.cfi_offset 7, -4
+ 399 0002 85B0     		sub	sp, sp, #20
+ 400              	.LCFI28:
+ 401              		.cfi_def_cfa_offset 24
+ 402 0004 00AF     		add	r7, sp, #0
+ 403              	.LCFI29:
+ 404              		.cfi_def_cfa_register 7
+ 405 0006 F860     		str	r0, [r7, #12]
+ 406 0008 B960     		str	r1, [r7, #8]
+ 407 000a 7A60     		str	r2, [r7, #4]
+ 354:C:/StellarisWare/driverlib\qei.c ****     //
+ 355:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 356:C:/StellarisWare/driverlib\qei.c ****     //
+ 357:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 358:C:/StellarisWare/driverlib\qei.c ****     ASSERT(!(ulPreDiv & ~(QEI_CTL_VELDIV_M)));
+ 359:C:/StellarisWare/driverlib\qei.c ****     ASSERT(ulPeriod != 0);
+ 360:C:/StellarisWare/driverlib\qei.c **** 
+ 361:C:/StellarisWare/driverlib\qei.c ****     //
+ 362:C:/StellarisWare/driverlib\qei.c ****     // Set the velocity predivider.
+ 363:C:/StellarisWare/driverlib\qei.c ****     //
+ 364:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) = ((HWREG(ulBase + QEI_O_CTL) &
+ 408              		.loc 1 364 0
+ 409 000c FB68     		ldr	r3, [r7, #12]
+ 410 000e FA68     		ldr	r2, [r7, #12]
+ 411 0010 1268     		ldr	r2, [r2, #0]
+ 412 0012 22F4E071 		bic	r1, r2, #448
+ 365:C:/StellarisWare/driverlib\qei.c ****                                   ~(QEI_CTL_VELDIV_M)) | ulPreDiv);
+ 413              		.loc 1 365 0
+ 414 0016 BA68     		ldr	r2, [r7, #8]
+ 415 0018 0A43     		orrs	r2, r2, r1
+ 364:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_CTL) = ((HWREG(ulBase + QEI_O_CTL) &
+ 416              		.loc 1 364 0
+ 417 001a 1A60     		str	r2, [r3, #0]
+ 366:C:/StellarisWare/driverlib\qei.c **** 
+ 367:C:/StellarisWare/driverlib\qei.c ****     //
+ 368:C:/StellarisWare/driverlib\qei.c ****     // Set the timer period.
+ 369:C:/StellarisWare/driverlib\qei.c ****     //
+ 370:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_LOAD) = ulPeriod - 1;
+ 418              		.loc 1 370 0
+ 419 001c FB68     		ldr	r3, [r7, #12]
+ 420 001e 03F11003 		add	r3, r3, #16
+ 421 0022 7A68     		ldr	r2, [r7, #4]
+ 422 0024 02F1FF32 		add	r2, r2, #-1
+ 423 0028 1A60     		str	r2, [r3, #0]
+ 371:C:/StellarisWare/driverlib\qei.c **** }
+ 424              		.loc 1 371 0
+ 425 002a 07F11407 		add	r7, r7, #20
+ 426 002e BD46     		mov	sp, r7
+ 427 0030 80BC     		pop	{r7}
+ 428 0032 7047     		bx	lr
+ 429              		.cfi_endproc
+ 430              	.LFE9:
+ 432              		.section	.text.QEIVelocityGet,"ax",%progbits
+ 433              		.align	2
+ 434              		.global	QEIVelocityGet
+ 435              		.thumb
+ 436              		.thumb_func
+ 438              	QEIVelocityGet:
+ 439              	.LFB10:
+ 372:C:/StellarisWare/driverlib\qei.c **** 
+ 373:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 374:C:/StellarisWare/driverlib\qei.c **** //
+ 375:C:/StellarisWare/driverlib\qei.c **** //! Gets the current encoder speed.
+ 376:C:/StellarisWare/driverlib\qei.c **** //!
+ 377:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 378:C:/StellarisWare/driverlib\qei.c **** //!
+ 379:C:/StellarisWare/driverlib\qei.c **** //! This function returns the current speed of the encoder.  The value returned
+ 380:C:/StellarisWare/driverlib\qei.c **** //! is the number of pulses detected in the specified time period; this number
+ 381:C:/StellarisWare/driverlib\qei.c **** //! can be multiplied by the number of time periods per second and divided by
+ 382:C:/StellarisWare/driverlib\qei.c **** //! the number of pulses per revolution to obtain the number of revolutions per
+ 383:C:/StellarisWare/driverlib\qei.c **** //! second.
+ 384:C:/StellarisWare/driverlib\qei.c **** //!
+ 385:C:/StellarisWare/driverlib\qei.c **** //! \return Returns the number of pulses captured in the given time period.
+ 386:C:/StellarisWare/driverlib\qei.c **** //
+ 387:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 388:C:/StellarisWare/driverlib\qei.c **** unsigned long
+ 389:C:/StellarisWare/driverlib\qei.c **** QEIVelocityGet(unsigned long ulBase)
+ 390:C:/StellarisWare/driverlib\qei.c **** {
+ 440              		.loc 1 390 0
+ 441              		.cfi_startproc
+ 442              		@ args = 0, pretend = 0, frame = 8
+ 443              		@ frame_needed = 1, uses_anonymous_args = 0
+ 444              		@ link register save eliminated.
+ 445 0000 80B4     		push	{r7}
+ 446              	.LCFI30:
+ 447              		.cfi_def_cfa_offset 4
+ 448              		.cfi_offset 7, -4
+ 449 0002 83B0     		sub	sp, sp, #12
+ 450              	.LCFI31:
+ 451              		.cfi_def_cfa_offset 16
+ 452 0004 00AF     		add	r7, sp, #0
+ 453              	.LCFI32:
+ 454              		.cfi_def_cfa_register 7
+ 455 0006 7860     		str	r0, [r7, #4]
+ 391:C:/StellarisWare/driverlib\qei.c ****     //
+ 392:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 393:C:/StellarisWare/driverlib\qei.c ****     //
+ 394:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 395:C:/StellarisWare/driverlib\qei.c **** 
+ 396:C:/StellarisWare/driverlib\qei.c ****     //
+ 397:C:/StellarisWare/driverlib\qei.c ****     // Return the speed capture value.
+ 398:C:/StellarisWare/driverlib\qei.c ****     //
+ 399:C:/StellarisWare/driverlib\qei.c ****     return(HWREG(ulBase + QEI_O_SPEED));
+ 456              		.loc 1 399 0
+ 457 0008 7B68     		ldr	r3, [r7, #4]
+ 458 000a 03F11C03 		add	r3, r3, #28
+ 459 000e 1B68     		ldr	r3, [r3, #0]
+ 400:C:/StellarisWare/driverlib\qei.c **** }
+ 460              		.loc 1 400 0
+ 461 0010 1846     		mov	r0, r3
+ 462 0012 07F10C07 		add	r7, r7, #12
+ 463 0016 BD46     		mov	sp, r7
+ 464 0018 80BC     		pop	{r7}
+ 465 001a 7047     		bx	lr
+ 466              		.cfi_endproc
+ 467              	.LFE10:
+ 469              		.section	.text.QEIIntRegister,"ax",%progbits
+ 470              		.align	2
+ 471              		.global	QEIIntRegister
+ 472              		.thumb
+ 473              		.thumb_func
+ 475              	QEIIntRegister:
+ 476              	.LFB11:
+ 401:C:/StellarisWare/driverlib\qei.c **** 
+ 402:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 403:C:/StellarisWare/driverlib\qei.c **** //
+ 404:C:/StellarisWare/driverlib\qei.c **** //! Registers an interrupt handler for the quadrature encoder interrupt.
+ 405:C:/StellarisWare/driverlib\qei.c **** //!
+ 406:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 407:C:/StellarisWare/driverlib\qei.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 408:C:/StellarisWare/driverlib\qei.c **** //! quadrature encoder interrupt occurs.
+ 409:C:/StellarisWare/driverlib\qei.c **** //!
+ 410:C:/StellarisWare/driverlib\qei.c **** //! This function registers the handler to be called when a quadrature encoder
+ 411:C:/StellarisWare/driverlib\qei.c **** //! interrupt occurs.  This function enables the global interrupt in the
+ 412:C:/StellarisWare/driverlib\qei.c **** //! interrupt controller; specific quadrature encoder interrupts must be
+ 413:C:/StellarisWare/driverlib\qei.c **** //! enabled via QEIIntEnable(). It is the interrupt handler's responsibility to
+ 414:C:/StellarisWare/driverlib\qei.c **** //! clear the interrupt source via QEIIntClear().
+ 415:C:/StellarisWare/driverlib\qei.c **** //!
+ 416:C:/StellarisWare/driverlib\qei.c **** //! \sa IntRegister() for important information about registering interrupt
+ 417:C:/StellarisWare/driverlib\qei.c **** //! handlers.
+ 418:C:/StellarisWare/driverlib\qei.c **** //!
+ 419:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 420:C:/StellarisWare/driverlib\qei.c **** //
+ 421:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 422:C:/StellarisWare/driverlib\qei.c **** void
+ 423:C:/StellarisWare/driverlib\qei.c **** QEIIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 424:C:/StellarisWare/driverlib\qei.c **** {
+ 477              		.loc 1 424 0
+ 478              		.cfi_startproc
+ 479              		@ args = 0, pretend = 0, frame = 16
+ 480              		@ frame_needed = 1, uses_anonymous_args = 0
+ 481 0000 80B5     		push	{r7, lr}
+ 482              	.LCFI33:
+ 483              		.cfi_def_cfa_offset 8
+ 484              		.cfi_offset 14, -4
+ 485              		.cfi_offset 7, -8
+ 486 0002 84B0     		sub	sp, sp, #16
+ 487              	.LCFI34:
+ 488              		.cfi_def_cfa_offset 24
+ 489 0004 00AF     		add	r7, sp, #0
+ 490              	.LCFI35:
+ 491              		.cfi_def_cfa_register 7
+ 492 0006 7860     		str	r0, [r7, #4]
+ 493 0008 3960     		str	r1, [r7, #0]
+ 425:C:/StellarisWare/driverlib\qei.c ****     unsigned long ulInt;
+ 426:C:/StellarisWare/driverlib\qei.c **** 
+ 427:C:/StellarisWare/driverlib\qei.c ****     //
+ 428:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 429:C:/StellarisWare/driverlib\qei.c ****     //
+ 430:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 431:C:/StellarisWare/driverlib\qei.c **** 
+ 432:C:/StellarisWare/driverlib\qei.c ****     //
+ 433:C:/StellarisWare/driverlib\qei.c ****     // Determine the interrupt number based on the QEI module.
+ 434:C:/StellarisWare/driverlib\qei.c ****     //
+ 435:C:/StellarisWare/driverlib\qei.c ****     ulInt = (ulBase == QEI0_BASE) ? INT_QEI0 : INT_QEI1;
+ 494              		.loc 1 435 0
+ 495 000a 7A68     		ldr	r2, [r7, #4]
+ 496 000c 4FF44043 		mov	r3, #49152
+ 497 0010 C4F20203 		movt	r3, 16386
+ 498 0014 9A42     		cmp	r2, r3
+ 499 0016 02D1     		bne	.L15
+ 500              		.loc 1 435 0 is_stmt 0 discriminator 1
+ 501 0018 4FF01D03 		mov	r3, #29
+ 502 001c 01E0     		b	.L16
+ 503              	.L15:
+ 504              		.loc 1 435 0 discriminator 2
+ 505 001e 4FF03603 		mov	r3, #54
+ 506              	.L16:
+ 507              		.loc 1 435 0 discriminator 3
+ 508 0022 FB60     		str	r3, [r7, #12]
+ 436:C:/StellarisWare/driverlib\qei.c **** 
+ 437:C:/StellarisWare/driverlib\qei.c ****     //
+ 438:C:/StellarisWare/driverlib\qei.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 439:C:/StellarisWare/driverlib\qei.c ****     //
+ 440:C:/StellarisWare/driverlib\qei.c ****     IntRegister(ulInt, pfnHandler);
+ 509              		.loc 1 440 0 is_stmt 1 discriminator 3
+ 510 0024 F868     		ldr	r0, [r7, #12]
+ 511 0026 3968     		ldr	r1, [r7, #0]
+ 512 0028 FFF7FEFF 		bl	IntRegister
+ 441:C:/StellarisWare/driverlib\qei.c **** 
+ 442:C:/StellarisWare/driverlib\qei.c ****     //
+ 443:C:/StellarisWare/driverlib\qei.c ****     // Enable the quadrature encoder interrupt.
+ 444:C:/StellarisWare/driverlib\qei.c ****     //
+ 445:C:/StellarisWare/driverlib\qei.c ****     IntEnable(ulInt);
+ 513              		.loc 1 445 0 discriminator 3
+ 514 002c F868     		ldr	r0, [r7, #12]
+ 515 002e FFF7FEFF 		bl	IntEnable
+ 446:C:/StellarisWare/driverlib\qei.c **** }
+ 516              		.loc 1 446 0 discriminator 3
+ 517 0032 07F11007 		add	r7, r7, #16
+ 518 0036 BD46     		mov	sp, r7
+ 519 0038 80BD     		pop	{r7, pc}
+ 520              		.cfi_endproc
+ 521              	.LFE11:
+ 523 003a 00BF     		.section	.text.QEIIntUnregister,"ax",%progbits
+ 524              		.align	2
+ 525              		.global	QEIIntUnregister
+ 526              		.thumb
+ 527              		.thumb_func
+ 529              	QEIIntUnregister:
+ 530              	.LFB12:
+ 447:C:/StellarisWare/driverlib\qei.c **** 
+ 448:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 449:C:/StellarisWare/driverlib\qei.c **** //
+ 450:C:/StellarisWare/driverlib\qei.c **** //! Unregisters an interrupt handler for the quadrature encoder interrupt.
+ 451:C:/StellarisWare/driverlib\qei.c **** //!
+ 452:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 453:C:/StellarisWare/driverlib\qei.c **** //!
+ 454:C:/StellarisWare/driverlib\qei.c **** //! This function unregisters the handler to be called when a quadrature
+ 455:C:/StellarisWare/driverlib\qei.c **** //! encoder interrupt occurs.  This function also masks off the interrupt in
+ 456:C:/StellarisWare/driverlib\qei.c **** //! the interrupt controller so that the interrupt handler no longer is called.
+ 457:C:/StellarisWare/driverlib\qei.c **** //!
+ 458:C:/StellarisWare/driverlib\qei.c **** //! \sa IntRegister() for important information about registering interrupt
+ 459:C:/StellarisWare/driverlib\qei.c **** //! handlers.
+ 460:C:/StellarisWare/driverlib\qei.c **** //!
+ 461:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 462:C:/StellarisWare/driverlib\qei.c **** //
+ 463:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 464:C:/StellarisWare/driverlib\qei.c **** void
+ 465:C:/StellarisWare/driverlib\qei.c **** QEIIntUnregister(unsigned long ulBase)
+ 466:C:/StellarisWare/driverlib\qei.c **** {
+ 531              		.loc 1 466 0
+ 532              		.cfi_startproc
+ 533              		@ args = 0, pretend = 0, frame = 16
+ 534              		@ frame_needed = 1, uses_anonymous_args = 0
+ 535 0000 80B5     		push	{r7, lr}
+ 536              	.LCFI36:
+ 537              		.cfi_def_cfa_offset 8
+ 538              		.cfi_offset 14, -4
+ 539              		.cfi_offset 7, -8
+ 540 0002 84B0     		sub	sp, sp, #16
+ 541              	.LCFI37:
+ 542              		.cfi_def_cfa_offset 24
+ 543 0004 00AF     		add	r7, sp, #0
+ 544              	.LCFI38:
+ 545              		.cfi_def_cfa_register 7
+ 546 0006 7860     		str	r0, [r7, #4]
+ 467:C:/StellarisWare/driverlib\qei.c ****     unsigned long ulInt;
+ 468:C:/StellarisWare/driverlib\qei.c **** 
+ 469:C:/StellarisWare/driverlib\qei.c ****     //
+ 470:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 471:C:/StellarisWare/driverlib\qei.c ****     //
+ 472:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 473:C:/StellarisWare/driverlib\qei.c **** 
+ 474:C:/StellarisWare/driverlib\qei.c ****     //
+ 475:C:/StellarisWare/driverlib\qei.c ****     // Determine the interrupt number based on the QEI module.
+ 476:C:/StellarisWare/driverlib\qei.c ****     //
+ 477:C:/StellarisWare/driverlib\qei.c ****     ulInt = (ulBase == QEI0_BASE) ? INT_QEI0 : INT_QEI1;
+ 547              		.loc 1 477 0
+ 548 0008 7A68     		ldr	r2, [r7, #4]
+ 549 000a 4FF44043 		mov	r3, #49152
+ 550 000e C4F20203 		movt	r3, 16386
+ 551 0012 9A42     		cmp	r2, r3
+ 552 0014 02D1     		bne	.L18
+ 553              		.loc 1 477 0 is_stmt 0 discriminator 1
+ 554 0016 4FF01D03 		mov	r3, #29
+ 555 001a 01E0     		b	.L19
+ 556              	.L18:
+ 557              		.loc 1 477 0 discriminator 2
+ 558 001c 4FF03603 		mov	r3, #54
+ 559              	.L19:
+ 560              		.loc 1 477 0 discriminator 3
+ 561 0020 FB60     		str	r3, [r7, #12]
+ 478:C:/StellarisWare/driverlib\qei.c **** 
+ 479:C:/StellarisWare/driverlib\qei.c ****     //
+ 480:C:/StellarisWare/driverlib\qei.c ****     // Disable the interrupt.
+ 481:C:/StellarisWare/driverlib\qei.c ****     //
+ 482:C:/StellarisWare/driverlib\qei.c ****     IntDisable(ulInt);
+ 562              		.loc 1 482 0 is_stmt 1 discriminator 3
+ 563 0022 F868     		ldr	r0, [r7, #12]
+ 564 0024 FFF7FEFF 		bl	IntDisable
+ 483:C:/StellarisWare/driverlib\qei.c **** 
+ 484:C:/StellarisWare/driverlib\qei.c ****     //
+ 485:C:/StellarisWare/driverlib\qei.c ****     // Unregister the interrupt handler.
+ 486:C:/StellarisWare/driverlib\qei.c ****     //
+ 487:C:/StellarisWare/driverlib\qei.c ****     IntUnregister(ulInt);
+ 565              		.loc 1 487 0 discriminator 3
+ 566 0028 F868     		ldr	r0, [r7, #12]
+ 567 002a FFF7FEFF 		bl	IntUnregister
+ 488:C:/StellarisWare/driverlib\qei.c **** }
+ 568              		.loc 1 488 0 discriminator 3
+ 569 002e 07F11007 		add	r7, r7, #16
+ 570 0032 BD46     		mov	sp, r7
+ 571 0034 80BD     		pop	{r7, pc}
+ 572              		.cfi_endproc
+ 573              	.LFE12:
+ 575 0036 00BF     		.section	.text.QEIIntEnable,"ax",%progbits
+ 576              		.align	2
+ 577              		.global	QEIIntEnable
+ 578              		.thumb
+ 579              		.thumb_func
+ 581              	QEIIntEnable:
+ 582              	.LFB13:
+ 489:C:/StellarisWare/driverlib\qei.c **** 
+ 490:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 491:C:/StellarisWare/driverlib\qei.c **** //
+ 492:C:/StellarisWare/driverlib\qei.c **** //! Enables individual quadrature encoder interrupt sources.
+ 493:C:/StellarisWare/driverlib\qei.c **** //!
+ 494:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 495:C:/StellarisWare/driverlib\qei.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 496:C:/StellarisWare/driverlib\qei.c **** //! Can be any of the \b QEI_INTERROR, \b QEI_INTDIR, \b QEI_INTTIMER, or
+ 497:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_INTINDEX values.
+ 498:C:/StellarisWare/driverlib\qei.c **** //!
+ 499:C:/StellarisWare/driverlib\qei.c **** //! This function enables the indicated quadrature encoder interrupt sources.
+ 500:C:/StellarisWare/driverlib\qei.c **** //! Only the sources that are enabled can be reflected to the processor
+ 501:C:/StellarisWare/driverlib\qei.c **** //! interrupt; disabled sources have no effect on the processor.
+ 502:C:/StellarisWare/driverlib\qei.c **** //!
+ 503:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 504:C:/StellarisWare/driverlib\qei.c **** //
+ 505:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 506:C:/StellarisWare/driverlib\qei.c **** void
+ 507:C:/StellarisWare/driverlib\qei.c **** QEIIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+ 508:C:/StellarisWare/driverlib\qei.c **** {
+ 583              		.loc 1 508 0
+ 584              		.cfi_startproc
+ 585              		@ args = 0, pretend = 0, frame = 8
+ 586              		@ frame_needed = 1, uses_anonymous_args = 0
+ 587              		@ link register save eliminated.
+ 588 0000 80B4     		push	{r7}
+ 589              	.LCFI39:
+ 590              		.cfi_def_cfa_offset 4
+ 591              		.cfi_offset 7, -4
+ 592 0002 83B0     		sub	sp, sp, #12
+ 593              	.LCFI40:
+ 594              		.cfi_def_cfa_offset 16
+ 595 0004 00AF     		add	r7, sp, #0
+ 596              	.LCFI41:
+ 597              		.cfi_def_cfa_register 7
+ 598 0006 7860     		str	r0, [r7, #4]
+ 599 0008 3960     		str	r1, [r7, #0]
+ 509:C:/StellarisWare/driverlib\qei.c ****     //
+ 510:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 511:C:/StellarisWare/driverlib\qei.c ****     //
+ 512:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 513:C:/StellarisWare/driverlib\qei.c **** 
+ 514:C:/StellarisWare/driverlib\qei.c ****     //
+ 515:C:/StellarisWare/driverlib\qei.c ****     // Enable the specified interrupts.
+ 516:C:/StellarisWare/driverlib\qei.c ****     //
+ 517:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_INTEN) |= ulIntFlags;
+ 600              		.loc 1 517 0
+ 601 000a 7B68     		ldr	r3, [r7, #4]
+ 602 000c 03F12003 		add	r3, r3, #32
+ 603 0010 7A68     		ldr	r2, [r7, #4]
+ 604 0012 02F12002 		add	r2, r2, #32
+ 605 0016 1168     		ldr	r1, [r2, #0]
+ 606 0018 3A68     		ldr	r2, [r7, #0]
+ 607 001a 0A43     		orrs	r2, r2, r1
+ 608 001c 1A60     		str	r2, [r3, #0]
+ 518:C:/StellarisWare/driverlib\qei.c **** }
+ 609              		.loc 1 518 0
+ 610 001e 07F10C07 		add	r7, r7, #12
+ 611 0022 BD46     		mov	sp, r7
+ 612 0024 80BC     		pop	{r7}
+ 613 0026 7047     		bx	lr
+ 614              		.cfi_endproc
+ 615              	.LFE13:
+ 617              		.section	.text.QEIIntDisable,"ax",%progbits
+ 618              		.align	2
+ 619              		.global	QEIIntDisable
+ 620              		.thumb
+ 621              		.thumb_func
+ 623              	QEIIntDisable:
+ 624              	.LFB14:
+ 519:C:/StellarisWare/driverlib\qei.c **** 
+ 520:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 521:C:/StellarisWare/driverlib\qei.c **** //
+ 522:C:/StellarisWare/driverlib\qei.c **** //! Disables individual quadrature encoder interrupt sources.
+ 523:C:/StellarisWare/driverlib\qei.c **** //!
+ 524:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 525:C:/StellarisWare/driverlib\qei.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 526:C:/StellarisWare/driverlib\qei.c **** //! This parameter can be any of the \b QEI_INTERROR, \b QEI_INTDIR,
+ 527:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_INTTIMER, or \b QEI_INTINDEX values.
+ 528:C:/StellarisWare/driverlib\qei.c **** //!
+ 529:C:/StellarisWare/driverlib\qei.c **** //! This function disables the indicated quadrature encoder interrupt sources.
+ 530:C:/StellarisWare/driverlib\qei.c **** //! Only the sources that are enabled can be reflected to the processor
+ 531:C:/StellarisWare/driverlib\qei.c **** //! interrupt; disabled sources have no effect on the processor.
+ 532:C:/StellarisWare/driverlib\qei.c **** //!
+ 533:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 534:C:/StellarisWare/driverlib\qei.c **** //
+ 535:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 536:C:/StellarisWare/driverlib\qei.c **** void
+ 537:C:/StellarisWare/driverlib\qei.c **** QEIIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 538:C:/StellarisWare/driverlib\qei.c **** {
+ 625              		.loc 1 538 0
+ 626              		.cfi_startproc
+ 627              		@ args = 0, pretend = 0, frame = 8
+ 628              		@ frame_needed = 1, uses_anonymous_args = 0
+ 629              		@ link register save eliminated.
+ 630 0000 80B4     		push	{r7}
+ 631              	.LCFI42:
+ 632              		.cfi_def_cfa_offset 4
+ 633              		.cfi_offset 7, -4
+ 634 0002 83B0     		sub	sp, sp, #12
+ 635              	.LCFI43:
+ 636              		.cfi_def_cfa_offset 16
+ 637 0004 00AF     		add	r7, sp, #0
+ 638              	.LCFI44:
+ 639              		.cfi_def_cfa_register 7
+ 640 0006 7860     		str	r0, [r7, #4]
+ 641 0008 3960     		str	r1, [r7, #0]
+ 539:C:/StellarisWare/driverlib\qei.c ****     //
+ 540:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 541:C:/StellarisWare/driverlib\qei.c ****     //
+ 542:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 543:C:/StellarisWare/driverlib\qei.c **** 
+ 544:C:/StellarisWare/driverlib\qei.c ****     //
+ 545:C:/StellarisWare/driverlib\qei.c ****     // Disable the specified interrupts.
+ 546:C:/StellarisWare/driverlib\qei.c ****     //
+ 547:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_INTEN) &= ~(ulIntFlags);
+ 642              		.loc 1 547 0
+ 643 000a 7B68     		ldr	r3, [r7, #4]
+ 644 000c 03F12003 		add	r3, r3, #32
+ 645 0010 7A68     		ldr	r2, [r7, #4]
+ 646 0012 02F12002 		add	r2, r2, #32
+ 647 0016 1168     		ldr	r1, [r2, #0]
+ 648 0018 3A68     		ldr	r2, [r7, #0]
+ 649 001a 6FEA0202 		mvn	r2, r2
+ 650 001e 0A40     		ands	r2, r2, r1
+ 651 0020 1A60     		str	r2, [r3, #0]
+ 548:C:/StellarisWare/driverlib\qei.c **** }
+ 652              		.loc 1 548 0
+ 653 0022 07F10C07 		add	r7, r7, #12
+ 654 0026 BD46     		mov	sp, r7
+ 655 0028 80BC     		pop	{r7}
+ 656 002a 7047     		bx	lr
+ 657              		.cfi_endproc
+ 658              	.LFE14:
+ 660              		.section	.text.QEIIntStatus,"ax",%progbits
+ 661              		.align	2
+ 662              		.global	QEIIntStatus
+ 663              		.thumb
+ 664              		.thumb_func
+ 666              	QEIIntStatus:
+ 667              	.LFB15:
+ 549:C:/StellarisWare/driverlib\qei.c **** 
+ 550:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 551:C:/StellarisWare/driverlib\qei.c **** //
+ 552:C:/StellarisWare/driverlib\qei.c **** //! Gets the current interrupt status.
+ 553:C:/StellarisWare/driverlib\qei.c **** //!
+ 554:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 555:C:/StellarisWare/driverlib\qei.c **** //! \param bMasked is false if the raw interrupt status is required and true if
+ 556:C:/StellarisWare/driverlib\qei.c **** //! the masked interrupt status is required.
+ 557:C:/StellarisWare/driverlib\qei.c **** //!
+ 558:C:/StellarisWare/driverlib\qei.c **** //! This function returns the interrupt status for the quadrature encoder
+ 559:C:/StellarisWare/driverlib\qei.c **** //! module. Either the raw interrupt status or the status of interrupts that
+ 560:C:/StellarisWare/driverlib\qei.c **** //! are allowed to reflect to the processor can be returned.
+ 561:C:/StellarisWare/driverlib\qei.c **** //!
+ 562:C:/StellarisWare/driverlib\qei.c **** //! \return Returns the current interrupt status, enumerated as a bit field of
+ 563:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_INTERROR, \b QEI_INTDIR, \b QEI_INTTIMER, and \b QEI_INTINDEX.
+ 564:C:/StellarisWare/driverlib\qei.c **** //
+ 565:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 566:C:/StellarisWare/driverlib\qei.c **** unsigned long
+ 567:C:/StellarisWare/driverlib\qei.c **** QEIIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 568:C:/StellarisWare/driverlib\qei.c **** {
+ 668              		.loc 1 568 0
+ 669              		.cfi_startproc
+ 670              		@ args = 0, pretend = 0, frame = 8
+ 671              		@ frame_needed = 1, uses_anonymous_args = 0
+ 672              		@ link register save eliminated.
+ 673 0000 80B4     		push	{r7}
+ 674              	.LCFI45:
+ 675              		.cfi_def_cfa_offset 4
+ 676              		.cfi_offset 7, -4
+ 677 0002 83B0     		sub	sp, sp, #12
+ 678              	.LCFI46:
+ 679              		.cfi_def_cfa_offset 16
+ 680 0004 00AF     		add	r7, sp, #0
+ 681              	.LCFI47:
+ 682              		.cfi_def_cfa_register 7
+ 683 0006 7860     		str	r0, [r7, #4]
+ 684 0008 0B46     		mov	r3, r1
+ 685 000a FB70     		strb	r3, [r7, #3]
+ 569:C:/StellarisWare/driverlib\qei.c ****     //
+ 570:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 571:C:/StellarisWare/driverlib\qei.c ****     //
+ 572:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 573:C:/StellarisWare/driverlib\qei.c **** 
+ 574:C:/StellarisWare/driverlib\qei.c ****     //
+ 575:C:/StellarisWare/driverlib\qei.c ****     // Return either the interrupt status or the raw interrupt status as
+ 576:C:/StellarisWare/driverlib\qei.c ****     // requested.
+ 577:C:/StellarisWare/driverlib\qei.c ****     //
+ 578:C:/StellarisWare/driverlib\qei.c ****     if(bMasked)
+ 686              		.loc 1 578 0
+ 687 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 688 000e 002B     		cmp	r3, #0
+ 689 0010 04D0     		beq	.L23
+ 579:C:/StellarisWare/driverlib\qei.c ****     {
+ 580:C:/StellarisWare/driverlib\qei.c ****         return(HWREG(ulBase + QEI_O_ISC));
+ 690              		.loc 1 580 0
+ 691 0012 7B68     		ldr	r3, [r7, #4]
+ 692 0014 03F12803 		add	r3, r3, #40
+ 693 0018 1B68     		ldr	r3, [r3, #0]
+ 694 001a 03E0     		b	.L24
+ 695              	.L23:
+ 581:C:/StellarisWare/driverlib\qei.c ****     }
+ 582:C:/StellarisWare/driverlib\qei.c ****     else
+ 583:C:/StellarisWare/driverlib\qei.c ****     {
+ 584:C:/StellarisWare/driverlib\qei.c ****         return(HWREG(ulBase + QEI_O_RIS));
+ 696              		.loc 1 584 0
+ 697 001c 7B68     		ldr	r3, [r7, #4]
+ 698 001e 03F12403 		add	r3, r3, #36
+ 699 0022 1B68     		ldr	r3, [r3, #0]
+ 700              	.L24:
+ 585:C:/StellarisWare/driverlib\qei.c ****     }
+ 586:C:/StellarisWare/driverlib\qei.c **** }
+ 701              		.loc 1 586 0
+ 702 0024 1846     		mov	r0, r3
+ 703 0026 07F10C07 		add	r7, r7, #12
+ 704 002a BD46     		mov	sp, r7
+ 705 002c 80BC     		pop	{r7}
+ 706 002e 7047     		bx	lr
+ 707              		.cfi_endproc
+ 708              	.LFE15:
+ 710              		.section	.text.QEIIntClear,"ax",%progbits
+ 711              		.align	2
+ 712              		.global	QEIIntClear
+ 713              		.thumb
+ 714              		.thumb_func
+ 716              	QEIIntClear:
+ 717              	.LFB16:
+ 587:C:/StellarisWare/driverlib\qei.c **** 
+ 588:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 589:C:/StellarisWare/driverlib\qei.c **** //
+ 590:C:/StellarisWare/driverlib\qei.c **** //! Clears quadrature encoder interrupt sources.
+ 591:C:/StellarisWare/driverlib\qei.c **** //!
+ 592:C:/StellarisWare/driverlib\qei.c **** //! \param ulBase is the base address of the quadrature encoder module.
+ 593:C:/StellarisWare/driverlib\qei.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 594:C:/StellarisWare/driverlib\qei.c **** //! This parameter can be any of the \b QEI_INTERROR, \b QEI_INTDIR,
+ 595:C:/StellarisWare/driverlib\qei.c **** //! \b QEI_INTTIMER, or \b QEI_INTINDEX values.
+ 596:C:/StellarisWare/driverlib\qei.c **** //!
+ 597:C:/StellarisWare/driverlib\qei.c **** //! The specified quadrature encoder interrupt sources are cleared, so that
+ 598:C:/StellarisWare/driverlib\qei.c **** //! they no longer assert.  This function must be called in the interrupt
+ 599:C:/StellarisWare/driverlib\qei.c **** //! handler to keep the interrupt from being triggered again immediately upon
+ 600:C:/StellarisWare/driverlib\qei.c **** //! exit.
+ 601:C:/StellarisWare/driverlib\qei.c **** //!
+ 602:C:/StellarisWare/driverlib\qei.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 603:C:/StellarisWare/driverlib\qei.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 604:C:/StellarisWare/driverlib\qei.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 605:C:/StellarisWare/driverlib\qei.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 606:C:/StellarisWare/driverlib\qei.c **** //! returning from the interrupt handler before the interrupt source is
+ 607:C:/StellarisWare/driverlib\qei.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 608:C:/StellarisWare/driverlib\qei.c **** //! being immediately reentered (because the interrupt controller still sees
+ 609:C:/StellarisWare/driverlib\qei.c **** //! the interrupt source asserted).
+ 610:C:/StellarisWare/driverlib\qei.c **** //!
+ 611:C:/StellarisWare/driverlib\qei.c **** //! \return None.
+ 612:C:/StellarisWare/driverlib\qei.c **** //
+ 613:C:/StellarisWare/driverlib\qei.c **** //*****************************************************************************
+ 614:C:/StellarisWare/driverlib\qei.c **** void
+ 615:C:/StellarisWare/driverlib\qei.c **** QEIIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+ 616:C:/StellarisWare/driverlib\qei.c **** {
+ 718              		.loc 1 616 0
+ 719              		.cfi_startproc
+ 720              		@ args = 0, pretend = 0, frame = 8
+ 721              		@ frame_needed = 1, uses_anonymous_args = 0
+ 722              		@ link register save eliminated.
+ 723 0000 80B4     		push	{r7}
+ 724              	.LCFI48:
+ 725              		.cfi_def_cfa_offset 4
+ 726              		.cfi_offset 7, -4
+ 727 0002 83B0     		sub	sp, sp, #12
+ 728              	.LCFI49:
+ 729              		.cfi_def_cfa_offset 16
+ 730 0004 00AF     		add	r7, sp, #0
+ 731              	.LCFI50:
+ 732              		.cfi_def_cfa_register 7
+ 733 0006 7860     		str	r0, [r7, #4]
+ 734 0008 3960     		str	r1, [r7, #0]
+ 617:C:/StellarisWare/driverlib\qei.c ****     //
+ 618:C:/StellarisWare/driverlib\qei.c ****     // Check the arguments.
+ 619:C:/StellarisWare/driverlib\qei.c ****     //
+ 620:C:/StellarisWare/driverlib\qei.c ****     ASSERT((ulBase == QEI0_BASE) || (ulBase == QEI1_BASE));
+ 621:C:/StellarisWare/driverlib\qei.c **** 
+ 622:C:/StellarisWare/driverlib\qei.c ****     //
+ 623:C:/StellarisWare/driverlib\qei.c ****     // Clear the requested interrupt sources.
+ 624:C:/StellarisWare/driverlib\qei.c ****     //
+ 625:C:/StellarisWare/driverlib\qei.c ****     HWREG(ulBase + QEI_O_ISC) = ulIntFlags;
+ 735              		.loc 1 625 0
+ 736 000a 7B68     		ldr	r3, [r7, #4]
+ 737 000c 03F12803 		add	r3, r3, #40
+ 738 0010 3A68     		ldr	r2, [r7, #0]
+ 739 0012 1A60     		str	r2, [r3, #0]
+ 626:C:/StellarisWare/driverlib\qei.c **** }
+ 740              		.loc 1 626 0
+ 741 0014 07F10C07 		add	r7, r7, #12
+ 742 0018 BD46     		mov	sp, r7
+ 743 001a 80BC     		pop	{r7}
+ 744 001c 7047     		bx	lr
+ 745              		.cfi_endproc
+ 746              	.LFE16:
+ 748 001e 00BF     		.text
+ 749              	.Letext0:
+ 750              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 qei.c
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:19     .text.QEIEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:24     .text.QEIEnable:00000000 QEIEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:58     .text.QEIDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:63     .text.QEIDisable:00000000 QEIDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:96     .text.QEIConfigure:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:101    .text.QEIConfigure:00000000 QEIConfigure
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:145    .text.QEIPositionGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:150    .text.QEIPositionGet:00000000 QEIPositionGet
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:182    .text.QEIPositionSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:187    .text.QEIPositionSet:00000000 QEIPositionSet
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:220    .text.QEIDirectionGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:225    .text.QEIDirectionGet:00000000 QEIDirectionGet
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:267    .text.QEIErrorGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:272    .text.QEIErrorGet:00000000 QEIErrorGet
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:307    .text.QEIVelocityEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:312    .text.QEIVelocityEnable:00000000 QEIVelocityEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:345    .text.QEIVelocityDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:350    .text.QEIVelocityDisable:00000000 QEIVelocityDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:383    .text.QEIVelocityConfigure:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:388    .text.QEIVelocityConfigure:00000000 QEIVelocityConfigure
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:433    .text.QEIVelocityGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:438    .text.QEIVelocityGet:00000000 QEIVelocityGet
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:470    .text.QEIIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:475    .text.QEIIntRegister:00000000 QEIIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:524    .text.QEIIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:529    .text.QEIIntUnregister:00000000 QEIIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:576    .text.QEIIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:581    .text.QEIIntEnable:00000000 QEIIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:618    .text.QEIIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:623    .text.QEIIntDisable:00000000 QEIIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:661    .text.QEIIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:666    .text.QEIIntStatus:00000000 QEIIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:711    .text.QEIIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccOJfNUS.s:716    .text.QEIIntClear:00000000 QEIIntClear
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

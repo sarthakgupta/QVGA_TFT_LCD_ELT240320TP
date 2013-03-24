@@ -1,0 +1,1842 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"ssi.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_ppulSSIIntMap:
+  23 0000 00800040 		.word	1073774592
+  24 0004 17000000 		.word	23
+  25 0008 00900040 		.word	1073778688
+  26 000c 32000000 		.word	50
+  27 0010 00A00040 		.word	1073782784
+  28 0014 49000000 		.word	73
+  29 0018 00B00040 		.word	1073786880
+  30 001c 4A000000 		.word	74
+  31              		.section	.text.SSIIntNumberGet,"ax",%progbits
+  32              		.align	2
+  33              		.thumb
+  34              		.thumb_func
+  36              	SSIIntNumberGet:
+  37              	.LFB0:
+  38              		.file 1 "C:/StellarisWare/driverlib/ssi.c"
+   1:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\ssi.c **** //
+   3:C:/StellarisWare/driverlib\ssi.c **** // ssi.c - Driver for Synchronous Serial Interface.
+   4:C:/StellarisWare/driverlib\ssi.c **** //
+   5:C:/StellarisWare/driverlib\ssi.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\ssi.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\ssi.c **** // 
+   8:C:/StellarisWare/driverlib\ssi.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\ssi.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\ssi.c **** //   are met:
+  11:C:/StellarisWare/driverlib\ssi.c **** // 
+  12:C:/StellarisWare/driverlib\ssi.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\ssi.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\ssi.c **** // 
+  15:C:/StellarisWare/driverlib\ssi.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\ssi.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\ssi.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\ssi.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\ssi.c **** // 
+  20:C:/StellarisWare/driverlib\ssi.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\ssi.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\ssi.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\ssi.c **** // 
+  24:C:/StellarisWare/driverlib\ssi.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\ssi.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\ssi.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\ssi.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\ssi.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\ssi.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\ssi.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\ssi.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\ssi.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\ssi.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\ssi.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\ssi.c **** // 
+  36:C:/StellarisWare/driverlib\ssi.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\ssi.c **** //
+  38:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\ssi.c **** 
+  40:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\ssi.c **** //
+  42:C:/StellarisWare/driverlib\ssi.c **** //! \addtogroup ssi_api
+  43:C:/StellarisWare/driverlib\ssi.c **** //! @{
+  44:C:/StellarisWare/driverlib\ssi.c **** //
+  45:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\ssi.c **** 
+  47:C:/StellarisWare/driverlib\ssi.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\ssi.c **** #include "inc/hw_memmap.h"
+  49:C:/StellarisWare/driverlib\ssi.c **** #include "inc/hw_ssi.h"
+  50:C:/StellarisWare/driverlib\ssi.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\ssi.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\ssi.c **** #include "driverlib/interrupt.h"
+  53:C:/StellarisWare/driverlib\ssi.c **** #include "driverlib/ssi.h"
+  54:C:/StellarisWare/driverlib\ssi.c **** 
+  55:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\ssi.c **** //
+  57:C:/StellarisWare/driverlib\ssi.c **** // A mapping of timer base address to interupt number.
+  58:C:/StellarisWare/driverlib\ssi.c **** //
+  59:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  60:C:/StellarisWare/driverlib\ssi.c **** static const unsigned long g_ppulSSIIntMap[][2] =
+  61:C:/StellarisWare/driverlib\ssi.c **** {
+  62:C:/StellarisWare/driverlib\ssi.c ****     { SSI0_BASE, INT_SSI0 },
+  63:C:/StellarisWare/driverlib\ssi.c ****     { SSI1_BASE, INT_SSI1 },
+  64:C:/StellarisWare/driverlib\ssi.c ****     { SSI2_BASE, INT_SSI2 },
+  65:C:/StellarisWare/driverlib\ssi.c ****     { SSI3_BASE, INT_SSI3 },
+  66:C:/StellarisWare/driverlib\ssi.c **** };
+  67:C:/StellarisWare/driverlib\ssi.c **** 
+  68:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  69:C:/StellarisWare/driverlib\ssi.c **** //
+  70:C:/StellarisWare/driverlib\ssi.c **** //! \internal
+  71:C:/StellarisWare/driverlib\ssi.c **** //! Checks an SSI base address.
+  72:C:/StellarisWare/driverlib\ssi.c **** //!
+  73:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+  74:C:/StellarisWare/driverlib\ssi.c **** //!
+  75:C:/StellarisWare/driverlib\ssi.c **** //! This function determines if a SSI module base address is valid.
+  76:C:/StellarisWare/driverlib\ssi.c **** //!
+  77:C:/StellarisWare/driverlib\ssi.c **** //! \return Returns \b true if the base address is valid and \b false
+  78:C:/StellarisWare/driverlib\ssi.c **** //! otherwise.
+  79:C:/StellarisWare/driverlib\ssi.c **** //
+  80:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  81:C:/StellarisWare/driverlib\ssi.c **** #ifdef DEBUG
+  82:C:/StellarisWare/driverlib\ssi.c **** static tBoolean
+  83:C:/StellarisWare/driverlib\ssi.c **** SSIBaseValid(unsigned long ulBase)
+  84:C:/StellarisWare/driverlib\ssi.c **** {
+  85:C:/StellarisWare/driverlib\ssi.c ****     return((ulBase == SSI0_BASE) || (ulBase == SSI1_BASE) ||
+  86:C:/StellarisWare/driverlib\ssi.c ****            (ulBase == SSI2_BASE) || (ulBase == SSI3_BASE));
+  87:C:/StellarisWare/driverlib\ssi.c **** }
+  88:C:/StellarisWare/driverlib\ssi.c **** #endif
+  89:C:/StellarisWare/driverlib\ssi.c **** 
+  90:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+  91:C:/StellarisWare/driverlib\ssi.c **** //
+  92:C:/StellarisWare/driverlib\ssi.c **** //! \internal
+  93:C:/StellarisWare/driverlib\ssi.c **** //! Gets the SSI interrupt number.
+  94:C:/StellarisWare/driverlib\ssi.c **** //!
+  95:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+  96:C:/StellarisWare/driverlib\ssi.c **** //!
+  97:C:/StellarisWare/driverlib\ssi.c **** //! Given a SSI base address, returns the corresponding interrupt number.
+  98:C:/StellarisWare/driverlib\ssi.c **** //!
+  99:C:/StellarisWare/driverlib\ssi.c **** //! \return Returns an SSI interrupt number, or -1 if \e ulBase is invalid.
+ 100:C:/StellarisWare/driverlib\ssi.c **** //
+ 101:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 102:C:/StellarisWare/driverlib\ssi.c **** static long
+ 103:C:/StellarisWare/driverlib\ssi.c **** SSIIntNumberGet(unsigned long ulBase)
+ 104:C:/StellarisWare/driverlib\ssi.c **** {
+  39              		.loc 1 104 0
+  40              		.cfi_startproc
+  41              		@ args = 0, pretend = 0, frame = 16
+  42              		@ frame_needed = 1, uses_anonymous_args = 0
+  43              		@ link register save eliminated.
+  44 0000 80B4     		push	{r7}
+  45              	.LCFI0:
+  46              		.cfi_def_cfa_offset 4
+  47              		.cfi_offset 7, -4
+  48 0002 85B0     		sub	sp, sp, #20
+  49              	.LCFI1:
+  50              		.cfi_def_cfa_offset 24
+  51 0004 00AF     		add	r7, sp, #0
+  52              	.LCFI2:
+  53              		.cfi_def_cfa_register 7
+  54 0006 7860     		str	r0, [r7, #4]
+ 105:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulIdx;
+ 106:C:/StellarisWare/driverlib\ssi.c **** 
+ 107:C:/StellarisWare/driverlib\ssi.c ****     //
+ 108:C:/StellarisWare/driverlib\ssi.c ****     // Loop through the table that maps SSI base addresses to interrupt
+ 109:C:/StellarisWare/driverlib\ssi.c ****     // numbers.
+ 110:C:/StellarisWare/driverlib\ssi.c ****     //
+ 111:C:/StellarisWare/driverlib\ssi.c ****     for(ulIdx = 0; ulIdx < (sizeof(g_ppulSSIIntMap) /
+  55              		.loc 1 111 0
+  56 0008 4FF00003 		mov	r3, #0
+  57 000c FB60     		str	r3, [r7, #12]
+  58 000e 17E0     		b	.L2
+  59              	.L5:
+ 112:C:/StellarisWare/driverlib\ssi.c ****                             sizeof(g_ppulSSIIntMap[0])); ulIdx++)
+ 113:C:/StellarisWare/driverlib\ssi.c ****     {
+ 114:C:/StellarisWare/driverlib\ssi.c ****         //
+ 115:C:/StellarisWare/driverlib\ssi.c ****         // See if this base address matches.
+ 116:C:/StellarisWare/driverlib\ssi.c ****         //
+ 117:C:/StellarisWare/driverlib\ssi.c ****         if(g_ppulSSIIntMap[ulIdx][0] == ulBase)
+  60              		.loc 1 117 0
+  61 0010 40F20003 		movw	r3, #:lower16:g_ppulSSIIntMap
+  62 0014 C0F20003 		movt	r3, #:upper16:g_ppulSSIIntMap
+  63 0018 FA68     		ldr	r2, [r7, #12]
+  64 001a 53F83220 		ldr	r2, [r3, r2, lsl #3]
+  65 001e 7B68     		ldr	r3, [r7, #4]
+  66 0020 9A42     		cmp	r2, r3
+  67 0022 09D1     		bne	.L3
+ 118:C:/StellarisWare/driverlib\ssi.c ****         {
+ 119:C:/StellarisWare/driverlib\ssi.c ****             //
+ 120:C:/StellarisWare/driverlib\ssi.c ****             // Return the corresponding interrupt number.
+ 121:C:/StellarisWare/driverlib\ssi.c ****             //
+ 122:C:/StellarisWare/driverlib\ssi.c ****             return(g_ppulSSIIntMap[ulIdx][1]);
+  68              		.loc 1 122 0
+  69 0024 40F20002 		movw	r2, #:lower16:g_ppulSSIIntMap
+  70 0028 C0F20002 		movt	r2, #:upper16:g_ppulSSIIntMap
+  71 002c FB68     		ldr	r3, [r7, #12]
+  72 002e 4FEAC303 		lsl	r3, r3, #3
+  73 0032 D318     		adds	r3, r2, r3
+  74 0034 5B68     		ldr	r3, [r3, #4]
+  75 0036 08E0     		b	.L4
+  76              	.L3:
+ 112:C:/StellarisWare/driverlib\ssi.c ****                             sizeof(g_ppulSSIIntMap[0])); ulIdx++)
+  77              		.loc 1 112 0
+  78 0038 FB68     		ldr	r3, [r7, #12]
+  79 003a 03F10103 		add	r3, r3, #1
+  80 003e FB60     		str	r3, [r7, #12]
+  81              	.L2:
+ 111:C:/StellarisWare/driverlib\ssi.c ****     for(ulIdx = 0; ulIdx < (sizeof(g_ppulSSIIntMap) /
+  82              		.loc 1 111 0 discriminator 1
+  83 0040 FB68     		ldr	r3, [r7, #12]
+  84 0042 032B     		cmp	r3, #3
+  85 0044 E4D9     		bls	.L5
+ 123:C:/StellarisWare/driverlib\ssi.c ****         }
+ 124:C:/StellarisWare/driverlib\ssi.c ****     }
+ 125:C:/StellarisWare/driverlib\ssi.c **** 
+ 126:C:/StellarisWare/driverlib\ssi.c ****     //
+ 127:C:/StellarisWare/driverlib\ssi.c ****     // The base address could not be found, so return an error.
+ 128:C:/StellarisWare/driverlib\ssi.c ****     //
+ 129:C:/StellarisWare/driverlib\ssi.c ****     return(-1);
+  86              		.loc 1 129 0
+  87 0046 4FF0FF33 		mov	r3, #-1
+  88              	.L4:
+ 130:C:/StellarisWare/driverlib\ssi.c **** }
+  89              		.loc 1 130 0
+  90 004a 1846     		mov	r0, r3
+  91 004c 07F11407 		add	r7, r7, #20
+  92 0050 BD46     		mov	sp, r7
+  93 0052 80BC     		pop	{r7}
+  94 0054 7047     		bx	lr
+  95              		.cfi_endproc
+  96              	.LFE0:
+  98 0056 00BF     		.section	.text.SSIConfigSetExpClk,"ax",%progbits
+  99              		.align	2
+ 100              		.global	SSIConfigSetExpClk
+ 101              		.thumb
+ 102              		.thumb_func
+ 104              	SSIConfigSetExpClk:
+ 105              	.LFB1:
+ 131:C:/StellarisWare/driverlib\ssi.c **** 
+ 132:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 133:C:/StellarisWare/driverlib\ssi.c **** //
+ 134:C:/StellarisWare/driverlib\ssi.c **** //! Configures the synchronous serial interface.
+ 135:C:/StellarisWare/driverlib\ssi.c **** //!
+ 136:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 137:C:/StellarisWare/driverlib\ssi.c **** //! \param ulSSIClk is the rate of the clock supplied to the SSI module.
+ 138:C:/StellarisWare/driverlib\ssi.c **** //! \param ulProtocol specifies the data transfer protocol.
+ 139:C:/StellarisWare/driverlib\ssi.c **** //! \param ulMode specifies the mode of operation.
+ 140:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBitRate specifies the clock rate.
+ 141:C:/StellarisWare/driverlib\ssi.c **** //! \param ulDataWidth specifies number of bits transferred per frame.
+ 142:C:/StellarisWare/driverlib\ssi.c **** //!
+ 143:C:/StellarisWare/driverlib\ssi.c **** //! This function configures the synchronous serial interface.  It sets
+ 144:C:/StellarisWare/driverlib\ssi.c **** //! the SSI protocol, mode of operation, bit rate, and data width.
+ 145:C:/StellarisWare/driverlib\ssi.c **** //!
+ 146:C:/StellarisWare/driverlib\ssi.c **** //! The \e ulProtocol parameter defines the data frame format.  The
+ 147:C:/StellarisWare/driverlib\ssi.c **** //! \e ulProtocol parameter can be one of the following values:
+ 148:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_FRF_MOTO_MODE_0, \b SSI_FRF_MOTO_MODE_1, \b SSI_FRF_MOTO_MODE_2,
+ 149:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_FRF_MOTO_MODE_3, \b SSI_FRF_TI, or \b SSI_FRF_NMW.  The Motorola
+ 150:C:/StellarisWare/driverlib\ssi.c **** //! frame formats encode the following polarity and phase configurations:
+ 151:C:/StellarisWare/driverlib\ssi.c **** //!
+ 152:C:/StellarisWare/driverlib\ssi.c **** //! <pre>
+ 153:C:/StellarisWare/driverlib\ssi.c **** //! Polarity Phase       Mode
+ 154:C:/StellarisWare/driverlib\ssi.c **** //!   0       0   SSI_FRF_MOTO_MODE_0
+ 155:C:/StellarisWare/driverlib\ssi.c **** //!   0       1   SSI_FRF_MOTO_MODE_1
+ 156:C:/StellarisWare/driverlib\ssi.c **** //!   1       0   SSI_FRF_MOTO_MODE_2
+ 157:C:/StellarisWare/driverlib\ssi.c **** //!   1       1   SSI_FRF_MOTO_MODE_3
+ 158:C:/StellarisWare/driverlib\ssi.c **** //! </pre>
+ 159:C:/StellarisWare/driverlib\ssi.c **** //!
+ 160:C:/StellarisWare/driverlib\ssi.c **** //! The \e ulMode parameter defines the operating mode of the SSI module.  The
+ 161:C:/StellarisWare/driverlib\ssi.c **** //! SSI module can operate as a master or slave; if it is a slave, the SSI can
+ 162:C:/StellarisWare/driverlib\ssi.c **** //! be configured to disable output on its serial output line.  The \e ulMode
+ 163:C:/StellarisWare/driverlib\ssi.c **** //! parameter can be one of the following values: \b SSI_MODE_MASTER,
+ 164:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_MODE_SLAVE, or \b SSI_MODE_SLAVE_OD.
+ 165:C:/StellarisWare/driverlib\ssi.c **** //!
+ 166:C:/StellarisWare/driverlib\ssi.c **** //! The \e ulBitRate parameter defines the bit rate for the SSI.  This bit rate
+ 167:C:/StellarisWare/driverlib\ssi.c **** //! must satisfy the following clock ratio criteria:
+ 168:C:/StellarisWare/driverlib\ssi.c **** //!
+ 169:C:/StellarisWare/driverlib\ssi.c **** //! - FSSI >= 2 * bit rate (master mode); this speed cannot exceed 25 MHz.
+ 170:C:/StellarisWare/driverlib\ssi.c **** //! - FSSI >= 12 * bit rate or 6 * bit rate (slave modes), depending on the
+ 171:C:/StellarisWare/driverlib\ssi.c **** //! capability of the specific microcontroller
+ 172:C:/StellarisWare/driverlib\ssi.c **** //!
+ 173:C:/StellarisWare/driverlib\ssi.c **** //! where FSSI is the frequency of the clock supplied to the SSI module.
+ 174:C:/StellarisWare/driverlib\ssi.c **** //!
+ 175:C:/StellarisWare/driverlib\ssi.c **** //! The \e ulDataWidth parameter defines the width of the data transfers and
+ 176:C:/StellarisWare/driverlib\ssi.c **** //! can be a value between 4 and 16, inclusive.
+ 177:C:/StellarisWare/driverlib\ssi.c **** //!
+ 178:C:/StellarisWare/driverlib\ssi.c **** //! The peripheral clock is the same as the processor clock.  This value is
+ 179:C:/StellarisWare/driverlib\ssi.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard coded if it is
+ 180:C:/StellarisWare/driverlib\ssi.c **** //! constant and known (to save the code/execution overhead of a call to
+ 181:C:/StellarisWare/driverlib\ssi.c **** //! SysCtlClockGet()).
+ 182:C:/StellarisWare/driverlib\ssi.c **** //!
+ 183:C:/StellarisWare/driverlib\ssi.c **** //! This function replaces the original SSIConfig() API and performs the same
+ 184:C:/StellarisWare/driverlib\ssi.c **** //! actions.  A macro is provided in <tt>ssi.h</tt> to map the original API to
+ 185:C:/StellarisWare/driverlib\ssi.c **** //! this API.
+ 186:C:/StellarisWare/driverlib\ssi.c **** //!
+ 187:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 188:C:/StellarisWare/driverlib\ssi.c **** //
+ 189:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 190:C:/StellarisWare/driverlib\ssi.c **** void
+ 191:C:/StellarisWare/driverlib\ssi.c **** SSIConfigSetExpClk(unsigned long ulBase, unsigned long ulSSIClk,
+ 192:C:/StellarisWare/driverlib\ssi.c ****                    unsigned long ulProtocol, unsigned long ulMode,
+ 193:C:/StellarisWare/driverlib\ssi.c ****                    unsigned long ulBitRate, unsigned long ulDataWidth)
+ 194:C:/StellarisWare/driverlib\ssi.c **** {
+ 106              		.loc 1 194 0
+ 107              		.cfi_startproc
+ 108              		@ args = 8, pretend = 0, frame = 40
+ 109              		@ frame_needed = 1, uses_anonymous_args = 0
+ 110              		@ link register save eliminated.
+ 111 0000 80B4     		push	{r7}
+ 112              	.LCFI3:
+ 113              		.cfi_def_cfa_offset 4
+ 114              		.cfi_offset 7, -4
+ 115 0002 8BB0     		sub	sp, sp, #44
+ 116              	.LCFI4:
+ 117              		.cfi_def_cfa_offset 48
+ 118 0004 00AF     		add	r7, sp, #0
+ 119              	.LCFI5:
+ 120              		.cfi_def_cfa_register 7
+ 121 0006 F860     		str	r0, [r7, #12]
+ 122 0008 B960     		str	r1, [r7, #8]
+ 123 000a 7A60     		str	r2, [r7, #4]
+ 124 000c 3B60     		str	r3, [r7, #0]
+ 195:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulMaxBitRate;
+ 196:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulRegVal;
+ 197:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulPreDiv;
+ 198:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulSCR;
+ 199:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulSPH_SPO;
+ 200:C:/StellarisWare/driverlib\ssi.c **** 
+ 201:C:/StellarisWare/driverlib\ssi.c ****     //
+ 202:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 203:C:/StellarisWare/driverlib\ssi.c ****     //
+ 204:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 205:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulProtocol == SSI_FRF_MOTO_MODE_0) ||
+ 206:C:/StellarisWare/driverlib\ssi.c ****            (ulProtocol == SSI_FRF_MOTO_MODE_1) ||
+ 207:C:/StellarisWare/driverlib\ssi.c ****            (ulProtocol == SSI_FRF_MOTO_MODE_2) ||
+ 208:C:/StellarisWare/driverlib\ssi.c ****            (ulProtocol == SSI_FRF_MOTO_MODE_3) ||
+ 209:C:/StellarisWare/driverlib\ssi.c ****            (ulProtocol == SSI_FRF_TI) ||
+ 210:C:/StellarisWare/driverlib\ssi.c ****            (ulProtocol == SSI_FRF_NMW));
+ 211:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulMode == SSI_MODE_MASTER) ||
+ 212:C:/StellarisWare/driverlib\ssi.c ****            (ulMode == SSI_MODE_SLAVE) ||
+ 213:C:/StellarisWare/driverlib\ssi.c ****            (ulMode == SSI_MODE_SLAVE_OD));
+ 214:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(((ulMode == SSI_MODE_MASTER) && (ulBitRate <= (ulSSIClk / 2))) ||
+ 215:C:/StellarisWare/driverlib\ssi.c ****            ((ulMode != SSI_MODE_MASTER) && (ulBitRate <= (ulSSIClk / 12))));
+ 216:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulSSIClk / ulBitRate) <= (254 * 256));
+ 217:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulDataWidth >= 4) && (ulDataWidth <= 16));
+ 218:C:/StellarisWare/driverlib\ssi.c **** 
+ 219:C:/StellarisWare/driverlib\ssi.c ****     //
+ 220:C:/StellarisWare/driverlib\ssi.c ****     // Set the mode.
+ 221:C:/StellarisWare/driverlib\ssi.c ****     //
+ 222:C:/StellarisWare/driverlib\ssi.c ****     ulRegVal = (ulMode == SSI_MODE_SLAVE_OD) ? SSI_CR1_SOD : 0;
+ 125              		.loc 1 222 0
+ 126 000e 3B68     		ldr	r3, [r7, #0]
+ 127 0010 022B     		cmp	r3, #2
+ 128 0012 02D1     		bne	.L7
+ 129              		.loc 1 222 0 is_stmt 0 discriminator 1
+ 130 0014 4FF00803 		mov	r3, #8
+ 131 0018 01E0     		b	.L8
+ 132              	.L7:
+ 133              		.loc 1 222 0 discriminator 2
+ 134 001a 4FF00003 		mov	r3, #0
+ 135              	.L8:
+ 136              		.loc 1 222 0 discriminator 3
+ 137 001e 3B62     		str	r3, [r7, #32]
+ 223:C:/StellarisWare/driverlib\ssi.c ****     ulRegVal |= (ulMode == SSI_MODE_MASTER) ? 0 : SSI_CR1_MS;
+ 138              		.loc 1 223 0 is_stmt 1 discriminator 3
+ 139 0020 3B68     		ldr	r3, [r7, #0]
+ 140 0022 002B     		cmp	r3, #0
+ 141 0024 02D1     		bne	.L9
+ 142              		.loc 1 223 0 is_stmt 0 discriminator 1
+ 143 0026 4FF00003 		mov	r3, #0
+ 144 002a 01E0     		b	.L10
+ 145              	.L9:
+ 146              		.loc 1 223 0 discriminator 2
+ 147 002c 4FF00403 		mov	r3, #4
+ 148              	.L10:
+ 149              		.loc 1 223 0 discriminator 3
+ 150 0030 3A6A     		ldr	r2, [r7, #32]
+ 151 0032 1343     		orrs	r3, r3, r2
+ 152 0034 3B62     		str	r3, [r7, #32]
+ 224:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CR1) = ulRegVal;
+ 153              		.loc 1 224 0 is_stmt 1 discriminator 3
+ 154 0036 FB68     		ldr	r3, [r7, #12]
+ 155 0038 03F10403 		add	r3, r3, #4
+ 156 003c 3A6A     		ldr	r2, [r7, #32]
+ 157 003e 1A60     		str	r2, [r3, #0]
+ 225:C:/StellarisWare/driverlib\ssi.c **** 
+ 226:C:/StellarisWare/driverlib\ssi.c ****     //
+ 227:C:/StellarisWare/driverlib\ssi.c ****     // Set the clock predivider.
+ 228:C:/StellarisWare/driverlib\ssi.c ****     //
+ 229:C:/StellarisWare/driverlib\ssi.c ****     ulMaxBitRate = ulSSIClk / ulBitRate;
+ 158              		.loc 1 229 0 discriminator 3
+ 159 0040 BA68     		ldr	r2, [r7, #8]
+ 160 0042 3B6B     		ldr	r3, [r7, #48]
+ 161 0044 B2FBF3F3 		udiv	r3, r2, r3
+ 162 0048 FB61     		str	r3, [r7, #28]
+ 230:C:/StellarisWare/driverlib\ssi.c ****     ulPreDiv = 0;
+ 163              		.loc 1 230 0 discriminator 3
+ 164 004a 4FF00003 		mov	r3, #0
+ 165 004e 7B62     		str	r3, [r7, #36]
+ 166              	.L11:
+ 231:C:/StellarisWare/driverlib\ssi.c ****     do
+ 232:C:/StellarisWare/driverlib\ssi.c ****     {
+ 233:C:/StellarisWare/driverlib\ssi.c ****         ulPreDiv += 2;
+ 167              		.loc 1 233 0 discriminator 1
+ 168 0050 7B6A     		ldr	r3, [r7, #36]
+ 169 0052 03F10203 		add	r3, r3, #2
+ 170 0056 7B62     		str	r3, [r7, #36]
+ 234:C:/StellarisWare/driverlib\ssi.c ****         ulSCR = (ulMaxBitRate / ulPreDiv) - 1;
+ 171              		.loc 1 234 0 discriminator 1
+ 172 0058 FA69     		ldr	r2, [r7, #28]
+ 173 005a 7B6A     		ldr	r3, [r7, #36]
+ 174 005c B2FBF3F3 		udiv	r3, r2, r3
+ 175 0060 03F1FF33 		add	r3, r3, #-1
+ 176 0064 BB61     		str	r3, [r7, #24]
+ 235:C:/StellarisWare/driverlib\ssi.c ****     }
+ 236:C:/StellarisWare/driverlib\ssi.c ****     while(ulSCR > 255);
+ 177              		.loc 1 236 0 discriminator 1
+ 178 0066 BB69     		ldr	r3, [r7, #24]
+ 179 0068 FF2B     		cmp	r3, #255
+ 180 006a F1D8     		bhi	.L11
+ 237:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CPSR) = ulPreDiv;
+ 181              		.loc 1 237 0
+ 182 006c FB68     		ldr	r3, [r7, #12]
+ 183 006e 03F11003 		add	r3, r3, #16
+ 184 0072 7A6A     		ldr	r2, [r7, #36]
+ 185 0074 1A60     		str	r2, [r3, #0]
+ 238:C:/StellarisWare/driverlib\ssi.c **** 
+ 239:C:/StellarisWare/driverlib\ssi.c ****     //
+ 240:C:/StellarisWare/driverlib\ssi.c ****     // Set protocol and clock rate.
+ 241:C:/StellarisWare/driverlib\ssi.c ****     //
+ 242:C:/StellarisWare/driverlib\ssi.c ****     ulSPH_SPO = (ulProtocol & 3) << 6;
+ 186              		.loc 1 242 0
+ 187 0076 7B68     		ldr	r3, [r7, #4]
+ 188 0078 4FEA8313 		lsl	r3, r3, #6
+ 189 007c DBB2     		uxtb	r3, r3
+ 190 007e 7B61     		str	r3, [r7, #20]
+ 243:C:/StellarisWare/driverlib\ssi.c ****     ulProtocol &= SSI_CR0_FRF_M;
+ 191              		.loc 1 243 0
+ 192 0080 7B68     		ldr	r3, [r7, #4]
+ 193 0082 03F03003 		and	r3, r3, #48
+ 194 0086 7B60     		str	r3, [r7, #4]
+ 244:C:/StellarisWare/driverlib\ssi.c ****     ulRegVal = (ulSCR << 8) | ulSPH_SPO | ulProtocol | (ulDataWidth - 1);
+ 195              		.loc 1 244 0
+ 196 0088 BB69     		ldr	r3, [r7, #24]
+ 197 008a 4FEA0322 		lsl	r2, r3, #8
+ 198 008e 7B69     		ldr	r3, [r7, #20]
+ 199 0090 1A43     		orrs	r2, r2, r3
+ 200 0092 7B68     		ldr	r3, [r7, #4]
+ 201 0094 1A43     		orrs	r2, r2, r3
+ 202 0096 7B6B     		ldr	r3, [r7, #52]
+ 203 0098 03F1FF33 		add	r3, r3, #-1
+ 204 009c 1343     		orrs	r3, r3, r2
+ 205 009e 3B62     		str	r3, [r7, #32]
+ 245:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CR0) = ulRegVal;
+ 206              		.loc 1 245 0
+ 207 00a0 FB68     		ldr	r3, [r7, #12]
+ 208 00a2 3A6A     		ldr	r2, [r7, #32]
+ 209 00a4 1A60     		str	r2, [r3, #0]
+ 246:C:/StellarisWare/driverlib\ssi.c **** }
+ 210              		.loc 1 246 0
+ 211 00a6 07F12C07 		add	r7, r7, #44
+ 212 00aa BD46     		mov	sp, r7
+ 213 00ac 80BC     		pop	{r7}
+ 214 00ae 7047     		bx	lr
+ 215              		.cfi_endproc
+ 216              	.LFE1:
+ 218              		.section	.text.SSIEnable,"ax",%progbits
+ 219              		.align	2
+ 220              		.global	SSIEnable
+ 221              		.thumb
+ 222              		.thumb_func
+ 224              	SSIEnable:
+ 225              	.LFB2:
+ 247:C:/StellarisWare/driverlib\ssi.c **** 
+ 248:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 249:C:/StellarisWare/driverlib\ssi.c **** //
+ 250:C:/StellarisWare/driverlib\ssi.c **** //! Enables the synchronous serial interface.
+ 251:C:/StellarisWare/driverlib\ssi.c **** //!
+ 252:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 253:C:/StellarisWare/driverlib\ssi.c **** //!
+ 254:C:/StellarisWare/driverlib\ssi.c **** //! This function enables operation of the synchronous serial interface.  The
+ 255:C:/StellarisWare/driverlib\ssi.c **** //! synchronous serial interface must be configured before it is enabled.
+ 256:C:/StellarisWare/driverlib\ssi.c **** //!
+ 257:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 258:C:/StellarisWare/driverlib\ssi.c **** //
+ 259:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 260:C:/StellarisWare/driverlib\ssi.c **** void
+ 261:C:/StellarisWare/driverlib\ssi.c **** SSIEnable(unsigned long ulBase)
+ 262:C:/StellarisWare/driverlib\ssi.c **** {
+ 226              		.loc 1 262 0
+ 227              		.cfi_startproc
+ 228              		@ args = 0, pretend = 0, frame = 8
+ 229              		@ frame_needed = 1, uses_anonymous_args = 0
+ 230              		@ link register save eliminated.
+ 231 0000 80B4     		push	{r7}
+ 232              	.LCFI6:
+ 233              		.cfi_def_cfa_offset 4
+ 234              		.cfi_offset 7, -4
+ 235 0002 83B0     		sub	sp, sp, #12
+ 236              	.LCFI7:
+ 237              		.cfi_def_cfa_offset 16
+ 238 0004 00AF     		add	r7, sp, #0
+ 239              	.LCFI8:
+ 240              		.cfi_def_cfa_register 7
+ 241 0006 7860     		str	r0, [r7, #4]
+ 263:C:/StellarisWare/driverlib\ssi.c ****     //
+ 264:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 265:C:/StellarisWare/driverlib\ssi.c ****     //
+ 266:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 267:C:/StellarisWare/driverlib\ssi.c **** 
+ 268:C:/StellarisWare/driverlib\ssi.c ****     //
+ 269:C:/StellarisWare/driverlib\ssi.c ****     // Read-modify-write the enable bit.
+ 270:C:/StellarisWare/driverlib\ssi.c ****     //
+ 271:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CR1) |= SSI_CR1_SSE;
+ 242              		.loc 1 271 0
+ 243 0008 7B68     		ldr	r3, [r7, #4]
+ 244 000a 03F10403 		add	r3, r3, #4
+ 245 000e 7A68     		ldr	r2, [r7, #4]
+ 246 0010 02F10402 		add	r2, r2, #4
+ 247 0014 1268     		ldr	r2, [r2, #0]
+ 248 0016 42F00202 		orr	r2, r2, #2
+ 249 001a 1A60     		str	r2, [r3, #0]
+ 272:C:/StellarisWare/driverlib\ssi.c **** }
+ 250              		.loc 1 272 0
+ 251 001c 07F10C07 		add	r7, r7, #12
+ 252 0020 BD46     		mov	sp, r7
+ 253 0022 80BC     		pop	{r7}
+ 254 0024 7047     		bx	lr
+ 255              		.cfi_endproc
+ 256              	.LFE2:
+ 258 0026 00BF     		.section	.text.SSIDisable,"ax",%progbits
+ 259              		.align	2
+ 260              		.global	SSIDisable
+ 261              		.thumb
+ 262              		.thumb_func
+ 264              	SSIDisable:
+ 265              	.LFB3:
+ 273:C:/StellarisWare/driverlib\ssi.c **** 
+ 274:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 275:C:/StellarisWare/driverlib\ssi.c **** //
+ 276:C:/StellarisWare/driverlib\ssi.c **** //! Disables the synchronous serial interface.
+ 277:C:/StellarisWare/driverlib\ssi.c **** //!
+ 278:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 279:C:/StellarisWare/driverlib\ssi.c **** //!
+ 280:C:/StellarisWare/driverlib\ssi.c **** //! This function disables operation of the synchronous serial interface.
+ 281:C:/StellarisWare/driverlib\ssi.c **** //!
+ 282:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 283:C:/StellarisWare/driverlib\ssi.c **** //
+ 284:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 285:C:/StellarisWare/driverlib\ssi.c **** void
+ 286:C:/StellarisWare/driverlib\ssi.c **** SSIDisable(unsigned long ulBase)
+ 287:C:/StellarisWare/driverlib\ssi.c **** {
+ 266              		.loc 1 287 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 8
+ 269              		@ frame_needed = 1, uses_anonymous_args = 0
+ 270              		@ link register save eliminated.
+ 271 0000 80B4     		push	{r7}
+ 272              	.LCFI9:
+ 273              		.cfi_def_cfa_offset 4
+ 274              		.cfi_offset 7, -4
+ 275 0002 83B0     		sub	sp, sp, #12
+ 276              	.LCFI10:
+ 277              		.cfi_def_cfa_offset 16
+ 278 0004 00AF     		add	r7, sp, #0
+ 279              	.LCFI11:
+ 280              		.cfi_def_cfa_register 7
+ 281 0006 7860     		str	r0, [r7, #4]
+ 288:C:/StellarisWare/driverlib\ssi.c ****     //
+ 289:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 290:C:/StellarisWare/driverlib\ssi.c ****     //
+ 291:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 292:C:/StellarisWare/driverlib\ssi.c **** 
+ 293:C:/StellarisWare/driverlib\ssi.c ****     //
+ 294:C:/StellarisWare/driverlib\ssi.c ****     // Read-modify-write the enable bit.
+ 295:C:/StellarisWare/driverlib\ssi.c ****     //
+ 296:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CR1) &= ~(SSI_CR1_SSE);
+ 282              		.loc 1 296 0
+ 283 0008 7B68     		ldr	r3, [r7, #4]
+ 284 000a 03F10403 		add	r3, r3, #4
+ 285 000e 7A68     		ldr	r2, [r7, #4]
+ 286 0010 02F10402 		add	r2, r2, #4
+ 287 0014 1268     		ldr	r2, [r2, #0]
+ 288 0016 22F00202 		bic	r2, r2, #2
+ 289 001a 1A60     		str	r2, [r3, #0]
+ 297:C:/StellarisWare/driverlib\ssi.c **** }
+ 290              		.loc 1 297 0
+ 291 001c 07F10C07 		add	r7, r7, #12
+ 292 0020 BD46     		mov	sp, r7
+ 293 0022 80BC     		pop	{r7}
+ 294 0024 7047     		bx	lr
+ 295              		.cfi_endproc
+ 296              	.LFE3:
+ 298 0026 00BF     		.section	.text.SSIIntRegister,"ax",%progbits
+ 299              		.align	2
+ 300              		.global	SSIIntRegister
+ 301              		.thumb
+ 302              		.thumb_func
+ 304              	SSIIntRegister:
+ 305              	.LFB4:
+ 298:C:/StellarisWare/driverlib\ssi.c **** 
+ 299:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 300:C:/StellarisWare/driverlib\ssi.c **** //
+ 301:C:/StellarisWare/driverlib\ssi.c **** //! Registers an interrupt handler for the synchronous serial interface.
+ 302:C:/StellarisWare/driverlib\ssi.c **** //!
+ 303:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 304:C:/StellarisWare/driverlib\ssi.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 305:C:/StellarisWare/driverlib\ssi.c **** //! synchronous serial interface interrupt occurs.
+ 306:C:/StellarisWare/driverlib\ssi.c **** //!
+ 307:C:/StellarisWare/driverlib\ssi.c **** //! This function registers the handler to be called when an SSI interrupt
+ 308:C:/StellarisWare/driverlib\ssi.c **** //! occurs.  This function enables the global interrupt in the interrupt
+ 309:C:/StellarisWare/driverlib\ssi.c **** //! controller; specific SSI interrupts must be enabled via SSIIntEnable().  If
+ 310:C:/StellarisWare/driverlib\ssi.c **** //! necessary, it is the interrupt handler's responsibility to clear the
+ 311:C:/StellarisWare/driverlib\ssi.c **** //! interrupt source via SSIIntClear().
+ 312:C:/StellarisWare/driverlib\ssi.c **** //!
+ 313:C:/StellarisWare/driverlib\ssi.c **** //! \sa IntRegister() for important information about registering interrupt
+ 314:C:/StellarisWare/driverlib\ssi.c **** //! handlers.
+ 315:C:/StellarisWare/driverlib\ssi.c **** //!
+ 316:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 317:C:/StellarisWare/driverlib\ssi.c **** //
+ 318:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 319:C:/StellarisWare/driverlib\ssi.c **** void
+ 320:C:/StellarisWare/driverlib\ssi.c **** SSIIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 321:C:/StellarisWare/driverlib\ssi.c **** {
+ 306              		.loc 1 321 0
+ 307              		.cfi_startproc
+ 308              		@ args = 0, pretend = 0, frame = 16
+ 309              		@ frame_needed = 1, uses_anonymous_args = 0
+ 310 0000 80B5     		push	{r7, lr}
+ 311              	.LCFI12:
+ 312              		.cfi_def_cfa_offset 8
+ 313              		.cfi_offset 14, -4
+ 314              		.cfi_offset 7, -8
+ 315 0002 84B0     		sub	sp, sp, #16
+ 316              	.LCFI13:
+ 317              		.cfi_def_cfa_offset 24
+ 318 0004 00AF     		add	r7, sp, #0
+ 319              	.LCFI14:
+ 320              		.cfi_def_cfa_register 7
+ 321 0006 7860     		str	r0, [r7, #4]
+ 322 0008 3960     		str	r1, [r7, #0]
+ 322:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulInt;
+ 323:C:/StellarisWare/driverlib\ssi.c **** 
+ 324:C:/StellarisWare/driverlib\ssi.c ****     //
+ 325:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 326:C:/StellarisWare/driverlib\ssi.c ****     //
+ 327:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 328:C:/StellarisWare/driverlib\ssi.c **** 
+ 329:C:/StellarisWare/driverlib\ssi.c ****     //
+ 330:C:/StellarisWare/driverlib\ssi.c ****     // Determine the interrupt number based on the SSI port.
+ 331:C:/StellarisWare/driverlib\ssi.c ****     //
+ 332:C:/StellarisWare/driverlib\ssi.c ****     ulInt = SSIIntNumberGet(ulBase);
+ 323              		.loc 1 332 0
+ 324 000a 7868     		ldr	r0, [r7, #4]
+ 325 000c FFF7FEFF 		bl	SSIIntNumberGet
+ 326 0010 0346     		mov	r3, r0
+ 327 0012 FB60     		str	r3, [r7, #12]
+ 333:C:/StellarisWare/driverlib\ssi.c **** 
+ 334:C:/StellarisWare/driverlib\ssi.c ****     //
+ 335:C:/StellarisWare/driverlib\ssi.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 336:C:/StellarisWare/driverlib\ssi.c ****     //
+ 337:C:/StellarisWare/driverlib\ssi.c ****     IntRegister(ulInt, pfnHandler);
+ 328              		.loc 1 337 0
+ 329 0014 F868     		ldr	r0, [r7, #12]
+ 330 0016 3968     		ldr	r1, [r7, #0]
+ 331 0018 FFF7FEFF 		bl	IntRegister
+ 338:C:/StellarisWare/driverlib\ssi.c **** 
+ 339:C:/StellarisWare/driverlib\ssi.c ****     //
+ 340:C:/StellarisWare/driverlib\ssi.c ****     // Enable the synchronous serial interface interrupt.
+ 341:C:/StellarisWare/driverlib\ssi.c ****     //
+ 342:C:/StellarisWare/driverlib\ssi.c ****     IntEnable(ulInt);
+ 332              		.loc 1 342 0
+ 333 001c F868     		ldr	r0, [r7, #12]
+ 334 001e FFF7FEFF 		bl	IntEnable
+ 343:C:/StellarisWare/driverlib\ssi.c **** }
+ 335              		.loc 1 343 0
+ 336 0022 07F11007 		add	r7, r7, #16
+ 337 0026 BD46     		mov	sp, r7
+ 338 0028 80BD     		pop	{r7, pc}
+ 339              		.cfi_endproc
+ 340              	.LFE4:
+ 342 002a 00BF     		.section	.text.SSIIntUnregister,"ax",%progbits
+ 343              		.align	2
+ 344              		.global	SSIIntUnregister
+ 345              		.thumb
+ 346              		.thumb_func
+ 348              	SSIIntUnregister:
+ 349              	.LFB5:
+ 344:C:/StellarisWare/driverlib\ssi.c **** 
+ 345:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 346:C:/StellarisWare/driverlib\ssi.c **** //
+ 347:C:/StellarisWare/driverlib\ssi.c **** //! Unregisters an interrupt handler for the synchronous serial interface.
+ 348:C:/StellarisWare/driverlib\ssi.c **** //!
+ 349:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 350:C:/StellarisWare/driverlib\ssi.c **** //!
+ 351:C:/StellarisWare/driverlib\ssi.c **** //! This function clears the handler to be called when an SSI interrupt
+ 352:C:/StellarisWare/driverlib\ssi.c **** //! occurs.  This function also masks off the interrupt in the interrupt
+ 353:C:/StellarisWare/driverlib\ssi.c **** //! controller so that the interrupt handler no longer is called.
+ 354:C:/StellarisWare/driverlib\ssi.c **** //!
+ 355:C:/StellarisWare/driverlib\ssi.c **** //! \sa IntRegister() for important information about registering interrupt
+ 356:C:/StellarisWare/driverlib\ssi.c **** //! handlers.
+ 357:C:/StellarisWare/driverlib\ssi.c **** //!
+ 358:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 359:C:/StellarisWare/driverlib\ssi.c **** //
+ 360:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 361:C:/StellarisWare/driverlib\ssi.c **** void
+ 362:C:/StellarisWare/driverlib\ssi.c **** SSIIntUnregister(unsigned long ulBase)
+ 363:C:/StellarisWare/driverlib\ssi.c **** {
+ 350              		.loc 1 363 0
+ 351              		.cfi_startproc
+ 352              		@ args = 0, pretend = 0, frame = 16
+ 353              		@ frame_needed = 1, uses_anonymous_args = 0
+ 354 0000 80B5     		push	{r7, lr}
+ 355              	.LCFI15:
+ 356              		.cfi_def_cfa_offset 8
+ 357              		.cfi_offset 14, -4
+ 358              		.cfi_offset 7, -8
+ 359 0002 84B0     		sub	sp, sp, #16
+ 360              	.LCFI16:
+ 361              		.cfi_def_cfa_offset 24
+ 362 0004 00AF     		add	r7, sp, #0
+ 363              	.LCFI17:
+ 364              		.cfi_def_cfa_register 7
+ 365 0006 7860     		str	r0, [r7, #4]
+ 364:C:/StellarisWare/driverlib\ssi.c ****     unsigned long ulInt;
+ 365:C:/StellarisWare/driverlib\ssi.c **** 
+ 366:C:/StellarisWare/driverlib\ssi.c ****     //
+ 367:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 368:C:/StellarisWare/driverlib\ssi.c ****     //
+ 369:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 370:C:/StellarisWare/driverlib\ssi.c **** 
+ 371:C:/StellarisWare/driverlib\ssi.c ****     //
+ 372:C:/StellarisWare/driverlib\ssi.c ****     // Determine the interrupt number based on the SSI port.
+ 373:C:/StellarisWare/driverlib\ssi.c ****     //
+ 374:C:/StellarisWare/driverlib\ssi.c ****     ulInt = SSIIntNumberGet(ulBase);
+ 366              		.loc 1 374 0
+ 367 0008 7868     		ldr	r0, [r7, #4]
+ 368 000a FFF7FEFF 		bl	SSIIntNumberGet
+ 369 000e 0346     		mov	r3, r0
+ 370 0010 FB60     		str	r3, [r7, #12]
+ 375:C:/StellarisWare/driverlib\ssi.c **** 
+ 376:C:/StellarisWare/driverlib\ssi.c ****     //
+ 377:C:/StellarisWare/driverlib\ssi.c ****     // Disable the interrupt.
+ 378:C:/StellarisWare/driverlib\ssi.c ****     //
+ 379:C:/StellarisWare/driverlib\ssi.c ****     IntDisable(ulInt);
+ 371              		.loc 1 379 0
+ 372 0012 F868     		ldr	r0, [r7, #12]
+ 373 0014 FFF7FEFF 		bl	IntDisable
+ 380:C:/StellarisWare/driverlib\ssi.c **** 
+ 381:C:/StellarisWare/driverlib\ssi.c ****     //
+ 382:C:/StellarisWare/driverlib\ssi.c ****     // Unregister the interrupt handler.
+ 383:C:/StellarisWare/driverlib\ssi.c ****     //
+ 384:C:/StellarisWare/driverlib\ssi.c ****     IntUnregister(ulInt);
+ 374              		.loc 1 384 0
+ 375 0018 F868     		ldr	r0, [r7, #12]
+ 376 001a FFF7FEFF 		bl	IntUnregister
+ 385:C:/StellarisWare/driverlib\ssi.c **** }
+ 377              		.loc 1 385 0
+ 378 001e 07F11007 		add	r7, r7, #16
+ 379 0022 BD46     		mov	sp, r7
+ 380 0024 80BD     		pop	{r7, pc}
+ 381              		.cfi_endproc
+ 382              	.LFE5:
+ 384 0026 00BF     		.section	.text.SSIIntEnable,"ax",%progbits
+ 385              		.align	2
+ 386              		.global	SSIIntEnable
+ 387              		.thumb
+ 388              		.thumb_func
+ 390              	SSIIntEnable:
+ 391              	.LFB6:
+ 386:C:/StellarisWare/driverlib\ssi.c **** 
+ 387:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 388:C:/StellarisWare/driverlib\ssi.c **** //
+ 389:C:/StellarisWare/driverlib\ssi.c **** //! Enables individual SSI interrupt sources.
+ 390:C:/StellarisWare/driverlib\ssi.c **** //!
+ 391:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 392:C:/StellarisWare/driverlib\ssi.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 393:C:/StellarisWare/driverlib\ssi.c **** //!
+ 394:C:/StellarisWare/driverlib\ssi.c **** //! This function enables the indicated SSI interrupt sources.  Only the
+ 395:C:/StellarisWare/driverlib\ssi.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 396:C:/StellarisWare/driverlib\ssi.c **** //! disabled sources have no effect on the processor.  The \e ulIntFlags
+ 397:C:/StellarisWare/driverlib\ssi.c **** //! parameter can be any of the \b SSI_TXFF, \b SSI_RXFF, \b SSI_RXTO, or
+ 398:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_RXOR values.
+ 399:C:/StellarisWare/driverlib\ssi.c **** //!
+ 400:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 401:C:/StellarisWare/driverlib\ssi.c **** //
+ 402:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 403:C:/StellarisWare/driverlib\ssi.c **** void
+ 404:C:/StellarisWare/driverlib\ssi.c **** SSIIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+ 405:C:/StellarisWare/driverlib\ssi.c **** {
+ 392              		.loc 1 405 0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 8
+ 395              		@ frame_needed = 1, uses_anonymous_args = 0
+ 396              		@ link register save eliminated.
+ 397 0000 80B4     		push	{r7}
+ 398              	.LCFI18:
+ 399              		.cfi_def_cfa_offset 4
+ 400              		.cfi_offset 7, -4
+ 401 0002 83B0     		sub	sp, sp, #12
+ 402              	.LCFI19:
+ 403              		.cfi_def_cfa_offset 16
+ 404 0004 00AF     		add	r7, sp, #0
+ 405              	.LCFI20:
+ 406              		.cfi_def_cfa_register 7
+ 407 0006 7860     		str	r0, [r7, #4]
+ 408 0008 3960     		str	r1, [r7, #0]
+ 406:C:/StellarisWare/driverlib\ssi.c ****     //
+ 407:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 408:C:/StellarisWare/driverlib\ssi.c ****     //
+ 409:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 410:C:/StellarisWare/driverlib\ssi.c **** 
+ 411:C:/StellarisWare/driverlib\ssi.c ****     //
+ 412:C:/StellarisWare/driverlib\ssi.c ****     // Enable the specified interrupts.
+ 413:C:/StellarisWare/driverlib\ssi.c ****     //
+ 414:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_IM) |= ulIntFlags;
+ 409              		.loc 1 414 0
+ 410 000a 7B68     		ldr	r3, [r7, #4]
+ 411 000c 03F11403 		add	r3, r3, #20
+ 412 0010 7A68     		ldr	r2, [r7, #4]
+ 413 0012 02F11402 		add	r2, r2, #20
+ 414 0016 1168     		ldr	r1, [r2, #0]
+ 415 0018 3A68     		ldr	r2, [r7, #0]
+ 416 001a 0A43     		orrs	r2, r2, r1
+ 417 001c 1A60     		str	r2, [r3, #0]
+ 415:C:/StellarisWare/driverlib\ssi.c **** }
+ 418              		.loc 1 415 0
+ 419 001e 07F10C07 		add	r7, r7, #12
+ 420 0022 BD46     		mov	sp, r7
+ 421 0024 80BC     		pop	{r7}
+ 422 0026 7047     		bx	lr
+ 423              		.cfi_endproc
+ 424              	.LFE6:
+ 426              		.section	.text.SSIIntDisable,"ax",%progbits
+ 427              		.align	2
+ 428              		.global	SSIIntDisable
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	SSIIntDisable:
+ 433              	.LFB7:
+ 416:C:/StellarisWare/driverlib\ssi.c **** 
+ 417:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 418:C:/StellarisWare/driverlib\ssi.c **** //
+ 419:C:/StellarisWare/driverlib\ssi.c **** //! Disables individual SSI interrupt sources.
+ 420:C:/StellarisWare/driverlib\ssi.c **** //!
+ 421:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 422:C:/StellarisWare/driverlib\ssi.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 423:C:/StellarisWare/driverlib\ssi.c **** //!
+ 424:C:/StellarisWare/driverlib\ssi.c **** //! This function disables the indicated SSI interrupt sources.  The
+ 425:C:/StellarisWare/driverlib\ssi.c **** //! \e ulIntFlags parameter can be any of the \b SSI_TXFF, \b SSI_RXFF,
+ 426:C:/StellarisWare/driverlib\ssi.c **** //!  \b SSI_RXTO, or \b SSI_RXOR values.
+ 427:C:/StellarisWare/driverlib\ssi.c **** //!
+ 428:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 429:C:/StellarisWare/driverlib\ssi.c **** //
+ 430:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 431:C:/StellarisWare/driverlib\ssi.c **** void
+ 432:C:/StellarisWare/driverlib\ssi.c **** SSIIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 433:C:/StellarisWare/driverlib\ssi.c **** {
+ 434              		.loc 1 433 0
+ 435              		.cfi_startproc
+ 436              		@ args = 0, pretend = 0, frame = 8
+ 437              		@ frame_needed = 1, uses_anonymous_args = 0
+ 438              		@ link register save eliminated.
+ 439 0000 80B4     		push	{r7}
+ 440              	.LCFI21:
+ 441              		.cfi_def_cfa_offset 4
+ 442              		.cfi_offset 7, -4
+ 443 0002 83B0     		sub	sp, sp, #12
+ 444              	.LCFI22:
+ 445              		.cfi_def_cfa_offset 16
+ 446 0004 00AF     		add	r7, sp, #0
+ 447              	.LCFI23:
+ 448              		.cfi_def_cfa_register 7
+ 449 0006 7860     		str	r0, [r7, #4]
+ 450 0008 3960     		str	r1, [r7, #0]
+ 434:C:/StellarisWare/driverlib\ssi.c ****     //
+ 435:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 436:C:/StellarisWare/driverlib\ssi.c ****     //
+ 437:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 438:C:/StellarisWare/driverlib\ssi.c **** 
+ 439:C:/StellarisWare/driverlib\ssi.c ****     //
+ 440:C:/StellarisWare/driverlib\ssi.c ****     // Disable the specified interrupts.
+ 441:C:/StellarisWare/driverlib\ssi.c ****     //
+ 442:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_IM) &= ~(ulIntFlags);
+ 451              		.loc 1 442 0
+ 452 000a 7B68     		ldr	r3, [r7, #4]
+ 453 000c 03F11403 		add	r3, r3, #20
+ 454 0010 7A68     		ldr	r2, [r7, #4]
+ 455 0012 02F11402 		add	r2, r2, #20
+ 456 0016 1168     		ldr	r1, [r2, #0]
+ 457 0018 3A68     		ldr	r2, [r7, #0]
+ 458 001a 6FEA0202 		mvn	r2, r2
+ 459 001e 0A40     		ands	r2, r2, r1
+ 460 0020 1A60     		str	r2, [r3, #0]
+ 443:C:/StellarisWare/driverlib\ssi.c **** }
+ 461              		.loc 1 443 0
+ 462 0022 07F10C07 		add	r7, r7, #12
+ 463 0026 BD46     		mov	sp, r7
+ 464 0028 80BC     		pop	{r7}
+ 465 002a 7047     		bx	lr
+ 466              		.cfi_endproc
+ 467              	.LFE7:
+ 469              		.section	.text.SSIIntStatus,"ax",%progbits
+ 470              		.align	2
+ 471              		.global	SSIIntStatus
+ 472              		.thumb
+ 473              		.thumb_func
+ 475              	SSIIntStatus:
+ 476              	.LFB8:
+ 444:C:/StellarisWare/driverlib\ssi.c **** 
+ 445:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 446:C:/StellarisWare/driverlib\ssi.c **** //
+ 447:C:/StellarisWare/driverlib\ssi.c **** //! Gets the current interrupt status.
+ 448:C:/StellarisWare/driverlib\ssi.c **** //!
+ 449:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 450:C:/StellarisWare/driverlib\ssi.c **** //! \param bMasked is \b false if the raw interrupt status is required or
+ 451:C:/StellarisWare/driverlib\ssi.c **** //! \b true if the masked interrupt status is required.
+ 452:C:/StellarisWare/driverlib\ssi.c **** //!
+ 453:C:/StellarisWare/driverlib\ssi.c **** //! This function returns the interrupt status for the SSI module.  Either the
+ 454:C:/StellarisWare/driverlib\ssi.c **** //! raw interrupt status or the status of interrupts that are allowed to
+ 455:C:/StellarisWare/driverlib\ssi.c **** //! reflect to the processor can be returned.
+ 456:C:/StellarisWare/driverlib\ssi.c **** //!
+ 457:C:/StellarisWare/driverlib\ssi.c **** //! \return The current interrupt status, enumerated as a bit field of
+ 458:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_TXFF, \b SSI_RXFF, \b SSI_RXTO, and \b SSI_RXOR.
+ 459:C:/StellarisWare/driverlib\ssi.c **** //
+ 460:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 461:C:/StellarisWare/driverlib\ssi.c **** unsigned long
+ 462:C:/StellarisWare/driverlib\ssi.c **** SSIIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 463:C:/StellarisWare/driverlib\ssi.c **** {
+ 477              		.loc 1 463 0
+ 478              		.cfi_startproc
+ 479              		@ args = 0, pretend = 0, frame = 8
+ 480              		@ frame_needed = 1, uses_anonymous_args = 0
+ 481              		@ link register save eliminated.
+ 482 0000 80B4     		push	{r7}
+ 483              	.LCFI24:
+ 484              		.cfi_def_cfa_offset 4
+ 485              		.cfi_offset 7, -4
+ 486 0002 83B0     		sub	sp, sp, #12
+ 487              	.LCFI25:
+ 488              		.cfi_def_cfa_offset 16
+ 489 0004 00AF     		add	r7, sp, #0
+ 490              	.LCFI26:
+ 491              		.cfi_def_cfa_register 7
+ 492 0006 7860     		str	r0, [r7, #4]
+ 493 0008 0B46     		mov	r3, r1
+ 494 000a FB70     		strb	r3, [r7, #3]
+ 464:C:/StellarisWare/driverlib\ssi.c ****     //
+ 465:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 466:C:/StellarisWare/driverlib\ssi.c ****     //
+ 467:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 468:C:/StellarisWare/driverlib\ssi.c **** 
+ 469:C:/StellarisWare/driverlib\ssi.c ****     //
+ 470:C:/StellarisWare/driverlib\ssi.c ****     // Return either the interrupt status or the raw interrupt status as
+ 471:C:/StellarisWare/driverlib\ssi.c ****     // requested.
+ 472:C:/StellarisWare/driverlib\ssi.c ****     //
+ 473:C:/StellarisWare/driverlib\ssi.c ****     if(bMasked)
+ 495              		.loc 1 473 0
+ 496 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 497 000e 002B     		cmp	r3, #0
+ 498 0010 04D0     		beq	.L19
+ 474:C:/StellarisWare/driverlib\ssi.c ****     {
+ 475:C:/StellarisWare/driverlib\ssi.c ****         return(HWREG(ulBase + SSI_O_MIS));
+ 499              		.loc 1 475 0
+ 500 0012 7B68     		ldr	r3, [r7, #4]
+ 501 0014 03F11C03 		add	r3, r3, #28
+ 502 0018 1B68     		ldr	r3, [r3, #0]
+ 503 001a 03E0     		b	.L20
+ 504              	.L19:
+ 476:C:/StellarisWare/driverlib\ssi.c ****     }
+ 477:C:/StellarisWare/driverlib\ssi.c ****     else
+ 478:C:/StellarisWare/driverlib\ssi.c ****     {
+ 479:C:/StellarisWare/driverlib\ssi.c ****         return(HWREG(ulBase + SSI_O_RIS));
+ 505              		.loc 1 479 0
+ 506 001c 7B68     		ldr	r3, [r7, #4]
+ 507 001e 03F11803 		add	r3, r3, #24
+ 508 0022 1B68     		ldr	r3, [r3, #0]
+ 509              	.L20:
+ 480:C:/StellarisWare/driverlib\ssi.c ****     }
+ 481:C:/StellarisWare/driverlib\ssi.c **** }
+ 510              		.loc 1 481 0
+ 511 0024 1846     		mov	r0, r3
+ 512 0026 07F10C07 		add	r7, r7, #12
+ 513 002a BD46     		mov	sp, r7
+ 514 002c 80BC     		pop	{r7}
+ 515 002e 7047     		bx	lr
+ 516              		.cfi_endproc
+ 517              	.LFE8:
+ 519              		.section	.text.SSIIntClear,"ax",%progbits
+ 520              		.align	2
+ 521              		.global	SSIIntClear
+ 522              		.thumb
+ 523              		.thumb_func
+ 525              	SSIIntClear:
+ 526              	.LFB9:
+ 482:C:/StellarisWare/driverlib\ssi.c **** 
+ 483:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 484:C:/StellarisWare/driverlib\ssi.c **** //
+ 485:C:/StellarisWare/driverlib\ssi.c **** //! Clears SSI interrupt sources.
+ 486:C:/StellarisWare/driverlib\ssi.c **** //!
+ 487:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 488:C:/StellarisWare/driverlib\ssi.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 489:C:/StellarisWare/driverlib\ssi.c **** //!
+ 490:C:/StellarisWare/driverlib\ssi.c **** //! This function clears the specified SSI interrupt sources so that they no
+ 491:C:/StellarisWare/driverlib\ssi.c **** //! longer assert.  This function must be called in the interrupt handler to
+ 492:C:/StellarisWare/driverlib\ssi.c **** //! keep the interrupts from being triggered again immediately upon exit.  The
+ 493:C:/StellarisWare/driverlib\ssi.c **** //! \e ulIntFlags parameter can consist of either or both the \b SSI_RXTO and
+ 494:C:/StellarisWare/driverlib\ssi.c **** //! \b SSI_RXOR values.
+ 495:C:/StellarisWare/driverlib\ssi.c **** //!
+ 496:C:/StellarisWare/driverlib\ssi.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 497:C:/StellarisWare/driverlib\ssi.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 498:C:/StellarisWare/driverlib\ssi.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 499:C:/StellarisWare/driverlib\ssi.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 500:C:/StellarisWare/driverlib\ssi.c **** //! returning from the interrupt handler before the interrupt source is
+ 501:C:/StellarisWare/driverlib\ssi.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 502:C:/StellarisWare/driverlib\ssi.c **** //! being immediately reentered (because the interrupt controller still sees
+ 503:C:/StellarisWare/driverlib\ssi.c **** //! the interrupt source asserted).
+ 504:C:/StellarisWare/driverlib\ssi.c **** //!
+ 505:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 506:C:/StellarisWare/driverlib\ssi.c **** //
+ 507:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 508:C:/StellarisWare/driverlib\ssi.c **** void
+ 509:C:/StellarisWare/driverlib\ssi.c **** SSIIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+ 510:C:/StellarisWare/driverlib\ssi.c **** {
+ 527              		.loc 1 510 0
+ 528              		.cfi_startproc
+ 529              		@ args = 0, pretend = 0, frame = 8
+ 530              		@ frame_needed = 1, uses_anonymous_args = 0
+ 531              		@ link register save eliminated.
+ 532 0000 80B4     		push	{r7}
+ 533              	.LCFI27:
+ 534              		.cfi_def_cfa_offset 4
+ 535              		.cfi_offset 7, -4
+ 536 0002 83B0     		sub	sp, sp, #12
+ 537              	.LCFI28:
+ 538              		.cfi_def_cfa_offset 16
+ 539 0004 00AF     		add	r7, sp, #0
+ 540              	.LCFI29:
+ 541              		.cfi_def_cfa_register 7
+ 542 0006 7860     		str	r0, [r7, #4]
+ 543 0008 3960     		str	r1, [r7, #0]
+ 511:C:/StellarisWare/driverlib\ssi.c ****     //
+ 512:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 513:C:/StellarisWare/driverlib\ssi.c ****     //
+ 514:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 515:C:/StellarisWare/driverlib\ssi.c **** 
+ 516:C:/StellarisWare/driverlib\ssi.c ****     //
+ 517:C:/StellarisWare/driverlib\ssi.c ****     // Clear the requested interrupt sources.
+ 518:C:/StellarisWare/driverlib\ssi.c ****     //
+ 519:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_ICR) = ulIntFlags;
+ 544              		.loc 1 519 0
+ 545 000a 7B68     		ldr	r3, [r7, #4]
+ 546 000c 03F12003 		add	r3, r3, #32
+ 547 0010 3A68     		ldr	r2, [r7, #0]
+ 548 0012 1A60     		str	r2, [r3, #0]
+ 520:C:/StellarisWare/driverlib\ssi.c **** }
+ 549              		.loc 1 520 0
+ 550 0014 07F10C07 		add	r7, r7, #12
+ 551 0018 BD46     		mov	sp, r7
+ 552 001a 80BC     		pop	{r7}
+ 553 001c 7047     		bx	lr
+ 554              		.cfi_endproc
+ 555              	.LFE9:
+ 557 001e 00BF     		.section	.text.SSIDataPut,"ax",%progbits
+ 558              		.align	2
+ 559              		.global	SSIDataPut
+ 560              		.thumb
+ 561              		.thumb_func
+ 563              	SSIDataPut:
+ 564              	.LFB10:
+ 521:C:/StellarisWare/driverlib\ssi.c **** 
+ 522:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 523:C:/StellarisWare/driverlib\ssi.c **** //
+ 524:C:/StellarisWare/driverlib\ssi.c **** //! Puts a data element into the SSI transmit FIFO.
+ 525:C:/StellarisWare/driverlib\ssi.c **** //!
+ 526:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 527:C:/StellarisWare/driverlib\ssi.c **** //! \param ulData is the data to be transmitted over the SSI interface.
+ 528:C:/StellarisWare/driverlib\ssi.c **** //!
+ 529:C:/StellarisWare/driverlib\ssi.c **** //! This function places the supplied data into the transmit FIFO of the
+ 530:C:/StellarisWare/driverlib\ssi.c **** //! specified SSI module.  If there is no space available in the transmit FIFO,
+ 531:C:/StellarisWare/driverlib\ssi.c **** //! this function waits until there is space available before returning.
+ 532:C:/StellarisWare/driverlib\ssi.c **** //!
+ 533:C:/StellarisWare/driverlib\ssi.c **** //! \note The upper 32 - N bits of \e ulData are discarded by the hardware,
+ 534:C:/StellarisWare/driverlib\ssi.c **** //! where N is the data width as configured by SSIConfigSetExpClk().  For
+ 535:C:/StellarisWare/driverlib\ssi.c **** //! example, if the interface is configured for 8-bit data width, the upper 24
+ 536:C:/StellarisWare/driverlib\ssi.c **** //! bits of \e ulData are discarded.
+ 537:C:/StellarisWare/driverlib\ssi.c **** //!
+ 538:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 539:C:/StellarisWare/driverlib\ssi.c **** //
+ 540:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 541:C:/StellarisWare/driverlib\ssi.c **** void
+ 542:C:/StellarisWare/driverlib\ssi.c **** SSIDataPut(unsigned long ulBase, unsigned long ulData)
+ 543:C:/StellarisWare/driverlib\ssi.c **** {
+ 565              		.loc 1 543 0
+ 566              		.cfi_startproc
+ 567              		@ args = 0, pretend = 0, frame = 8
+ 568              		@ frame_needed = 1, uses_anonymous_args = 0
+ 569              		@ link register save eliminated.
+ 570 0000 80B4     		push	{r7}
+ 571              	.LCFI30:
+ 572              		.cfi_def_cfa_offset 4
+ 573              		.cfi_offset 7, -4
+ 574 0002 83B0     		sub	sp, sp, #12
+ 575              	.LCFI31:
+ 576              		.cfi_def_cfa_offset 16
+ 577 0004 00AF     		add	r7, sp, #0
+ 578              	.LCFI32:
+ 579              		.cfi_def_cfa_register 7
+ 580 0006 7860     		str	r0, [r7, #4]
+ 581 0008 3960     		str	r1, [r7, #0]
+ 544:C:/StellarisWare/driverlib\ssi.c ****     //
+ 545:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 546:C:/StellarisWare/driverlib\ssi.c ****     //
+ 547:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 548:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulData & (0xfffffffe << (HWREG(ulBase + SSI_O_CR0) &
+ 549:C:/StellarisWare/driverlib\ssi.c ****                                      SSI_CR0_DSS_M))) == 0);
+ 550:C:/StellarisWare/driverlib\ssi.c **** 
+ 551:C:/StellarisWare/driverlib\ssi.c ****     //
+ 552:C:/StellarisWare/driverlib\ssi.c ****     // Wait until there is space.
+ 553:C:/StellarisWare/driverlib\ssi.c ****     //
+ 554:C:/StellarisWare/driverlib\ssi.c ****     while(!(HWREG(ulBase + SSI_O_SR) & SSI_SR_TNF))
+ 582              		.loc 1 554 0
+ 583 000a 00BF     		nop
+ 584              	.L23:
+ 585              		.loc 1 554 0 is_stmt 0 discriminator 1
+ 586 000c 7B68     		ldr	r3, [r7, #4]
+ 587 000e 03F10C03 		add	r3, r3, #12
+ 588 0012 1B68     		ldr	r3, [r3, #0]
+ 589 0014 03F00203 		and	r3, r3, #2
+ 590 0018 002B     		cmp	r3, #0
+ 591 001a F7D0     		beq	.L23
+ 555:C:/StellarisWare/driverlib\ssi.c ****     {
+ 556:C:/StellarisWare/driverlib\ssi.c ****     }
+ 557:C:/StellarisWare/driverlib\ssi.c **** 
+ 558:C:/StellarisWare/driverlib\ssi.c ****     //
+ 559:C:/StellarisWare/driverlib\ssi.c ****     // Write the data to the SSI.
+ 560:C:/StellarisWare/driverlib\ssi.c ****     //
+ 561:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_DR) = ulData;
+ 592              		.loc 1 561 0 is_stmt 1
+ 593 001c 7B68     		ldr	r3, [r7, #4]
+ 594 001e 03F10803 		add	r3, r3, #8
+ 595 0022 3A68     		ldr	r2, [r7, #0]
+ 596 0024 1A60     		str	r2, [r3, #0]
+ 562:C:/StellarisWare/driverlib\ssi.c **** }
+ 597              		.loc 1 562 0
+ 598 0026 07F10C07 		add	r7, r7, #12
+ 599 002a BD46     		mov	sp, r7
+ 600 002c 80BC     		pop	{r7}
+ 601 002e 7047     		bx	lr
+ 602              		.cfi_endproc
+ 603              	.LFE10:
+ 605              		.section	.text.SSIDataPutNonBlocking,"ax",%progbits
+ 606              		.align	2
+ 607              		.global	SSIDataPutNonBlocking
+ 608              		.thumb
+ 609              		.thumb_func
+ 611              	SSIDataPutNonBlocking:
+ 612              	.LFB11:
+ 563:C:/StellarisWare/driverlib\ssi.c **** 
+ 564:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 565:C:/StellarisWare/driverlib\ssi.c **** //
+ 566:C:/StellarisWare/driverlib\ssi.c **** //! Puts a data element into the SSI transmit FIFO.
+ 567:C:/StellarisWare/driverlib\ssi.c **** //!
+ 568:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 569:C:/StellarisWare/driverlib\ssi.c **** //! \param ulData is the data to be transmitted over the SSI interface.
+ 570:C:/StellarisWare/driverlib\ssi.c **** //!
+ 571:C:/StellarisWare/driverlib\ssi.c **** //! This function places the supplied data into the transmit FIFO of the
+ 572:C:/StellarisWare/driverlib\ssi.c **** //! specified SSI module.  If there is no space in the FIFO, then this function
+ 573:C:/StellarisWare/driverlib\ssi.c **** //! returns a zero.
+ 574:C:/StellarisWare/driverlib\ssi.c **** //!
+ 575:C:/StellarisWare/driverlib\ssi.c **** //! This function replaces the original SSIDataNonBlockingPut() API and
+ 576:C:/StellarisWare/driverlib\ssi.c **** //! performs the same actions.  A macro is provided in <tt>ssi.h</tt> to map
+ 577:C:/StellarisWare/driverlib\ssi.c **** //! the original API to this API.
+ 578:C:/StellarisWare/driverlib\ssi.c **** //!
+ 579:C:/StellarisWare/driverlib\ssi.c **** //! \note The upper 32 - N bits of \e ulData are discarded by the hardware,
+ 580:C:/StellarisWare/driverlib\ssi.c **** //! where N is the data width as configured by SSIConfigSetExpClk().  For
+ 581:C:/StellarisWare/driverlib\ssi.c **** //! example, if the interface is configured for 8-bit data width, the upper 24
+ 582:C:/StellarisWare/driverlib\ssi.c **** //! bits of \e ulData are discarded.
+ 583:C:/StellarisWare/driverlib\ssi.c **** //!
+ 584:C:/StellarisWare/driverlib\ssi.c **** //! \return Returns the number of elements written to the SSI transmit FIFO.
+ 585:C:/StellarisWare/driverlib\ssi.c **** //
+ 586:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 587:C:/StellarisWare/driverlib\ssi.c **** long
+ 588:C:/StellarisWare/driverlib\ssi.c **** SSIDataPutNonBlocking(unsigned long ulBase, unsigned long ulData)
+ 589:C:/StellarisWare/driverlib\ssi.c **** {
+ 613              		.loc 1 589 0
+ 614              		.cfi_startproc
+ 615              		@ args = 0, pretend = 0, frame = 8
+ 616              		@ frame_needed = 1, uses_anonymous_args = 0
+ 617              		@ link register save eliminated.
+ 618 0000 80B4     		push	{r7}
+ 619              	.LCFI33:
+ 620              		.cfi_def_cfa_offset 4
+ 621              		.cfi_offset 7, -4
+ 622 0002 83B0     		sub	sp, sp, #12
+ 623              	.LCFI34:
+ 624              		.cfi_def_cfa_offset 16
+ 625 0004 00AF     		add	r7, sp, #0
+ 626              	.LCFI35:
+ 627              		.cfi_def_cfa_register 7
+ 628 0006 7860     		str	r0, [r7, #4]
+ 629 0008 3960     		str	r1, [r7, #0]
+ 590:C:/StellarisWare/driverlib\ssi.c ****     //
+ 591:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 592:C:/StellarisWare/driverlib\ssi.c ****     //
+ 593:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 594:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulData & (0xfffffffe << (HWREG(ulBase + SSI_O_CR0) &
+ 595:C:/StellarisWare/driverlib\ssi.c ****                                      SSI_CR0_DSS_M))) == 0);
+ 596:C:/StellarisWare/driverlib\ssi.c **** 
+ 597:C:/StellarisWare/driverlib\ssi.c ****     //
+ 598:C:/StellarisWare/driverlib\ssi.c ****     // Check for space to write.
+ 599:C:/StellarisWare/driverlib\ssi.c ****     //
+ 600:C:/StellarisWare/driverlib\ssi.c ****     if(HWREG(ulBase + SSI_O_SR) & SSI_SR_TNF)
+ 630              		.loc 1 600 0
+ 631 000a 7B68     		ldr	r3, [r7, #4]
+ 632 000c 03F10C03 		add	r3, r3, #12
+ 633 0010 1B68     		ldr	r3, [r3, #0]
+ 634 0012 03F00203 		and	r3, r3, #2
+ 635 0016 002B     		cmp	r3, #0
+ 636 0018 07D0     		beq	.L25
+ 601:C:/StellarisWare/driverlib\ssi.c ****     {
+ 602:C:/StellarisWare/driverlib\ssi.c ****         HWREG(ulBase + SSI_O_DR) = ulData;
+ 637              		.loc 1 602 0
+ 638 001a 7B68     		ldr	r3, [r7, #4]
+ 639 001c 03F10803 		add	r3, r3, #8
+ 640 0020 3A68     		ldr	r2, [r7, #0]
+ 641 0022 1A60     		str	r2, [r3, #0]
+ 603:C:/StellarisWare/driverlib\ssi.c ****         return(1);
+ 642              		.loc 1 603 0
+ 643 0024 4FF00103 		mov	r3, #1
+ 644 0028 01E0     		b	.L26
+ 645              	.L25:
+ 604:C:/StellarisWare/driverlib\ssi.c ****     }
+ 605:C:/StellarisWare/driverlib\ssi.c ****     else
+ 606:C:/StellarisWare/driverlib\ssi.c ****     {
+ 607:C:/StellarisWare/driverlib\ssi.c ****         return(0);
+ 646              		.loc 1 607 0
+ 647 002a 4FF00003 		mov	r3, #0
+ 648              	.L26:
+ 608:C:/StellarisWare/driverlib\ssi.c ****     }
+ 609:C:/StellarisWare/driverlib\ssi.c **** }
+ 649              		.loc 1 609 0
+ 650 002e 1846     		mov	r0, r3
+ 651 0030 07F10C07 		add	r7, r7, #12
+ 652 0034 BD46     		mov	sp, r7
+ 653 0036 80BC     		pop	{r7}
+ 654 0038 7047     		bx	lr
+ 655              		.cfi_endproc
+ 656              	.LFE11:
+ 658 003a 00BF     		.section	.text.SSIDataGet,"ax",%progbits
+ 659              		.align	2
+ 660              		.global	SSIDataGet
+ 661              		.thumb
+ 662              		.thumb_func
+ 664              	SSIDataGet:
+ 665              	.LFB12:
+ 610:C:/StellarisWare/driverlib\ssi.c **** 
+ 611:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 612:C:/StellarisWare/driverlib\ssi.c **** //
+ 613:C:/StellarisWare/driverlib\ssi.c **** //! Gets a data element from the SSI receive FIFO.
+ 614:C:/StellarisWare/driverlib\ssi.c **** //!
+ 615:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 616:C:/StellarisWare/driverlib\ssi.c **** //! \param pulData is a pointer to a storage location for data that was
+ 617:C:/StellarisWare/driverlib\ssi.c **** //! received over the SSI interface.
+ 618:C:/StellarisWare/driverlib\ssi.c **** //!
+ 619:C:/StellarisWare/driverlib\ssi.c **** //! This function gets received data from the receive FIFO of the specified
+ 620:C:/StellarisWare/driverlib\ssi.c **** //! SSI module and places that data into the location specified by the
+ 621:C:/StellarisWare/driverlib\ssi.c **** //! \e pulData parameter.  If there is no data available, this function waits
+ 622:C:/StellarisWare/driverlib\ssi.c **** //! until data is received before returning.
+ 623:C:/StellarisWare/driverlib\ssi.c **** //!
+ 624:C:/StellarisWare/driverlib\ssi.c **** //! \note Only the lower N bits of the value written to \e pulData contain
+ 625:C:/StellarisWare/driverlib\ssi.c **** //! valid data, where N is the data width as configured by
+ 626:C:/StellarisWare/driverlib\ssi.c **** //! SSIConfigSetExpClk().  For example, if the interface is configured for
+ 627:C:/StellarisWare/driverlib\ssi.c **** //! 8-bit data width, only the lower 8 bits of the value written to \e pulData
+ 628:C:/StellarisWare/driverlib\ssi.c **** //! contain valid data.
+ 629:C:/StellarisWare/driverlib\ssi.c **** //!
+ 630:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 631:C:/StellarisWare/driverlib\ssi.c **** //
+ 632:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 633:C:/StellarisWare/driverlib\ssi.c **** void
+ 634:C:/StellarisWare/driverlib\ssi.c **** SSIDataGet(unsigned long ulBase, unsigned long *pulData)
+ 635:C:/StellarisWare/driverlib\ssi.c **** {
+ 666              		.loc 1 635 0
+ 667              		.cfi_startproc
+ 668              		@ args = 0, pretend = 0, frame = 8
+ 669              		@ frame_needed = 1, uses_anonymous_args = 0
+ 670              		@ link register save eliminated.
+ 671 0000 80B4     		push	{r7}
+ 672              	.LCFI36:
+ 673              		.cfi_def_cfa_offset 4
+ 674              		.cfi_offset 7, -4
+ 675 0002 83B0     		sub	sp, sp, #12
+ 676              	.LCFI37:
+ 677              		.cfi_def_cfa_offset 16
+ 678 0004 00AF     		add	r7, sp, #0
+ 679              	.LCFI38:
+ 680              		.cfi_def_cfa_register 7
+ 681 0006 7860     		str	r0, [r7, #4]
+ 682 0008 3960     		str	r1, [r7, #0]
+ 636:C:/StellarisWare/driverlib\ssi.c ****     //
+ 637:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 638:C:/StellarisWare/driverlib\ssi.c ****     //
+ 639:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 640:C:/StellarisWare/driverlib\ssi.c **** 
+ 641:C:/StellarisWare/driverlib\ssi.c ****     //
+ 642:C:/StellarisWare/driverlib\ssi.c ****     // Wait until there is data to be read.
+ 643:C:/StellarisWare/driverlib\ssi.c ****     //
+ 644:C:/StellarisWare/driverlib\ssi.c ****     while(!(HWREG(ulBase + SSI_O_SR) & SSI_SR_RNE))
+ 683              		.loc 1 644 0
+ 684 000a 00BF     		nop
+ 685              	.L28:
+ 686              		.loc 1 644 0 is_stmt 0 discriminator 1
+ 687 000c 7B68     		ldr	r3, [r7, #4]
+ 688 000e 03F10C03 		add	r3, r3, #12
+ 689 0012 1B68     		ldr	r3, [r3, #0]
+ 690 0014 03F00403 		and	r3, r3, #4
+ 691 0018 002B     		cmp	r3, #0
+ 692 001a F7D0     		beq	.L28
+ 645:C:/StellarisWare/driverlib\ssi.c ****     {
+ 646:C:/StellarisWare/driverlib\ssi.c ****     }
+ 647:C:/StellarisWare/driverlib\ssi.c **** 
+ 648:C:/StellarisWare/driverlib\ssi.c ****     //
+ 649:C:/StellarisWare/driverlib\ssi.c ****     // Read data from SSI.
+ 650:C:/StellarisWare/driverlib\ssi.c ****     //
+ 651:C:/StellarisWare/driverlib\ssi.c ****     *pulData = HWREG(ulBase + SSI_O_DR);
+ 693              		.loc 1 651 0 is_stmt 1
+ 694 001c 7B68     		ldr	r3, [r7, #4]
+ 695 001e 03F10803 		add	r3, r3, #8
+ 696 0022 1A68     		ldr	r2, [r3, #0]
+ 697 0024 3B68     		ldr	r3, [r7, #0]
+ 698 0026 1A60     		str	r2, [r3, #0]
+ 652:C:/StellarisWare/driverlib\ssi.c **** }
+ 699              		.loc 1 652 0
+ 700 0028 07F10C07 		add	r7, r7, #12
+ 701 002c BD46     		mov	sp, r7
+ 702 002e 80BC     		pop	{r7}
+ 703 0030 7047     		bx	lr
+ 704              		.cfi_endproc
+ 705              	.LFE12:
+ 707 0032 00BF     		.section	.text.SSIDataGetNonBlocking,"ax",%progbits
+ 708              		.align	2
+ 709              		.global	SSIDataGetNonBlocking
+ 710              		.thumb
+ 711              		.thumb_func
+ 713              	SSIDataGetNonBlocking:
+ 714              	.LFB13:
+ 653:C:/StellarisWare/driverlib\ssi.c **** 
+ 654:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 655:C:/StellarisWare/driverlib\ssi.c **** //
+ 656:C:/StellarisWare/driverlib\ssi.c **** //! Gets a data element from the SSI receive FIFO.
+ 657:C:/StellarisWare/driverlib\ssi.c **** //!
+ 658:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase specifies the SSI module base address.
+ 659:C:/StellarisWare/driverlib\ssi.c **** //! \param pulData is a pointer to a storage location for data that was
+ 660:C:/StellarisWare/driverlib\ssi.c **** //! received over the SSI interface.
+ 661:C:/StellarisWare/driverlib\ssi.c **** //!
+ 662:C:/StellarisWare/driverlib\ssi.c **** //! This function gets received data from the receive FIFO of the specified SSI
+ 663:C:/StellarisWare/driverlib\ssi.c **** //! module and places that data into the location specified by the \e ulData
+ 664:C:/StellarisWare/driverlib\ssi.c **** //! parameter.  If there is no data in the FIFO, then this function returns a
+ 665:C:/StellarisWare/driverlib\ssi.c **** //! zero.
+ 666:C:/StellarisWare/driverlib\ssi.c **** //!
+ 667:C:/StellarisWare/driverlib\ssi.c **** //! This function replaces the original SSIDataNonBlockingGet() API and
+ 668:C:/StellarisWare/driverlib\ssi.c **** //! performs the same actions.  A macro is provided in <tt>ssi.h</tt> to map
+ 669:C:/StellarisWare/driverlib\ssi.c **** //! the original API to this API.
+ 670:C:/StellarisWare/driverlib\ssi.c **** //!
+ 671:C:/StellarisWare/driverlib\ssi.c **** //! \note Only the lower N bits of the value written to \e pulData contain
+ 672:C:/StellarisWare/driverlib\ssi.c **** //! valid data, where N is the data width as configured by
+ 673:C:/StellarisWare/driverlib\ssi.c **** //! SSIConfigSetExpClk().  For example, if the interface is configured for
+ 674:C:/StellarisWare/driverlib\ssi.c **** //! 8-bit data width, only the lower 8 bits of the value written to \e pulData
+ 675:C:/StellarisWare/driverlib\ssi.c **** //! contain valid data.
+ 676:C:/StellarisWare/driverlib\ssi.c **** //!
+ 677:C:/StellarisWare/driverlib\ssi.c **** //! \return Returns the number of elements read from the SSI receive FIFO.
+ 678:C:/StellarisWare/driverlib\ssi.c **** //
+ 679:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 680:C:/StellarisWare/driverlib\ssi.c **** long
+ 681:C:/StellarisWare/driverlib\ssi.c **** SSIDataGetNonBlocking(unsigned long ulBase, unsigned long *pulData)
+ 682:C:/StellarisWare/driverlib\ssi.c **** {
+ 715              		.loc 1 682 0
+ 716              		.cfi_startproc
+ 717              		@ args = 0, pretend = 0, frame = 8
+ 718              		@ frame_needed = 1, uses_anonymous_args = 0
+ 719              		@ link register save eliminated.
+ 720 0000 80B4     		push	{r7}
+ 721              	.LCFI39:
+ 722              		.cfi_def_cfa_offset 4
+ 723              		.cfi_offset 7, -4
+ 724 0002 83B0     		sub	sp, sp, #12
+ 725              	.LCFI40:
+ 726              		.cfi_def_cfa_offset 16
+ 727 0004 00AF     		add	r7, sp, #0
+ 728              	.LCFI41:
+ 729              		.cfi_def_cfa_register 7
+ 730 0006 7860     		str	r0, [r7, #4]
+ 731 0008 3960     		str	r1, [r7, #0]
+ 683:C:/StellarisWare/driverlib\ssi.c ****     //
+ 684:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 685:C:/StellarisWare/driverlib\ssi.c ****     //
+ 686:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 687:C:/StellarisWare/driverlib\ssi.c **** 
+ 688:C:/StellarisWare/driverlib\ssi.c ****     //
+ 689:C:/StellarisWare/driverlib\ssi.c ****     // Check for data to read.
+ 690:C:/StellarisWare/driverlib\ssi.c ****     //
+ 691:C:/StellarisWare/driverlib\ssi.c ****     if(HWREG(ulBase + SSI_O_SR) & SSI_SR_RNE)
+ 732              		.loc 1 691 0
+ 733 000a 7B68     		ldr	r3, [r7, #4]
+ 734 000c 03F10C03 		add	r3, r3, #12
+ 735 0010 1B68     		ldr	r3, [r3, #0]
+ 736 0012 03F00403 		and	r3, r3, #4
+ 737 0016 002B     		cmp	r3, #0
+ 738 0018 08D0     		beq	.L30
+ 692:C:/StellarisWare/driverlib\ssi.c ****     {
+ 693:C:/StellarisWare/driverlib\ssi.c ****         *pulData = HWREG(ulBase + SSI_O_DR);
+ 739              		.loc 1 693 0
+ 740 001a 7B68     		ldr	r3, [r7, #4]
+ 741 001c 03F10803 		add	r3, r3, #8
+ 742 0020 1A68     		ldr	r2, [r3, #0]
+ 743 0022 3B68     		ldr	r3, [r7, #0]
+ 744 0024 1A60     		str	r2, [r3, #0]
+ 694:C:/StellarisWare/driverlib\ssi.c ****         return(1);
+ 745              		.loc 1 694 0
+ 746 0026 4FF00103 		mov	r3, #1
+ 747 002a 01E0     		b	.L31
+ 748              	.L30:
+ 695:C:/StellarisWare/driverlib\ssi.c ****     }
+ 696:C:/StellarisWare/driverlib\ssi.c ****     else
+ 697:C:/StellarisWare/driverlib\ssi.c ****     {
+ 698:C:/StellarisWare/driverlib\ssi.c ****         return(0);
+ 749              		.loc 1 698 0
+ 750 002c 4FF00003 		mov	r3, #0
+ 751              	.L31:
+ 699:C:/StellarisWare/driverlib\ssi.c ****     }
+ 700:C:/StellarisWare/driverlib\ssi.c **** }
+ 752              		.loc 1 700 0
+ 753 0030 1846     		mov	r0, r3
+ 754 0032 07F10C07 		add	r7, r7, #12
+ 755 0036 BD46     		mov	sp, r7
+ 756 0038 80BC     		pop	{r7}
+ 757 003a 7047     		bx	lr
+ 758              		.cfi_endproc
+ 759              	.LFE13:
+ 761              		.section	.text.SSIDMAEnable,"ax",%progbits
+ 762              		.align	2
+ 763              		.global	SSIDMAEnable
+ 764              		.thumb
+ 765              		.thumb_func
+ 767              	SSIDMAEnable:
+ 768              	.LFB14:
+ 701:C:/StellarisWare/driverlib\ssi.c **** 
+ 702:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 703:C:/StellarisWare/driverlib\ssi.c **** //
+ 704:C:/StellarisWare/driverlib\ssi.c **** //! Enables SSI DMA operation.
+ 705:C:/StellarisWare/driverlib\ssi.c **** //!
+ 706:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase is the base address of the SSI port.
+ 707:C:/StellarisWare/driverlib\ssi.c **** //! \param ulDMAFlags is a bit mask of the DMA features to enable.
+ 708:C:/StellarisWare/driverlib\ssi.c **** //!
+ 709:C:/StellarisWare/driverlib\ssi.c **** //! This function enables the specified SSI DMA features.  The SSI can be
+ 710:C:/StellarisWare/driverlib\ssi.c **** //! configured to use DMA for transmit and/or receive data transfers.
+ 711:C:/StellarisWare/driverlib\ssi.c **** //! The \e ulDMAFlags parameter is the logical OR of any of the following
+ 712:C:/StellarisWare/driverlib\ssi.c **** //! values:
+ 713:C:/StellarisWare/driverlib\ssi.c **** //!
+ 714:C:/StellarisWare/driverlib\ssi.c **** //! - SSI_DMA_RX - enable DMA for receive
+ 715:C:/StellarisWare/driverlib\ssi.c **** //! - SSI_DMA_TX - enable DMA for transmit
+ 716:C:/StellarisWare/driverlib\ssi.c **** //!
+ 717:C:/StellarisWare/driverlib\ssi.c **** //! \note The uDMA controller must also be set up before DMA can be used
+ 718:C:/StellarisWare/driverlib\ssi.c **** //! with the SSI.
+ 719:C:/StellarisWare/driverlib\ssi.c **** //!
+ 720:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 721:C:/StellarisWare/driverlib\ssi.c **** //
+ 722:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 723:C:/StellarisWare/driverlib\ssi.c **** void
+ 724:C:/StellarisWare/driverlib\ssi.c **** SSIDMAEnable(unsigned long ulBase, unsigned long ulDMAFlags)
+ 725:C:/StellarisWare/driverlib\ssi.c **** {
+ 769              		.loc 1 725 0
+ 770              		.cfi_startproc
+ 771              		@ args = 0, pretend = 0, frame = 8
+ 772              		@ frame_needed = 1, uses_anonymous_args = 0
+ 773              		@ link register save eliminated.
+ 774 0000 80B4     		push	{r7}
+ 775              	.LCFI42:
+ 776              		.cfi_def_cfa_offset 4
+ 777              		.cfi_offset 7, -4
+ 778 0002 83B0     		sub	sp, sp, #12
+ 779              	.LCFI43:
+ 780              		.cfi_def_cfa_offset 16
+ 781 0004 00AF     		add	r7, sp, #0
+ 782              	.LCFI44:
+ 783              		.cfi_def_cfa_register 7
+ 784 0006 7860     		str	r0, [r7, #4]
+ 785 0008 3960     		str	r1, [r7, #0]
+ 726:C:/StellarisWare/driverlib\ssi.c ****     //
+ 727:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 728:C:/StellarisWare/driverlib\ssi.c ****     //
+ 729:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 730:C:/StellarisWare/driverlib\ssi.c **** 
+ 731:C:/StellarisWare/driverlib\ssi.c ****     //
+ 732:C:/StellarisWare/driverlib\ssi.c ****     // Set the requested bits in the SSI DMA control register.
+ 733:C:/StellarisWare/driverlib\ssi.c ****     //
+ 734:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_DMACTL) |= ulDMAFlags;
+ 786              		.loc 1 734 0
+ 787 000a 7B68     		ldr	r3, [r7, #4]
+ 788 000c 03F12403 		add	r3, r3, #36
+ 789 0010 7A68     		ldr	r2, [r7, #4]
+ 790 0012 02F12402 		add	r2, r2, #36
+ 791 0016 1168     		ldr	r1, [r2, #0]
+ 792 0018 3A68     		ldr	r2, [r7, #0]
+ 793 001a 0A43     		orrs	r2, r2, r1
+ 794 001c 1A60     		str	r2, [r3, #0]
+ 735:C:/StellarisWare/driverlib\ssi.c **** }
+ 795              		.loc 1 735 0
+ 796 001e 07F10C07 		add	r7, r7, #12
+ 797 0022 BD46     		mov	sp, r7
+ 798 0024 80BC     		pop	{r7}
+ 799 0026 7047     		bx	lr
+ 800              		.cfi_endproc
+ 801              	.LFE14:
+ 803              		.section	.text.SSIDMADisable,"ax",%progbits
+ 804              		.align	2
+ 805              		.global	SSIDMADisable
+ 806              		.thumb
+ 807              		.thumb_func
+ 809              	SSIDMADisable:
+ 810              	.LFB15:
+ 736:C:/StellarisWare/driverlib\ssi.c **** 
+ 737:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 738:C:/StellarisWare/driverlib\ssi.c **** //
+ 739:C:/StellarisWare/driverlib\ssi.c **** //! Disables SSI DMA operation.
+ 740:C:/StellarisWare/driverlib\ssi.c **** //!
+ 741:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase is the base address of the SSI port.
+ 742:C:/StellarisWare/driverlib\ssi.c **** //! \param ulDMAFlags is a bit mask of the DMA features to disable.
+ 743:C:/StellarisWare/driverlib\ssi.c **** //!
+ 744:C:/StellarisWare/driverlib\ssi.c **** //! This function is used to disable SSI DMA features that were enabled
+ 745:C:/StellarisWare/driverlib\ssi.c **** //! by SSIDMAEnable().  The specified SSI DMA features are disabled.  The
+ 746:C:/StellarisWare/driverlib\ssi.c **** //! \e ulDMAFlags parameter is the logical OR of any of the following values:
+ 747:C:/StellarisWare/driverlib\ssi.c **** //!
+ 748:C:/StellarisWare/driverlib\ssi.c **** //! - SSI_DMA_RX - disable DMA for receive
+ 749:C:/StellarisWare/driverlib\ssi.c **** //! - SSI_DMA_TX - disable DMA for transmit
+ 750:C:/StellarisWare/driverlib\ssi.c **** //!
+ 751:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 752:C:/StellarisWare/driverlib\ssi.c **** //
+ 753:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 754:C:/StellarisWare/driverlib\ssi.c **** void
+ 755:C:/StellarisWare/driverlib\ssi.c **** SSIDMADisable(unsigned long ulBase, unsigned long ulDMAFlags)
+ 756:C:/StellarisWare/driverlib\ssi.c **** {
+ 811              		.loc 1 756 0
+ 812              		.cfi_startproc
+ 813              		@ args = 0, pretend = 0, frame = 8
+ 814              		@ frame_needed = 1, uses_anonymous_args = 0
+ 815              		@ link register save eliminated.
+ 816 0000 80B4     		push	{r7}
+ 817              	.LCFI45:
+ 818              		.cfi_def_cfa_offset 4
+ 819              		.cfi_offset 7, -4
+ 820 0002 83B0     		sub	sp, sp, #12
+ 821              	.LCFI46:
+ 822              		.cfi_def_cfa_offset 16
+ 823 0004 00AF     		add	r7, sp, #0
+ 824              	.LCFI47:
+ 825              		.cfi_def_cfa_register 7
+ 826 0006 7860     		str	r0, [r7, #4]
+ 827 0008 3960     		str	r1, [r7, #0]
+ 757:C:/StellarisWare/driverlib\ssi.c ****     //
+ 758:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 759:C:/StellarisWare/driverlib\ssi.c ****     //
+ 760:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 761:C:/StellarisWare/driverlib\ssi.c **** 
+ 762:C:/StellarisWare/driverlib\ssi.c ****     //
+ 763:C:/StellarisWare/driverlib\ssi.c ****     // Clear the requested bits in the SSI DMA control register.
+ 764:C:/StellarisWare/driverlib\ssi.c ****     //
+ 765:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_DMACTL) &= ~ulDMAFlags;
+ 828              		.loc 1 765 0
+ 829 000a 7B68     		ldr	r3, [r7, #4]
+ 830 000c 03F12403 		add	r3, r3, #36
+ 831 0010 7A68     		ldr	r2, [r7, #4]
+ 832 0012 02F12402 		add	r2, r2, #36
+ 833 0016 1168     		ldr	r1, [r2, #0]
+ 834 0018 3A68     		ldr	r2, [r7, #0]
+ 835 001a 6FEA0202 		mvn	r2, r2
+ 836 001e 0A40     		ands	r2, r2, r1
+ 837 0020 1A60     		str	r2, [r3, #0]
+ 766:C:/StellarisWare/driverlib\ssi.c **** }
+ 838              		.loc 1 766 0
+ 839 0022 07F10C07 		add	r7, r7, #12
+ 840 0026 BD46     		mov	sp, r7
+ 841 0028 80BC     		pop	{r7}
+ 842 002a 7047     		bx	lr
+ 843              		.cfi_endproc
+ 844              	.LFE15:
+ 846              		.section	.text.SSIBusy,"ax",%progbits
+ 847              		.align	2
+ 848              		.global	SSIBusy
+ 849              		.thumb
+ 850              		.thumb_func
+ 852              	SSIBusy:
+ 853              	.LFB16:
+ 767:C:/StellarisWare/driverlib\ssi.c **** 
+ 768:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 769:C:/StellarisWare/driverlib\ssi.c **** //
+ 770:C:/StellarisWare/driverlib\ssi.c **** //! Determines whether the SSI transmitter is busy or not.
+ 771:C:/StellarisWare/driverlib\ssi.c **** //!
+ 772:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase is the base address of the SSI port.
+ 773:C:/StellarisWare/driverlib\ssi.c **** //!
+ 774:C:/StellarisWare/driverlib\ssi.c **** //! This function allows the caller to determine whether all transmitted bytes
+ 775:C:/StellarisWare/driverlib\ssi.c **** //! have cleared the transmitter hardware.  If \b false is returned, then the
+ 776:C:/StellarisWare/driverlib\ssi.c **** //! transmit FIFO is empty and all bits of the last transmitted word have left
+ 777:C:/StellarisWare/driverlib\ssi.c **** //! the hardware shift register.
+ 778:C:/StellarisWare/driverlib\ssi.c **** //!
+ 779:C:/StellarisWare/driverlib\ssi.c **** //! \return Returns \b true if the SSI is transmitting or \b false if all
+ 780:C:/StellarisWare/driverlib\ssi.c **** //! transmissions are complete.
+ 781:C:/StellarisWare/driverlib\ssi.c **** //
+ 782:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 783:C:/StellarisWare/driverlib\ssi.c **** tBoolean
+ 784:C:/StellarisWare/driverlib\ssi.c **** SSIBusy(unsigned long ulBase)
+ 785:C:/StellarisWare/driverlib\ssi.c **** {
+ 854              		.loc 1 785 0
+ 855              		.cfi_startproc
+ 856              		@ args = 0, pretend = 0, frame = 8
+ 857              		@ frame_needed = 1, uses_anonymous_args = 0
+ 858              		@ link register save eliminated.
+ 859 0000 80B4     		push	{r7}
+ 860              	.LCFI48:
+ 861              		.cfi_def_cfa_offset 4
+ 862              		.cfi_offset 7, -4
+ 863 0002 83B0     		sub	sp, sp, #12
+ 864              	.LCFI49:
+ 865              		.cfi_def_cfa_offset 16
+ 866 0004 00AF     		add	r7, sp, #0
+ 867              	.LCFI50:
+ 868              		.cfi_def_cfa_register 7
+ 869 0006 7860     		str	r0, [r7, #4]
+ 786:C:/StellarisWare/driverlib\ssi.c ****     //
+ 787:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 788:C:/StellarisWare/driverlib\ssi.c ****     //
+ 789:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 790:C:/StellarisWare/driverlib\ssi.c **** 
+ 791:C:/StellarisWare/driverlib\ssi.c ****     //
+ 792:C:/StellarisWare/driverlib\ssi.c ****     // Determine if the SSI is busy.
+ 793:C:/StellarisWare/driverlib\ssi.c ****     //
+ 794:C:/StellarisWare/driverlib\ssi.c ****     return((HWREG(ulBase + SSI_O_SR) & SSI_SR_BSY) ? true : false);
+ 870              		.loc 1 794 0
+ 871 0008 7B68     		ldr	r3, [r7, #4]
+ 872 000a 03F10C03 		add	r3, r3, #12
+ 873 000e 1B68     		ldr	r3, [r3, #0]
+ 874 0010 03F01003 		and	r3, r3, #16
+ 875 0014 002B     		cmp	r3, #0
+ 876 0016 0CBF     		ite	eq
+ 877 0018 0023     		moveq	r3, #0
+ 878 001a 0123     		movne	r3, #1
+ 879 001c DBB2     		uxtb	r3, r3
+ 795:C:/StellarisWare/driverlib\ssi.c **** }
+ 880              		.loc 1 795 0
+ 881 001e 1846     		mov	r0, r3
+ 882 0020 07F10C07 		add	r7, r7, #12
+ 883 0024 BD46     		mov	sp, r7
+ 884 0026 80BC     		pop	{r7}
+ 885 0028 7047     		bx	lr
+ 886              		.cfi_endproc
+ 887              	.LFE16:
+ 889 002a 00BF     		.section	.text.SSIClockSourceSet,"ax",%progbits
+ 890              		.align	2
+ 891              		.global	SSIClockSourceSet
+ 892              		.thumb
+ 893              		.thumb_func
+ 895              	SSIClockSourceSet:
+ 896              	.LFB17:
+ 796:C:/StellarisWare/driverlib\ssi.c **** 
+ 797:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 798:C:/StellarisWare/driverlib\ssi.c **** //
+ 799:C:/StellarisWare/driverlib\ssi.c **** //! Sets the data clock source for the specified SSI peripheral.
+ 800:C:/StellarisWare/driverlib\ssi.c **** //!
+ 801:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase is the base address of the SSI port.
+ 802:C:/StellarisWare/driverlib\ssi.c **** //! \param ulSource is the baud clock source for the SSI.
+ 803:C:/StellarisWare/driverlib\ssi.c **** //!
+ 804:C:/StellarisWare/driverlib\ssi.c **** //! This function allows the baud clock source for the SSI to be selected.
+ 805:C:/StellarisWare/driverlib\ssi.c **** //! The possible clock source are the system clock (\b SSI_CLOCK_SYSTEM) or
+ 806:C:/StellarisWare/driverlib\ssi.c **** //! the precision internal oscillator (\b SSI_CLOCK_PIOSC).
+ 807:C:/StellarisWare/driverlib\ssi.c **** //!
+ 808:C:/StellarisWare/driverlib\ssi.c **** //! Changing the baud clock source changes the data rate generated by the
+ 809:C:/StellarisWare/driverlib\ssi.c **** //! SSI.  Therefore, the data rate should be reconfigured after any change to
+ 810:C:/StellarisWare/driverlib\ssi.c **** //! the SSI clock source.
+ 811:C:/StellarisWare/driverlib\ssi.c **** //!
+ 812:C:/StellarisWare/driverlib\ssi.c **** //! \note The ability to specify the SSI baud clock source varies with the
+ 813:C:/StellarisWare/driverlib\ssi.c **** //! Stellaris part and SSI in use.  Please consult the data sheet for the part
+ 814:C:/StellarisWare/driverlib\ssi.c **** //! in use to determine whether this support is available.
+ 815:C:/StellarisWare/driverlib\ssi.c **** //!
+ 816:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 817:C:/StellarisWare/driverlib\ssi.c **** //
+ 818:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 819:C:/StellarisWare/driverlib\ssi.c **** void
+ 820:C:/StellarisWare/driverlib\ssi.c **** SSIClockSourceSet(unsigned long ulBase, unsigned long ulSource)
+ 821:C:/StellarisWare/driverlib\ssi.c **** {
+ 897              		.loc 1 821 0
+ 898              		.cfi_startproc
+ 899              		@ args = 0, pretend = 0, frame = 8
+ 900              		@ frame_needed = 1, uses_anonymous_args = 0
+ 901              		@ link register save eliminated.
+ 902 0000 80B4     		push	{r7}
+ 903              	.LCFI51:
+ 904              		.cfi_def_cfa_offset 4
+ 905              		.cfi_offset 7, -4
+ 906 0002 83B0     		sub	sp, sp, #12
+ 907              	.LCFI52:
+ 908              		.cfi_def_cfa_offset 16
+ 909 0004 00AF     		add	r7, sp, #0
+ 910              	.LCFI53:
+ 911              		.cfi_def_cfa_register 7
+ 912 0006 7860     		str	r0, [r7, #4]
+ 913 0008 3960     		str	r1, [r7, #0]
+ 822:C:/StellarisWare/driverlib\ssi.c ****     //
+ 823:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 824:C:/StellarisWare/driverlib\ssi.c ****     //
+ 825:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 826:C:/StellarisWare/driverlib\ssi.c ****     ASSERT((ulSource == SSI_CLOCK_SYSTEM) || (ulSource == SSI_CLOCK_PIOSC));
+ 827:C:/StellarisWare/driverlib\ssi.c **** 
+ 828:C:/StellarisWare/driverlib\ssi.c ****     //
+ 829:C:/StellarisWare/driverlib\ssi.c ****     // Set the SSI clock source.
+ 830:C:/StellarisWare/driverlib\ssi.c ****     //
+ 831:C:/StellarisWare/driverlib\ssi.c ****     HWREG(ulBase + SSI_O_CC) = ulSource;
+ 914              		.loc 1 831 0
+ 915 000a 7B68     		ldr	r3, [r7, #4]
+ 916 000c 03F57C63 		add	r3, r3, #4032
+ 917 0010 03F10803 		add	r3, r3, #8
+ 918 0014 3A68     		ldr	r2, [r7, #0]
+ 919 0016 1A60     		str	r2, [r3, #0]
+ 832:C:/StellarisWare/driverlib\ssi.c **** }
+ 920              		.loc 1 832 0
+ 921 0018 07F10C07 		add	r7, r7, #12
+ 922 001c BD46     		mov	sp, r7
+ 923 001e 80BC     		pop	{r7}
+ 924 0020 7047     		bx	lr
+ 925              		.cfi_endproc
+ 926              	.LFE17:
+ 928 0022 00BF     		.section	.text.SSIClockSourceGet,"ax",%progbits
+ 929              		.align	2
+ 930              		.global	SSIClockSourceGet
+ 931              		.thumb
+ 932              		.thumb_func
+ 934              	SSIClockSourceGet:
+ 935              	.LFB18:
+ 833:C:/StellarisWare/driverlib\ssi.c **** 
+ 834:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 835:C:/StellarisWare/driverlib\ssi.c **** //
+ 836:C:/StellarisWare/driverlib\ssi.c **** //! Gets the data clock source for the specified SSI peripheral.
+ 837:C:/StellarisWare/driverlib\ssi.c **** //!
+ 838:C:/StellarisWare/driverlib\ssi.c **** //! \param ulBase is the base address of the SSI port.
+ 839:C:/StellarisWare/driverlib\ssi.c **** //!
+ 840:C:/StellarisWare/driverlib\ssi.c **** //! This function returns the data clock source for the specified SSI.  The
+ 841:C:/StellarisWare/driverlib\ssi.c **** //! possible data clock source are the system clock (\b SSI_CLOCK_SYSTEM) or
+ 842:C:/StellarisWare/driverlib\ssi.c **** //! the precision internal oscillator (\b SSI_CLOCK_PIOSC).
+ 843:C:/StellarisWare/driverlib\ssi.c **** //!
+ 844:C:/StellarisWare/driverlib\ssi.c **** //! \note The ability to specify the SSI data clock source varies with the
+ 845:C:/StellarisWare/driverlib\ssi.c **** //! Stellaris part and SSI in use.  Please consult the data sheet for the part
+ 846:C:/StellarisWare/driverlib\ssi.c **** //! in use to determine whether this support is available.
+ 847:C:/StellarisWare/driverlib\ssi.c **** //!
+ 848:C:/StellarisWare/driverlib\ssi.c **** //! \return None.
+ 849:C:/StellarisWare/driverlib\ssi.c **** //
+ 850:C:/StellarisWare/driverlib\ssi.c **** //*****************************************************************************
+ 851:C:/StellarisWare/driverlib\ssi.c **** unsigned long
+ 852:C:/StellarisWare/driverlib\ssi.c **** SSIClockSourceGet(unsigned long ulBase)
+ 853:C:/StellarisWare/driverlib\ssi.c **** {
+ 936              		.loc 1 853 0
+ 937              		.cfi_startproc
+ 938              		@ args = 0, pretend = 0, frame = 8
+ 939              		@ frame_needed = 1, uses_anonymous_args = 0
+ 940              		@ link register save eliminated.
+ 941 0000 80B4     		push	{r7}
+ 942              	.LCFI54:
+ 943              		.cfi_def_cfa_offset 4
+ 944              		.cfi_offset 7, -4
+ 945 0002 83B0     		sub	sp, sp, #12
+ 946              	.LCFI55:
+ 947              		.cfi_def_cfa_offset 16
+ 948 0004 00AF     		add	r7, sp, #0
+ 949              	.LCFI56:
+ 950              		.cfi_def_cfa_register 7
+ 951 0006 7860     		str	r0, [r7, #4]
+ 854:C:/StellarisWare/driverlib\ssi.c ****     //
+ 855:C:/StellarisWare/driverlib\ssi.c ****     // Check the arguments.
+ 856:C:/StellarisWare/driverlib\ssi.c ****     //
+ 857:C:/StellarisWare/driverlib\ssi.c ****     ASSERT(SSIBaseValid(ulBase));
+ 858:C:/StellarisWare/driverlib\ssi.c **** 
+ 859:C:/StellarisWare/driverlib\ssi.c ****     //
+ 860:C:/StellarisWare/driverlib\ssi.c ****     // Return the SSI clock source.
+ 861:C:/StellarisWare/driverlib\ssi.c ****     //
+ 862:C:/StellarisWare/driverlib\ssi.c ****     return(HWREG(ulBase + SSI_O_CC));
+ 952              		.loc 1 862 0
+ 953 0008 7B68     		ldr	r3, [r7, #4]
+ 954 000a 03F57C63 		add	r3, r3, #4032
+ 955 000e 03F10803 		add	r3, r3, #8
+ 956 0012 1B68     		ldr	r3, [r3, #0]
+ 863:C:/StellarisWare/driverlib\ssi.c **** }
+ 957              		.loc 1 863 0
+ 958 0014 1846     		mov	r0, r3
+ 959 0016 07F10C07 		add	r7, r7, #12
+ 960 001a BD46     		mov	sp, r7
+ 961 001c 80BC     		pop	{r7}
+ 962 001e 7047     		bx	lr
+ 963              		.cfi_endproc
+ 964              	.LFE18:
+ 966              		.text
+ 967              	.Letext0:
+ 968              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 ssi.c
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:19     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:22     .rodata:00000000 g_ppulSSIIntMap
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:32     .text.SSIIntNumberGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:36     .text.SSIIntNumberGet:00000000 SSIIntNumberGet
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:99     .text.SSIConfigSetExpClk:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:104    .text.SSIConfigSetExpClk:00000000 SSIConfigSetExpClk
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:219    .text.SSIEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:224    .text.SSIEnable:00000000 SSIEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:259    .text.SSIDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:264    .text.SSIDisable:00000000 SSIDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:299    .text.SSIIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:304    .text.SSIIntRegister:00000000 SSIIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:343    .text.SSIIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:348    .text.SSIIntUnregister:00000000 SSIIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:385    .text.SSIIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:390    .text.SSIIntEnable:00000000 SSIIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:427    .text.SSIIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:432    .text.SSIIntDisable:00000000 SSIIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:470    .text.SSIIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:475    .text.SSIIntStatus:00000000 SSIIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:520    .text.SSIIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:525    .text.SSIIntClear:00000000 SSIIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:558    .text.SSIDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:563    .text.SSIDataPut:00000000 SSIDataPut
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:606    .text.SSIDataPutNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:611    .text.SSIDataPutNonBlocking:00000000 SSIDataPutNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:659    .text.SSIDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:664    .text.SSIDataGet:00000000 SSIDataGet
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:708    .text.SSIDataGetNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:713    .text.SSIDataGetNonBlocking:00000000 SSIDataGetNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:762    .text.SSIDMAEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:767    .text.SSIDMAEnable:00000000 SSIDMAEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:804    .text.SSIDMADisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:809    .text.SSIDMADisable:00000000 SSIDMADisable
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:847    .text.SSIBusy:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:852    .text.SSIBusy:00000000 SSIBusy
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:890    .text.SSIClockSourceSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:895    .text.SSIClockSourceSet:00000000 SSIClockSourceSet
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:929    .text.SSIClockSourceGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccKrzchf.s:934    .text.SSIClockSourceGet:00000000 SSIClockSourceGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

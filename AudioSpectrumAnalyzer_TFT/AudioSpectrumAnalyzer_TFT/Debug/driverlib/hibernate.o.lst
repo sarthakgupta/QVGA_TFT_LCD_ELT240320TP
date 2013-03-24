@@ -1,0 +1,2888 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"hibernate.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	g_ulWriteDelay:
+  21 0000 00000000 		.space	4
+  22              		.section	.text.HibernateWriteComplete,"ax",%progbits
+  23              		.align	2
+  24              		.global	HibernateWriteComplete
+  25              		.thumb
+  26              		.thumb_func
+  28              	HibernateWriteComplete:
+  29              	.LFB0:
+  30              		.file 1 "C:/StellarisWare/driverlib/hibernate.c"
+   1:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\hibernate.c **** //
+   3:C:/StellarisWare/driverlib\hibernate.c **** // hibernate.c - Driver for the Hibernation module
+   4:C:/StellarisWare/driverlib\hibernate.c **** //
+   5:C:/StellarisWare/driverlib\hibernate.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\hibernate.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\hibernate.c **** // 
+   8:C:/StellarisWare/driverlib\hibernate.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\hibernate.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\hibernate.c **** //   are met:
+  11:C:/StellarisWare/driverlib\hibernate.c **** // 
+  12:C:/StellarisWare/driverlib\hibernate.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\hibernate.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\hibernate.c **** // 
+  15:C:/StellarisWare/driverlib\hibernate.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\hibernate.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\hibernate.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\hibernate.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\hibernate.c **** // 
+  20:C:/StellarisWare/driverlib\hibernate.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\hibernate.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\hibernate.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\hibernate.c **** // 
+  24:C:/StellarisWare/driverlib\hibernate.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\hibernate.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\hibernate.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\hibernate.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\hibernate.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\hibernate.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\hibernate.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\hibernate.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\hibernate.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\hibernate.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\hibernate.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\hibernate.c **** // 
+  36:C:/StellarisWare/driverlib\hibernate.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\hibernate.c **** //
+  38:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\hibernate.c **** 
+  40:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\hibernate.c **** //
+  42:C:/StellarisWare/driverlib\hibernate.c **** //! \addtogroup hibernate_api
+  43:C:/StellarisWare/driverlib\hibernate.c **** //! @{
+  44:C:/StellarisWare/driverlib\hibernate.c **** //
+  45:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\hibernate.c **** 
+  47:C:/StellarisWare/driverlib\hibernate.c **** #include "inc/hw_hibernate.h"
+  48:C:/StellarisWare/driverlib\hibernate.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\hibernate.c **** #include "inc/hw_sysctl.h"
+  50:C:/StellarisWare/driverlib\hibernate.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\hibernate.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\hibernate.c **** #include "driverlib/hibernate.h"
+  53:C:/StellarisWare/driverlib\hibernate.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\hibernate.c **** #include "driverlib/sysctl.h"
+  55:C:/StellarisWare/driverlib\hibernate.c **** 
+  56:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  57:C:/StellarisWare/driverlib\hibernate.c **** //
+  58:C:/StellarisWare/driverlib\hibernate.c **** // The delay in microseconds for writing to the Hibernation module registers.
+  59:C:/StellarisWare/driverlib\hibernate.c **** //
+  60:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  61:C:/StellarisWare/driverlib\hibernate.c **** #define DELAY_USECS             95
+  62:C:/StellarisWare/driverlib\hibernate.c **** 
+  63:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  64:C:/StellarisWare/driverlib\hibernate.c **** //
+  65:C:/StellarisWare/driverlib\hibernate.c **** // The number of processor cycles to execute one pass of the delay loop.
+  66:C:/StellarisWare/driverlib\hibernate.c **** //
+  67:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  68:C:/StellarisWare/driverlib\hibernate.c **** #define LOOP_CYCLES             3
+  69:C:/StellarisWare/driverlib\hibernate.c **** 
+  70:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  71:C:/StellarisWare/driverlib\hibernate.c **** //
+  72:C:/StellarisWare/driverlib\hibernate.c **** // The calculated number of delay loops to achieve the write delay.
+  73:C:/StellarisWare/driverlib\hibernate.c **** //
+  74:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  75:C:/StellarisWare/driverlib\hibernate.c **** static unsigned long g_ulWriteDelay;
+  76:C:/StellarisWare/driverlib\hibernate.c **** 
+  77:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  78:C:/StellarisWare/driverlib\hibernate.c **** //
+  79:C:/StellarisWare/driverlib\hibernate.c **** //! \internal
+  80:C:/StellarisWare/driverlib\hibernate.c **** //!
+  81:C:/StellarisWare/driverlib\hibernate.c **** //! Polls until the write complete (WRC) bit in the hibernate control register
+  82:C:/StellarisWare/driverlib\hibernate.c **** //! is set.
+  83:C:/StellarisWare/driverlib\hibernate.c **** //!
+  84:C:/StellarisWare/driverlib\hibernate.c **** //! \param None.
+  85:C:/StellarisWare/driverlib\hibernate.c **** //!
+  86:C:/StellarisWare/driverlib\hibernate.c **** //! On non-Fury-class devices, the hibernate module provides an indication when
+  87:C:/StellarisWare/driverlib\hibernate.c **** //! any write is completed.  This mechanism is used to pace writes to the
+  88:C:/StellarisWare/driverlib\hibernate.c **** //! module.  This function merely polls this bit and returns as soon as it is
+  89:C:/StellarisWare/driverlib\hibernate.c **** //! set.  At this point, it is safe to perform another write to the module.
+  90:C:/StellarisWare/driverlib\hibernate.c **** //!
+  91:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+  92:C:/StellarisWare/driverlib\hibernate.c **** //
+  93:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+  94:C:/StellarisWare/driverlib\hibernate.c **** void
+  95:C:/StellarisWare/driverlib\hibernate.c **** HibernateWriteComplete(void)
+  96:C:/StellarisWare/driverlib\hibernate.c **** {
+  31              		.loc 1 96 0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 0
+  34              		@ frame_needed = 1, uses_anonymous_args = 0
+  35 0000 80B5     		push	{r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 14, -4
+  39              		.cfi_offset 7, -8
+  40 0002 00AF     		add	r7, sp, #0
+  41              	.LCFI1:
+  42              		.cfi_def_cfa_register 7
+  97:C:/StellarisWare/driverlib\hibernate.c ****     //
+  98:C:/StellarisWare/driverlib\hibernate.c ****     // Add a delay here to enforce the required delay between write accesses to
+  99:C:/StellarisWare/driverlib\hibernate.c ****     // certain Hibernation module registers.
+ 100:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 101:C:/StellarisWare/driverlib\hibernate.c ****     if(CLASS_IS_FURY)
+  43              		.loc 1 101 0
+  44 0004 4FF46043 		mov	r3, #57344
+  45 0008 C4F20F03 		movt	r3, 16399
+  46 000c 1A68     		ldr	r2, [r3, #0]
+  47 000e 4FF00003 		mov	r3, #0
+  48 0012 C7F2FF03 		movt	r3, 28927
+  49 0016 1340     		ands	r3, r3, r2
+  50 0018 4FF00002 		mov	r2, #0
+  51 001c C1F20102 		movt	r2, 4097
+  52 0020 9342     		cmp	r3, r2
+  53 0022 08D1     		bne	.L5
+ 102:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 103:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 104:C:/StellarisWare/driverlib\hibernate.c ****         // Delay a fixed time on Fury-class devices
+ 105:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 106:C:/StellarisWare/driverlib\hibernate.c ****         SysCtlDelay(g_ulWriteDelay);
+  54              		.loc 1 106 0
+  55 0024 40F20003 		movw	r3, #:lower16:g_ulWriteDelay
+  56 0028 C0F20003 		movt	r3, #:upper16:g_ulWriteDelay
+  57 002c 1B68     		ldr	r3, [r3, #0]
+  58 002e 1846     		mov	r0, r3
+  59 0030 FFF7FEFF 		bl	SysCtlDelay
+  60 0034 07E0     		b	.L1
+  61              	.L5:
+ 107:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 108:C:/StellarisWare/driverlib\hibernate.c ****     else
+ 109:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 110:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 111:C:/StellarisWare/driverlib\hibernate.c ****         // Spin until the write complete bit is set, for later devices.
+ 112:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 113:C:/StellarisWare/driverlib\hibernate.c ****         while(!(HWREG(HIB_CTL) & HIB_CTL_WRC))
+  62              		.loc 1 113 0
+  63 0036 00BF     		nop
+  64              	.L4:
+  65              		.loc 1 113 0 is_stmt 0 discriminator 1
+  66 0038 4CF21003 		movw	r3, #49168
+  67 003c C4F20F03 		movt	r3, 16399
+  68 0040 1B68     		ldr	r3, [r3, #0]
+  69 0042 002B     		cmp	r3, #0
+  70 0044 F8DA     		bge	.L4
+  71              	.L1:
+ 114:C:/StellarisWare/driverlib\hibernate.c ****         {
+ 115:C:/StellarisWare/driverlib\hibernate.c ****         }
+ 116:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 117:C:/StellarisWare/driverlib\hibernate.c **** }
+  72              		.loc 1 117 0 is_stmt 1
+  73 0046 80BD     		pop	{r7, pc}
+  74              		.cfi_endproc
+  75              	.LFE0:
+  77              		.section	.text.HibernateEnableExpClk,"ax",%progbits
+  78              		.align	2
+  79              		.global	HibernateEnableExpClk
+  80              		.thumb
+  81              		.thumb_func
+  83              	HibernateEnableExpClk:
+  84              	.LFB1:
+ 118:C:/StellarisWare/driverlib\hibernate.c **** 
+ 119:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 120:C:/StellarisWare/driverlib\hibernate.c **** //
+ 121:C:/StellarisWare/driverlib\hibernate.c **** //! Enables the Hibernation module for operation.
+ 122:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 123:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulHibClk is the rate of the clock supplied to the Hibernation
+ 124:C:/StellarisWare/driverlib\hibernate.c **** //! module.
+ 125:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 126:C:/StellarisWare/driverlib\hibernate.c **** //! This function enables the Hibernation module for operation.  This function
+ 127:C:/StellarisWare/driverlib\hibernate.c **** //! should be called before any of the Hibernation module features are used.
+ 128:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 129:C:/StellarisWare/driverlib\hibernate.c **** //! The peripheral clock is the same as the processor clock.  This value is
+ 130:C:/StellarisWare/driverlib\hibernate.c **** //! returned by SysCtlClockGet(), or it can be explicitly hard-coded if it is
+ 131:C:/StellarisWare/driverlib\hibernate.c **** //! constant and known (to save the code/execution overhead of a call to
+ 132:C:/StellarisWare/driverlib\hibernate.c **** //! SysCtlClockGet()).
+ 133:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 134:C:/StellarisWare/driverlib\hibernate.c **** //! This function replaces the original HibernateEnable() API and performs the
+ 135:C:/StellarisWare/driverlib\hibernate.c **** //! same actions.  A macro is provided in <tt>hibernate.h</tt> to map the
+ 136:C:/StellarisWare/driverlib\hibernate.c **** //! original API to this API.
+ 137:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 138:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 139:C:/StellarisWare/driverlib\hibernate.c **** //
+ 140:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 141:C:/StellarisWare/driverlib\hibernate.c **** void
+ 142:C:/StellarisWare/driverlib\hibernate.c **** HibernateEnableExpClk(unsigned long ulHibClk)
+ 143:C:/StellarisWare/driverlib\hibernate.c **** {
+  85              		.loc 1 143 0
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 8
+  88              		@ frame_needed = 1, uses_anonymous_args = 0
+  89 0000 80B5     		push	{r7, lr}
+  90              	.LCFI2:
+  91              		.cfi_def_cfa_offset 8
+  92              		.cfi_offset 14, -4
+  93              		.cfi_offset 7, -8
+  94 0002 82B0     		sub	sp, sp, #8
+  95              	.LCFI3:
+  96              		.cfi_def_cfa_offset 16
+  97 0004 00AF     		add	r7, sp, #0
+  98              	.LCFI4:
+  99              		.cfi_def_cfa_register 7
+ 100 0006 7860     		str	r0, [r7, #4]
+ 144:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 145:C:/StellarisWare/driverlib\hibernate.c ****     // Turn on the clock enable bit.
+ 146:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 147:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) |= HIB_CTL_CLK32EN;
+ 101              		.loc 1 147 0
+ 102 0008 4CF21003 		movw	r3, #49168
+ 103 000c C4F20F03 		movt	r3, 16399
+ 104 0010 4CF21002 		movw	r2, #49168
+ 105 0014 C4F20F02 		movt	r2, 16399
+ 106 0018 1268     		ldr	r2, [r2, #0]
+ 107 001a 42F04002 		orr	r2, r2, #64
+ 108 001e 1A60     		str	r2, [r3, #0]
+ 148:C:/StellarisWare/driverlib\hibernate.c **** 
+ 149:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 150:C:/StellarisWare/driverlib\hibernate.c ****     // For Fury-class devices, compute the number of delay loops that must be
+ 151:C:/StellarisWare/driverlib\hibernate.c ****     // used to achieve the desired delay for writes to the hibernation
+ 152:C:/StellarisWare/driverlib\hibernate.c ****     // registers.  This value will be used in calls to SysCtlDelay().
+ 153:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 154:C:/StellarisWare/driverlib\hibernate.c ****     if(CLASS_IS_FURY)
+ 109              		.loc 1 154 0
+ 110 0020 4FF46043 		mov	r3, #57344
+ 111 0024 C4F20F03 		movt	r3, 16399
+ 112 0028 1A68     		ldr	r2, [r3, #0]
+ 113 002a 4FF00003 		mov	r3, #0
+ 114 002e C7F2FF03 		movt	r3, 28927
+ 115 0032 1340     		ands	r3, r3, r2
+ 116 0034 4FF00002 		mov	r2, #0
+ 117 0038 C1F20102 		movt	r2, 4097
+ 118 003c 9342     		cmp	r3, r2
+ 119 003e 29D1     		bne	.L7
+ 155:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 156:C:/StellarisWare/driverlib\hibernate.c ****         g_ulWriteDelay = (((ulHibClk / 1000) * DELAY_USECS) /
+ 120              		.loc 1 156 0
+ 121 0040 7A68     		ldr	r2, [r7, #4]
+ 122 0042 44F6D353 		movw	r3, #19923
+ 123 0046 C1F26203 		movt	r3, 4194
+ 124 004a A3FB0213 		umull	r1, r3, r3, r2
+ 125 004e 4FEA9312 		lsr	r2, r3, #6
+ 126 0052 1346     		mov	r3, r2
+ 127 0054 4FEA4303 		lsl	r3, r3, #1
+ 128 0058 9B18     		adds	r3, r3, r2
+ 129 005a 4FEA4313 		lsl	r3, r3, #5
+ 130 005e 9A1A     		subs	r2, r3, r2
+ 131 0060 41F6F113 		movw	r3, #6641
+ 132 0064 C0F27653 		movt	r3, 1398
+ 133 0068 A3FB0213 		umull	r1, r3, r3, r2
+ 134 006c 4FEA9312 		lsr	r2, r3, #6
+ 135 0070 40F20003 		movw	r3, #:lower16:g_ulWriteDelay
+ 136 0074 C0F20003 		movt	r3, #:upper16:g_ulWriteDelay
+ 137 0078 1A60     		str	r2, [r3, #0]
+ 157:C:/StellarisWare/driverlib\hibernate.c ****                           (1000L * LOOP_CYCLES));
+ 158:C:/StellarisWare/driverlib\hibernate.c ****         g_ulWriteDelay++;
+ 138              		.loc 1 158 0
+ 139 007a 40F20003 		movw	r3, #:lower16:g_ulWriteDelay
+ 140 007e C0F20003 		movt	r3, #:upper16:g_ulWriteDelay
+ 141 0082 1B68     		ldr	r3, [r3, #0]
+ 142 0084 03F10102 		add	r2, r3, #1
+ 143 0088 40F20003 		movw	r3, #:lower16:g_ulWriteDelay
+ 144 008c C0F20003 		movt	r3, #:upper16:g_ulWriteDelay
+ 145 0090 1A60     		str	r2, [r3, #0]
+ 146 0092 01E0     		b	.L6
+ 147              	.L7:
+ 159:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 160:C:/StellarisWare/driverlib\hibernate.c ****     else
+ 161:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 162:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 163:C:/StellarisWare/driverlib\hibernate.c ****         // Non-fury parts must wait for write complete following register
+ 164:C:/StellarisWare/driverlib\hibernate.c ****         // load (above).
+ 165:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 166:C:/StellarisWare/driverlib\hibernate.c ****         HibernateWriteComplete();
+ 148              		.loc 1 166 0
+ 149 0094 FFF7FEFF 		bl	HibernateWriteComplete
+ 150              	.L6:
+ 167:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 168:C:/StellarisWare/driverlib\hibernate.c **** }
+ 151              		.loc 1 168 0
+ 152 0098 07F10807 		add	r7, r7, #8
+ 153 009c BD46     		mov	sp, r7
+ 154 009e 80BD     		pop	{r7, pc}
+ 155              		.cfi_endproc
+ 156              	.LFE1:
+ 158              		.section	.text.HibernateDisable,"ax",%progbits
+ 159              		.align	2
+ 160              		.global	HibernateDisable
+ 161              		.thumb
+ 162              		.thumb_func
+ 164              	HibernateDisable:
+ 165              	.LFB2:
+ 169:C:/StellarisWare/driverlib\hibernate.c **** 
+ 170:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 171:C:/StellarisWare/driverlib\hibernate.c **** //
+ 172:C:/StellarisWare/driverlib\hibernate.c **** //! Disables the Hibernation module for operation.
+ 173:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 174:C:/StellarisWare/driverlib\hibernate.c **** //! This function disables the Hibernation module for operation.  After this
+ 175:C:/StellarisWare/driverlib\hibernate.c **** //! function is called, none of the Hibernation module features are available.
+ 176:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 177:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 178:C:/StellarisWare/driverlib\hibernate.c **** //
+ 179:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 180:C:/StellarisWare/driverlib\hibernate.c **** void
+ 181:C:/StellarisWare/driverlib\hibernate.c **** HibernateDisable(void)
+ 182:C:/StellarisWare/driverlib\hibernate.c **** {
+ 166              		.loc 1 182 0
+ 167              		.cfi_startproc
+ 168              		@ args = 0, pretend = 0, frame = 0
+ 169              		@ frame_needed = 1, uses_anonymous_args = 0
+ 170 0000 80B5     		push	{r7, lr}
+ 171              	.LCFI5:
+ 172              		.cfi_def_cfa_offset 8
+ 173              		.cfi_offset 14, -4
+ 174              		.cfi_offset 7, -8
+ 175 0002 00AF     		add	r7, sp, #0
+ 176              	.LCFI6:
+ 177              		.cfi_def_cfa_register 7
+ 183:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 184:C:/StellarisWare/driverlib\hibernate.c ****     // Turn off the clock enable bit.
+ 185:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 186:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) &= ~HIB_CTL_CLK32EN;
+ 178              		.loc 1 186 0
+ 179 0004 4CF21003 		movw	r3, #49168
+ 180 0008 C4F20F03 		movt	r3, 16399
+ 181 000c 4CF21002 		movw	r2, #49168
+ 182 0010 C4F20F02 		movt	r2, 16399
+ 183 0014 1268     		ldr	r2, [r2, #0]
+ 184 0016 22F04002 		bic	r2, r2, #64
+ 185 001a 1A60     		str	r2, [r3, #0]
+ 187:C:/StellarisWare/driverlib\hibernate.c **** 
+ 188:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 189:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 190:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 191:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 186              		.loc 1 191 0
+ 187 001c FFF7FEFF 		bl	HibernateWriteComplete
+ 192:C:/StellarisWare/driverlib\hibernate.c **** }
+ 188              		.loc 1 192 0
+ 189 0020 80BD     		pop	{r7, pc}
+ 190              		.cfi_endproc
+ 191              	.LFE2:
+ 193 0022 00BF     		.section	.text.HibernateClockSelect,"ax",%progbits
+ 194              		.align	2
+ 195              		.global	HibernateClockSelect
+ 196              		.thumb
+ 197              		.thumb_func
+ 199              	HibernateClockSelect:
+ 200              	.LFB3:
+ 193:C:/StellarisWare/driverlib\hibernate.c **** 
+ 194:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 195:C:/StellarisWare/driverlib\hibernate.c **** //
+ 196:C:/StellarisWare/driverlib\hibernate.c **** //! Selects the clock input for the Hibernation module.
+ 197:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 198:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulClockInput specifies the clock input.
+ 199:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 200:C:/StellarisWare/driverlib\hibernate.c **** //! This function configures the clock input for the Hibernation module.  The
+ 201:C:/StellarisWare/driverlib\hibernate.c **** //! configuration option chosen depends entirely on hardware design.  The clock
+ 202:C:/StellarisWare/driverlib\hibernate.c **** //! input for the module is either a 32.768 kHz oscillator or a 4.194304 MHz
+ 203:C:/StellarisWare/driverlib\hibernate.c **** //! crystal. The \e ulClockFlags parameter must be one of the following:
+ 204:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 205:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_CLOCK_SEL_RAW - use the raw signal from a 32.768 kHz
+ 206:C:/StellarisWare/driverlib\hibernate.c **** //!   oscillator.
+ 207:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_CLOCK_SEL_DIV128 - use the crystal input, divided by 128.
+ 208:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 209:C:/StellarisWare/driverlib\hibernate.c **** //! \note The \b HIBERNATE_CLOCK_SEL_DIV128 setting is not available on all
+ 210:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.  Please consult the data sheet to determine if the
+ 211:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using supports the 4.194304 crystal as a source for the
+ 212:C:/StellarisWare/driverlib\hibernate.c **** //! Hibernation module.
+ 213:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 214:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 215:C:/StellarisWare/driverlib\hibernate.c **** //
+ 216:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 217:C:/StellarisWare/driverlib\hibernate.c **** void
+ 218:C:/StellarisWare/driverlib\hibernate.c **** HibernateClockSelect(unsigned long ulClockInput)
+ 219:C:/StellarisWare/driverlib\hibernate.c **** {
+ 201              		.loc 1 219 0
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 8
+ 204              		@ frame_needed = 1, uses_anonymous_args = 0
+ 205 0000 80B5     		push	{r7, lr}
+ 206              	.LCFI7:
+ 207              		.cfi_def_cfa_offset 8
+ 208              		.cfi_offset 14, -4
+ 209              		.cfi_offset 7, -8
+ 210 0002 82B0     		sub	sp, sp, #8
+ 211              	.LCFI8:
+ 212              		.cfi_def_cfa_offset 16
+ 213 0004 00AF     		add	r7, sp, #0
+ 214              	.LCFI9:
+ 215              		.cfi_def_cfa_register 7
+ 216 0006 7860     		str	r0, [r7, #4]
+ 220:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 221:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 222:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 223:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT((ulClockInput == HIBERNATE_CLOCK_SEL_RAW) ||
+ 224:C:/StellarisWare/driverlib\hibernate.c ****            (ulClockInput == HIBERNATE_CLOCK_SEL_DIV128));
+ 225:C:/StellarisWare/driverlib\hibernate.c **** 
+ 226:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 227:C:/StellarisWare/driverlib\hibernate.c ****     // Set the clock selection bit according to the parameter.
+ 228:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 229:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = ulClockInput | (HWREG(HIB_CTL) & ~HIB_CTL_CLKSEL);
+ 217              		.loc 1 229 0
+ 218 0008 4CF21003 		movw	r3, #49168
+ 219 000c C4F20F03 		movt	r3, 16399
+ 220 0010 4CF21002 		movw	r2, #49168
+ 221 0014 C4F20F02 		movt	r2, 16399
+ 222 0018 1268     		ldr	r2, [r2, #0]
+ 223 001a 22F00401 		bic	r1, r2, #4
+ 224 001e 7A68     		ldr	r2, [r7, #4]
+ 225 0020 0A43     		orrs	r2, r2, r1
+ 226 0022 1A60     		str	r2, [r3, #0]
+ 230:C:/StellarisWare/driverlib\hibernate.c **** 
+ 231:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 232:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 233:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 234:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 227              		.loc 1 234 0
+ 228 0024 FFF7FEFF 		bl	HibernateWriteComplete
+ 235:C:/StellarisWare/driverlib\hibernate.c **** }
+ 229              		.loc 1 235 0
+ 230 0028 07F10807 		add	r7, r7, #8
+ 231 002c BD46     		mov	sp, r7
+ 232 002e 80BD     		pop	{r7, pc}
+ 233              		.cfi_endproc
+ 234              	.LFE3:
+ 236              		.section	.text.HibernateClockConfig,"ax",%progbits
+ 237              		.align	2
+ 238              		.global	HibernateClockConfig
+ 239              		.thumb
+ 240              		.thumb_func
+ 242              	HibernateClockConfig:
+ 243              	.LFB4:
+ 236:C:/StellarisWare/driverlib\hibernate.c **** 
+ 237:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 238:C:/StellarisWare/driverlib\hibernate.c **** //
+ 239:C:/StellarisWare/driverlib\hibernate.c **** //! Configures the clock input for the Hibernation module.
+ 240:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 241:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulConfig is one of the possible configuration options for the clock
+ 242:C:/StellarisWare/driverlib\hibernate.c **** //! input listed below.
+ 243:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 244:C:/StellarisWare/driverlib\hibernate.c **** //! This function is used to configure the clock input for the Hibernation
+ 245:C:/StellarisWare/driverlib\hibernate.c **** //! module.  The \e ulConfig parameter can be one of the following values:
+ 246:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 247:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_OSC_DISABLE specifies that the internal oscillator
+ 248:C:/StellarisWare/driverlib\hibernate.c **** //! is powered off and either an externally supplied clock source or no clock
+ 249:C:/StellarisWare/driverlib\hibernate.c **** //! source is being used.
+ 250:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_OSC_HIGHDRIVE specifies a higher drive strength when a 24pF
+ 251:C:/StellarisWare/driverlib\hibernate.c **** //! filter capacitor is used with a crystal.
+ 252:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_OSC_LOWDRIVE specifies a lower drive strength when a 12pF
+ 253:C:/StellarisWare/driverlib\hibernate.c **** //! filter capacitor is used with a crystal.
+ 254:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 255:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 256:C:/StellarisWare/driverlib\hibernate.c **** //! The \b HIBERNATE_OSC_DISABLE option is used to disable and power down the
+ 257:C:/StellarisWare/driverlib\hibernate.c **** //! internal oscillator if an external clock source or no clock source is used
+ 258:C:/StellarisWare/driverlib\hibernate.c **** //! instead of a 32.768 kHz crystal.  In the case where an external crystal is
+ 259:C:/StellarisWare/driverlib\hibernate.c **** //! used, either the \b HIBERNATE_OSC_HIGHDRIVE or \b HIBERNATE_OSC_LOWDRIVE is
+ 260:C:/StellarisWare/driverlib\hibernate.c **** //! used.  This optimizes the oscillator drive strength to match the size of
+ 261:C:/StellarisWare/driverlib\hibernate.c **** //! the filter capacitor that is used with the external crystal circuit.
+ 262:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 263:C:/StellarisWare/driverlib\hibernate.c **** //! \note The ability to configure the clock input in the Hibernation
+ 264:C:/StellarisWare/driverlib\hibernate.c **** //! module is not available on all Stellaris devices.  Please consult the data
+ 265:C:/StellarisWare/driverlib\hibernate.c **** //! sheet for the Stellaris device that you are using to determine if this
+ 266:C:/StellarisWare/driverlib\hibernate.c **** //! feature is available.
+ 267:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 268:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 269:C:/StellarisWare/driverlib\hibernate.c **** //
+ 270:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 271:C:/StellarisWare/driverlib\hibernate.c **** void
+ 272:C:/StellarisWare/driverlib\hibernate.c **** HibernateClockConfig(unsigned long ulConfig)
+ 273:C:/StellarisWare/driverlib\hibernate.c **** {
+ 244              		.loc 1 273 0
+ 245              		.cfi_startproc
+ 246              		@ args = 0, pretend = 0, frame = 16
+ 247              		@ frame_needed = 1, uses_anonymous_args = 0
+ 248 0000 80B5     		push	{r7, lr}
+ 249              	.LCFI10:
+ 250              		.cfi_def_cfa_offset 8
+ 251              		.cfi_offset 14, -4
+ 252              		.cfi_offset 7, -8
+ 253 0002 84B0     		sub	sp, sp, #16
+ 254              	.LCFI11:
+ 255              		.cfi_def_cfa_offset 24
+ 256 0004 00AF     		add	r7, sp, #0
+ 257              	.LCFI12:
+ 258              		.cfi_def_cfa_register 7
+ 259 0006 7860     		str	r0, [r7, #4]
+ 274:C:/StellarisWare/driverlib\hibernate.c ****     unsigned long ulHIBCtl;
+ 275:C:/StellarisWare/driverlib\hibernate.c **** 
+ 276:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT((ulConfig & (HIBERNATE_OSC_HIGHDRIVE | HIBERNATE_OSC_LOWDRIVE |
+ 277:C:/StellarisWare/driverlib\hibernate.c ****                         HIBERNATE_OSC_DISABLE)) == 0);
+ 278:C:/StellarisWare/driverlib\hibernate.c **** 
+ 279:C:/StellarisWare/driverlib\hibernate.c ****     ulHIBCtl = HWREG(HIB_CTL);
+ 260              		.loc 1 279 0
+ 261 0008 4CF21003 		movw	r3, #49168
+ 262 000c C4F20F03 		movt	r3, 16399
+ 263 0010 1B68     		ldr	r3, [r3, #0]
+ 264 0012 FB60     		str	r3, [r7, #12]
+ 280:C:/StellarisWare/driverlib\hibernate.c **** 
+ 281:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 282:C:/StellarisWare/driverlib\hibernate.c ****     // Clear the current configuration bits.
+ 283:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 284:C:/StellarisWare/driverlib\hibernate.c ****     ulHIBCtl &= ~(HIBERNATE_OSC_HIGHDRIVE | HIBERNATE_OSC_LOWDRIVE |
+ 265              		.loc 1 284 0
+ 266 0014 FB68     		ldr	r3, [r7, #12]
+ 267 0016 23F4E023 		bic	r3, r3, #458752
+ 268 001a FB60     		str	r3, [r7, #12]
+ 285:C:/StellarisWare/driverlib\hibernate.c ****                   HIBERNATE_OSC_DISABLE);
+ 286:C:/StellarisWare/driverlib\hibernate.c **** 
+ 287:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 288:C:/StellarisWare/driverlib\hibernate.c ****     // Set the new configuration bits.
+ 289:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 290:C:/StellarisWare/driverlib\hibernate.c ****     ulHIBCtl |= ulConfig & (HIBERNATE_OSC_HIGHDRIVE | HIBERNATE_OSC_LOWDRIVE |
+ 269              		.loc 1 290 0
+ 270 001c 7B68     		ldr	r3, [r7, #4]
+ 271 001e 03F4E023 		and	r3, r3, #458752
+ 272 0022 FA68     		ldr	r2, [r7, #12]
+ 273 0024 1343     		orrs	r3, r3, r2
+ 274 0026 FB60     		str	r3, [r7, #12]
+ 291:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_OSC_DISABLE);
+ 292:C:/StellarisWare/driverlib\hibernate.c **** 
+ 293:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 294:C:/StellarisWare/driverlib\hibernate.c ****     // Set the hibernation clocking configuration.
+ 295:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 296:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = ulHIBCtl;
+ 275              		.loc 1 296 0
+ 276 0028 4CF21003 		movw	r3, #49168
+ 277 002c C4F20F03 		movt	r3, 16399
+ 278 0030 FA68     		ldr	r2, [r7, #12]
+ 279 0032 1A60     		str	r2, [r3, #0]
+ 297:C:/StellarisWare/driverlib\hibernate.c **** 
+ 298:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 299:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 300:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 301:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 280              		.loc 1 301 0
+ 281 0034 FFF7FEFF 		bl	HibernateWriteComplete
+ 302:C:/StellarisWare/driverlib\hibernate.c **** }
+ 282              		.loc 1 302 0
+ 283 0038 07F11007 		add	r7, r7, #16
+ 284 003c BD46     		mov	sp, r7
+ 285 003e 80BD     		pop	{r7, pc}
+ 286              		.cfi_endproc
+ 287              	.LFE4:
+ 289              		.section	.text.HibernateRTCEnable,"ax",%progbits
+ 290              		.align	2
+ 291              		.global	HibernateRTCEnable
+ 292              		.thumb
+ 293              		.thumb_func
+ 295              	HibernateRTCEnable:
+ 296              	.LFB5:
+ 303:C:/StellarisWare/driverlib\hibernate.c **** 
+ 304:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 305:C:/StellarisWare/driverlib\hibernate.c **** //
+ 306:C:/StellarisWare/driverlib\hibernate.c **** //! Enables the RTC feature of the Hibernation module.
+ 307:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 308:C:/StellarisWare/driverlib\hibernate.c **** //! This function enables the RTC in the Hibernation module.  The RTC can be
+ 309:C:/StellarisWare/driverlib\hibernate.c **** //! used to wake the processor from hibernation at a certain time, or to
+ 310:C:/StellarisWare/driverlib\hibernate.c **** //! generate interrupts at certain times.  This function must be called before
+ 311:C:/StellarisWare/driverlib\hibernate.c **** //! using any of the RTC features of the Hibernation module.
+ 312:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 313:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 314:C:/StellarisWare/driverlib\hibernate.c **** //
+ 315:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 316:C:/StellarisWare/driverlib\hibernate.c **** void
+ 317:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCEnable(void)
+ 318:C:/StellarisWare/driverlib\hibernate.c **** {
+ 297              		.loc 1 318 0
+ 298              		.cfi_startproc
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 1, uses_anonymous_args = 0
+ 301 0000 80B5     		push	{r7, lr}
+ 302              	.LCFI13:
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 14, -4
+ 305              		.cfi_offset 7, -8
+ 306 0002 00AF     		add	r7, sp, #0
+ 307              	.LCFI14:
+ 308              		.cfi_def_cfa_register 7
+ 319:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 320:C:/StellarisWare/driverlib\hibernate.c ****     // Turn on the RTC enable bit.
+ 321:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 322:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) |= HIB_CTL_RTCEN;
+ 309              		.loc 1 322 0
+ 310 0004 4CF21003 		movw	r3, #49168
+ 311 0008 C4F20F03 		movt	r3, 16399
+ 312 000c 4CF21002 		movw	r2, #49168
+ 313 0010 C4F20F02 		movt	r2, 16399
+ 314 0014 1268     		ldr	r2, [r2, #0]
+ 315 0016 42F00102 		orr	r2, r2, #1
+ 316 001a 1A60     		str	r2, [r3, #0]
+ 323:C:/StellarisWare/driverlib\hibernate.c **** 
+ 324:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 325:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 326:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 327:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 317              		.loc 1 327 0
+ 318 001c FFF7FEFF 		bl	HibernateWriteComplete
+ 328:C:/StellarisWare/driverlib\hibernate.c **** }
+ 319              		.loc 1 328 0
+ 320 0020 80BD     		pop	{r7, pc}
+ 321              		.cfi_endproc
+ 322              	.LFE5:
+ 324 0022 00BF     		.section	.text.HibernateRTCDisable,"ax",%progbits
+ 325              		.align	2
+ 326              		.global	HibernateRTCDisable
+ 327              		.thumb
+ 328              		.thumb_func
+ 330              	HibernateRTCDisable:
+ 331              	.LFB6:
+ 329:C:/StellarisWare/driverlib\hibernate.c **** 
+ 330:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 331:C:/StellarisWare/driverlib\hibernate.c **** //
+ 332:C:/StellarisWare/driverlib\hibernate.c **** //! Disables the RTC feature of the Hibernation module.
+ 333:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 334:C:/StellarisWare/driverlib\hibernate.c **** //! This function disables the RTC in the Hibernation module.  After calling
+ 335:C:/StellarisWare/driverlib\hibernate.c **** //! this function, the RTC features of the Hibernation module are not
+ 336:C:/StellarisWare/driverlib\hibernate.c **** //! available.
+ 337:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 338:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 339:C:/StellarisWare/driverlib\hibernate.c **** //
+ 340:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 341:C:/StellarisWare/driverlib\hibernate.c **** void
+ 342:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCDisable(void)
+ 343:C:/StellarisWare/driverlib\hibernate.c **** {
+ 332              		.loc 1 343 0
+ 333              		.cfi_startproc
+ 334              		@ args = 0, pretend = 0, frame = 0
+ 335              		@ frame_needed = 1, uses_anonymous_args = 0
+ 336 0000 80B5     		push	{r7, lr}
+ 337              	.LCFI15:
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 14, -4
+ 340              		.cfi_offset 7, -8
+ 341 0002 00AF     		add	r7, sp, #0
+ 342              	.LCFI16:
+ 343              		.cfi_def_cfa_register 7
+ 344:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 345:C:/StellarisWare/driverlib\hibernate.c ****     // Turn off the RTC enable bit.
+ 346:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 347:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) &= ~HIB_CTL_RTCEN;
+ 344              		.loc 1 347 0
+ 345 0004 4CF21003 		movw	r3, #49168
+ 346 0008 C4F20F03 		movt	r3, 16399
+ 347 000c 4CF21002 		movw	r2, #49168
+ 348 0010 C4F20F02 		movt	r2, 16399
+ 349 0014 1268     		ldr	r2, [r2, #0]
+ 350 0016 22F00102 		bic	r2, r2, #1
+ 351 001a 1A60     		str	r2, [r3, #0]
+ 348:C:/StellarisWare/driverlib\hibernate.c **** 
+ 349:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 350:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 351:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 352:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 352              		.loc 1 352 0
+ 353 001c FFF7FEFF 		bl	HibernateWriteComplete
+ 353:C:/StellarisWare/driverlib\hibernate.c **** }
+ 354              		.loc 1 353 0
+ 355 0020 80BD     		pop	{r7, pc}
+ 356              		.cfi_endproc
+ 357              	.LFE6:
+ 359 0022 00BF     		.section	.text.HibernateBatCheckStart,"ax",%progbits
+ 360              		.align	2
+ 361              		.global	HibernateBatCheckStart
+ 362              		.thumb
+ 363              		.thumb_func
+ 365              	HibernateBatCheckStart:
+ 366              	.LFB7:
+ 354:C:/StellarisWare/driverlib\hibernate.c **** 
+ 355:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 356:C:/StellarisWare/driverlib\hibernate.c **** //
+ 357:C:/StellarisWare/driverlib\hibernate.c **** //! Forces the Hibernation module to initiate a check of the battery voltage.
+ 358:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 359:C:/StellarisWare/driverlib\hibernate.c **** //! This function forces the Hibernation module to initiate a check of the
+ 360:C:/StellarisWare/driverlib\hibernate.c **** //! battery voltage immediately rather than waiting for the next check interval
+ 361:C:/StellarisWare/driverlib\hibernate.c **** //! to pass.  After calling this function, the application should call the
+ 362:C:/StellarisWare/driverlib\hibernate.c **** //! () function and wait for the function to return a zero
+ 363:C:/StellarisWare/driverlib\hibernate.c **** //! value before calling the HibernateIntStatus() to check if the return code
+ 364:C:/StellarisWare/driverlib\hibernate.c **** //! has the \b HIBERNATE_INT_LOW_BAT set.  If \b HIBERNATE_INT_LOW_BAT is set
+ 365:C:/StellarisWare/driverlib\hibernate.c **** //! this indicates that battery level is low.  The application can also enable
+ 366:C:/StellarisWare/driverlib\hibernate.c **** //! the \b HIBERNATE_INT_LOW_BAT interrupt and wait for an interrupt to
+ 367:C:/StellarisWare/driverlib\hibernate.c **** //! indicate that the battery level is low.
+ 368:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 369:C:/StellarisWare/driverlib\hibernate.c **** //! \note A hibernation request is held off if a battery check is in progress.
+ 370:C:/StellarisWare/driverlib\hibernate.c **** //! This function is only available on some Stellaris devices.
+ 371:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 372:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 373:C:/StellarisWare/driverlib\hibernate.c **** //
+ 374:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 375:C:/StellarisWare/driverlib\hibernate.c **** void
+ 376:C:/StellarisWare/driverlib\hibernate.c **** HibernateBatCheckStart(void)
+ 377:C:/StellarisWare/driverlib\hibernate.c **** {
+ 367              		.loc 1 377 0
+ 368              		.cfi_startproc
+ 369              		@ args = 0, pretend = 0, frame = 0
+ 370              		@ frame_needed = 1, uses_anonymous_args = 0
+ 371 0000 80B5     		push	{r7, lr}
+ 372              	.LCFI17:
+ 373              		.cfi_def_cfa_offset 8
+ 374              		.cfi_offset 14, -4
+ 375              		.cfi_offset 7, -8
+ 376 0002 00AF     		add	r7, sp, #0
+ 377              	.LCFI18:
+ 378              		.cfi_def_cfa_register 7
+ 378:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 379:C:/StellarisWare/driverlib\hibernate.c ****     // Initiated a forced battery check.
+ 380:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 381:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) |= HIB_CTL_BATCHK;
+ 379              		.loc 1 381 0
+ 380 0004 4CF21003 		movw	r3, #49168
+ 381 0008 C4F20F03 		movt	r3, 16399
+ 382 000c 4CF21002 		movw	r2, #49168
+ 383 0010 C4F20F02 		movt	r2, 16399
+ 384 0014 1268     		ldr	r2, [r2, #0]
+ 385 0016 42F48062 		orr	r2, r2, #1024
+ 386 001a 1A60     		str	r2, [r3, #0]
+ 382:C:/StellarisWare/driverlib\hibernate.c **** 
+ 383:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 384:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 385:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 386:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 387              		.loc 1 386 0
+ 388 001c FFF7FEFF 		bl	HibernateWriteComplete
+ 387:C:/StellarisWare/driverlib\hibernate.c **** }
+ 389              		.loc 1 387 0
+ 390 0020 80BD     		pop	{r7, pc}
+ 391              		.cfi_endproc
+ 392              	.LFE7:
+ 394 0022 00BF     		.section	.text.HibernateBatCheckDone,"ax",%progbits
+ 395              		.align	2
+ 396              		.global	HibernateBatCheckDone
+ 397              		.thumb
+ 398              		.thumb_func
+ 400              	HibernateBatCheckDone:
+ 401              	.LFB8:
+ 388:C:/StellarisWare/driverlib\hibernate.c **** 
+ 389:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 390:C:/StellarisWare/driverlib\hibernate.c **** //
+ 391:C:/StellarisWare/driverlib\hibernate.c **** //! Returns if a forced battery check has completed.
+ 392:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 393:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns if the forced battery check initiated by a call to
+ 394:C:/StellarisWare/driverlib\hibernate.c **** //! the HibernateBatCheckStart() function has completed.  This function
+ 395:C:/StellarisWare/driverlib\hibernate.c **** //! returns a non-zero value until the battery level check has completed.  Once
+ 396:C:/StellarisWare/driverlib\hibernate.c **** //! this function returns a value of zero, the hibernation module has completed
+ 397:C:/StellarisWare/driverlib\hibernate.c **** //! the battery check and the HibernateIntStatus() function can be used to
+ 398:C:/StellarisWare/driverlib\hibernate.c **** //! check if the battery was low by checking if the value returned has the
+ 399:C:/StellarisWare/driverlib\hibernate.c **** //! \b HIBERNATE_INT_LOW_BAT set.
+ 400:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 401:C:/StellarisWare/driverlib\hibernate.c **** //! \note This function is only available on some Stellaris devices.
+ 402:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 403:C:/StellarisWare/driverlib\hibernate.c **** //! \return The value is zero when the battery level check has completed or
+ 404:C:/StellarisWare/driverlib\hibernate.c **** //! non-zero if the check is still in process.
+ 405:C:/StellarisWare/driverlib\hibernate.c **** //
+ 406:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 407:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 408:C:/StellarisWare/driverlib\hibernate.c **** HibernateBatCheckDone(void)
+ 409:C:/StellarisWare/driverlib\hibernate.c **** {
+ 402              		.loc 1 409 0
+ 403              		.cfi_startproc
+ 404              		@ args = 0, pretend = 0, frame = 0
+ 405              		@ frame_needed = 1, uses_anonymous_args = 0
+ 406              		@ link register save eliminated.
+ 407 0000 80B4     		push	{r7}
+ 408              	.LCFI19:
+ 409              		.cfi_def_cfa_offset 4
+ 410              		.cfi_offset 7, -4
+ 411 0002 00AF     		add	r7, sp, #0
+ 412              	.LCFI20:
+ 413              		.cfi_def_cfa_register 7
+ 410:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 411:C:/StellarisWare/driverlib\hibernate.c ****     // Read the current state of the batter check.
+ 412:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 413:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_CTL) & HIB_CTL_BATCHK);
+ 414              		.loc 1 413 0
+ 415 0004 4CF21003 		movw	r3, #49168
+ 416 0008 C4F20F03 		movt	r3, 16399
+ 417 000c 1B68     		ldr	r3, [r3, #0]
+ 418 000e 03F48063 		and	r3, r3, #1024
+ 414:C:/StellarisWare/driverlib\hibernate.c **** }
+ 419              		.loc 1 414 0
+ 420 0012 1846     		mov	r0, r3
+ 421 0014 BD46     		mov	sp, r7
+ 422 0016 80BC     		pop	{r7}
+ 423 0018 7047     		bx	lr
+ 424              		.cfi_endproc
+ 425              	.LFE8:
+ 427 001a 00BF     		.section	.text.HibernateWakeSet,"ax",%progbits
+ 428              		.align	2
+ 429              		.global	HibernateWakeSet
+ 430              		.thumb
+ 431              		.thumb_func
+ 433              	HibernateWakeSet:
+ 434              	.LFB9:
+ 415:C:/StellarisWare/driverlib\hibernate.c **** 
+ 416:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 417:C:/StellarisWare/driverlib\hibernate.c **** //
+ 418:C:/StellarisWare/driverlib\hibernate.c **** //! Configures the wake conditions for the Hibernation module.
+ 419:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 420:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulWakeFlags specifies which conditions should be used for waking.
+ 421:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 422:C:/StellarisWare/driverlib\hibernate.c **** //! This function enables the conditions under which the Hibernation module
+ 423:C:/StellarisWare/driverlib\hibernate.c **** //! wakes.  The \e ulWakeFlags parameter is the logical OR of any combination
+ 424:C:/StellarisWare/driverlib\hibernate.c **** //! of the following:
+ 425:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 426:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_PIN - wake when the external wake pin is asserted.
+ 427:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_RTC - wake when one of the RTC matches occurs.
+ 428:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_LOW_BAT - wake from hibernate due to a low battery
+ 429:C:/StellarisWare/driverlib\hibernate.c **** //! level being detected.
+ 430:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 431:C:/StellarisWare/driverlib\hibernate.c **** //! \note The \b HIBERNATE_WAKE_LOW_BAT parameter is only available on some
+ 432:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.
+ 433:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 434:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 435:C:/StellarisWare/driverlib\hibernate.c **** //
+ 436:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 437:C:/StellarisWare/driverlib\hibernate.c **** void
+ 438:C:/StellarisWare/driverlib\hibernate.c **** HibernateWakeSet(unsigned long ulWakeFlags)
+ 439:C:/StellarisWare/driverlib\hibernate.c **** {
+ 435              		.loc 1 439 0
+ 436              		.cfi_startproc
+ 437              		@ args = 0, pretend = 0, frame = 8
+ 438              		@ frame_needed = 1, uses_anonymous_args = 0
+ 439 0000 80B5     		push	{r7, lr}
+ 440              	.LCFI21:
+ 441              		.cfi_def_cfa_offset 8
+ 442              		.cfi_offset 14, -4
+ 443              		.cfi_offset 7, -8
+ 444 0002 82B0     		sub	sp, sp, #8
+ 445              	.LCFI22:
+ 446              		.cfi_def_cfa_offset 16
+ 447 0004 00AF     		add	r7, sp, #0
+ 448              	.LCFI23:
+ 449              		.cfi_def_cfa_register 7
+ 450 0006 7860     		str	r0, [r7, #4]
+ 440:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 441:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 442:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 443:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(!(ulWakeFlags & ~(HIBERNATE_WAKE_PIN | HIBERNATE_WAKE_RTC |
+ 444:C:/StellarisWare/driverlib\hibernate.c ****                              HIBERNATE_WAKE_LOW_BAT)));
+ 445:C:/StellarisWare/driverlib\hibernate.c **** 
+ 446:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 447:C:/StellarisWare/driverlib\hibernate.c ****     // Set the specified wake flags in the control register.
+ 448:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 449:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = (ulWakeFlags |
+ 451              		.loc 1 449 0
+ 452 0008 4CF21003 		movw	r3, #49168
+ 453 000c C4F20F03 		movt	r3, 16399
+ 450:C:/StellarisWare/driverlib\hibernate.c ****                       (HWREG(HIB_CTL) & ~(HIBERNATE_WAKE_PIN |
+ 454              		.loc 1 450 0
+ 455 0010 4CF21002 		movw	r2, #49168
+ 456 0014 C4F20F02 		movt	r2, 16399
+ 457 0018 1268     		ldr	r2, [r2, #0]
+ 458 001a 22F40671 		bic	r1, r2, #536
+ 449:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = (ulWakeFlags |
+ 459              		.loc 1 449 0
+ 460 001e 7A68     		ldr	r2, [r7, #4]
+ 461 0020 0A43     		orrs	r2, r2, r1
+ 462 0022 1A60     		str	r2, [r3, #0]
+ 451:C:/StellarisWare/driverlib\hibernate.c ****                                           HIBERNATE_WAKE_RTC |
+ 452:C:/StellarisWare/driverlib\hibernate.c ****                                           HIBERNATE_WAKE_LOW_BAT)));
+ 453:C:/StellarisWare/driverlib\hibernate.c **** 
+ 454:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 455:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 456:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 457:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 463              		.loc 1 457 0
+ 464 0024 FFF7FEFF 		bl	HibernateWriteComplete
+ 458:C:/StellarisWare/driverlib\hibernate.c **** }
+ 465              		.loc 1 458 0
+ 466 0028 07F10807 		add	r7, r7, #8
+ 467 002c BD46     		mov	sp, r7
+ 468 002e 80BD     		pop	{r7, pc}
+ 469              		.cfi_endproc
+ 470              	.LFE9:
+ 472              		.section	.text.HibernateWakeGet,"ax",%progbits
+ 473              		.align	2
+ 474              		.global	HibernateWakeGet
+ 475              		.thumb
+ 476              		.thumb_func
+ 478              	HibernateWakeGet:
+ 479              	.LFB10:
+ 459:C:/StellarisWare/driverlib\hibernate.c **** 
+ 460:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 461:C:/StellarisWare/driverlib\hibernate.c **** //
+ 462:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the currently configured wake conditions for the Hibernation module.
+ 463:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 464:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns the flags representing the wake configuration for the
+ 465:C:/StellarisWare/driverlib\hibernate.c **** //! Hibernation module.  The return value is a combination of the following
+ 466:C:/StellarisWare/driverlib\hibernate.c **** //! flags:
+ 467:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 468:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_PIN - wake when the external wake pin is asserted.
+ 469:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_RTC - wake when one of the RTC matches occurs.
+ 470:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_WAKE_LOW_BAT - wake from hibernate due to a low battery
+ 471:C:/StellarisWare/driverlib\hibernate.c **** //! level being detected.
+ 472:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 473:C:/StellarisWare/driverlib\hibernate.c **** //! \note The \b HIBERNATE_WAKE_LOW_BAT parameter is only available on some
+ 474:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.
+ 475:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 476:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns flags indicating the configured wake conditions.
+ 477:C:/StellarisWare/driverlib\hibernate.c **** //
+ 478:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 479:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 480:C:/StellarisWare/driverlib\hibernate.c **** HibernateWakeGet(void)
+ 481:C:/StellarisWare/driverlib\hibernate.c **** {
+ 480              		.loc 1 481 0
+ 481              		.cfi_startproc
+ 482              		@ args = 0, pretend = 0, frame = 0
+ 483              		@ frame_needed = 1, uses_anonymous_args = 0
+ 484              		@ link register save eliminated.
+ 485 0000 80B4     		push	{r7}
+ 486              	.LCFI24:
+ 487              		.cfi_def_cfa_offset 4
+ 488              		.cfi_offset 7, -4
+ 489 0002 00AF     		add	r7, sp, #0
+ 490              	.LCFI25:
+ 491              		.cfi_def_cfa_register 7
+ 482:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 483:C:/StellarisWare/driverlib\hibernate.c ****     // Read the wake bits from the control register and return
+ 484:C:/StellarisWare/driverlib\hibernate.c ****     // those bits to the caller.
+ 485:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 486:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_CTL) & (HIBERNATE_WAKE_PIN | HIBERNATE_WAKE_RTC |
+ 492              		.loc 1 486 0
+ 493 0004 4CF21003 		movw	r3, #49168
+ 494 0008 C4F20F03 		movt	r3, 16399
+ 495 000c 1B68     		ldr	r3, [r3, #0]
+ 496 000e 03F40673 		and	r3, r3, #536
+ 487:C:/StellarisWare/driverlib\hibernate.c ****                              HIBERNATE_WAKE_LOW_BAT));
+ 488:C:/StellarisWare/driverlib\hibernate.c **** }
+ 497              		.loc 1 488 0
+ 498 0012 1846     		mov	r0, r3
+ 499 0014 BD46     		mov	sp, r7
+ 500 0016 80BC     		pop	{r7}
+ 501 0018 7047     		bx	lr
+ 502              		.cfi_endproc
+ 503              	.LFE10:
+ 505 001a 00BF     		.section	.text.HibernateLowBatSet,"ax",%progbits
+ 506              		.align	2
+ 507              		.global	HibernateLowBatSet
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	HibernateLowBatSet:
+ 512              	.LFB11:
+ 489:C:/StellarisWare/driverlib\hibernate.c **** 
+ 490:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 491:C:/StellarisWare/driverlib\hibernate.c **** //
+ 492:C:/StellarisWare/driverlib\hibernate.c **** //! Configures the low battery detection.
+ 493:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 494:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulLowBatFlags specifies behavior of low battery detection.
+ 495:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 496:C:/StellarisWare/driverlib\hibernate.c **** //! This function enables the low battery detection and whether hibernation is
+ 497:C:/StellarisWare/driverlib\hibernate.c **** //! allowed if a low battery is detected.  If low battery detection is enabled,
+ 498:C:/StellarisWare/driverlib\hibernate.c **** //! then a low battery condition is indicated in the raw interrupt status
+ 499:C:/StellarisWare/driverlib\hibernate.c **** //! register, and can also trigger an interrupt.  Optionally, hibernation can be
+ 500:C:/StellarisWare/driverlib\hibernate.c **** //! aborted if a low battery is detected.
+ 501:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 502:C:/StellarisWare/driverlib\hibernate.c **** //! The \e ulLowBatFlags parameter is one of the following values:
+ 503:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 504:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_DETECT - detect a low battery condition.
+ 505:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_ABORT - detect a low battery condition, and abort
+ 506:C:/StellarisWare/driverlib\hibernate.c **** //!   hibernation if low battery is detected.
+ 507:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 508:C:/StellarisWare/driverlib\hibernate.c **** //! The other setting in the \e ulLowBatFlags allows the caller to set one of
+ 509:C:/StellarisWare/driverlib\hibernate.c **** //! the following voltage level trigger values :
+ 510:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 511:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_1_9V - voltage low level is 1.9V
+ 512:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_2_1V - voltage low level is 2.1V
+ 513:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_2_3V - voltage low level is 2.3V
+ 514:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_LOW_BAT_2_5V - voltage low level is 2.5V
+ 515:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 516:C:/StellarisWare/driverlib\hibernate.c **** //! \b Example: Abort hibernate if the voltage level is below 2.1V.
+ 517:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 518:C:/StellarisWare/driverlib\hibernate.c **** //! \verbatim
+ 519:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateLowBatSet(HIBERNATE_LOW_BAT_ABORT | HIBERNATE_LOW_BAT_2_1V);
+ 520:C:/StellarisWare/driverlib\hibernate.c **** //! \endverbatim
+ 521:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 522:C:/StellarisWare/driverlib\hibernate.c **** //! \note The parameters with the specific voltage levels are only available on
+ 523:C:/StellarisWare/driverlib\hibernate.c **** //! some Stellaris devices.
+ 524:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 525:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 526:C:/StellarisWare/driverlib\hibernate.c **** //
+ 527:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 528:C:/StellarisWare/driverlib\hibernate.c **** void
+ 529:C:/StellarisWare/driverlib\hibernate.c **** HibernateLowBatSet(unsigned long ulLowBatFlags)
+ 530:C:/StellarisWare/driverlib\hibernate.c **** {
+ 513              		.loc 1 530 0
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 8
+ 516              		@ frame_needed = 1, uses_anonymous_args = 0
+ 517 0000 80B5     		push	{r7, lr}
+ 518              	.LCFI26:
+ 519              		.cfi_def_cfa_offset 8
+ 520              		.cfi_offset 14, -4
+ 521              		.cfi_offset 7, -8
+ 522 0002 82B0     		sub	sp, sp, #8
+ 523              	.LCFI27:
+ 524              		.cfi_def_cfa_offset 16
+ 525 0004 00AF     		add	r7, sp, #0
+ 526              	.LCFI28:
+ 527              		.cfi_def_cfa_register 7
+ 528 0006 7860     		str	r0, [r7, #4]
+ 531:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 532:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 533:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 534:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(!(ulLowBatFlags & ~(HIB_CTL_VBATSEL_M | HIBERNATE_LOW_BAT_ABORT)));
+ 535:C:/StellarisWare/driverlib\hibernate.c **** 
+ 536:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 537:C:/StellarisWare/driverlib\hibernate.c ****     // Set the low battery detect and abort bits in the control register,
+ 538:C:/StellarisWare/driverlib\hibernate.c ****     // according to the parameter.
+ 539:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 540:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = (ulLowBatFlags |
+ 529              		.loc 1 540 0
+ 530 0008 4CF21003 		movw	r3, #49168
+ 531 000c C4F20F03 		movt	r3, 16399
+ 541:C:/StellarisWare/driverlib\hibernate.c ****                       (HWREG(HIB_CTL) & ~(HIB_CTL_VBATSEL_M
+ 532              		.loc 1 541 0
+ 533 0010 4CF21002 		movw	r2, #49168
+ 534 0014 C4F20F02 		movt	r2, 16399
+ 535 0018 1268     		ldr	r2, [r2, #0]
+ 536 001a 22F4C042 		bic	r2, r2, #24576
+ 537 001e 22F0A002 		bic	r2, r2, #160
+ 540:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) = (ulLowBatFlags |
+ 538              		.loc 1 540 0
+ 539 0022 7968     		ldr	r1, [r7, #4]
+ 540 0024 0A43     		orrs	r2, r2, r1
+ 541 0026 1A60     		str	r2, [r3, #0]
+ 542:C:/StellarisWare/driverlib\hibernate.c ****                                           | HIBERNATE_LOW_BAT_ABORT)));
+ 543:C:/StellarisWare/driverlib\hibernate.c **** 
+ 544:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 545:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 546:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 547:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 542              		.loc 1 547 0
+ 543 0028 FFF7FEFF 		bl	HibernateWriteComplete
+ 548:C:/StellarisWare/driverlib\hibernate.c **** }
+ 544              		.loc 1 548 0
+ 545 002c 07F10807 		add	r7, r7, #8
+ 546 0030 BD46     		mov	sp, r7
+ 547 0032 80BD     		pop	{r7, pc}
+ 548              		.cfi_endproc
+ 549              	.LFE11:
+ 551              		.section	.text.HibernateLowBatGet,"ax",%progbits
+ 552              		.align	2
+ 553              		.global	HibernateLowBatGet
+ 554              		.thumb
+ 555              		.thumb_func
+ 557              	HibernateLowBatGet:
+ 558              	.LFB12:
+ 549:C:/StellarisWare/driverlib\hibernate.c **** 
+ 550:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 551:C:/StellarisWare/driverlib\hibernate.c **** //
+ 552:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the currently configured low battery detection behavior.
+ 553:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 554:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns a value representing the currently configured low
+ 555:C:/StellarisWare/driverlib\hibernate.c **** //! battery detection behavior.
+ 556:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 557:C:/StellarisWare/driverlib\hibernate.c **** //! The return value is a combination of the values described in the
+ 558:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateLowBatSet() function.
+ 559:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 560:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns a value indicating the configured low battery detection.
+ 561:C:/StellarisWare/driverlib\hibernate.c **** //
+ 562:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 563:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 564:C:/StellarisWare/driverlib\hibernate.c **** HibernateLowBatGet(void)
+ 565:C:/StellarisWare/driverlib\hibernate.c **** {
+ 559              		.loc 1 565 0
+ 560              		.cfi_startproc
+ 561              		@ args = 0, pretend = 0, frame = 0
+ 562              		@ frame_needed = 1, uses_anonymous_args = 0
+ 563              		@ link register save eliminated.
+ 564 0000 80B4     		push	{r7}
+ 565              	.LCFI29:
+ 566              		.cfi_def_cfa_offset 4
+ 567              		.cfi_offset 7, -4
+ 568 0002 00AF     		add	r7, sp, #0
+ 569              	.LCFI30:
+ 570              		.cfi_def_cfa_register 7
+ 566:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 567:C:/StellarisWare/driverlib\hibernate.c ****     // Read the supported low bat bits from the control register and return
+ 568:C:/StellarisWare/driverlib\hibernate.c ****     // those bits to the caller.
+ 569:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 570:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_CTL) & (HIB_CTL_VBATSEL_M | HIBERNATE_LOW_BAT_ABORT));
+ 571              		.loc 1 570 0
+ 572 0004 4CF21003 		movw	r3, #49168
+ 573 0008 C4F20F03 		movt	r3, 16399
+ 574 000c 1A68     		ldr	r2, [r3, #0]
+ 575 000e 46F2A003 		movw	r3, #24736
+ 576 0012 1340     		ands	r3, r3, r2
+ 571:C:/StellarisWare/driverlib\hibernate.c **** }
+ 577              		.loc 1 571 0
+ 578 0014 1846     		mov	r0, r3
+ 579 0016 BD46     		mov	sp, r7
+ 580 0018 80BC     		pop	{r7}
+ 581 001a 7047     		bx	lr
+ 582              		.cfi_endproc
+ 583              	.LFE12:
+ 585              		.section	.text.HibernateRTCSet,"ax",%progbits
+ 586              		.align	2
+ 587              		.global	HibernateRTCSet
+ 588              		.thumb
+ 589              		.thumb_func
+ 591              	HibernateRTCSet:
+ 592              	.LFB13:
+ 572:C:/StellarisWare/driverlib\hibernate.c **** 
+ 573:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 574:C:/StellarisWare/driverlib\hibernate.c **** //
+ 575:C:/StellarisWare/driverlib\hibernate.c **** //! Sets the value of the real time clock (RTC) counter.
+ 576:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 577:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulRTCValue is the new value for the RTC.
+ 578:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 579:C:/StellarisWare/driverlib\hibernate.c **** //! This function sets the value of the RTC.  The RTC count seconds if the
+ 580:C:/StellarisWare/driverlib\hibernate.c **** //! hardware is configured correctly.  The RTC must be enabled by calling
+ 581:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateRTCEnable() before calling this function.
+ 582:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 583:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 584:C:/StellarisWare/driverlib\hibernate.c **** //
+ 585:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 586:C:/StellarisWare/driverlib\hibernate.c **** void
+ 587:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCSet(unsigned long ulRTCValue)
+ 588:C:/StellarisWare/driverlib\hibernate.c **** {
+ 593              		.loc 1 588 0
+ 594              		.cfi_startproc
+ 595              		@ args = 0, pretend = 0, frame = 8
+ 596              		@ frame_needed = 1, uses_anonymous_args = 0
+ 597 0000 80B5     		push	{r7, lr}
+ 598              	.LCFI31:
+ 599              		.cfi_def_cfa_offset 8
+ 600              		.cfi_offset 14, -4
+ 601              		.cfi_offset 7, -8
+ 602 0002 82B0     		sub	sp, sp, #8
+ 603              	.LCFI32:
+ 604              		.cfi_def_cfa_offset 16
+ 605 0004 00AF     		add	r7, sp, #0
+ 606              	.LCFI33:
+ 607              		.cfi_def_cfa_register 7
+ 608 0006 7860     		str	r0, [r7, #4]
+ 589:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 590:C:/StellarisWare/driverlib\hibernate.c ****     // Write the new RTC value to the RTC load register.
+ 591:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 592:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_RTCLD) = ulRTCValue;
+ 609              		.loc 1 592 0
+ 610 0008 4CF20C03 		movw	r3, #49164
+ 611 000c C4F20F03 		movt	r3, 16399
+ 612 0010 7A68     		ldr	r2, [r7, #4]
+ 613 0012 1A60     		str	r2, [r3, #0]
+ 593:C:/StellarisWare/driverlib\hibernate.c **** 
+ 594:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 595:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 596:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 597:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 614              		.loc 1 597 0
+ 615 0014 FFF7FEFF 		bl	HibernateWriteComplete
+ 598:C:/StellarisWare/driverlib\hibernate.c **** }
+ 616              		.loc 1 598 0
+ 617 0018 07F10807 		add	r7, r7, #8
+ 618 001c BD46     		mov	sp, r7
+ 619 001e 80BD     		pop	{r7, pc}
+ 620              		.cfi_endproc
+ 621              	.LFE13:
+ 623              		.section	.text.HibernateRTCGet,"ax",%progbits
+ 624              		.align	2
+ 625              		.global	HibernateRTCGet
+ 626              		.thumb
+ 627              		.thumb_func
+ 629              	HibernateRTCGet:
+ 630              	.LFB14:
+ 599:C:/StellarisWare/driverlib\hibernate.c **** 
+ 600:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 601:C:/StellarisWare/driverlib\hibernate.c **** //
+ 602:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the value of the real time clock (RTC) counter.
+ 603:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 604:C:/StellarisWare/driverlib\hibernate.c **** //! This function gets the value of the RTC and returns it to the caller.
+ 605:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 606:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns the value of the RTC.
+ 607:C:/StellarisWare/driverlib\hibernate.c **** //
+ 608:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 609:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 610:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCGet(void)
+ 611:C:/StellarisWare/driverlib\hibernate.c **** {
+ 631              		.loc 1 611 0
+ 632              		.cfi_startproc
+ 633              		@ args = 0, pretend = 0, frame = 0
+ 634              		@ frame_needed = 1, uses_anonymous_args = 0
+ 635              		@ link register save eliminated.
+ 636 0000 80B4     		push	{r7}
+ 637              	.LCFI34:
+ 638              		.cfi_def_cfa_offset 4
+ 639              		.cfi_offset 7, -4
+ 640 0002 00AF     		add	r7, sp, #0
+ 641              	.LCFI35:
+ 642              		.cfi_def_cfa_register 7
+ 612:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 613:C:/StellarisWare/driverlib\hibernate.c ****     // Return the value of the RTC counter register to the caller.
+ 614:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 615:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCC));
+ 643              		.loc 1 615 0
+ 644 0004 4FF44043 		mov	r3, #49152
+ 645 0008 C4F20F03 		movt	r3, 16399
+ 646 000c 1B68     		ldr	r3, [r3, #0]
+ 616:C:/StellarisWare/driverlib\hibernate.c **** }
+ 647              		.loc 1 616 0
+ 648 000e 1846     		mov	r0, r3
+ 649 0010 BD46     		mov	sp, r7
+ 650 0012 80BC     		pop	{r7}
+ 651 0014 7047     		bx	lr
+ 652              		.cfi_endproc
+ 653              	.LFE14:
+ 655 0016 00BF     		.section	.text.HibernateRTCMatch0Set,"ax",%progbits
+ 656              		.align	2
+ 657              		.global	HibernateRTCMatch0Set
+ 658              		.thumb
+ 659              		.thumb_func
+ 661              	HibernateRTCMatch0Set:
+ 662              	.LFB15:
+ 617:C:/StellarisWare/driverlib\hibernate.c **** 
+ 618:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 619:C:/StellarisWare/driverlib\hibernate.c **** //
+ 620:C:/StellarisWare/driverlib\hibernate.c **** //! Sets the value of the RTC match 0 register.
+ 621:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 622:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulMatch is the value for the match register.
+ 623:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 624:C:/StellarisWare/driverlib\hibernate.c **** //! This function sets the match 0 register for the RTC.  The Hibernation
+ 625:C:/StellarisWare/driverlib\hibernate.c **** //! module can be configured to wake from hibernation, and/or generate an
+ 626:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt when the value of the RTC counter is the same as the match
+ 627:C:/StellarisWare/driverlib\hibernate.c **** //! register.
+ 628:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 629:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 630:C:/StellarisWare/driverlib\hibernate.c **** //
+ 631:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 632:C:/StellarisWare/driverlib\hibernate.c **** void
+ 633:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCMatch0Set(unsigned long ulMatch)
+ 634:C:/StellarisWare/driverlib\hibernate.c **** {
+ 663              		.loc 1 634 0
+ 664              		.cfi_startproc
+ 665              		@ args = 0, pretend = 0, frame = 8
+ 666              		@ frame_needed = 1, uses_anonymous_args = 0
+ 667 0000 80B5     		push	{r7, lr}
+ 668              	.LCFI36:
+ 669              		.cfi_def_cfa_offset 8
+ 670              		.cfi_offset 14, -4
+ 671              		.cfi_offset 7, -8
+ 672 0002 82B0     		sub	sp, sp, #8
+ 673              	.LCFI37:
+ 674              		.cfi_def_cfa_offset 16
+ 675 0004 00AF     		add	r7, sp, #0
+ 676              	.LCFI38:
+ 677              		.cfi_def_cfa_register 7
+ 678 0006 7860     		str	r0, [r7, #4]
+ 635:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 636:C:/StellarisWare/driverlib\hibernate.c ****     // Write the new match value to the match register.
+ 637:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 638:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_RTCM0) = ulMatch;
+ 679              		.loc 1 638 0
+ 680 0008 4CF20403 		movw	r3, #49156
+ 681 000c C4F20F03 		movt	r3, 16399
+ 682 0010 7A68     		ldr	r2, [r7, #4]
+ 683 0012 1A60     		str	r2, [r3, #0]
+ 639:C:/StellarisWare/driverlib\hibernate.c **** 
+ 640:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 641:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 642:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 643:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 684              		.loc 1 643 0
+ 685 0014 FFF7FEFF 		bl	HibernateWriteComplete
+ 644:C:/StellarisWare/driverlib\hibernate.c **** }
+ 686              		.loc 1 644 0
+ 687 0018 07F10807 		add	r7, r7, #8
+ 688 001c BD46     		mov	sp, r7
+ 689 001e 80BD     		pop	{r7, pc}
+ 690              		.cfi_endproc
+ 691              	.LFE15:
+ 693              		.section	.text.HibernateRTCMatch0Get,"ax",%progbits
+ 694              		.align	2
+ 695              		.global	HibernateRTCMatch0Get
+ 696              		.thumb
+ 697              		.thumb_func
+ 699              	HibernateRTCMatch0Get:
+ 700              	.LFB16:
+ 645:C:/StellarisWare/driverlib\hibernate.c **** 
+ 646:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 647:C:/StellarisWare/driverlib\hibernate.c **** //
+ 648:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the value of the RTC match 0 register.
+ 649:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 650:C:/StellarisWare/driverlib\hibernate.c **** //! This function gets the value of the match 0 register for the RTC.
+ 651:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 652:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns the value of the match register.
+ 653:C:/StellarisWare/driverlib\hibernate.c **** //
+ 654:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 655:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 656:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCMatch0Get(void)
+ 657:C:/StellarisWare/driverlib\hibernate.c **** {
+ 701              		.loc 1 657 0
+ 702              		.cfi_startproc
+ 703              		@ args = 0, pretend = 0, frame = 0
+ 704              		@ frame_needed = 1, uses_anonymous_args = 0
+ 705              		@ link register save eliminated.
+ 706 0000 80B4     		push	{r7}
+ 707              	.LCFI39:
+ 708              		.cfi_def_cfa_offset 4
+ 709              		.cfi_offset 7, -4
+ 710 0002 00AF     		add	r7, sp, #0
+ 711              	.LCFI40:
+ 712              		.cfi_def_cfa_register 7
+ 658:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 659:C:/StellarisWare/driverlib\hibernate.c ****     // Return the value of the match register to the caller.
+ 660:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 661:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCM0));
+ 713              		.loc 1 661 0
+ 714 0004 4CF20403 		movw	r3, #49156
+ 715 0008 C4F20F03 		movt	r3, 16399
+ 716 000c 1B68     		ldr	r3, [r3, #0]
+ 662:C:/StellarisWare/driverlib\hibernate.c **** }
+ 717              		.loc 1 662 0
+ 718 000e 1846     		mov	r0, r3
+ 719 0010 BD46     		mov	sp, r7
+ 720 0012 80BC     		pop	{r7}
+ 721 0014 7047     		bx	lr
+ 722              		.cfi_endproc
+ 723              	.LFE16:
+ 725 0016 00BF     		.section	.text.HibernateRTCMatch1Set,"ax",%progbits
+ 726              		.align	2
+ 727              		.global	HibernateRTCMatch1Set
+ 728              		.thumb
+ 729              		.thumb_func
+ 731              	HibernateRTCMatch1Set:
+ 732              	.LFB17:
+ 663:C:/StellarisWare/driverlib\hibernate.c **** 
+ 664:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 665:C:/StellarisWare/driverlib\hibernate.c **** //
+ 666:C:/StellarisWare/driverlib\hibernate.c **** //! Sets the value of the RTC match 1 register.
+ 667:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 668:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulMatch is the value for the match register.
+ 669:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 670:C:/StellarisWare/driverlib\hibernate.c **** //! This function sets the match 1 register for the RTC.  The Hibernation
+ 671:C:/StellarisWare/driverlib\hibernate.c **** //! module can be configured to wake from hibernation, and/or generate an
+ 672:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt when the value of the RTC counter is the same as the match
+ 673:C:/StellarisWare/driverlib\hibernate.c **** //! register.
+ 674:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 675:C:/StellarisWare/driverlib\hibernate.c **** //! \note The Hibernation RTC Match 1 feature is not available on all Stellaris
+ 676:C:/StellarisWare/driverlib\hibernate.c **** //! devices.  Please consult the data sheet for the Stellaris device that you
+ 677:C:/StellarisWare/driverlib\hibernate.c **** //! are using to determine if this feature is available.
+ 678:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 679:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 680:C:/StellarisWare/driverlib\hibernate.c **** //
+ 681:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 682:C:/StellarisWare/driverlib\hibernate.c **** void
+ 683:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCMatch1Set(unsigned long ulMatch)
+ 684:C:/StellarisWare/driverlib\hibernate.c **** {
+ 733              		.loc 1 684 0
+ 734              		.cfi_startproc
+ 735              		@ args = 0, pretend = 0, frame = 8
+ 736              		@ frame_needed = 1, uses_anonymous_args = 0
+ 737 0000 80B5     		push	{r7, lr}
+ 738              	.LCFI41:
+ 739              		.cfi_def_cfa_offset 8
+ 740              		.cfi_offset 14, -4
+ 741              		.cfi_offset 7, -8
+ 742 0002 82B0     		sub	sp, sp, #8
+ 743              	.LCFI42:
+ 744              		.cfi_def_cfa_offset 16
+ 745 0004 00AF     		add	r7, sp, #0
+ 746              	.LCFI43:
+ 747              		.cfi_def_cfa_register 7
+ 748 0006 7860     		str	r0, [r7, #4]
+ 685:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 686:C:/StellarisWare/driverlib\hibernate.c ****     // Write the new match value to the match register.
+ 687:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 688:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_RTCM1) = ulMatch;
+ 749              		.loc 1 688 0
+ 750 0008 4CF20803 		movw	r3, #49160
+ 751 000c C4F20F03 		movt	r3, 16399
+ 752 0010 7A68     		ldr	r2, [r7, #4]
+ 753 0012 1A60     		str	r2, [r3, #0]
+ 689:C:/StellarisWare/driverlib\hibernate.c **** 
+ 690:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 691:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 692:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 693:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 754              		.loc 1 693 0
+ 755 0014 FFF7FEFF 		bl	HibernateWriteComplete
+ 694:C:/StellarisWare/driverlib\hibernate.c **** }
+ 756              		.loc 1 694 0
+ 757 0018 07F10807 		add	r7, r7, #8
+ 758 001c BD46     		mov	sp, r7
+ 759 001e 80BD     		pop	{r7, pc}
+ 760              		.cfi_endproc
+ 761              	.LFE17:
+ 763              		.section	.text.HibernateRTCMatch1Get,"ax",%progbits
+ 764              		.align	2
+ 765              		.global	HibernateRTCMatch1Get
+ 766              		.thumb
+ 767              		.thumb_func
+ 769              	HibernateRTCMatch1Get:
+ 770              	.LFB18:
+ 695:C:/StellarisWare/driverlib\hibernate.c **** 
+ 696:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 697:C:/StellarisWare/driverlib\hibernate.c **** //
+ 698:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the value of the RTC match 1 register.
+ 699:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 700:C:/StellarisWare/driverlib\hibernate.c **** //! This function gets the value of the match 1 register for the RTC.
+ 701:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 702:C:/StellarisWare/driverlib\hibernate.c **** //! \note The Hibernation RTC Match 1 feature is not available on all Stellaris
+ 703:C:/StellarisWare/driverlib\hibernate.c **** //! devices.  Please consult the data sheet for the Stellaris device that you
+ 704:C:/StellarisWare/driverlib\hibernate.c **** //! are using to determine if this feature is available.
+ 705:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 706:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns the value of the match register.
+ 707:C:/StellarisWare/driverlib\hibernate.c **** //
+ 708:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 709:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 710:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCMatch1Get(void)
+ 711:C:/StellarisWare/driverlib\hibernate.c **** {
+ 771              		.loc 1 711 0
+ 772              		.cfi_startproc
+ 773              		@ args = 0, pretend = 0, frame = 0
+ 774              		@ frame_needed = 1, uses_anonymous_args = 0
+ 775              		@ link register save eliminated.
+ 776 0000 80B4     		push	{r7}
+ 777              	.LCFI44:
+ 778              		.cfi_def_cfa_offset 4
+ 779              		.cfi_offset 7, -4
+ 780 0002 00AF     		add	r7, sp, #0
+ 781              	.LCFI45:
+ 782              		.cfi_def_cfa_register 7
+ 712:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 713:C:/StellarisWare/driverlib\hibernate.c ****     // Return the value of the match register to the caller.
+ 714:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 715:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCM1));
+ 783              		.loc 1 715 0
+ 784 0004 4CF20803 		movw	r3, #49160
+ 785 0008 C4F20F03 		movt	r3, 16399
+ 786 000c 1B68     		ldr	r3, [r3, #0]
+ 716:C:/StellarisWare/driverlib\hibernate.c **** }
+ 787              		.loc 1 716 0
+ 788 000e 1846     		mov	r0, r3
+ 789 0010 BD46     		mov	sp, r7
+ 790 0012 80BC     		pop	{r7}
+ 791 0014 7047     		bx	lr
+ 792              		.cfi_endproc
+ 793              	.LFE18:
+ 795 0016 00BF     		.section	.text.HibernateRTCSSMatch0Set,"ax",%progbits
+ 796              		.align	2
+ 797              		.global	HibernateRTCSSMatch0Set
+ 798              		.thumb
+ 799              		.thumb_func
+ 801              	HibernateRTCSSMatch0Set:
+ 802              	.LFB19:
+ 717:C:/StellarisWare/driverlib\hibernate.c **** 
+ 718:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 719:C:/StellarisWare/driverlib\hibernate.c **** //
+ 720:C:/StellarisWare/driverlib\hibernate.c **** //! Sets the value of the RTC sub second match 0 register.
+ 721:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 722:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulMatch is the value for the sub second match register.
+ 723:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 724:C:/StellarisWare/driverlib\hibernate.c **** //! This function sets the sub second match 0 register for the RTC in 1/32768
+ 725:C:/StellarisWare/driverlib\hibernate.c **** //! of a second increments.  The Hibernation module can be configured to wake
+ 726:C:/StellarisWare/driverlib\hibernate.c **** //! from hibernation, and/or generate an interrupt when the value of the RTC
+ 727:C:/StellarisWare/driverlib\hibernate.c **** //! counter is the same as the match combined with the sub second match
+ 728:C:/StellarisWare/driverlib\hibernate.c **** //! register.
+ 729:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 730:C:/StellarisWare/driverlib\hibernate.c **** //! \note The Hibernation sub second RTC Match 0 feature is not available on
+ 731:C:/StellarisWare/driverlib\hibernate.c **** //! all Stellaris devices.  Please consult the data sheet for the Stellaris
+ 732:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using to determine if this feature is available.
+ 733:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 734:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 735:C:/StellarisWare/driverlib\hibernate.c **** //
+ 736:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 737:C:/StellarisWare/driverlib\hibernate.c **** void
+ 738:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCSSMatch0Set(unsigned long ulMatch)
+ 739:C:/StellarisWare/driverlib\hibernate.c **** {
+ 803              		.loc 1 739 0
+ 804              		.cfi_startproc
+ 805              		@ args = 0, pretend = 0, frame = 8
+ 806              		@ frame_needed = 1, uses_anonymous_args = 0
+ 807 0000 80B5     		push	{r7, lr}
+ 808              	.LCFI46:
+ 809              		.cfi_def_cfa_offset 8
+ 810              		.cfi_offset 14, -4
+ 811              		.cfi_offset 7, -8
+ 812 0002 82B0     		sub	sp, sp, #8
+ 813              	.LCFI47:
+ 814              		.cfi_def_cfa_offset 16
+ 815 0004 00AF     		add	r7, sp, #0
+ 816              	.LCFI48:
+ 817              		.cfi_def_cfa_register 7
+ 818 0006 7860     		str	r0, [r7, #4]
+ 740:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 741:C:/StellarisWare/driverlib\hibernate.c ****     // Write the new sub second match value to the sub second match register.
+ 742:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 743:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_RTCSS) = ulMatch << HIB_RTCSS_RTCSSM_S;
+ 819              		.loc 1 743 0
+ 820 0008 4CF22803 		movw	r3, #49192
+ 821 000c C4F20F03 		movt	r3, 16399
+ 822 0010 7A68     		ldr	r2, [r7, #4]
+ 823 0012 4FEA0242 		lsl	r2, r2, #16
+ 824 0016 1A60     		str	r2, [r3, #0]
+ 744:C:/StellarisWare/driverlib\hibernate.c **** 
+ 745:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 746:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write complete to be signaled on later devices.
+ 747:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 748:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 825              		.loc 1 748 0
+ 826 0018 FFF7FEFF 		bl	HibernateWriteComplete
+ 749:C:/StellarisWare/driverlib\hibernate.c **** }
+ 827              		.loc 1 749 0
+ 828 001c 07F10807 		add	r7, r7, #8
+ 829 0020 BD46     		mov	sp, r7
+ 830 0022 80BD     		pop	{r7, pc}
+ 831              		.cfi_endproc
+ 832              	.LFE19:
+ 834              		.section	.text.HibernateRTCSSMatch0Get,"ax",%progbits
+ 835              		.align	2
+ 836              		.global	HibernateRTCSSMatch0Get
+ 837              		.thumb
+ 838              		.thumb_func
+ 840              	HibernateRTCSSMatch0Get:
+ 841              	.LFB20:
+ 750:C:/StellarisWare/driverlib\hibernate.c **** 
+ 751:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 752:C:/StellarisWare/driverlib\hibernate.c **** //
+ 753:C:/StellarisWare/driverlib\hibernate.c **** //! Returns the value of the RTC sub second match 0 register.
+ 754:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 755:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns the current value of the sub second match 0 register
+ 756:C:/StellarisWare/driverlib\hibernate.c **** //! for the RTC.  The value returned is in 1/32768 second increments.
+ 757:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 758:C:/StellarisWare/driverlib\hibernate.c **** //! \note The Hibernation sub second RTC Match 0 feature is not available on
+ 759:C:/StellarisWare/driverlib\hibernate.c **** //! all Stellaris devices.  Please consult the data sheet for the Stellaris
+ 760:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using to determine if this feature is available.
+ 761:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 762:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns the value of the sub section match register.
+ 763:C:/StellarisWare/driverlib\hibernate.c **** //
+ 764:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 765:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 766:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCSSMatch0Get(void)
+ 767:C:/StellarisWare/driverlib\hibernate.c **** {
+ 842              		.loc 1 767 0
+ 843              		.cfi_startproc
+ 844              		@ args = 0, pretend = 0, frame = 0
+ 845              		@ frame_needed = 1, uses_anonymous_args = 0
+ 846              		@ link register save eliminated.
+ 847 0000 80B4     		push	{r7}
+ 848              	.LCFI49:
+ 849              		.cfi_def_cfa_offset 4
+ 850              		.cfi_offset 7, -4
+ 851 0002 00AF     		add	r7, sp, #0
+ 852              	.LCFI50:
+ 853              		.cfi_def_cfa_register 7
+ 768:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 769:C:/StellarisWare/driverlib\hibernate.c ****     // Read the current second RTC count.
+ 770:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 771:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCSS) >> HIB_RTCSS_RTCSSM_S);
+ 854              		.loc 1 771 0
+ 855 0004 4CF22803 		movw	r3, #49192
+ 856 0008 C4F20F03 		movt	r3, 16399
+ 857 000c 1B68     		ldr	r3, [r3, #0]
+ 858 000e 4FEA1343 		lsr	r3, r3, #16
+ 772:C:/StellarisWare/driverlib\hibernate.c **** }
+ 859              		.loc 1 772 0
+ 860 0012 1846     		mov	r0, r3
+ 861 0014 BD46     		mov	sp, r7
+ 862 0016 80BC     		pop	{r7}
+ 863 0018 7047     		bx	lr
+ 864              		.cfi_endproc
+ 865              	.LFE20:
+ 867 001a 00BF     		.section	.text.HibernateRTCSSGet,"ax",%progbits
+ 868              		.align	2
+ 869              		.global	HibernateRTCSSGet
+ 870              		.thumb
+ 871              		.thumb_func
+ 873              	HibernateRTCSSGet:
+ 874              	.LFB21:
+ 773:C:/StellarisWare/driverlib\hibernate.c **** 
+ 774:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 775:C:/StellarisWare/driverlib\hibernate.c **** //
+ 776:C:/StellarisWare/driverlib\hibernate.c **** //! Returns the current value of the RTC sub second count.
+ 777:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 778:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns the current value of the sub second count for the
+ 779:C:/StellarisWare/driverlib\hibernate.c **** //! for the RTC in 1/32768 of a second increments.
+ 780:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 781:C:/StellarisWare/driverlib\hibernate.c **** //! \note The Hibernation sub second RTC Match 0 feature is not available on
+ 782:C:/StellarisWare/driverlib\hibernate.c **** //! all Stellaris devices.  Please consult the data sheet for the Stellaris
+ 783:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using to determine if this feature is available.
+ 784:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 785:C:/StellarisWare/driverlib\hibernate.c **** //! \return The current RTC sub second count in 1/32768 seconds.
+ 786:C:/StellarisWare/driverlib\hibernate.c **** //
+ 787:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 788:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 789:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCSSGet(void)
+ 790:C:/StellarisWare/driverlib\hibernate.c **** {
+ 875              		.loc 1 790 0
+ 876              		.cfi_startproc
+ 877              		@ args = 0, pretend = 0, frame = 0
+ 878              		@ frame_needed = 1, uses_anonymous_args = 0
+ 879              		@ link register save eliminated.
+ 880 0000 80B4     		push	{r7}
+ 881              	.LCFI51:
+ 882              		.cfi_def_cfa_offset 4
+ 883              		.cfi_offset 7, -4
+ 884 0002 00AF     		add	r7, sp, #0
+ 885              	.LCFI52:
+ 886              		.cfi_def_cfa_register 7
+ 791:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 792:C:/StellarisWare/driverlib\hibernate.c ****     // Read the current second RTC count.
+ 793:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 794:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCSS) & HIB_RTCSS_RTCSSC_M);
+ 887              		.loc 1 794 0
+ 888 0004 4CF22803 		movw	r3, #49192
+ 889 0008 C4F20F03 		movt	r3, 16399
+ 890 000c 1B68     		ldr	r3, [r3, #0]
+ 891 000e 4FEA4343 		lsl	r3, r3, #17
+ 892 0012 4FEA5343 		lsr	r3, r3, #17
+ 795:C:/StellarisWare/driverlib\hibernate.c **** }
+ 893              		.loc 1 795 0
+ 894 0016 1846     		mov	r0, r3
+ 895 0018 BD46     		mov	sp, r7
+ 896 001a 80BC     		pop	{r7}
+ 897 001c 7047     		bx	lr
+ 898              		.cfi_endproc
+ 899              	.LFE21:
+ 901 001e 00BF     		.section	.text.HibernateRTCTrimSet,"ax",%progbits
+ 902              		.align	2
+ 903              		.global	HibernateRTCTrimSet
+ 904              		.thumb
+ 905              		.thumb_func
+ 907              	HibernateRTCTrimSet:
+ 908              	.LFB22:
+ 796:C:/StellarisWare/driverlib\hibernate.c **** 
+ 797:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 798:C:/StellarisWare/driverlib\hibernate.c **** //
+ 799:C:/StellarisWare/driverlib\hibernate.c **** //! Sets the value of the RTC predivider trim register.
+ 800:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 801:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulTrim is the new value for the pre-divider trim register.
+ 802:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 803:C:/StellarisWare/driverlib\hibernate.c **** //! This function sets the value of the pre-divider trim register.  The input
+ 804:C:/StellarisWare/driverlib\hibernate.c **** //! time source is divided by the pre-divider to achieve a one-second clock
+ 805:C:/StellarisWare/driverlib\hibernate.c **** //! rate.  Once every 64 seconds, the value of the pre-divider trim register is
+ 806:C:/StellarisWare/driverlib\hibernate.c **** //! applied to the predivider to allow fine-tuning of the RTC rate, in order
+ 807:C:/StellarisWare/driverlib\hibernate.c **** //! to make corrections to the rate.  The software application can make
+ 808:C:/StellarisWare/driverlib\hibernate.c **** //! adjustments to the predivider trim register to account for variations in
+ 809:C:/StellarisWare/driverlib\hibernate.c **** //! the accuracy of the input time source.  The nominal value is 0x7FFF, and it
+ 810:C:/StellarisWare/driverlib\hibernate.c **** //! can be adjusted up or down in order to fine-tune the RTC rate.
+ 811:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 812:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 813:C:/StellarisWare/driverlib\hibernate.c **** //
+ 814:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 815:C:/StellarisWare/driverlib\hibernate.c **** void
+ 816:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCTrimSet(unsigned long ulTrim)
+ 817:C:/StellarisWare/driverlib\hibernate.c **** {
+ 909              		.loc 1 817 0
+ 910              		.cfi_startproc
+ 911              		@ args = 0, pretend = 0, frame = 8
+ 912              		@ frame_needed = 1, uses_anonymous_args = 0
+ 913 0000 80B5     		push	{r7, lr}
+ 914              	.LCFI53:
+ 915              		.cfi_def_cfa_offset 8
+ 916              		.cfi_offset 14, -4
+ 917              		.cfi_offset 7, -8
+ 918 0002 82B0     		sub	sp, sp, #8
+ 919              	.LCFI54:
+ 920              		.cfi_def_cfa_offset 16
+ 921 0004 00AF     		add	r7, sp, #0
+ 922              	.LCFI55:
+ 923              		.cfi_def_cfa_register 7
+ 924 0006 7860     		str	r0, [r7, #4]
+ 818:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 819:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 820:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 821:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(ulTrim < 0x10000);
+ 822:C:/StellarisWare/driverlib\hibernate.c **** 
+ 823:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 824:C:/StellarisWare/driverlib\hibernate.c ****     // Write the new trim value to the trim register.
+ 825:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 826:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_RTCT) = ulTrim;
+ 925              		.loc 1 826 0
+ 926 0008 4CF22403 		movw	r3, #49188
+ 927 000c C4F20F03 		movt	r3, 16399
+ 928 0010 7A68     		ldr	r2, [r7, #4]
+ 929 0012 1A60     		str	r2, [r3, #0]
+ 827:C:/StellarisWare/driverlib\hibernate.c **** 
+ 828:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 829:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 830:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 831:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 930              		.loc 1 831 0
+ 931 0014 FFF7FEFF 		bl	HibernateWriteComplete
+ 832:C:/StellarisWare/driverlib\hibernate.c **** }
+ 932              		.loc 1 832 0
+ 933 0018 07F10807 		add	r7, r7, #8
+ 934 001c BD46     		mov	sp, r7
+ 935 001e 80BD     		pop	{r7, pc}
+ 936              		.cfi_endproc
+ 937              	.LFE22:
+ 939              		.section	.text.HibernateRTCTrimGet,"ax",%progbits
+ 940              		.align	2
+ 941              		.global	HibernateRTCTrimGet
+ 942              		.thumb
+ 943              		.thumb_func
+ 945              	HibernateRTCTrimGet:
+ 946              	.LFB23:
+ 833:C:/StellarisWare/driverlib\hibernate.c **** 
+ 834:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 835:C:/StellarisWare/driverlib\hibernate.c **** //
+ 836:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the value of the RTC predivider trim register.
+ 837:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 838:C:/StellarisWare/driverlib\hibernate.c **** //! This function gets the value of the pre-divider trim register.  This
+ 839:C:/StellarisWare/driverlib\hibernate.c **** //! function can be used to get the current value of the trim register prior
+ 840:C:/StellarisWare/driverlib\hibernate.c **** //! to making an adjustment by using the HibernateRTCTrimSet() function.
+ 841:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 842:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 843:C:/StellarisWare/driverlib\hibernate.c **** //
+ 844:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 845:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+ 846:C:/StellarisWare/driverlib\hibernate.c **** HibernateRTCTrimGet(void)
+ 847:C:/StellarisWare/driverlib\hibernate.c **** {
+ 947              		.loc 1 847 0
+ 948              		.cfi_startproc
+ 949              		@ args = 0, pretend = 0, frame = 0
+ 950              		@ frame_needed = 1, uses_anonymous_args = 0
+ 951              		@ link register save eliminated.
+ 952 0000 80B4     		push	{r7}
+ 953              	.LCFI56:
+ 954              		.cfi_def_cfa_offset 4
+ 955              		.cfi_offset 7, -4
+ 956 0002 00AF     		add	r7, sp, #0
+ 957              	.LCFI57:
+ 958              		.cfi_def_cfa_register 7
+ 848:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 849:C:/StellarisWare/driverlib\hibernate.c ****     // Return the value of the trim register to the caller.
+ 850:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 851:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_RTCT));
+ 959              		.loc 1 851 0
+ 960 0004 4CF22403 		movw	r3, #49188
+ 961 0008 C4F20F03 		movt	r3, 16399
+ 962 000c 1B68     		ldr	r3, [r3, #0]
+ 852:C:/StellarisWare/driverlib\hibernate.c **** }
+ 963              		.loc 1 852 0
+ 964 000e 1846     		mov	r0, r3
+ 965 0010 BD46     		mov	sp, r7
+ 966 0012 80BC     		pop	{r7}
+ 967 0014 7047     		bx	lr
+ 968              		.cfi_endproc
+ 969              	.LFE23:
+ 971 0016 00BF     		.section	.text.HibernateDataSet,"ax",%progbits
+ 972              		.align	2
+ 973              		.global	HibernateDataSet
+ 974              		.thumb
+ 975              		.thumb_func
+ 977              	HibernateDataSet:
+ 978              	.LFB24:
+ 853:C:/StellarisWare/driverlib\hibernate.c **** 
+ 854:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 855:C:/StellarisWare/driverlib\hibernate.c **** //
+ 856:C:/StellarisWare/driverlib\hibernate.c **** //! Stores data in the battery-backed memory of the Hibernation module.
+ 857:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 858:C:/StellarisWare/driverlib\hibernate.c **** //! \param pulData points to the data that the caller wants to store in the
+ 859:C:/StellarisWare/driverlib\hibernate.c **** //! memory of the Hibernation module.
+ 860:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulCount is the count of 32-bit words to store.
+ 861:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 862:C:/StellarisWare/driverlib\hibernate.c **** //! Stores a set of data in the Hibernation module battery-backed memory.
+ 863:C:/StellarisWare/driverlib\hibernate.c **** //! This memory is preserved when the power to the processor is turned off,
+ 864:C:/StellarisWare/driverlib\hibernate.c **** //! and can be used to store application state information which is available
+ 865:C:/StellarisWare/driverlib\hibernate.c **** //! when the processor wakes.  Up to 64 32-bit words can be stored in the
+ 866:C:/StellarisWare/driverlib\hibernate.c **** //! battery-backed memory.  The data can be restored by calling the
+ 867:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateDataGet() function.
+ 868:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 869:C:/StellarisWare/driverlib\hibernate.c **** //! \note The amount of memory available in the Hibernation module varies
+ 870:C:/StellarisWare/driverlib\hibernate.c **** //! across Stellaris devices.  Please consult the data sheet for the Stellaris
+ 871:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using to determine the amount of memory available in
+ 872:C:/StellarisWare/driverlib\hibernate.c **** //! the Hibernation module.
+ 873:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 874:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 875:C:/StellarisWare/driverlib\hibernate.c **** //
+ 876:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 877:C:/StellarisWare/driverlib\hibernate.c **** void
+ 878:C:/StellarisWare/driverlib\hibernate.c **** HibernateDataSet(unsigned long *pulData, unsigned long ulCount)
+ 879:C:/StellarisWare/driverlib\hibernate.c **** {
+ 979              		.loc 1 879 0
+ 980              		.cfi_startproc
+ 981              		@ args = 0, pretend = 0, frame = 16
+ 982              		@ frame_needed = 1, uses_anonymous_args = 0
+ 983 0000 80B5     		push	{r7, lr}
+ 984              	.LCFI58:
+ 985              		.cfi_def_cfa_offset 8
+ 986              		.cfi_offset 14, -4
+ 987              		.cfi_offset 7, -8
+ 988 0002 84B0     		sub	sp, sp, #16
+ 989              	.LCFI59:
+ 990              		.cfi_def_cfa_offset 24
+ 991 0004 00AF     		add	r7, sp, #0
+ 992              	.LCFI60:
+ 993              		.cfi_def_cfa_register 7
+ 994 0006 7860     		str	r0, [r7, #4]
+ 995 0008 3960     		str	r1, [r7, #0]
+ 880:C:/StellarisWare/driverlib\hibernate.c ****     unsigned long ulIdx;
+ 881:C:/StellarisWare/driverlib\hibernate.c **** 
+ 882:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 883:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 884:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 885:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(ulCount <= 64);
+ 886:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(pulData != 0);
+ 887:C:/StellarisWare/driverlib\hibernate.c **** 
+ 888:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 889:C:/StellarisWare/driverlib\hibernate.c ****     // Loop through all the words to be stored, storing one at a time.
+ 890:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 891:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 996              		.loc 1 891 0
+ 997 000a 4FF00003 		mov	r3, #0
+ 998 000e FB60     		str	r3, [r7, #12]
+ 999 0010 14E0     		b	.L32
+ 1000              	.L33:
+ 892:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 893:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 894:C:/StellarisWare/driverlib\hibernate.c ****         // Write a word to the battery-backed storage area.
+ 895:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 896:C:/StellarisWare/driverlib\hibernate.c ****         HWREG(HIB_DATA + (ulIdx * 4)) = pulData[ulIdx];
+ 1001              		.loc 1 896 0 discriminator 2
+ 1002 0012 FA68     		ldr	r2, [r7, #12]
+ 1003 0014 4FF20C03 		movw	r3, #61452
+ 1004 0018 C1F20303 		movt	r3, 4099
+ 1005 001c D318     		adds	r3, r2, r3
+ 1006 001e 4FEA8303 		lsl	r3, r3, #2
+ 1007 0022 FA68     		ldr	r2, [r7, #12]
+ 1008 0024 4FEA8202 		lsl	r2, r2, #2
+ 1009 0028 7968     		ldr	r1, [r7, #4]
+ 1010 002a 8A18     		adds	r2, r1, r2
+ 1011 002c 1268     		ldr	r2, [r2, #0]
+ 1012 002e 1A60     		str	r2, [r3, #0]
+ 897:C:/StellarisWare/driverlib\hibernate.c **** 
+ 898:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 899:C:/StellarisWare/driverlib\hibernate.c ****         // Wait for write completion
+ 900:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 901:C:/StellarisWare/driverlib\hibernate.c ****         HibernateWriteComplete();
+ 1013              		.loc 1 901 0 discriminator 2
+ 1014 0030 FFF7FEFF 		bl	HibernateWriteComplete
+ 891:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 1015              		.loc 1 891 0 discriminator 2
+ 1016 0034 FB68     		ldr	r3, [r7, #12]
+ 1017 0036 03F10103 		add	r3, r3, #1
+ 1018 003a FB60     		str	r3, [r7, #12]
+ 1019              	.L32:
+ 891:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 1020              		.loc 1 891 0 is_stmt 0 discriminator 1
+ 1021 003c FA68     		ldr	r2, [r7, #12]
+ 1022 003e 3B68     		ldr	r3, [r7, #0]
+ 1023 0040 9A42     		cmp	r2, r3
+ 1024 0042 E6D3     		bcc	.L33
+ 902:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 903:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1025              		.loc 1 903 0 is_stmt 1
+ 1026 0044 07F11007 		add	r7, r7, #16
+ 1027 0048 BD46     		mov	sp, r7
+ 1028 004a 80BD     		pop	{r7, pc}
+ 1029              		.cfi_endproc
+ 1030              	.LFE24:
+ 1032              		.section	.text.HibernateDataGet,"ax",%progbits
+ 1033              		.align	2
+ 1034              		.global	HibernateDataGet
+ 1035              		.thumb
+ 1036              		.thumb_func
+ 1038              	HibernateDataGet:
+ 1039              	.LFB25:
+ 904:C:/StellarisWare/driverlib\hibernate.c **** 
+ 905:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 906:C:/StellarisWare/driverlib\hibernate.c **** //
+ 907:C:/StellarisWare/driverlib\hibernate.c **** //! Reads a set of data from the battery-backed memory of the Hibernation
+ 908:C:/StellarisWare/driverlib\hibernate.c **** //! module.
+ 909:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 910:C:/StellarisWare/driverlib\hibernate.c **** //! \param pulData points to a location where the data that is read from the
+ 911:C:/StellarisWare/driverlib\hibernate.c **** //! Hibernation module is stored.
+ 912:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulCount is the count of 32-bit words to read.
+ 913:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 914:C:/StellarisWare/driverlib\hibernate.c **** //! This function retrieves a set of data from the Hibernation module battery-
+ 915:C:/StellarisWare/driverlib\hibernate.c **** //! backed memory that was previously stored with the HibernateDataSet()
+ 916:C:/StellarisWare/driverlib\hibernate.c **** //! function.  The caller must ensure that \e pulData points to a large enough
+ 917:C:/StellarisWare/driverlib\hibernate.c **** //! memory block to hold all the data that is read from the battery-backed
+ 918:C:/StellarisWare/driverlib\hibernate.c **** //! memory.
+ 919:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 920:C:/StellarisWare/driverlib\hibernate.c **** //! \note The amount of memory available in the Hibernation module varies
+ 921:C:/StellarisWare/driverlib\hibernate.c **** //! across Stellaris devices.  Please consult the data sheet for the Stellaris
+ 922:C:/StellarisWare/driverlib\hibernate.c **** //! device that you are using to determine the amount of memory available in
+ 923:C:/StellarisWare/driverlib\hibernate.c **** //! the Hibernation module.
+ 924:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 925:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 926:C:/StellarisWare/driverlib\hibernate.c **** //
+ 927:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 928:C:/StellarisWare/driverlib\hibernate.c **** void
+ 929:C:/StellarisWare/driverlib\hibernate.c **** HibernateDataGet(unsigned long *pulData, unsigned long ulCount)
+ 930:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1040              		.loc 1 930 0
+ 1041              		.cfi_startproc
+ 1042              		@ args = 0, pretend = 0, frame = 16
+ 1043              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1044              		@ link register save eliminated.
+ 1045 0000 80B4     		push	{r7}
+ 1046              	.LCFI61:
+ 1047              		.cfi_def_cfa_offset 4
+ 1048              		.cfi_offset 7, -4
+ 1049 0002 85B0     		sub	sp, sp, #20
+ 1050              	.LCFI62:
+ 1051              		.cfi_def_cfa_offset 24
+ 1052 0004 00AF     		add	r7, sp, #0
+ 1053              	.LCFI63:
+ 1054              		.cfi_def_cfa_register 7
+ 1055 0006 7860     		str	r0, [r7, #4]
+ 1056 0008 3960     		str	r1, [r7, #0]
+ 931:C:/StellarisWare/driverlib\hibernate.c ****     unsigned long ulIdx;
+ 932:C:/StellarisWare/driverlib\hibernate.c **** 
+ 933:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 934:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+ 935:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 936:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(ulCount <= 64);
+ 937:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(pulData != 0);
+ 938:C:/StellarisWare/driverlib\hibernate.c **** 
+ 939:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 940:C:/StellarisWare/driverlib\hibernate.c ****     // Loop through all the words to be restored, reading one at a time.
+ 941:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 942:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 1057              		.loc 1 942 0
+ 1058 000a 4FF00003 		mov	r3, #0
+ 1059 000e FB60     		str	r3, [r7, #12]
+ 1060 0010 12E0     		b	.L35
+ 1061              	.L36:
+ 943:C:/StellarisWare/driverlib\hibernate.c ****     {
+ 944:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 945:C:/StellarisWare/driverlib\hibernate.c ****         // Read a word from the battery-backed storage area.  No delay is
+ 946:C:/StellarisWare/driverlib\hibernate.c ****         // required between reads.
+ 947:C:/StellarisWare/driverlib\hibernate.c ****         //
+ 948:C:/StellarisWare/driverlib\hibernate.c ****         pulData[ulIdx] = HWREG(HIB_DATA + (ulIdx * 4));
+ 1062              		.loc 1 948 0 discriminator 2
+ 1063 0012 FB68     		ldr	r3, [r7, #12]
+ 1064 0014 4FEA8303 		lsl	r3, r3, #2
+ 1065 0018 7A68     		ldr	r2, [r7, #4]
+ 1066 001a D218     		adds	r2, r2, r3
+ 1067 001c F968     		ldr	r1, [r7, #12]
+ 1068 001e 4FF20C03 		movw	r3, #61452
+ 1069 0022 C1F20303 		movt	r3, 4099
+ 1070 0026 CB18     		adds	r3, r1, r3
+ 1071 0028 4FEA8303 		lsl	r3, r3, #2
+ 1072 002c 1B68     		ldr	r3, [r3, #0]
+ 1073 002e 1360     		str	r3, [r2, #0]
+ 942:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 1074              		.loc 1 942 0 discriminator 2
+ 1075 0030 FB68     		ldr	r3, [r7, #12]
+ 1076 0032 03F10103 		add	r3, r3, #1
+ 1077 0036 FB60     		str	r3, [r7, #12]
+ 1078              	.L35:
+ 942:C:/StellarisWare/driverlib\hibernate.c ****     for(ulIdx = 0; ulIdx < ulCount; ulIdx++)
+ 1079              		.loc 1 942 0 is_stmt 0 discriminator 1
+ 1080 0038 FA68     		ldr	r2, [r7, #12]
+ 1081 003a 3B68     		ldr	r3, [r7, #0]
+ 1082 003c 9A42     		cmp	r2, r3
+ 1083 003e E8D3     		bcc	.L36
+ 949:C:/StellarisWare/driverlib\hibernate.c ****     }
+ 950:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1084              		.loc 1 950 0 is_stmt 1
+ 1085 0040 07F11407 		add	r7, r7, #20
+ 1086 0044 BD46     		mov	sp, r7
+ 1087 0046 80BC     		pop	{r7}
+ 1088 0048 7047     		bx	lr
+ 1089              		.cfi_endproc
+ 1090              	.LFE25:
+ 1092 004a 00BF     		.section	.text.HibernateRequest,"ax",%progbits
+ 1093              		.align	2
+ 1094              		.global	HibernateRequest
+ 1095              		.thumb
+ 1096              		.thumb_func
+ 1098              	HibernateRequest:
+ 1099              	.LFB26:
+ 951:C:/StellarisWare/driverlib\hibernate.c **** 
+ 952:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 953:C:/StellarisWare/driverlib\hibernate.c **** //
+ 954:C:/StellarisWare/driverlib\hibernate.c **** //! Requests hibernation mode.
+ 955:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 956:C:/StellarisWare/driverlib\hibernate.c **** //! This function requests the Hibernation module to disable the external
+ 957:C:/StellarisWare/driverlib\hibernate.c **** //! regulator, thus removing power from the processor and all peripherals.  The
+ 958:C:/StellarisWare/driverlib\hibernate.c **** //! Hibernation module remains powered from the battery or auxiliary power
+ 959:C:/StellarisWare/driverlib\hibernate.c **** //! supply.
+ 960:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 961:C:/StellarisWare/driverlib\hibernate.c **** //! The Hibernation module re-enables the external regulator when one of
+ 962:C:/StellarisWare/driverlib\hibernate.c **** //! the configured wake conditions occurs (such as RTC match or external
+ 963:C:/StellarisWare/driverlib\hibernate.c **** //! \b WAKE pin).  When the power is restored the processor goes through a
+ 964:C:/StellarisWare/driverlib\hibernate.c **** //! power-on reset although the Hibernation module is not reset.  The processor
+ 965:C:/StellarisWare/driverlib\hibernate.c **** //! can retrieve saved state information with the HibernateDataGet() function.
+ 966:C:/StellarisWare/driverlib\hibernate.c **** //! Prior to calling the function to request hibernation mode, the conditions
+ 967:C:/StellarisWare/driverlib\hibernate.c **** //! for waking must have already been set by using the HibernateWakeSet()
+ 968:C:/StellarisWare/driverlib\hibernate.c **** //! function.
+ 969:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 970:C:/StellarisWare/driverlib\hibernate.c **** //! Note that this function may return because some time may elapse before the
+ 971:C:/StellarisWare/driverlib\hibernate.c **** //! power is actually removed, or it may not be removed at all.  For this
+ 972:C:/StellarisWare/driverlib\hibernate.c **** //! reason, the processor continues to execute instructions for some time
+ 973:C:/StellarisWare/driverlib\hibernate.c **** //! and the caller should be prepared for this function to return.  There are
+ 974:C:/StellarisWare/driverlib\hibernate.c **** //! various reasons why the power may not be removed.  For example, if the
+ 975:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateLowBatSet() function was used to configure an abort if low
+ 976:C:/StellarisWare/driverlib\hibernate.c **** //! battery is detected, then the power is not removed if the battery
+ 977:C:/StellarisWare/driverlib\hibernate.c **** //! voltage is too low.  There may be other reasons, related to the external
+ 978:C:/StellarisWare/driverlib\hibernate.c **** //! circuit design, that a request for hibernation may not actually occur.
+ 979:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 980:C:/StellarisWare/driverlib\hibernate.c **** //! For all these reasons, the caller must be prepared for this function to
+ 981:C:/StellarisWare/driverlib\hibernate.c **** //! return.  The simplest way to handle it is to just enter an infinite loop
+ 982:C:/StellarisWare/driverlib\hibernate.c **** //! and wait for the power to be removed.
+ 983:C:/StellarisWare/driverlib\hibernate.c **** //!
+ 984:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+ 985:C:/StellarisWare/driverlib\hibernate.c **** //
+ 986:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+ 987:C:/StellarisWare/driverlib\hibernate.c **** void
+ 988:C:/StellarisWare/driverlib\hibernate.c **** HibernateRequest(void)
+ 989:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1100              		.loc 1 989 0
+ 1101              		.cfi_startproc
+ 1102              		@ args = 0, pretend = 0, frame = 0
+ 1103              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1104 0000 80B5     		push	{r7, lr}
+ 1105              	.LCFI64:
+ 1106              		.cfi_def_cfa_offset 8
+ 1107              		.cfi_offset 14, -4
+ 1108              		.cfi_offset 7, -8
+ 1109 0002 00AF     		add	r7, sp, #0
+ 1110              	.LCFI65:
+ 1111              		.cfi_def_cfa_register 7
+ 990:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 991:C:/StellarisWare/driverlib\hibernate.c ****     // Set the bit in the control register to cut main power to the processor.
+ 992:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 993:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) |= HIB_CTL_HIBREQ;
+ 1112              		.loc 1 993 0
+ 1113 0004 4CF21003 		movw	r3, #49168
+ 1114 0008 C4F20F03 		movt	r3, 16399
+ 1115 000c 4CF21002 		movw	r2, #49168
+ 1116 0010 C4F20F02 		movt	r2, 16399
+ 1117 0014 1268     		ldr	r2, [r2, #0]
+ 1118 0016 42F00202 		orr	r2, r2, #2
+ 1119 001a 1A60     		str	r2, [r3, #0]
+ 994:C:/StellarisWare/driverlib\hibernate.c **** 
+ 995:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 996:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+ 997:C:/StellarisWare/driverlib\hibernate.c ****     //
+ 998:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1120              		.loc 1 998 0
+ 1121 001c FFF7FEFF 		bl	HibernateWriteComplete
+ 999:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1122              		.loc 1 999 0
+ 1123 0020 80BD     		pop	{r7, pc}
+ 1124              		.cfi_endproc
+ 1125              	.LFE26:
+ 1127 0022 00BF     		.section	.text.HibernateIntEnable,"ax",%progbits
+ 1128              		.align	2
+ 1129              		.global	HibernateIntEnable
+ 1130              		.thumb
+ 1131              		.thumb_func
+ 1133              	HibernateIntEnable:
+ 1134              	.LFB27:
+1000:C:/StellarisWare/driverlib\hibernate.c **** 
+1001:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1002:C:/StellarisWare/driverlib\hibernate.c **** //
+1003:C:/StellarisWare/driverlib\hibernate.c **** //! Enables interrupts for the Hibernation module.
+1004:C:/StellarisWare/driverlib\hibernate.c **** //!
+1005:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulIntFlags is the bit mask of the interrupts to be enabled.
+1006:C:/StellarisWare/driverlib\hibernate.c **** //!
+1007:C:/StellarisWare/driverlib\hibernate.c **** //! This function enables the specified interrupt sources from the Hibernation
+1008:C:/StellarisWare/driverlib\hibernate.c **** //! module.
+1009:C:/StellarisWare/driverlib\hibernate.c **** //!
+1010:C:/StellarisWare/driverlib\hibernate.c **** //! The \e ulIntFlags parameter must be the logical OR of any combination of
+1011:C:/StellarisWare/driverlib\hibernate.c **** //! the following:
+1012:C:/StellarisWare/driverlib\hibernate.c **** //!
+1013:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_INT_WR_COMPLETE - write complete interrupt
+1014:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_INT_PIN_WAKE - wake from pin interrupt
+1015:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_INT_LOW_BAT - low battery interrupt
+1016:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_INT_RTC_MATCH_0 - RTC match 0 interrupt
+1017:C:/StellarisWare/driverlib\hibernate.c **** //! - \b HIBERNATE_INT_RTC_MATCH_1 - RTC match 1 interrupt
+1018:C:/StellarisWare/driverlib\hibernate.c **** //!
+1019:C:/StellarisWare/driverlib\hibernate.c **** //! \note The \b HIBERNATE_INT_WR_COMPLETE and \b HIBERNATE_INT_RTC_MATCH_1
+1020:C:/StellarisWare/driverlib\hibernate.c **** //! settings are not available on all Stellaris devices.  Please consult the
+1021:C:/StellarisWare/driverlib\hibernate.c **** //! data sheet for the Stellaris device that you are using to determine if
+1022:C:/StellarisWare/driverlib\hibernate.c **** //! these interrupt sources are available.
+1023:C:/StellarisWare/driverlib\hibernate.c **** //!
+1024:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1025:C:/StellarisWare/driverlib\hibernate.c **** //
+1026:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1027:C:/StellarisWare/driverlib\hibernate.c **** void
+1028:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntEnable(unsigned long ulIntFlags)
+1029:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1135              		.loc 1 1029 0
+ 1136              		.cfi_startproc
+ 1137              		@ args = 0, pretend = 0, frame = 8
+ 1138              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1139 0000 80B5     		push	{r7, lr}
+ 1140              	.LCFI66:
+ 1141              		.cfi_def_cfa_offset 8
+ 1142              		.cfi_offset 14, -4
+ 1143              		.cfi_offset 7, -8
+ 1144 0002 82B0     		sub	sp, sp, #8
+ 1145              	.LCFI67:
+ 1146              		.cfi_def_cfa_offset 16
+ 1147 0004 00AF     		add	r7, sp, #0
+ 1148              	.LCFI68:
+ 1149              		.cfi_def_cfa_register 7
+ 1150 0006 7860     		str	r0, [r7, #4]
+1030:C:/StellarisWare/driverlib\hibernate.c ****     //
+1031:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+1032:C:/StellarisWare/driverlib\hibernate.c ****     //
+1033:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(!(ulIntFlags & ~(HIBERNATE_INT_PIN_WAKE | HIBERNATE_INT_LOW_BAT |
+1034:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_0 |
+1035:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_1 |
+1036:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_WR_COMPLETE)));
+1037:C:/StellarisWare/driverlib\hibernate.c **** 
+1038:C:/StellarisWare/driverlib\hibernate.c ****     //
+1039:C:/StellarisWare/driverlib\hibernate.c ****     // Set the specified interrupt mask bits.
+1040:C:/StellarisWare/driverlib\hibernate.c ****     //
+1041:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_IM) |= ulIntFlags;
+ 1151              		.loc 1 1041 0
+ 1152 0008 4CF21403 		movw	r3, #49172
+ 1153 000c C4F20F03 		movt	r3, 16399
+ 1154 0010 4CF21402 		movw	r2, #49172
+ 1155 0014 C4F20F02 		movt	r2, 16399
+ 1156 0018 1168     		ldr	r1, [r2, #0]
+ 1157 001a 7A68     		ldr	r2, [r7, #4]
+ 1158 001c 0A43     		orrs	r2, r2, r1
+ 1159 001e 1A60     		str	r2, [r3, #0]
+1042:C:/StellarisWare/driverlib\hibernate.c **** 
+1043:C:/StellarisWare/driverlib\hibernate.c ****     //
+1044:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+1045:C:/StellarisWare/driverlib\hibernate.c ****     //
+1046:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1160              		.loc 1 1046 0
+ 1161 0020 FFF7FEFF 		bl	HibernateWriteComplete
+1047:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1162              		.loc 1 1047 0
+ 1163 0024 07F10807 		add	r7, r7, #8
+ 1164 0028 BD46     		mov	sp, r7
+ 1165 002a 80BD     		pop	{r7, pc}
+ 1166              		.cfi_endproc
+ 1167              	.LFE27:
+ 1169              		.section	.text.HibernateIntDisable,"ax",%progbits
+ 1170              		.align	2
+ 1171              		.global	HibernateIntDisable
+ 1172              		.thumb
+ 1173              		.thumb_func
+ 1175              	HibernateIntDisable:
+ 1176              	.LFB28:
+1048:C:/StellarisWare/driverlib\hibernate.c **** 
+1049:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1050:C:/StellarisWare/driverlib\hibernate.c **** //
+1051:C:/StellarisWare/driverlib\hibernate.c **** //! Disables interrupts for the Hibernation module.
+1052:C:/StellarisWare/driverlib\hibernate.c **** //!
+1053:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulIntFlags is the bit mask of the interrupts to be disabled.
+1054:C:/StellarisWare/driverlib\hibernate.c **** //!
+1055:C:/StellarisWare/driverlib\hibernate.c **** //! This function disables the specified interrupt sources from the
+1056:C:/StellarisWare/driverlib\hibernate.c **** //! Hibernation module.
+1057:C:/StellarisWare/driverlib\hibernate.c **** //!
+1058:C:/StellarisWare/driverlib\hibernate.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+1059:C:/StellarisWare/driverlib\hibernate.c **** //! parameter to the HibernateIntEnable() function.
+1060:C:/StellarisWare/driverlib\hibernate.c **** //!
+1061:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1062:C:/StellarisWare/driverlib\hibernate.c **** //
+1063:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1064:C:/StellarisWare/driverlib\hibernate.c **** void
+1065:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntDisable(unsigned long ulIntFlags)
+1066:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1177              		.loc 1 1066 0
+ 1178              		.cfi_startproc
+ 1179              		@ args = 0, pretend = 0, frame = 8
+ 1180              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1181 0000 80B5     		push	{r7, lr}
+ 1182              	.LCFI69:
+ 1183              		.cfi_def_cfa_offset 8
+ 1184              		.cfi_offset 14, -4
+ 1185              		.cfi_offset 7, -8
+ 1186 0002 82B0     		sub	sp, sp, #8
+ 1187              	.LCFI70:
+ 1188              		.cfi_def_cfa_offset 16
+ 1189 0004 00AF     		add	r7, sp, #0
+ 1190              	.LCFI71:
+ 1191              		.cfi_def_cfa_register 7
+ 1192 0006 7860     		str	r0, [r7, #4]
+1067:C:/StellarisWare/driverlib\hibernate.c ****     //
+1068:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+1069:C:/StellarisWare/driverlib\hibernate.c ****     //
+1070:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(!(ulIntFlags & ~(HIBERNATE_INT_PIN_WAKE | HIBERNATE_INT_LOW_BAT |
+1071:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_0 |
+1072:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_1 |
+1073:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_WR_COMPLETE)));
+1074:C:/StellarisWare/driverlib\hibernate.c **** 
+1075:C:/StellarisWare/driverlib\hibernate.c ****     //
+1076:C:/StellarisWare/driverlib\hibernate.c ****     // Clear the specified interrupt mask bits.
+1077:C:/StellarisWare/driverlib\hibernate.c ****     //
+1078:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_IM) &= ~ulIntFlags;
+ 1193              		.loc 1 1078 0
+ 1194 0008 4CF21403 		movw	r3, #49172
+ 1195 000c C4F20F03 		movt	r3, 16399
+ 1196 0010 4CF21402 		movw	r2, #49172
+ 1197 0014 C4F20F02 		movt	r2, 16399
+ 1198 0018 1168     		ldr	r1, [r2, #0]
+ 1199 001a 7A68     		ldr	r2, [r7, #4]
+ 1200 001c 6FEA0202 		mvn	r2, r2
+ 1201 0020 0A40     		ands	r2, r2, r1
+ 1202 0022 1A60     		str	r2, [r3, #0]
+1079:C:/StellarisWare/driverlib\hibernate.c **** 
+1080:C:/StellarisWare/driverlib\hibernate.c ****     //
+1081:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+1082:C:/StellarisWare/driverlib\hibernate.c ****     //
+1083:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1203              		.loc 1 1083 0
+ 1204 0024 FFF7FEFF 		bl	HibernateWriteComplete
+1084:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1205              		.loc 1 1084 0
+ 1206 0028 07F10807 		add	r7, r7, #8
+ 1207 002c BD46     		mov	sp, r7
+ 1208 002e 80BD     		pop	{r7, pc}
+ 1209              		.cfi_endproc
+ 1210              	.LFE28:
+ 1212              		.section	.text.HibernateIntRegister,"ax",%progbits
+ 1213              		.align	2
+ 1214              		.global	HibernateIntRegister
+ 1215              		.thumb
+ 1216              		.thumb_func
+ 1218              	HibernateIntRegister:
+ 1219              	.LFB29:
+1085:C:/StellarisWare/driverlib\hibernate.c **** 
+1086:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1087:C:/StellarisWare/driverlib\hibernate.c **** //
+1088:C:/StellarisWare/driverlib\hibernate.c **** //! Registers an interrupt handler for the Hibernation module interrupt.
+1089:C:/StellarisWare/driverlib\hibernate.c **** //!
+1090:C:/StellarisWare/driverlib\hibernate.c **** //! \param pfnHandler points to the function to be called when a hibernation
+1091:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt occurs.
+1092:C:/StellarisWare/driverlib\hibernate.c **** //!
+1093:C:/StellarisWare/driverlib\hibernate.c **** //! This function registers the interrupt handler in the system interrupt
+1094:C:/StellarisWare/driverlib\hibernate.c **** //! controller.  The interrupt is enabled at the global level, but individual
+1095:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt sources must still be enabled with a call to
+1096:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateIntEnable().
+1097:C:/StellarisWare/driverlib\hibernate.c **** //!
+1098:C:/StellarisWare/driverlib\hibernate.c **** //! \sa IntRegister() for important information about registering interrupt
+1099:C:/StellarisWare/driverlib\hibernate.c **** //! handlers.
+1100:C:/StellarisWare/driverlib\hibernate.c **** //!
+1101:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1102:C:/StellarisWare/driverlib\hibernate.c **** //
+1103:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1104:C:/StellarisWare/driverlib\hibernate.c **** void
+1105:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntRegister(void (*pfnHandler)(void))
+1106:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1220              		.loc 1 1106 0
+ 1221              		.cfi_startproc
+ 1222              		@ args = 0, pretend = 0, frame = 8
+ 1223              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1224 0000 80B5     		push	{r7, lr}
+ 1225              	.LCFI72:
+ 1226              		.cfi_def_cfa_offset 8
+ 1227              		.cfi_offset 14, -4
+ 1228              		.cfi_offset 7, -8
+ 1229 0002 82B0     		sub	sp, sp, #8
+ 1230              	.LCFI73:
+ 1231              		.cfi_def_cfa_offset 16
+ 1232 0004 00AF     		add	r7, sp, #0
+ 1233              	.LCFI74:
+ 1234              		.cfi_def_cfa_register 7
+ 1235 0006 7860     		str	r0, [r7, #4]
+1107:C:/StellarisWare/driverlib\hibernate.c ****     //
+1108:C:/StellarisWare/driverlib\hibernate.c ****     // Register the interrupt handler.
+1109:C:/StellarisWare/driverlib\hibernate.c ****     //
+1110:C:/StellarisWare/driverlib\hibernate.c ****     IntRegister(INT_HIBERNATE, pfnHandler);
+ 1236              		.loc 1 1110 0
+ 1237 0008 4FF03B00 		mov	r0, #59
+ 1238 000c 7968     		ldr	r1, [r7, #4]
+ 1239 000e FFF7FEFF 		bl	IntRegister
+1111:C:/StellarisWare/driverlib\hibernate.c **** 
+1112:C:/StellarisWare/driverlib\hibernate.c ****     //
+1113:C:/StellarisWare/driverlib\hibernate.c ****     // Enable the hibernate module interrupt.
+1114:C:/StellarisWare/driverlib\hibernate.c ****     //
+1115:C:/StellarisWare/driverlib\hibernate.c ****     IntEnable(INT_HIBERNATE);
+ 1240              		.loc 1 1115 0
+ 1241 0012 4FF03B00 		mov	r0, #59
+ 1242 0016 FFF7FEFF 		bl	IntEnable
+1116:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1243              		.loc 1 1116 0
+ 1244 001a 07F10807 		add	r7, r7, #8
+ 1245 001e BD46     		mov	sp, r7
+ 1246 0020 80BD     		pop	{r7, pc}
+ 1247              		.cfi_endproc
+ 1248              	.LFE29:
+ 1250 0022 00BF     		.section	.text.HibernateIntUnregister,"ax",%progbits
+ 1251              		.align	2
+ 1252              		.global	HibernateIntUnregister
+ 1253              		.thumb
+ 1254              		.thumb_func
+ 1256              	HibernateIntUnregister:
+ 1257              	.LFB30:
+1117:C:/StellarisWare/driverlib\hibernate.c **** 
+1118:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1119:C:/StellarisWare/driverlib\hibernate.c **** //
+1120:C:/StellarisWare/driverlib\hibernate.c **** //! Unregisters an interrupt handler for the Hibernation module interrupt.
+1121:C:/StellarisWare/driverlib\hibernate.c **** //!
+1122:C:/StellarisWare/driverlib\hibernate.c **** //! This function unregisters the interrupt handler in the system interrupt
+1123:C:/StellarisWare/driverlib\hibernate.c **** //! controller.  The interrupt is disabled at the global level, and the
+1124:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt handler is longer called.
+1125:C:/StellarisWare/driverlib\hibernate.c **** //!
+1126:C:/StellarisWare/driverlib\hibernate.c **** //! \sa IntRegister() for important information about registering interrupt
+1127:C:/StellarisWare/driverlib\hibernate.c **** //! handlers.
+1128:C:/StellarisWare/driverlib\hibernate.c **** //!
+1129:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1130:C:/StellarisWare/driverlib\hibernate.c **** //
+1131:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1132:C:/StellarisWare/driverlib\hibernate.c **** void
+1133:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntUnregister(void)
+1134:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1258              		.loc 1 1134 0
+ 1259              		.cfi_startproc
+ 1260              		@ args = 0, pretend = 0, frame = 0
+ 1261              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1262 0000 80B5     		push	{r7, lr}
+ 1263              	.LCFI75:
+ 1264              		.cfi_def_cfa_offset 8
+ 1265              		.cfi_offset 14, -4
+ 1266              		.cfi_offset 7, -8
+ 1267 0002 00AF     		add	r7, sp, #0
+ 1268              	.LCFI76:
+ 1269              		.cfi_def_cfa_register 7
+1135:C:/StellarisWare/driverlib\hibernate.c ****     //
+1136:C:/StellarisWare/driverlib\hibernate.c ****     // Disable the hibernate interrupt.
+1137:C:/StellarisWare/driverlib\hibernate.c ****     //
+1138:C:/StellarisWare/driverlib\hibernate.c ****     IntDisable(INT_HIBERNATE);
+ 1270              		.loc 1 1138 0
+ 1271 0004 4FF03B00 		mov	r0, #59
+ 1272 0008 FFF7FEFF 		bl	IntDisable
+1139:C:/StellarisWare/driverlib\hibernate.c **** 
+1140:C:/StellarisWare/driverlib\hibernate.c ****     //
+1141:C:/StellarisWare/driverlib\hibernate.c ****     // Unregister the interrupt handler.
+1142:C:/StellarisWare/driverlib\hibernate.c ****     //
+1143:C:/StellarisWare/driverlib\hibernate.c ****     IntUnregister(INT_HIBERNATE);
+ 1273              		.loc 1 1143 0
+ 1274 000c 4FF03B00 		mov	r0, #59
+ 1275 0010 FFF7FEFF 		bl	IntUnregister
+1144:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1276              		.loc 1 1144 0
+ 1277 0014 80BD     		pop	{r7, pc}
+ 1278              		.cfi_endproc
+ 1279              	.LFE30:
+ 1281 0016 00BF     		.section	.text.HibernateIntStatus,"ax",%progbits
+ 1282              		.align	2
+ 1283              		.global	HibernateIntStatus
+ 1284              		.thumb
+ 1285              		.thumb_func
+ 1287              	HibernateIntStatus:
+ 1288              	.LFB31:
+1145:C:/StellarisWare/driverlib\hibernate.c **** 
+1146:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1147:C:/StellarisWare/driverlib\hibernate.c **** //
+1148:C:/StellarisWare/driverlib\hibernate.c **** //! Gets the current interrupt status of the Hibernation module.
+1149:C:/StellarisWare/driverlib\hibernate.c **** //!
+1150:C:/StellarisWare/driverlib\hibernate.c **** //! \param bMasked is false to retrieve the raw interrupt status, and true to
+1151:C:/StellarisWare/driverlib\hibernate.c **** //! retrieve the masked interrupt status.
+1152:C:/StellarisWare/driverlib\hibernate.c **** //!
+1153:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns the interrupt status of the Hibernation module.  The
+1154:C:/StellarisWare/driverlib\hibernate.c **** //! caller can use this function to determine the cause of a hibernation
+1155:C:/StellarisWare/driverlib\hibernate.c **** //! interrupt.  Either the masked or raw interrupt status can be returned.
+1156:C:/StellarisWare/driverlib\hibernate.c **** //!
+1157:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns the interrupt status as a bit field with the values as
+1158:C:/StellarisWare/driverlib\hibernate.c **** //! described in the HibernateIntEnable() function.
+1159:C:/StellarisWare/driverlib\hibernate.c **** //
+1160:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1161:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+1162:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntStatus(tBoolean bMasked)
+1163:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1289              		.loc 1 1163 0
+ 1290              		.cfi_startproc
+ 1291              		@ args = 0, pretend = 0, frame = 8
+ 1292              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1293              		@ link register save eliminated.
+ 1294 0000 80B4     		push	{r7}
+ 1295              	.LCFI77:
+ 1296              		.cfi_def_cfa_offset 4
+ 1297              		.cfi_offset 7, -4
+ 1298 0002 83B0     		sub	sp, sp, #12
+ 1299              	.LCFI78:
+ 1300              		.cfi_def_cfa_offset 16
+ 1301 0004 00AF     		add	r7, sp, #0
+ 1302              	.LCFI79:
+ 1303              		.cfi_def_cfa_register 7
+ 1304 0006 0346     		mov	r3, r0
+ 1305 0008 FB71     		strb	r3, [r7, #7]
+1164:C:/StellarisWare/driverlib\hibernate.c ****     //
+1165:C:/StellarisWare/driverlib\hibernate.c ****     // Read and return the Hibernation module raw or masked interrupt status.
+1166:C:/StellarisWare/driverlib\hibernate.c ****     //
+1167:C:/StellarisWare/driverlib\hibernate.c ****     if(bMasked == true)
+ 1306              		.loc 1 1167 0
+ 1307 000a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1308 000c 012B     		cmp	r3, #1
+ 1309 000e 07D1     		bne	.L43
+1168:C:/StellarisWare/driverlib\hibernate.c ****     {
+1169:C:/StellarisWare/driverlib\hibernate.c ****         return(HWREG(HIB_MIS) & 0x1f);
+ 1310              		.loc 1 1169 0
+ 1311 0010 4CF21C03 		movw	r3, #49180
+ 1312 0014 C4F20F03 		movt	r3, 16399
+ 1313 0018 1B68     		ldr	r3, [r3, #0]
+ 1314 001a 03F01F03 		and	r3, r3, #31
+ 1315 001e 06E0     		b	.L44
+ 1316              	.L43:
+1170:C:/StellarisWare/driverlib\hibernate.c ****     }
+1171:C:/StellarisWare/driverlib\hibernate.c ****     else
+1172:C:/StellarisWare/driverlib\hibernate.c ****     {
+1173:C:/StellarisWare/driverlib\hibernate.c ****         return(HWREG(HIB_RIS) & 0x1f);
+ 1317              		.loc 1 1173 0
+ 1318 0020 4CF21803 		movw	r3, #49176
+ 1319 0024 C4F20F03 		movt	r3, 16399
+ 1320 0028 1B68     		ldr	r3, [r3, #0]
+ 1321 002a 03F01F03 		and	r3, r3, #31
+ 1322              	.L44:
+1174:C:/StellarisWare/driverlib\hibernate.c ****     }
+1175:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1323              		.loc 1 1175 0
+ 1324 002e 1846     		mov	r0, r3
+ 1325 0030 07F10C07 		add	r7, r7, #12
+ 1326 0034 BD46     		mov	sp, r7
+ 1327 0036 80BC     		pop	{r7}
+ 1328 0038 7047     		bx	lr
+ 1329              		.cfi_endproc
+ 1330              	.LFE31:
+ 1332 003a 00BF     		.section	.text.HibernateIntClear,"ax",%progbits
+ 1333              		.align	2
+ 1334              		.global	HibernateIntClear
+ 1335              		.thumb
+ 1336              		.thumb_func
+ 1338              	HibernateIntClear:
+ 1339              	.LFB32:
+1176:C:/StellarisWare/driverlib\hibernate.c **** 
+1177:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1178:C:/StellarisWare/driverlib\hibernate.c **** //
+1179:C:/StellarisWare/driverlib\hibernate.c **** //! Clears pending interrupts from the Hibernation module.
+1180:C:/StellarisWare/driverlib\hibernate.c **** //!
+1181:C:/StellarisWare/driverlib\hibernate.c **** //! \param ulIntFlags is the bit mask of the interrupts to be cleared.
+1182:C:/StellarisWare/driverlib\hibernate.c **** //!
+1183:C:/StellarisWare/driverlib\hibernate.c **** //! This function clears the specified interrupt sources.  This function must
+1184:C:/StellarisWare/driverlib\hibernate.c **** //! be called within the interrupt handler or else the handler is called again
+1185:C:/StellarisWare/driverlib\hibernate.c **** //! upon exit.
+1186:C:/StellarisWare/driverlib\hibernate.c **** //!
+1187:C:/StellarisWare/driverlib\hibernate.c **** //! The \e ulIntFlags parameter has the same definition as the \e ulIntFlags
+1188:C:/StellarisWare/driverlib\hibernate.c **** //! parameter to the HibernateIntEnable() function.
+1189:C:/StellarisWare/driverlib\hibernate.c **** //!
+1190:C:/StellarisWare/driverlib\hibernate.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1191:C:/StellarisWare/driverlib\hibernate.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1192:C:/StellarisWare/driverlib\hibernate.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1193:C:/StellarisWare/driverlib\hibernate.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1194:C:/StellarisWare/driverlib\hibernate.c **** //! returning from the interrupt handler before the interrupt source is
+1195:C:/StellarisWare/driverlib\hibernate.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1196:C:/StellarisWare/driverlib\hibernate.c **** //! being immediately reentered (because the interrupt controller still sees
+1197:C:/StellarisWare/driverlib\hibernate.c **** //! the interrupt source asserted).
+1198:C:/StellarisWare/driverlib\hibernate.c **** //!
+1199:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1200:C:/StellarisWare/driverlib\hibernate.c **** //
+1201:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1202:C:/StellarisWare/driverlib\hibernate.c **** void
+1203:C:/StellarisWare/driverlib\hibernate.c **** HibernateIntClear(unsigned long ulIntFlags)
+1204:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1340              		.loc 1 1204 0
+ 1341              		.cfi_startproc
+ 1342              		@ args = 0, pretend = 0, frame = 8
+ 1343              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1344 0000 80B5     		push	{r7, lr}
+ 1345              	.LCFI80:
+ 1346              		.cfi_def_cfa_offset 8
+ 1347              		.cfi_offset 14, -4
+ 1348              		.cfi_offset 7, -8
+ 1349 0002 82B0     		sub	sp, sp, #8
+ 1350              	.LCFI81:
+ 1351              		.cfi_def_cfa_offset 16
+ 1352 0004 00AF     		add	r7, sp, #0
+ 1353              	.LCFI82:
+ 1354              		.cfi_def_cfa_register 7
+ 1355 0006 7860     		str	r0, [r7, #4]
+1205:C:/StellarisWare/driverlib\hibernate.c ****     //
+1206:C:/StellarisWare/driverlib\hibernate.c ****     // Check the arguments.
+1207:C:/StellarisWare/driverlib\hibernate.c ****     //
+1208:C:/StellarisWare/driverlib\hibernate.c ****     ASSERT(!(ulIntFlags & ~(HIBERNATE_INT_PIN_WAKE | HIBERNATE_INT_LOW_BAT |
+1209:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_0 |
+1210:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_RTC_MATCH_1 |
+1211:C:/StellarisWare/driverlib\hibernate.c ****                             HIBERNATE_INT_WR_COMPLETE)));
+1212:C:/StellarisWare/driverlib\hibernate.c **** 
+1213:C:/StellarisWare/driverlib\hibernate.c ****     //
+1214:C:/StellarisWare/driverlib\hibernate.c ****     // Write the specified interrupt bits into the interrupt clear register.
+1215:C:/StellarisWare/driverlib\hibernate.c ****     //
+1216:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_IC) |= ulIntFlags;
+ 1356              		.loc 1 1216 0
+ 1357 0008 4CF22003 		movw	r3, #49184
+ 1358 000c C4F20F03 		movt	r3, 16399
+ 1359 0010 4CF22002 		movw	r2, #49184
+ 1360 0014 C4F20F02 		movt	r2, 16399
+ 1361 0018 1168     		ldr	r1, [r2, #0]
+ 1362 001a 7A68     		ldr	r2, [r7, #4]
+ 1363 001c 0A43     		orrs	r2, r2, r1
+ 1364 001e 1A60     		str	r2, [r3, #0]
+1217:C:/StellarisWare/driverlib\hibernate.c **** 
+1218:C:/StellarisWare/driverlib\hibernate.c ****     //
+1219:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+1220:C:/StellarisWare/driverlib\hibernate.c ****     //
+1221:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1365              		.loc 1 1221 0
+ 1366 0020 FFF7FEFF 		bl	HibernateWriteComplete
+1222:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1367              		.loc 1 1222 0
+ 1368 0024 07F10807 		add	r7, r7, #8
+ 1369 0028 BD46     		mov	sp, r7
+ 1370 002a 80BD     		pop	{r7, pc}
+ 1371              		.cfi_endproc
+ 1372              	.LFE32:
+ 1374              		.section	.text.HibernateIsActive,"ax",%progbits
+ 1375              		.align	2
+ 1376              		.global	HibernateIsActive
+ 1377              		.thumb
+ 1378              		.thumb_func
+ 1380              	HibernateIsActive:
+ 1381              	.LFB33:
+1223:C:/StellarisWare/driverlib\hibernate.c **** 
+1224:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1225:C:/StellarisWare/driverlib\hibernate.c **** //
+1226:C:/StellarisWare/driverlib\hibernate.c **** //! Checks to see if the Hibernation module is already powered up.
+1227:C:/StellarisWare/driverlib\hibernate.c **** //!
+1228:C:/StellarisWare/driverlib\hibernate.c **** //! This function queries the control register to determine if the module is
+1229:C:/StellarisWare/driverlib\hibernate.c **** //! already active.  This function can be called at a power-on reset to help
+1230:C:/StellarisWare/driverlib\hibernate.c **** //! determine if the reset is due to a wake from hibernation or a cold start.
+1231:C:/StellarisWare/driverlib\hibernate.c **** //! If the Hibernation module is already active, then it does not need to be
+1232:C:/StellarisWare/driverlib\hibernate.c **** //! re-enabled and its status can be queried immediately.
+1233:C:/StellarisWare/driverlib\hibernate.c **** //!
+1234:C:/StellarisWare/driverlib\hibernate.c **** //! The software application should also use the HibernateIntStatus() function
+1235:C:/StellarisWare/driverlib\hibernate.c **** //! to read the raw interrupt status to determine the cause of the wake.  The
+1236:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateDataGet() function can be used to restore state.  These
+1237:C:/StellarisWare/driverlib\hibernate.c **** //! combinations of functions can be used by the software to determine if the
+1238:C:/StellarisWare/driverlib\hibernate.c **** //! processor is waking from hibernation and the appropriate action to take as
+1239:C:/StellarisWare/driverlib\hibernate.c **** //! a result.
+1240:C:/StellarisWare/driverlib\hibernate.c **** //!
+1241:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns \b true if the module is already active, and \b false if
+1242:C:/StellarisWare/driverlib\hibernate.c **** //! not.
+1243:C:/StellarisWare/driverlib\hibernate.c **** //
+1244:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1245:C:/StellarisWare/driverlib\hibernate.c **** unsigned long
+1246:C:/StellarisWare/driverlib\hibernate.c **** HibernateIsActive(void)
+1247:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1382              		.loc 1 1247 0
+ 1383              		.cfi_startproc
+ 1384              		@ args = 0, pretend = 0, frame = 0
+ 1385              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1386              		@ link register save eliminated.
+ 1387 0000 80B4     		push	{r7}
+ 1388              	.LCFI83:
+ 1389              		.cfi_def_cfa_offset 4
+ 1390              		.cfi_offset 7, -4
+ 1391 0002 00AF     		add	r7, sp, #0
+ 1392              	.LCFI84:
+ 1393              		.cfi_def_cfa_register 7
+1248:C:/StellarisWare/driverlib\hibernate.c ****     //
+1249:C:/StellarisWare/driverlib\hibernate.c ****     // Read the control register, and return true if the module is enabled.
+1250:C:/StellarisWare/driverlib\hibernate.c ****     //
+1251:C:/StellarisWare/driverlib\hibernate.c ****     return(HWREG(HIB_CTL) & HIB_CTL_CLK32EN ? 1 : 0);
+ 1394              		.loc 1 1251 0
+ 1395 0004 4CF21003 		movw	r3, #49168
+ 1396 0008 C4F20F03 		movt	r3, 16399
+ 1397 000c 1B68     		ldr	r3, [r3, #0]
+ 1398 000e 03F04003 		and	r3, r3, #64
+ 1399 0012 002B     		cmp	r3, #0
+ 1400 0014 0CBF     		ite	eq
+ 1401 0016 0023     		moveq	r3, #0
+ 1402 0018 0123     		movne	r3, #1
+1252:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1403              		.loc 1 1252 0
+ 1404 001a 1846     		mov	r0, r3
+ 1405 001c BD46     		mov	sp, r7
+ 1406 001e 80BC     		pop	{r7}
+ 1407 0020 7047     		bx	lr
+ 1408              		.cfi_endproc
+ 1409              	.LFE33:
+ 1411 0022 00BF     		.section	.text.HibernateGPIORetentionEnable,"ax",%progbits
+ 1412              		.align	2
+ 1413              		.global	HibernateGPIORetentionEnable
+ 1414              		.thumb
+ 1415              		.thumb_func
+ 1417              	HibernateGPIORetentionEnable:
+ 1418              	.LFB34:
+1253:C:/StellarisWare/driverlib\hibernate.c **** 
+1254:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1255:C:/StellarisWare/driverlib\hibernate.c **** //
+1256:C:/StellarisWare/driverlib\hibernate.c **** //! Enables GPIO retention after wake from hibernate.
+1257:C:/StellarisWare/driverlib\hibernate.c **** //!
+1258:C:/StellarisWare/driverlib\hibernate.c **** //! Calling this function enables the GPIO pad state to be maintained during
+1259:C:/StellarisWare/driverlib\hibernate.c **** //! hibernate and remain active even when waking from a hibernate wake event.
+1260:C:/StellarisWare/driverlib\hibernate.c **** //! The GPIO module itself will be reset upon entering hibernate and no longer
+1261:C:/StellarisWare/driverlib\hibernate.c **** //! control the output pad.  To maintain the current output level after waking
+1262:C:/StellarisWare/driverlib\hibernate.c **** //! from hibernate, the GPIO module must be reconfigured and then the
+1263:C:/StellarisWare/driverlib\hibernate.c **** //! HibernateGPIORetentionDisable() function is called to return control of the
+1264:C:/StellarisWare/driverlib\hibernate.c **** //! GPIO pin to the GPIO module.
+1265:C:/StellarisWare/driverlib\hibernate.c **** //!
+1266:C:/StellarisWare/driverlib\hibernate.c **** //! \note The hibernate GPIO retention setting is not available on all
+1267:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.  Please consult the data sheet to determine if the
+1268:C:/StellarisWare/driverlib\hibernate.c **** //! device you are using supports this feature in the Hibernation module.
+1269:C:/StellarisWare/driverlib\hibernate.c **** //!
+1270:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1271:C:/StellarisWare/driverlib\hibernate.c **** //
+1272:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1273:C:/StellarisWare/driverlib\hibernate.c **** void
+1274:C:/StellarisWare/driverlib\hibernate.c **** HibernateGPIORetentionEnable(void)
+1275:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1419              		.loc 1 1275 0
+ 1420              		.cfi_startproc
+ 1421              		@ args = 0, pretend = 0, frame = 0
+ 1422              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1423 0000 80B5     		push	{r7, lr}
+ 1424              	.LCFI85:
+ 1425              		.cfi_def_cfa_offset 8
+ 1426              		.cfi_offset 14, -4
+ 1427              		.cfi_offset 7, -8
+ 1428 0002 00AF     		add	r7, sp, #0
+ 1429              	.LCFI86:
+ 1430              		.cfi_def_cfa_register 7
+1276:C:/StellarisWare/driverlib\hibernate.c ****     //
+1277:C:/StellarisWare/driverlib\hibernate.c ****     // Enable power to the pads so that pin state can be retained.
+1278:C:/StellarisWare/driverlib\hibernate.c ****     //
+1279:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) |= HIB_CTL_VDD3ON;
+ 1431              		.loc 1 1279 0
+ 1432 0004 4CF21003 		movw	r3, #49168
+ 1433 0008 C4F20F03 		movt	r3, 16399
+ 1434 000c 4CF21002 		movw	r2, #49168
+ 1435 0010 C4F20F02 		movt	r2, 16399
+ 1436 0014 1268     		ldr	r2, [r2, #0]
+ 1437 0016 42F48072 		orr	r2, r2, #256
+ 1438 001a 1A60     		str	r2, [r3, #0]
+1280:C:/StellarisWare/driverlib\hibernate.c **** 
+1281:C:/StellarisWare/driverlib\hibernate.c ****     //
+1282:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+1283:C:/StellarisWare/driverlib\hibernate.c ****     //
+1284:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1439              		.loc 1 1284 0
+ 1440 001c FFF7FEFF 		bl	HibernateWriteComplete
+1285:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1441              		.loc 1 1285 0
+ 1442 0020 80BD     		pop	{r7, pc}
+ 1443              		.cfi_endproc
+ 1444              	.LFE34:
+ 1446 0022 00BF     		.section	.text.HibernateGPIORetentionDisable,"ax",%progbits
+ 1447              		.align	2
+ 1448              		.global	HibernateGPIORetentionDisable
+ 1449              		.thumb
+ 1450              		.thumb_func
+ 1452              	HibernateGPIORetentionDisable:
+ 1453              	.LFB35:
+1286:C:/StellarisWare/driverlib\hibernate.c **** 
+1287:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1288:C:/StellarisWare/driverlib\hibernate.c **** //
+1289:C:/StellarisWare/driverlib\hibernate.c **** //! Disables GPIO retention after wake from hibernate.
+1290:C:/StellarisWare/driverlib\hibernate.c **** //!
+1291:C:/StellarisWare/driverlib\hibernate.c **** //! Calling this function disables the retention of the the GPIO pin state
+1292:C:/StellarisWare/driverlib\hibernate.c **** //! during hibernate and allows the GPIO pad to be controlled by the system.
+1293:C:/StellarisWare/driverlib\hibernate.c **** //! If the HibernateGPIORetentionEnable() function was called before entering
+1294:C:/StellarisWare/driverlib\hibernate.c **** //! the hibernate state, this function must be called to allow the GPIO
+1295:C:/StellarisWare/driverlib\hibernate.c **** //! pad to be controlled by GPIO module after returning from the hibernate
+1296:C:/StellarisWare/driverlib\hibernate.c **** //! state.
+1297:C:/StellarisWare/driverlib\hibernate.c **** //!
+1298:C:/StellarisWare/driverlib\hibernate.c **** //! \note The hibernate GPIO retention setting is not available on all
+1299:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.  Please consult the data sheet to determine if the
+1300:C:/StellarisWare/driverlib\hibernate.c **** //! device you are using supports this feature in the Hibernation module.
+1301:C:/StellarisWare/driverlib\hibernate.c **** //!
+1302:C:/StellarisWare/driverlib\hibernate.c **** //! \return None.
+1303:C:/StellarisWare/driverlib\hibernate.c **** //
+1304:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1305:C:/StellarisWare/driverlib\hibernate.c **** void
+1306:C:/StellarisWare/driverlib\hibernate.c **** HibernateGPIORetentionDisable(void)
+1307:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1454              		.loc 1 1307 0
+ 1455              		.cfi_startproc
+ 1456              		@ args = 0, pretend = 0, frame = 0
+ 1457              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1458 0000 80B5     		push	{r7, lr}
+ 1459              	.LCFI87:
+ 1460              		.cfi_def_cfa_offset 8
+ 1461              		.cfi_offset 14, -4
+ 1462              		.cfi_offset 7, -8
+ 1463 0002 00AF     		add	r7, sp, #0
+ 1464              	.LCFI88:
+ 1465              		.cfi_def_cfa_register 7
+1308:C:/StellarisWare/driverlib\hibernate.c ****     //
+1309:C:/StellarisWare/driverlib\hibernate.c ****     // Disable the hibernate power to the pads.
+1310:C:/StellarisWare/driverlib\hibernate.c ****     //
+1311:C:/StellarisWare/driverlib\hibernate.c ****     HWREG(HIB_CTL) &= ~HIB_CTL_VDD3ON;
+ 1466              		.loc 1 1311 0
+ 1467 0004 4CF21003 		movw	r3, #49168
+ 1468 0008 C4F20F03 		movt	r3, 16399
+ 1469 000c 4CF21002 		movw	r2, #49168
+ 1470 0010 C4F20F02 		movt	r2, 16399
+ 1471 0014 1268     		ldr	r2, [r2, #0]
+ 1472 0016 22F48072 		bic	r2, r2, #256
+ 1473 001a 1A60     		str	r2, [r3, #0]
+1312:C:/StellarisWare/driverlib\hibernate.c **** 
+1313:C:/StellarisWare/driverlib\hibernate.c ****     //
+1314:C:/StellarisWare/driverlib\hibernate.c ****     // Wait for write completion
+1315:C:/StellarisWare/driverlib\hibernate.c ****     //
+1316:C:/StellarisWare/driverlib\hibernate.c ****     HibernateWriteComplete();
+ 1474              		.loc 1 1316 0
+ 1475 001c FFF7FEFF 		bl	HibernateWriteComplete
+1317:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1476              		.loc 1 1317 0
+ 1477 0020 80BD     		pop	{r7, pc}
+ 1478              		.cfi_endproc
+ 1479              	.LFE35:
+ 1481 0022 00BF     		.section	.text.HibernateGPIORetentionGet,"ax",%progbits
+ 1482              		.align	2
+ 1483              		.global	HibernateGPIORetentionGet
+ 1484              		.thumb
+ 1485              		.thumb_func
+ 1487              	HibernateGPIORetentionGet:
+ 1488              	.LFB36:
+1318:C:/StellarisWare/driverlib\hibernate.c **** 
+1319:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1320:C:/StellarisWare/driverlib\hibernate.c **** //
+1321:C:/StellarisWare/driverlib\hibernate.c **** //! Returns the current setting for GPIO retention.
+1322:C:/StellarisWare/driverlib\hibernate.c **** //!
+1323:C:/StellarisWare/driverlib\hibernate.c **** //! This function returns the current setting for GPIO retention in the
+1324:C:/StellarisWare/driverlib\hibernate.c **** //! hibernate module.
+1325:C:/StellarisWare/driverlib\hibernate.c **** //!
+1326:C:/StellarisWare/driverlib\hibernate.c **** //! \note The hibernate GPIO retention setting is not available on all
+1327:C:/StellarisWare/driverlib\hibernate.c **** //! Stellaris devices.  Please consult the data sheet to determine if the
+1328:C:/StellarisWare/driverlib\hibernate.c **** //! device you are using supports this feature in the Hibernation module.
+1329:C:/StellarisWare/driverlib\hibernate.c **** //!
+1330:C:/StellarisWare/driverlib\hibernate.c **** //! \return Returns true if GPIO retention is enabled and false if GPIO
+1331:C:/StellarisWare/driverlib\hibernate.c **** //! retention is disabled.
+1332:C:/StellarisWare/driverlib\hibernate.c **** //
+1333:C:/StellarisWare/driverlib\hibernate.c **** //*****************************************************************************
+1334:C:/StellarisWare/driverlib\hibernate.c **** tBoolean
+1335:C:/StellarisWare/driverlib\hibernate.c **** HibernateGPIORetentionGet(void)
+1336:C:/StellarisWare/driverlib\hibernate.c **** {
+ 1489              		.loc 1 1336 0
+ 1490              		.cfi_startproc
+ 1491              		@ args = 0, pretend = 0, frame = 0
+ 1492              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1493              		@ link register save eliminated.
+ 1494 0000 80B4     		push	{r7}
+ 1495              	.LCFI89:
+ 1496              		.cfi_def_cfa_offset 4
+ 1497              		.cfi_offset 7, -4
+ 1498 0002 00AF     		add	r7, sp, #0
+ 1499              	.LCFI90:
+ 1500              		.cfi_def_cfa_register 7
+1337:C:/StellarisWare/driverlib\hibernate.c ****     //
+1338:C:/StellarisWare/driverlib\hibernate.c ****     // Read the current GPIO retention configuration.
+1339:C:/StellarisWare/driverlib\hibernate.c ****     //
+1340:C:/StellarisWare/driverlib\hibernate.c ****     if(HWREG(HIB_CTL) & HIB_CTL_VDD3ON)
+ 1501              		.loc 1 1340 0
+ 1502 0004 4CF21003 		movw	r3, #49168
+ 1503 0008 C4F20F03 		movt	r3, 16399
+ 1504 000c 1B68     		ldr	r3, [r3, #0]
+ 1505 000e 03F48073 		and	r3, r3, #256
+ 1506 0012 002B     		cmp	r3, #0
+ 1507 0014 02D0     		beq	.L50
+1341:C:/StellarisWare/driverlib\hibernate.c ****     {
+1342:C:/StellarisWare/driverlib\hibernate.c ****         return(true);
+ 1508              		.loc 1 1342 0
+ 1509 0016 4FF00103 		mov	r3, #1
+ 1510 001a 01E0     		b	.L51
+ 1511              	.L50:
+1343:C:/StellarisWare/driverlib\hibernate.c ****     }
+1344:C:/StellarisWare/driverlib\hibernate.c ****     return(false);
+ 1512              		.loc 1 1344 0
+ 1513 001c 4FF00003 		mov	r3, #0
+ 1514              	.L51:
+1345:C:/StellarisWare/driverlib\hibernate.c **** }
+ 1515              		.loc 1 1345 0
+ 1516 0020 1846     		mov	r0, r3
+ 1517 0022 BD46     		mov	sp, r7
+ 1518 0024 80BC     		pop	{r7}
+ 1519 0026 7047     		bx	lr
+ 1520              		.cfi_endproc
+ 1521              	.LFE36:
+ 1523              		.text
+ 1524              	.Letext0:
+ 1525              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 hibernate.c
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:19     .bss:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:20     .bss:00000000 g_ulWriteDelay
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:23     .text.HibernateWriteComplete:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:28     .text.HibernateWriteComplete:00000000 HibernateWriteComplete
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:78     .text.HibernateEnableExpClk:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:83     .text.HibernateEnableExpClk:00000000 HibernateEnableExpClk
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:159    .text.HibernateDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:164    .text.HibernateDisable:00000000 HibernateDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:194    .text.HibernateClockSelect:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:199    .text.HibernateClockSelect:00000000 HibernateClockSelect
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:237    .text.HibernateClockConfig:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:242    .text.HibernateClockConfig:00000000 HibernateClockConfig
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:290    .text.HibernateRTCEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:295    .text.HibernateRTCEnable:00000000 HibernateRTCEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:325    .text.HibernateRTCDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:330    .text.HibernateRTCDisable:00000000 HibernateRTCDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:360    .text.HibernateBatCheckStart:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:365    .text.HibernateBatCheckStart:00000000 HibernateBatCheckStart
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:395    .text.HibernateBatCheckDone:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:400    .text.HibernateBatCheckDone:00000000 HibernateBatCheckDone
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:428    .text.HibernateWakeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:433    .text.HibernateWakeSet:00000000 HibernateWakeSet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:473    .text.HibernateWakeGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:478    .text.HibernateWakeGet:00000000 HibernateWakeGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:506    .text.HibernateLowBatSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:511    .text.HibernateLowBatSet:00000000 HibernateLowBatSet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:552    .text.HibernateLowBatGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:557    .text.HibernateLowBatGet:00000000 HibernateLowBatGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:586    .text.HibernateRTCSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:591    .text.HibernateRTCSet:00000000 HibernateRTCSet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:624    .text.HibernateRTCGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:629    .text.HibernateRTCGet:00000000 HibernateRTCGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:656    .text.HibernateRTCMatch0Set:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:661    .text.HibernateRTCMatch0Set:00000000 HibernateRTCMatch0Set
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:694    .text.HibernateRTCMatch0Get:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:699    .text.HibernateRTCMatch0Get:00000000 HibernateRTCMatch0Get
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:726    .text.HibernateRTCMatch1Set:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:731    .text.HibernateRTCMatch1Set:00000000 HibernateRTCMatch1Set
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:764    .text.HibernateRTCMatch1Get:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:769    .text.HibernateRTCMatch1Get:00000000 HibernateRTCMatch1Get
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:796    .text.HibernateRTCSSMatch0Set:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:801    .text.HibernateRTCSSMatch0Set:00000000 HibernateRTCSSMatch0Set
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:835    .text.HibernateRTCSSMatch0Get:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:840    .text.HibernateRTCSSMatch0Get:00000000 HibernateRTCSSMatch0Get
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:868    .text.HibernateRTCSSGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:873    .text.HibernateRTCSSGet:00000000 HibernateRTCSSGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:902    .text.HibernateRTCTrimSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:907    .text.HibernateRTCTrimSet:00000000 HibernateRTCTrimSet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:940    .text.HibernateRTCTrimGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:945    .text.HibernateRTCTrimGet:00000000 HibernateRTCTrimGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:972    .text.HibernateDataSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:977    .text.HibernateDataSet:00000000 HibernateDataSet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1033   .text.HibernateDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1038   .text.HibernateDataGet:00000000 HibernateDataGet
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1093   .text.HibernateRequest:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1098   .text.HibernateRequest:00000000 HibernateRequest
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1128   .text.HibernateIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1133   .text.HibernateIntEnable:00000000 HibernateIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1170   .text.HibernateIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1175   .text.HibernateIntDisable:00000000 HibernateIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1213   .text.HibernateIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1218   .text.HibernateIntRegister:00000000 HibernateIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1251   .text.HibernateIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1256   .text.HibernateIntUnregister:00000000 HibernateIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1282   .text.HibernateIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1287   .text.HibernateIntStatus:00000000 HibernateIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1333   .text.HibernateIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1338   .text.HibernateIntClear:00000000 HibernateIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1375   .text.HibernateIsActive:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1380   .text.HibernateIsActive:00000000 HibernateIsActive
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1412   .text.HibernateGPIORetentionEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1417   .text.HibernateGPIORetentionEnable:00000000 HibernateGPIORetentionEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1447   .text.HibernateGPIORetentionDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1452   .text.HibernateGPIORetentionDisable:00000000 HibernateGPIORetentionDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1482   .text.HibernateGPIORetentionGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccF2B1EJ.s:1487   .text.HibernateGPIORetentionGet:00000000 HibernateGPIORetentionGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+SysCtlDelay
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

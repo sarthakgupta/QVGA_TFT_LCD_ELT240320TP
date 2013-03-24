@@ -1,0 +1,233 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"isqrt.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.isqrt,"ax",%progbits
+  19              		.align	2
+  20              		.global	isqrt
+  21              		.thumb
+  22              		.thumb_func
+  24              	isqrt:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/utils/isqrt.c"
+   1:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\isqrt.c **** //
+   3:C:/StellarisWare/utils\isqrt.c **** // isqrt.c - Integer square root.
+   4:C:/StellarisWare/utils\isqrt.c **** //
+   5:C:/StellarisWare/utils\isqrt.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\isqrt.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\isqrt.c **** // 
+   8:C:/StellarisWare/utils\isqrt.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\isqrt.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\isqrt.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\isqrt.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\isqrt.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\isqrt.c **** // 
+  14:C:/StellarisWare/utils\isqrt.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\isqrt.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\isqrt.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\isqrt.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\isqrt.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\isqrt.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\isqrt.c **** // 
+  21:C:/StellarisWare/utils\isqrt.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\isqrt.c **** //
+  23:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\isqrt.c **** 
+  25:C:/StellarisWare/utils\isqrt.c **** #include "utils/isqrt.h"
+  26:C:/StellarisWare/utils\isqrt.c **** 
+  27:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+  28:C:/StellarisWare/utils\isqrt.c **** //
+  29:C:/StellarisWare/utils\isqrt.c **** //! \addtogroup isqrt_api
+  30:C:/StellarisWare/utils\isqrt.c **** //! @{
+  31:C:/StellarisWare/utils\isqrt.c **** //
+  32:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+  33:C:/StellarisWare/utils\isqrt.c **** 
+  34:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+  35:C:/StellarisWare/utils\isqrt.c **** //
+  36:C:/StellarisWare/utils\isqrt.c **** //! Compute the integer square root of an integer.
+  37:C:/StellarisWare/utils\isqrt.c **** //!
+  38:C:/StellarisWare/utils\isqrt.c **** //! \param ulValue is the value whose square root is desired.
+  39:C:/StellarisWare/utils\isqrt.c **** //!
+  40:C:/StellarisWare/utils\isqrt.c **** //! This function will compute the integer square root of the given input
+  41:C:/StellarisWare/utils\isqrt.c **** //! value.  Since the value returned is also an integer, it is actually better
+  42:C:/StellarisWare/utils\isqrt.c **** //! defined as the largest integer whose square is less than or equal to the
+  43:C:/StellarisWare/utils\isqrt.c **** //! input value.
+  44:C:/StellarisWare/utils\isqrt.c **** //!
+  45:C:/StellarisWare/utils\isqrt.c **** //! \return Returns the square root of the input value.
+  46:C:/StellarisWare/utils\isqrt.c **** //
+  47:C:/StellarisWare/utils\isqrt.c **** //*****************************************************************************
+  48:C:/StellarisWare/utils\isqrt.c **** unsigned long
+  49:C:/StellarisWare/utils\isqrt.c **** isqrt(unsigned long ulValue)
+  50:C:/StellarisWare/utils\isqrt.c **** {
+  27              		.loc 1 50 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 87B0     		sub	sp, sp, #28
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 32
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  51:C:/StellarisWare/utils\isqrt.c ****     unsigned long ulRem, ulRoot, ulIdx;
+  52:C:/StellarisWare/utils\isqrt.c **** 
+  53:C:/StellarisWare/utils\isqrt.c ****     //
+  54:C:/StellarisWare/utils\isqrt.c ****     // Initialize the remainder and root to zero.
+  55:C:/StellarisWare/utils\isqrt.c ****     //
+  56:C:/StellarisWare/utils\isqrt.c ****     ulRem = 0;
+  43              		.loc 1 56 0
+  44 0008 4FF00003 		mov	r3, #0
+  45 000c 7B61     		str	r3, [r7, #20]
+  57:C:/StellarisWare/utils\isqrt.c ****     ulRoot = 0;
+  46              		.loc 1 57 0
+  47 000e 4FF00003 		mov	r3, #0
+  48 0012 3B61     		str	r3, [r7, #16]
+  58:C:/StellarisWare/utils\isqrt.c **** 
+  59:C:/StellarisWare/utils\isqrt.c ****     //
+  60:C:/StellarisWare/utils\isqrt.c ****     // Loop over the sixteen bits in the root.
+  61:C:/StellarisWare/utils\isqrt.c ****     //
+  62:C:/StellarisWare/utils\isqrt.c ****     for(ulIdx = 0; ulIdx < 16; ulIdx++)
+  49              		.loc 1 62 0
+  50 0014 4FF00003 		mov	r3, #0
+  51 0018 FB60     		str	r3, [r7, #12]
+  52 001a 28E0     		b	.L2
+  53              	.L5:
+  63:C:/StellarisWare/utils\isqrt.c ****     {
+  64:C:/StellarisWare/utils\isqrt.c ****         //
+  65:C:/StellarisWare/utils\isqrt.c ****         // Shift the root up by a bit to make room for the new bit that is
+  66:C:/StellarisWare/utils\isqrt.c ****         // about to be computed.
+  67:C:/StellarisWare/utils\isqrt.c ****         //
+  68:C:/StellarisWare/utils\isqrt.c ****         ulRoot <<= 1;
+  54              		.loc 1 68 0
+  55 001c 3B69     		ldr	r3, [r7, #16]
+  56 001e 4FEA4303 		lsl	r3, r3, #1
+  57 0022 3B61     		str	r3, [r7, #16]
+  69:C:/StellarisWare/utils\isqrt.c **** 
+  70:C:/StellarisWare/utils\isqrt.c ****         //
+  71:C:/StellarisWare/utils\isqrt.c ****         // Get two more bits from the input into the remainder.
+  72:C:/StellarisWare/utils\isqrt.c ****         //
+  73:C:/StellarisWare/utils\isqrt.c ****         ulRem = ((ulRem << 2) + (ulValue >> 30));
+  58              		.loc 1 73 0
+  59 0024 7B69     		ldr	r3, [r7, #20]
+  60 0026 4FEA8302 		lsl	r2, r3, #2
+  61 002a 7B68     		ldr	r3, [r7, #4]
+  62 002c 4FEA9373 		lsr	r3, r3, #30
+  63 0030 D318     		adds	r3, r2, r3
+  64 0032 7B61     		str	r3, [r7, #20]
+  74:C:/StellarisWare/utils\isqrt.c ****         ulValue <<= 2;
+  65              		.loc 1 74 0
+  66 0034 7B68     		ldr	r3, [r7, #4]
+  67 0036 4FEA8303 		lsl	r3, r3, #2
+  68 003a 7B60     		str	r3, [r7, #4]
+  75:C:/StellarisWare/utils\isqrt.c **** 
+  76:C:/StellarisWare/utils\isqrt.c ****         //
+  77:C:/StellarisWare/utils\isqrt.c ****         // Make the test root be 2n + 1.
+  78:C:/StellarisWare/utils\isqrt.c ****         //
+  79:C:/StellarisWare/utils\isqrt.c ****         ulRoot++;
+  69              		.loc 1 79 0
+  70 003c 3B69     		ldr	r3, [r7, #16]
+  71 003e 03F10103 		add	r3, r3, #1
+  72 0042 3B61     		str	r3, [r7, #16]
+  80:C:/StellarisWare/utils\isqrt.c **** 
+  81:C:/StellarisWare/utils\isqrt.c ****         //
+  82:C:/StellarisWare/utils\isqrt.c ****         // See if the root is greater than the remainder.
+  83:C:/StellarisWare/utils\isqrt.c ****         //
+  84:C:/StellarisWare/utils\isqrt.c ****         if(ulRoot <= ulRem)
+  73              		.loc 1 84 0
+  74 0044 3A69     		ldr	r2, [r7, #16]
+  75 0046 7B69     		ldr	r3, [r7, #20]
+  76 0048 9A42     		cmp	r2, r3
+  77 004a 08D8     		bhi	.L3
+  85:C:/StellarisWare/utils\isqrt.c ****         {
+  86:C:/StellarisWare/utils\isqrt.c ****             //
+  87:C:/StellarisWare/utils\isqrt.c ****             // Subtract the test root from the remainder.
+  88:C:/StellarisWare/utils\isqrt.c ****             //
+  89:C:/StellarisWare/utils\isqrt.c ****             ulRem -= ulRoot;
+  78              		.loc 1 89 0
+  79 004c 7A69     		ldr	r2, [r7, #20]
+  80 004e 3B69     		ldr	r3, [r7, #16]
+  81 0050 D31A     		subs	r3, r2, r3
+  82 0052 7B61     		str	r3, [r7, #20]
+  90:C:/StellarisWare/utils\isqrt.c **** 
+  91:C:/StellarisWare/utils\isqrt.c ****             //
+  92:C:/StellarisWare/utils\isqrt.c ****             // Increment the root, setting the second LSB.
+  93:C:/StellarisWare/utils\isqrt.c ****             //
+  94:C:/StellarisWare/utils\isqrt.c ****             ulRoot++;
+  83              		.loc 1 94 0
+  84 0054 3B69     		ldr	r3, [r7, #16]
+  85 0056 03F10103 		add	r3, r3, #1
+  86 005a 3B61     		str	r3, [r7, #16]
+  87 005c 03E0     		b	.L4
+  88              	.L3:
+  95:C:/StellarisWare/utils\isqrt.c ****         }
+  96:C:/StellarisWare/utils\isqrt.c ****         else
+  97:C:/StellarisWare/utils\isqrt.c ****         {
+  98:C:/StellarisWare/utils\isqrt.c ****             //
+  99:C:/StellarisWare/utils\isqrt.c ****             // The root is greater than the remainder, so the new bit of the
+ 100:C:/StellarisWare/utils\isqrt.c ****             // root is actually zero.
+ 101:C:/StellarisWare/utils\isqrt.c ****             //
+ 102:C:/StellarisWare/utils\isqrt.c ****             ulRoot--;
+  89              		.loc 1 102 0
+  90 005e 3B69     		ldr	r3, [r7, #16]
+  91 0060 03F1FF33 		add	r3, r3, #-1
+  92 0064 3B61     		str	r3, [r7, #16]
+  93              	.L4:
+  62:C:/StellarisWare/utils\isqrt.c ****     for(ulIdx = 0; ulIdx < 16; ulIdx++)
+  94              		.loc 1 62 0
+  95 0066 FB68     		ldr	r3, [r7, #12]
+  96 0068 03F10103 		add	r3, r3, #1
+  97 006c FB60     		str	r3, [r7, #12]
+  98              	.L2:
+  62:C:/StellarisWare/utils\isqrt.c ****     for(ulIdx = 0; ulIdx < 16; ulIdx++)
+  99              		.loc 1 62 0 is_stmt 0 discriminator 1
+ 100 006e FB68     		ldr	r3, [r7, #12]
+ 101 0070 0F2B     		cmp	r3, #15
+ 102 0072 D3D9     		bls	.L5
+ 103:C:/StellarisWare/utils\isqrt.c ****         }
+ 104:C:/StellarisWare/utils\isqrt.c ****     }
+ 105:C:/StellarisWare/utils\isqrt.c **** 
+ 106:C:/StellarisWare/utils\isqrt.c ****     //
+ 107:C:/StellarisWare/utils\isqrt.c ****     // Return the computed root.
+ 108:C:/StellarisWare/utils\isqrt.c ****     //
+ 109:C:/StellarisWare/utils\isqrt.c ****     return(ulRoot >> 1);
+ 103              		.loc 1 109 0 is_stmt 1
+ 104 0074 3B69     		ldr	r3, [r7, #16]
+ 105 0076 4FEA5303 		lsr	r3, r3, #1
+ 110:C:/StellarisWare/utils\isqrt.c **** }
+ 106              		.loc 1 110 0
+ 107 007a 1846     		mov	r0, r3
+ 108 007c 07F11C07 		add	r7, r7, #28
+ 109 0080 BD46     		mov	sp, r7
+ 110 0082 80BC     		pop	{r7}
+ 111 0084 7047     		bx	lr
+ 112              		.cfi_endproc
+ 113              	.LFE0:
+ 115 0086 00BF     		.text
+ 116              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 isqrt.c
+C:\Users\Sarthak\AppData\Local\Temp\ccRaUYlt.s:19     .text.isqrt:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccRaUYlt.s:24     .text.isqrt:00000000 isqrt
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

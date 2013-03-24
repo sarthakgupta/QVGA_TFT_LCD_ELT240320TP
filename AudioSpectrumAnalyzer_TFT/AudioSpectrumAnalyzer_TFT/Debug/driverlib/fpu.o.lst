@@ -1,0 +1,667 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"fpu.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.FPUEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	FPUEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	FPUEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/fpu.c"
+   1:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\fpu.c **** //
+   3:C:/StellarisWare/driverlib\fpu.c **** // fpu.c - Routines for manipulating the floating-point unit in the Cortex-M
+   4:C:/StellarisWare/driverlib\fpu.c **** //         processor.
+   5:C:/StellarisWare/driverlib\fpu.c **** //
+   6:C:/StellarisWare/driverlib\fpu.c **** // Copyright (c) 2011-2012 Texas Instruments Incorporated.  All rights reserved.
+   7:C:/StellarisWare/driverlib\fpu.c **** // Software License Agreement
+   8:C:/StellarisWare/driverlib\fpu.c **** // 
+   9:C:/StellarisWare/driverlib\fpu.c **** //   Redistribution and use in source and binary forms, with or without
+  10:C:/StellarisWare/driverlib\fpu.c **** //   modification, are permitted provided that the following conditions
+  11:C:/StellarisWare/driverlib\fpu.c **** //   are met:
+  12:C:/StellarisWare/driverlib\fpu.c **** // 
+  13:C:/StellarisWare/driverlib\fpu.c **** //   Redistributions of source code must retain the above copyright
+  14:C:/StellarisWare/driverlib\fpu.c **** //   notice, this list of conditions and the following disclaimer.
+  15:C:/StellarisWare/driverlib\fpu.c **** // 
+  16:C:/StellarisWare/driverlib\fpu.c **** //   Redistributions in binary form must reproduce the above copyright
+  17:C:/StellarisWare/driverlib\fpu.c **** //   notice, this list of conditions and the following disclaimer in the
+  18:C:/StellarisWare/driverlib\fpu.c **** //   documentation and/or other materials provided with the  
+  19:C:/StellarisWare/driverlib\fpu.c **** //   distribution.
+  20:C:/StellarisWare/driverlib\fpu.c **** // 
+  21:C:/StellarisWare/driverlib\fpu.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  22:C:/StellarisWare/driverlib\fpu.c **** //   its contributors may be used to endorse or promote products derived
+  23:C:/StellarisWare/driverlib\fpu.c **** //   from this software without specific prior written permission.
+  24:C:/StellarisWare/driverlib\fpu.c **** // 
+  25:C:/StellarisWare/driverlib\fpu.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  26:C:/StellarisWare/driverlib\fpu.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  27:C:/StellarisWare/driverlib\fpu.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  28:C:/StellarisWare/driverlib\fpu.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  29:C:/StellarisWare/driverlib\fpu.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  30:C:/StellarisWare/driverlib\fpu.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  31:C:/StellarisWare/driverlib\fpu.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  32:C:/StellarisWare/driverlib\fpu.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  33:C:/StellarisWare/driverlib\fpu.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  34:C:/StellarisWare/driverlib\fpu.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  35:C:/StellarisWare/driverlib\fpu.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  36:C:/StellarisWare/driverlib\fpu.c **** // 
+  37:C:/StellarisWare/driverlib\fpu.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  38:C:/StellarisWare/driverlib\fpu.c **** //
+  39:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  40:C:/StellarisWare/driverlib\fpu.c **** 
+  41:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  42:C:/StellarisWare/driverlib\fpu.c **** //
+  43:C:/StellarisWare/driverlib\fpu.c **** //! \addtogroup fpu_api
+  44:C:/StellarisWare/driverlib\fpu.c **** //! @{
+  45:C:/StellarisWare/driverlib\fpu.c **** //
+  46:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  47:C:/StellarisWare/driverlib\fpu.c **** 
+  48:C:/StellarisWare/driverlib\fpu.c **** #include "inc/hw_nvic.h"
+  49:C:/StellarisWare/driverlib\fpu.c **** #include "inc/hw_types.h"
+  50:C:/StellarisWare/driverlib\fpu.c **** #include "fpu.h"
+  51:C:/StellarisWare/driverlib\fpu.c **** 
+  52:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  53:C:/StellarisWare/driverlib\fpu.c **** //
+  54:C:/StellarisWare/driverlib\fpu.c **** //! Enables the floating-point unit.
+  55:C:/StellarisWare/driverlib\fpu.c **** //!
+  56:C:/StellarisWare/driverlib\fpu.c **** //! This function enables the floating-point unit, allowing the floating-point
+  57:C:/StellarisWare/driverlib\fpu.c **** //! instructions to be executed.  This function must be called prior to
+  58:C:/StellarisWare/driverlib\fpu.c **** //! performing any hardware floating-point operations; failure to do so results
+  59:C:/StellarisWare/driverlib\fpu.c **** //! in a NOCP usage fault.
+  60:C:/StellarisWare/driverlib\fpu.c **** //!
+  61:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+  62:C:/StellarisWare/driverlib\fpu.c **** //
+  63:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  64:C:/StellarisWare/driverlib\fpu.c **** void
+  65:C:/StellarisWare/driverlib\fpu.c **** FPUEnable(void)
+  66:C:/StellarisWare/driverlib\fpu.c **** {
+  27              		.loc 1 66 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 00AF     		add	r7, sp, #0
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_register 7
+  67:C:/StellarisWare/driverlib\fpu.c ****     //
+  68:C:/StellarisWare/driverlib\fpu.c ****     // Enable the coprocessors used by the floating-point unit.
+  69:C:/StellarisWare/driverlib\fpu.c ****     //
+  70:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+  39              		.loc 1 70 0
+  40 0004 4EF68853 		movw	r3, #60808
+  41 0008 CEF20003 		movt	r3, 57344
+  42 000c 4EF68852 		movw	r2, #60808
+  43 0010 CEF20002 		movt	r2, 57344
+  44 0014 1268     		ldr	r2, [r2, #0]
+  71:C:/StellarisWare/driverlib\fpu.c ****                          ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
+  72:C:/StellarisWare/driverlib\fpu.c ****                         NVIC_CPAC_CP10_FULL | NVIC_CPAC_CP11_FULL);
+  45              		.loc 1 72 0
+  46 0016 42F47002 		orr	r2, r2, #15728640
+  70:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+  47              		.loc 1 70 0
+  48 001a 1A60     		str	r2, [r3, #0]
+  73:C:/StellarisWare/driverlib\fpu.c **** }
+  49              		.loc 1 73 0
+  50 001c BD46     		mov	sp, r7
+  51 001e 80BC     		pop	{r7}
+  52 0020 7047     		bx	lr
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56 0022 00BF     		.section	.text.FPUDisable,"ax",%progbits
+  57              		.align	2
+  58              		.global	FPUDisable
+  59              		.thumb
+  60              		.thumb_func
+  62              	FPUDisable:
+  63              	.LFB1:
+  74:C:/StellarisWare/driverlib\fpu.c **** 
+  75:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  76:C:/StellarisWare/driverlib\fpu.c **** //
+  77:C:/StellarisWare/driverlib\fpu.c **** //! Disables the floating-point unit.
+  78:C:/StellarisWare/driverlib\fpu.c **** //!
+  79:C:/StellarisWare/driverlib\fpu.c **** //! This function disables the floating-point unit, preventing floating-point
+  80:C:/StellarisWare/driverlib\fpu.c **** //! instructions from executing (generating a NOCP usage fault instead).
+  81:C:/StellarisWare/driverlib\fpu.c **** //!
+  82:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+  83:C:/StellarisWare/driverlib\fpu.c **** //
+  84:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  85:C:/StellarisWare/driverlib\fpu.c **** void
+  86:C:/StellarisWare/driverlib\fpu.c **** FPUDisable(void)
+  87:C:/StellarisWare/driverlib\fpu.c **** {
+  64              		.loc 1 87 0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 1, uses_anonymous_args = 0
+  68              		@ link register save eliminated.
+  69 0000 80B4     		push	{r7}
+  70              	.LCFI2:
+  71              		.cfi_def_cfa_offset 4
+  72              		.cfi_offset 7, -4
+  73 0002 00AF     		add	r7, sp, #0
+  74              	.LCFI3:
+  75              		.cfi_def_cfa_register 7
+  88:C:/StellarisWare/driverlib\fpu.c ****     //
+  89:C:/StellarisWare/driverlib\fpu.c ****     // Disable the coprocessors used by the floating-point unit.
+  90:C:/StellarisWare/driverlib\fpu.c ****     //
+  91:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+  76              		.loc 1 91 0
+  77 0004 4EF68853 		movw	r3, #60808
+  78 0008 CEF20003 		movt	r3, 57344
+  79 000c 4EF68852 		movw	r2, #60808
+  80 0010 CEF20002 		movt	r2, 57344
+  81 0014 1268     		ldr	r2, [r2, #0]
+  92:C:/StellarisWare/driverlib\fpu.c ****                          ~(NVIC_CPAC_CP10_M | NVIC_CPAC_CP11_M)) |
+  93:C:/StellarisWare/driverlib\fpu.c ****                         NVIC_CPAC_CP10_DIS | NVIC_CPAC_CP11_DIS);
+  82              		.loc 1 93 0
+  83 0016 22F47002 		bic	r2, r2, #15728640
+  91:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_CPAC) = ((HWREG(NVIC_CPAC) &
+  84              		.loc 1 91 0
+  85 001a 1A60     		str	r2, [r3, #0]
+  94:C:/StellarisWare/driverlib\fpu.c **** }
+  86              		.loc 1 94 0
+  87 001c BD46     		mov	sp, r7
+  88 001e 80BC     		pop	{r7}
+  89 0020 7047     		bx	lr
+  90              		.cfi_endproc
+  91              	.LFE1:
+  93 0022 00BF     		.section	.text.FPUStackingEnable,"ax",%progbits
+  94              		.align	2
+  95              		.global	FPUStackingEnable
+  96              		.thumb
+  97              		.thumb_func
+  99              	FPUStackingEnable:
+ 100              	.LFB2:
+  95:C:/StellarisWare/driverlib\fpu.c **** 
+  96:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+  97:C:/StellarisWare/driverlib\fpu.c **** //
+  98:C:/StellarisWare/driverlib\fpu.c **** //! Enables the stacking of floating-point registers.
+  99:C:/StellarisWare/driverlib\fpu.c **** //!
+ 100:C:/StellarisWare/driverlib\fpu.c **** //! This function enables the stacking of floating-point registers s0-s15 when
+ 101:C:/StellarisWare/driverlib\fpu.c **** //! an interrupt is handled.  When enabled, space is reserved on the stack for
+ 102:C:/StellarisWare/driverlib\fpu.c **** //! the floating-point context and the floating-point state is saved into this
+ 103:C:/StellarisWare/driverlib\fpu.c **** //! stack space.  Upon return from the interrupt, the floating-point context is
+ 104:C:/StellarisWare/driverlib\fpu.c **** //! restored.
+ 105:C:/StellarisWare/driverlib\fpu.c **** //!
+ 106:C:/StellarisWare/driverlib\fpu.c **** //! If the floating-point registers are not stacked, floating-point
+ 107:C:/StellarisWare/driverlib\fpu.c **** //! instructions cannot be safely executed in an interrupt handler because the
+ 108:C:/StellarisWare/driverlib\fpu.c **** //! values of s0-s15 are not likely to be preserved for the interrupted code.
+ 109:C:/StellarisWare/driverlib\fpu.c **** //! On the other hand, stacking the floating-point registers increases the
+ 110:C:/StellarisWare/driverlib\fpu.c **** //! stacking operation from 8 words to 26 words, also increasing the interrupt
+ 111:C:/StellarisWare/driverlib\fpu.c **** //! response latency.
+ 112:C:/StellarisWare/driverlib\fpu.c **** //!
+ 113:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 114:C:/StellarisWare/driverlib\fpu.c **** //
+ 115:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 116:C:/StellarisWare/driverlib\fpu.c **** void
+ 117:C:/StellarisWare/driverlib\fpu.c **** FPUStackingEnable(void)
+ 118:C:/StellarisWare/driverlib\fpu.c **** {
+ 101              		.loc 1 118 0
+ 102              		.cfi_startproc
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 1, uses_anonymous_args = 0
+ 105              		@ link register save eliminated.
+ 106 0000 80B4     		push	{r7}
+ 107              	.LCFI4:
+ 108              		.cfi_def_cfa_offset 4
+ 109              		.cfi_offset 7, -4
+ 110 0002 00AF     		add	r7, sp, #0
+ 111              	.LCFI5:
+ 112              		.cfi_def_cfa_register 7
+ 119:C:/StellarisWare/driverlib\fpu.c ****     //
+ 120:C:/StellarisWare/driverlib\fpu.c ****     // Enable automatic state preservation for the floating-point unit, and
+ 121:C:/StellarisWare/driverlib\fpu.c ****     // disable lazy state preservation (meaning that the floating-point state
+ 122:C:/StellarisWare/driverlib\fpu.c ****     // is always stacked when floating-point instructions are used).
+ 123:C:/StellarisWare/driverlib\fpu.c ****     //
+ 124:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPCC) = (HWREG(NVIC_FPCC) & ~NVIC_FPCC_LSPEN) | NVIC_FPCC_ASPEN;
+ 113              		.loc 1 124 0
+ 114 0004 4EF63473 		movw	r3, #61236
+ 115 0008 CEF20003 		movt	r3, 57344
+ 116 000c 4EF63472 		movw	r2, #61236
+ 117 0010 CEF20002 		movt	r2, 57344
+ 118 0014 1268     		ldr	r2, [r2, #0]
+ 119 0016 22F04042 		bic	r2, r2, #-1073741824
+ 120 001a 42F00042 		orr	r2, r2, #-2147483648
+ 121 001e 1A60     		str	r2, [r3, #0]
+ 125:C:/StellarisWare/driverlib\fpu.c **** }
+ 122              		.loc 1 125 0
+ 123 0020 BD46     		mov	sp, r7
+ 124 0022 80BC     		pop	{r7}
+ 125 0024 7047     		bx	lr
+ 126              		.cfi_endproc
+ 127              	.LFE2:
+ 129 0026 00BF     		.section	.text.FPULazyStackingEnable,"ax",%progbits
+ 130              		.align	2
+ 131              		.global	FPULazyStackingEnable
+ 132              		.thumb
+ 133              		.thumb_func
+ 135              	FPULazyStackingEnable:
+ 136              	.LFB3:
+ 126:C:/StellarisWare/driverlib\fpu.c **** 
+ 127:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 128:C:/StellarisWare/driverlib\fpu.c **** //
+ 129:C:/StellarisWare/driverlib\fpu.c **** //! Enables the lazy stacking of floating-point registers.
+ 130:C:/StellarisWare/driverlib\fpu.c **** //!
+ 131:C:/StellarisWare/driverlib\fpu.c **** //! This function enables the lazy stacking of floating-point registers s0-s15
+ 132:C:/StellarisWare/driverlib\fpu.c **** //! when an interrupt is handled.  When lazy stacking is enabled, space is
+ 133:C:/StellarisWare/driverlib\fpu.c **** //! reserved on the stack for the floating-point context, but the
+ 134:C:/StellarisWare/driverlib\fpu.c **** //! floating-point state is not saved.  If a floating-point instruction is
+ 135:C:/StellarisWare/driverlib\fpu.c **** //! executed from within the interrupt context, the floating-point context is
+ 136:C:/StellarisWare/driverlib\fpu.c **** //! first saved into the space reserved on the stack.  On completion of the
+ 137:C:/StellarisWare/driverlib\fpu.c **** //! interrupt handler, the floating-point context is only restored if it was
+ 138:C:/StellarisWare/driverlib\fpu.c **** //! saved (as the result of executing a floating-point instruction).
+ 139:C:/StellarisWare/driverlib\fpu.c **** //!
+ 140:C:/StellarisWare/driverlib\fpu.c **** //! This method provides a compromise between fast interrupt response (because
+ 141:C:/StellarisWare/driverlib\fpu.c **** //! the floating-point state is not saved on interrupt entry) and the ability
+ 142:C:/StellarisWare/driverlib\fpu.c **** //! to use floating-point in interrupt handlers (because the floating-point
+ 143:C:/StellarisWare/driverlib\fpu.c **** //! state is saved if floating-point instructions are used).
+ 144:C:/StellarisWare/driverlib\fpu.c **** //!
+ 145:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 146:C:/StellarisWare/driverlib\fpu.c **** //
+ 147:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 148:C:/StellarisWare/driverlib\fpu.c **** void
+ 149:C:/StellarisWare/driverlib\fpu.c **** FPULazyStackingEnable(void)
+ 150:C:/StellarisWare/driverlib\fpu.c **** {
+ 137              		.loc 1 150 0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 0
+ 140              		@ frame_needed = 1, uses_anonymous_args = 0
+ 141              		@ link register save eliminated.
+ 142 0000 80B4     		push	{r7}
+ 143              	.LCFI6:
+ 144              		.cfi_def_cfa_offset 4
+ 145              		.cfi_offset 7, -4
+ 146 0002 00AF     		add	r7, sp, #0
+ 147              	.LCFI7:
+ 148              		.cfi_def_cfa_register 7
+ 151:C:/StellarisWare/driverlib\fpu.c ****     //
+ 152:C:/StellarisWare/driverlib\fpu.c ****     // Enable automatic and lazy state preservation for the floating-point
+ 153:C:/StellarisWare/driverlib\fpu.c ****     // unit.
+ 154:C:/StellarisWare/driverlib\fpu.c ****     //
+ 155:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPCC) |= NVIC_FPCC_ASPEN | NVIC_FPCC_LSPEN;
+ 149              		.loc 1 155 0
+ 150 0004 4EF63473 		movw	r3, #61236
+ 151 0008 CEF20003 		movt	r3, 57344
+ 152 000c 4EF63472 		movw	r2, #61236
+ 153 0010 CEF20002 		movt	r2, 57344
+ 154 0014 1268     		ldr	r2, [r2, #0]
+ 155 0016 42F04042 		orr	r2, r2, #-1073741824
+ 156 001a 1A60     		str	r2, [r3, #0]
+ 156:C:/StellarisWare/driverlib\fpu.c **** }
+ 157              		.loc 1 156 0
+ 158 001c BD46     		mov	sp, r7
+ 159 001e 80BC     		pop	{r7}
+ 160 0020 7047     		bx	lr
+ 161              		.cfi_endproc
+ 162              	.LFE3:
+ 164 0022 00BF     		.section	.text.FPUStackingDisable,"ax",%progbits
+ 165              		.align	2
+ 166              		.global	FPUStackingDisable
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	FPUStackingDisable:
+ 171              	.LFB4:
+ 157:C:/StellarisWare/driverlib\fpu.c **** 
+ 158:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 159:C:/StellarisWare/driverlib\fpu.c **** //
+ 160:C:/StellarisWare/driverlib\fpu.c **** //! Disables the stacking of floating-point registers.
+ 161:C:/StellarisWare/driverlib\fpu.c **** //!
+ 162:C:/StellarisWare/driverlib\fpu.c **** //! This function disables the stacking of floating-point registers s0-s15 when
+ 163:C:/StellarisWare/driverlib\fpu.c **** //! an interrupt is handled.  When floating-point context stacking is disabled,
+ 164:C:/StellarisWare/driverlib\fpu.c **** //! floating-point operations performed in an interrupt handler destroy the
+ 165:C:/StellarisWare/driverlib\fpu.c **** //! floating-point context of the main thread of execution.
+ 166:C:/StellarisWare/driverlib\fpu.c **** //!
+ 167:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 168:C:/StellarisWare/driverlib\fpu.c **** //
+ 169:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 170:C:/StellarisWare/driverlib\fpu.c **** void
+ 171:C:/StellarisWare/driverlib\fpu.c **** FPUStackingDisable(void)
+ 172:C:/StellarisWare/driverlib\fpu.c **** {
+ 172              		.loc 1 172 0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 1, uses_anonymous_args = 0
+ 176              		@ link register save eliminated.
+ 177 0000 80B4     		push	{r7}
+ 178              	.LCFI8:
+ 179              		.cfi_def_cfa_offset 4
+ 180              		.cfi_offset 7, -4
+ 181 0002 00AF     		add	r7, sp, #0
+ 182              	.LCFI9:
+ 183              		.cfi_def_cfa_register 7
+ 173:C:/StellarisWare/driverlib\fpu.c ****     //
+ 174:C:/StellarisWare/driverlib\fpu.c ****     // Disable automatic and lazy state preservation for the floating-point
+ 175:C:/StellarisWare/driverlib\fpu.c ****     // unit.
+ 176:C:/StellarisWare/driverlib\fpu.c ****     //
+ 177:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPCC) &= ~(NVIC_FPCC_ASPEN | NVIC_FPCC_LSPEN);
+ 184              		.loc 1 177 0
+ 185 0004 4EF63473 		movw	r3, #61236
+ 186 0008 CEF20003 		movt	r3, 57344
+ 187 000c 4EF63472 		movw	r2, #61236
+ 188 0010 CEF20002 		movt	r2, 57344
+ 189 0014 1268     		ldr	r2, [r2, #0]
+ 190 0016 22F04042 		bic	r2, r2, #-1073741824
+ 191 001a 1A60     		str	r2, [r3, #0]
+ 178:C:/StellarisWare/driverlib\fpu.c **** }
+ 192              		.loc 1 178 0
+ 193 001c BD46     		mov	sp, r7
+ 194 001e 80BC     		pop	{r7}
+ 195 0020 7047     		bx	lr
+ 196              		.cfi_endproc
+ 197              	.LFE4:
+ 199 0022 00BF     		.section	.text.FPUHalfPrecisionModeSet,"ax",%progbits
+ 200              		.align	2
+ 201              		.global	FPUHalfPrecisionModeSet
+ 202              		.thumb
+ 203              		.thumb_func
+ 205              	FPUHalfPrecisionModeSet:
+ 206              	.LFB5:
+ 179:C:/StellarisWare/driverlib\fpu.c **** 
+ 180:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 181:C:/StellarisWare/driverlib\fpu.c **** //
+ 182:C:/StellarisWare/driverlib\fpu.c **** //! Selects the format of half-precision floating-point values.
+ 183:C:/StellarisWare/driverlib\fpu.c **** //!
+ 184:C:/StellarisWare/driverlib\fpu.c **** //! \param ulMode is the format for half-precision floating-point value, which
+ 185:C:/StellarisWare/driverlib\fpu.c **** //! is either \b FPU_HALF_IEEE or \b FPU_HALF_ALTERNATE.
+ 186:C:/StellarisWare/driverlib\fpu.c **** //!
+ 187:C:/StellarisWare/driverlib\fpu.c **** //! This function selects between the IEEE half-precision floating-point
+ 188:C:/StellarisWare/driverlib\fpu.c **** //! representation and the Cortex-M processor alternative representation.  The
+ 189:C:/StellarisWare/driverlib\fpu.c **** //! alternative representation has a larger range but does not have a way to
+ 190:C:/StellarisWare/driverlib\fpu.c **** //! encode infinity (positive or negative) or NaN (quiet or signaling).  The
+ 191:C:/StellarisWare/driverlib\fpu.c **** //! default setting is the IEEE format.
+ 192:C:/StellarisWare/driverlib\fpu.c **** //!
+ 193:C:/StellarisWare/driverlib\fpu.c **** //! \note Unless this function is called prior to executing any floating-point
+ 194:C:/StellarisWare/driverlib\fpu.c **** //! instructions, the default mode is used.
+ 195:C:/StellarisWare/driverlib\fpu.c **** //!
+ 196:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 197:C:/StellarisWare/driverlib\fpu.c **** //
+ 198:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 199:C:/StellarisWare/driverlib\fpu.c **** void
+ 200:C:/StellarisWare/driverlib\fpu.c **** FPUHalfPrecisionModeSet(unsigned long ulMode)
+ 201:C:/StellarisWare/driverlib\fpu.c **** {
+ 207              		.loc 1 201 0
+ 208              		.cfi_startproc
+ 209              		@ args = 0, pretend = 0, frame = 8
+ 210              		@ frame_needed = 1, uses_anonymous_args = 0
+ 211              		@ link register save eliminated.
+ 212 0000 80B4     		push	{r7}
+ 213              	.LCFI10:
+ 214              		.cfi_def_cfa_offset 4
+ 215              		.cfi_offset 7, -4
+ 216 0002 83B0     		sub	sp, sp, #12
+ 217              	.LCFI11:
+ 218              		.cfi_def_cfa_offset 16
+ 219 0004 00AF     		add	r7, sp, #0
+ 220              	.LCFI12:
+ 221              		.cfi_def_cfa_register 7
+ 222 0006 7860     		str	r0, [r7, #4]
+ 202:C:/StellarisWare/driverlib\fpu.c ****     //
+ 203:C:/StellarisWare/driverlib\fpu.c ****     // Set the half-precision floating-point format.
+ 204:C:/StellarisWare/driverlib\fpu.c ****     //
+ 205:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPDSC) = (HWREG(NVIC_FPDSC) & ~(NVIC_FPDSC_AHP)) | ulMode;
+ 223              		.loc 1 205 0
+ 224 0008 4EF63C73 		movw	r3, #61244
+ 225 000c CEF20003 		movt	r3, 57344
+ 226 0010 4EF63C72 		movw	r2, #61244
+ 227 0014 CEF20002 		movt	r2, 57344
+ 228 0018 1268     		ldr	r2, [r2, #0]
+ 229 001a 22F08061 		bic	r1, r2, #67108864
+ 230 001e 7A68     		ldr	r2, [r7, #4]
+ 231 0020 0A43     		orrs	r2, r2, r1
+ 232 0022 1A60     		str	r2, [r3, #0]
+ 206:C:/StellarisWare/driverlib\fpu.c **** }
+ 233              		.loc 1 206 0
+ 234 0024 07F10C07 		add	r7, r7, #12
+ 235 0028 BD46     		mov	sp, r7
+ 236 002a 80BC     		pop	{r7}
+ 237 002c 7047     		bx	lr
+ 238              		.cfi_endproc
+ 239              	.LFE5:
+ 241 002e 00BF     		.section	.text.FPUNaNModeSet,"ax",%progbits
+ 242              		.align	2
+ 243              		.global	FPUNaNModeSet
+ 244              		.thumb
+ 245              		.thumb_func
+ 247              	FPUNaNModeSet:
+ 248              	.LFB6:
+ 207:C:/StellarisWare/driverlib\fpu.c **** 
+ 208:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 209:C:/StellarisWare/driverlib\fpu.c **** //
+ 210:C:/StellarisWare/driverlib\fpu.c **** //! Selects the NaN mode.
+ 211:C:/StellarisWare/driverlib\fpu.c **** //!
+ 212:C:/StellarisWare/driverlib\fpu.c **** //! \param ulMode is the mode for NaN results; which is either
+ 213:C:/StellarisWare/driverlib\fpu.c **** //! \b FPU_NAN_PROPAGATE or \b FPU_NAN_DEFAULT.
+ 214:C:/StellarisWare/driverlib\fpu.c **** //!
+ 215:C:/StellarisWare/driverlib\fpu.c **** //! This function selects the handling of NaN results during floating-point
+ 216:C:/StellarisWare/driverlib\fpu.c **** //! computations.  NaNs can either propagate (the default), or they can return
+ 217:C:/StellarisWare/driverlib\fpu.c **** //! the default NaN.
+ 218:C:/StellarisWare/driverlib\fpu.c **** //!
+ 219:C:/StellarisWare/driverlib\fpu.c **** //! \note Unless this function is called prior to executing any floating-point
+ 220:C:/StellarisWare/driverlib\fpu.c **** //! instructions, the default mode is used.
+ 221:C:/StellarisWare/driverlib\fpu.c **** //!
+ 222:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 223:C:/StellarisWare/driverlib\fpu.c **** //
+ 224:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 225:C:/StellarisWare/driverlib\fpu.c **** void
+ 226:C:/StellarisWare/driverlib\fpu.c **** FPUNaNModeSet(unsigned long ulMode)
+ 227:C:/StellarisWare/driverlib\fpu.c **** {
+ 249              		.loc 1 227 0
+ 250              		.cfi_startproc
+ 251              		@ args = 0, pretend = 0, frame = 8
+ 252              		@ frame_needed = 1, uses_anonymous_args = 0
+ 253              		@ link register save eliminated.
+ 254 0000 80B4     		push	{r7}
+ 255              	.LCFI13:
+ 256              		.cfi_def_cfa_offset 4
+ 257              		.cfi_offset 7, -4
+ 258 0002 83B0     		sub	sp, sp, #12
+ 259              	.LCFI14:
+ 260              		.cfi_def_cfa_offset 16
+ 261 0004 00AF     		add	r7, sp, #0
+ 262              	.LCFI15:
+ 263              		.cfi_def_cfa_register 7
+ 264 0006 7860     		str	r0, [r7, #4]
+ 228:C:/StellarisWare/driverlib\fpu.c ****     //
+ 229:C:/StellarisWare/driverlib\fpu.c ****     // Set the NaN mode.
+ 230:C:/StellarisWare/driverlib\fpu.c ****     //
+ 231:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPDSC) = (HWREG(NVIC_FPDSC) & ~(NVIC_FPDSC_DN)) | ulMode;
+ 265              		.loc 1 231 0
+ 266 0008 4EF63C73 		movw	r3, #61244
+ 267 000c CEF20003 		movt	r3, 57344
+ 268 0010 4EF63C72 		movw	r2, #61244
+ 269 0014 CEF20002 		movt	r2, 57344
+ 270 0018 1268     		ldr	r2, [r2, #0]
+ 271 001a 22F00071 		bic	r1, r2, #33554432
+ 272 001e 7A68     		ldr	r2, [r7, #4]
+ 273 0020 0A43     		orrs	r2, r2, r1
+ 274 0022 1A60     		str	r2, [r3, #0]
+ 232:C:/StellarisWare/driverlib\fpu.c **** }
+ 275              		.loc 1 232 0
+ 276 0024 07F10C07 		add	r7, r7, #12
+ 277 0028 BD46     		mov	sp, r7
+ 278 002a 80BC     		pop	{r7}
+ 279 002c 7047     		bx	lr
+ 280              		.cfi_endproc
+ 281              	.LFE6:
+ 283 002e 00BF     		.section	.text.FPUFlushToZeroModeSet,"ax",%progbits
+ 284              		.align	2
+ 285              		.global	FPUFlushToZeroModeSet
+ 286              		.thumb
+ 287              		.thumb_func
+ 289              	FPUFlushToZeroModeSet:
+ 290              	.LFB7:
+ 233:C:/StellarisWare/driverlib\fpu.c **** 
+ 234:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 235:C:/StellarisWare/driverlib\fpu.c **** //
+ 236:C:/StellarisWare/driverlib\fpu.c **** //! Selects the flush-to-zero mode.
+ 237:C:/StellarisWare/driverlib\fpu.c **** //!
+ 238:C:/StellarisWare/driverlib\fpu.c **** //! \param ulMode is the flush-to-zero mode; which is either
+ 239:C:/StellarisWare/driverlib\fpu.c **** //! \b FPU_FLUSH_TO_ZERO_DIS or \b FPU_FLUSH_TO_ZERO_EN.
+ 240:C:/StellarisWare/driverlib\fpu.c **** //!
+ 241:C:/StellarisWare/driverlib\fpu.c **** //! This function enables or disables the flush-to-zero mode of the
+ 242:C:/StellarisWare/driverlib\fpu.c **** //! floating-point unit.  When disabled (the default), the floating-point unit
+ 243:C:/StellarisWare/driverlib\fpu.c **** //! is fully IEEE compliant.  When enabled, values close to zero are treated as
+ 244:C:/StellarisWare/driverlib\fpu.c **** //! zero, greatly improving the execution speed at the expense of some accuracy
+ 245:C:/StellarisWare/driverlib\fpu.c **** //! (as well as IEEE compliance).
+ 246:C:/StellarisWare/driverlib\fpu.c **** //!
+ 247:C:/StellarisWare/driverlib\fpu.c **** //! \note Unless this function is called prior to executing any floating-point
+ 248:C:/StellarisWare/driverlib\fpu.c **** //! instructions, the default mode is used.
+ 249:C:/StellarisWare/driverlib\fpu.c **** //!
+ 250:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 251:C:/StellarisWare/driverlib\fpu.c **** //
+ 252:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 253:C:/StellarisWare/driverlib\fpu.c **** void
+ 254:C:/StellarisWare/driverlib\fpu.c **** FPUFlushToZeroModeSet(unsigned long ulMode)
+ 255:C:/StellarisWare/driverlib\fpu.c **** {
+ 291              		.loc 1 255 0
+ 292              		.cfi_startproc
+ 293              		@ args = 0, pretend = 0, frame = 8
+ 294              		@ frame_needed = 1, uses_anonymous_args = 0
+ 295              		@ link register save eliminated.
+ 296 0000 80B4     		push	{r7}
+ 297              	.LCFI16:
+ 298              		.cfi_def_cfa_offset 4
+ 299              		.cfi_offset 7, -4
+ 300 0002 83B0     		sub	sp, sp, #12
+ 301              	.LCFI17:
+ 302              		.cfi_def_cfa_offset 16
+ 303 0004 00AF     		add	r7, sp, #0
+ 304              	.LCFI18:
+ 305              		.cfi_def_cfa_register 7
+ 306 0006 7860     		str	r0, [r7, #4]
+ 256:C:/StellarisWare/driverlib\fpu.c ****     //
+ 257:C:/StellarisWare/driverlib\fpu.c ****     // Set the flush-to-zero mode.
+ 258:C:/StellarisWare/driverlib\fpu.c ****     //
+ 259:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPDSC) = (HWREG(NVIC_FPDSC) & ~(NVIC_FPDSC_FZ)) | ulMode;
+ 307              		.loc 1 259 0
+ 308 0008 4EF63C73 		movw	r3, #61244
+ 309 000c CEF20003 		movt	r3, 57344
+ 310 0010 4EF63C72 		movw	r2, #61244
+ 311 0014 CEF20002 		movt	r2, 57344
+ 312 0018 1268     		ldr	r2, [r2, #0]
+ 313 001a 22F08071 		bic	r1, r2, #16777216
+ 314 001e 7A68     		ldr	r2, [r7, #4]
+ 315 0020 0A43     		orrs	r2, r2, r1
+ 316 0022 1A60     		str	r2, [r3, #0]
+ 260:C:/StellarisWare/driverlib\fpu.c **** }
+ 317              		.loc 1 260 0
+ 318 0024 07F10C07 		add	r7, r7, #12
+ 319 0028 BD46     		mov	sp, r7
+ 320 002a 80BC     		pop	{r7}
+ 321 002c 7047     		bx	lr
+ 322              		.cfi_endproc
+ 323              	.LFE7:
+ 325 002e 00BF     		.section	.text.FPURoundingModeSet,"ax",%progbits
+ 326              		.align	2
+ 327              		.global	FPURoundingModeSet
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	FPURoundingModeSet:
+ 332              	.LFB8:
+ 261:C:/StellarisWare/driverlib\fpu.c **** 
+ 262:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 263:C:/StellarisWare/driverlib\fpu.c **** //
+ 264:C:/StellarisWare/driverlib\fpu.c **** //! Selects the rounding mode for floating-point results.
+ 265:C:/StellarisWare/driverlib\fpu.c **** //!
+ 266:C:/StellarisWare/driverlib\fpu.c **** //! \param ulMode is the rounding mode.
+ 267:C:/StellarisWare/driverlib\fpu.c **** //!
+ 268:C:/StellarisWare/driverlib\fpu.c **** //! This function selects the rounding mode for floating-point results.  After
+ 269:C:/StellarisWare/driverlib\fpu.c **** //! a floating-point operation, the result is rounded toward the specified
+ 270:C:/StellarisWare/driverlib\fpu.c **** //! value.  The default mode is \b FPU_ROUND_NEAREST.
+ 271:C:/StellarisWare/driverlib\fpu.c **** //!
+ 272:C:/StellarisWare/driverlib\fpu.c **** //! The following rounding modes are available (as specified by \e ulMode):
+ 273:C:/StellarisWare/driverlib\fpu.c **** //!
+ 274:C:/StellarisWare/driverlib\fpu.c **** //! - \b FPU_ROUND_NEAREST - round toward the nearest value
+ 275:C:/StellarisWare/driverlib\fpu.c **** //! - \b FPU_ROUND_POS_INF - round toward positive infinity
+ 276:C:/StellarisWare/driverlib\fpu.c **** //! - \b FPU_ROUND_NEG_INF - round toward negative infinity
+ 277:C:/StellarisWare/driverlib\fpu.c **** //! - \b FPU_ROUND_ZERO - round toward zero
+ 278:C:/StellarisWare/driverlib\fpu.c **** //!
+ 279:C:/StellarisWare/driverlib\fpu.c **** //! \note Unless this function is called prior to executing any floating-point
+ 280:C:/StellarisWare/driverlib\fpu.c **** //! instructions, the default mode is used.
+ 281:C:/StellarisWare/driverlib\fpu.c **** //!
+ 282:C:/StellarisWare/driverlib\fpu.c **** //! \return None.
+ 283:C:/StellarisWare/driverlib\fpu.c **** //
+ 284:C:/StellarisWare/driverlib\fpu.c **** //*****************************************************************************
+ 285:C:/StellarisWare/driverlib\fpu.c **** void
+ 286:C:/StellarisWare/driverlib\fpu.c **** FPURoundingModeSet(unsigned long ulMode)
+ 287:C:/StellarisWare/driverlib\fpu.c **** {
+ 333              		.loc 1 287 0
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 8
+ 336              		@ frame_needed = 1, uses_anonymous_args = 0
+ 337              		@ link register save eliminated.
+ 338 0000 80B4     		push	{r7}
+ 339              	.LCFI19:
+ 340              		.cfi_def_cfa_offset 4
+ 341              		.cfi_offset 7, -4
+ 342 0002 83B0     		sub	sp, sp, #12
+ 343              	.LCFI20:
+ 344              		.cfi_def_cfa_offset 16
+ 345 0004 00AF     		add	r7, sp, #0
+ 346              	.LCFI21:
+ 347              		.cfi_def_cfa_register 7
+ 348 0006 7860     		str	r0, [r7, #4]
+ 288:C:/StellarisWare/driverlib\fpu.c ****     //
+ 289:C:/StellarisWare/driverlib\fpu.c ****     // Set the rounding mode.
+ 290:C:/StellarisWare/driverlib\fpu.c ****     //
+ 291:C:/StellarisWare/driverlib\fpu.c ****     HWREG(NVIC_FPDSC) = (HWREG(NVIC_FPDSC) & ~(NVIC_FPDSC_RMODE_M)) | ulMode;
+ 349              		.loc 1 291 0
+ 350 0008 4EF63C73 		movw	r3, #61244
+ 351 000c CEF20003 		movt	r3, 57344
+ 352 0010 4EF63C72 		movw	r2, #61244
+ 353 0014 CEF20002 		movt	r2, 57344
+ 354 0018 1268     		ldr	r2, [r2, #0]
+ 355 001a 22F44001 		bic	r1, r2, #12582912
+ 356 001e 7A68     		ldr	r2, [r7, #4]
+ 357 0020 0A43     		orrs	r2, r2, r1
+ 358 0022 1A60     		str	r2, [r3, #0]
+ 292:C:/StellarisWare/driverlib\fpu.c **** }
+ 359              		.loc 1 292 0
+ 360 0024 07F10C07 		add	r7, r7, #12
+ 361 0028 BD46     		mov	sp, r7
+ 362 002a 80BC     		pop	{r7}
+ 363 002c 7047     		bx	lr
+ 364              		.cfi_endproc
+ 365              	.LFE8:
+ 367 002e 00BF     		.text
+ 368              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 fpu.c
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:19     .text.FPUEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:24     .text.FPUEnable:00000000 FPUEnable
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:57     .text.FPUDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:62     .text.FPUDisable:00000000 FPUDisable
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:94     .text.FPUStackingEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:99     .text.FPUStackingEnable:00000000 FPUStackingEnable
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:130    .text.FPULazyStackingEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:135    .text.FPULazyStackingEnable:00000000 FPULazyStackingEnable
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:165    .text.FPUStackingDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:170    .text.FPUStackingDisable:00000000 FPUStackingDisable
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:200    .text.FPUHalfPrecisionModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:205    .text.FPUHalfPrecisionModeSet:00000000 FPUHalfPrecisionModeSet
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:242    .text.FPUNaNModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:247    .text.FPUNaNModeSet:00000000 FPUNaNModeSet
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:284    .text.FPUFlushToZeroModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:289    .text.FPUFlushToZeroModeSet:00000000 FPUFlushToZeroModeSet
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:326    .text.FPURoundingModeSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cckKcwWU.s:331    .text.FPURoundingModeSet:00000000 FPURoundingModeSet
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

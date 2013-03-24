@@ -1,0 +1,3097 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"softi2c.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.SoftI2CTimerTick,"ax",%progbits
+  19              		.align	2
+  20              		.global	SoftI2CTimerTick
+  21              		.thumb
+  22              		.thumb_func
+  24              	SoftI2CTimerTick:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/utils/softi2c.c"
+   1:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\softi2c.c **** //
+   3:C:/StellarisWare/utils\softi2c.c **** // softi2c.c - Driver for the SoftI2C.
+   4:C:/StellarisWare/utils\softi2c.c **** //
+   5:C:/StellarisWare/utils\softi2c.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\softi2c.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\softi2c.c **** // 
+   8:C:/StellarisWare/utils\softi2c.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\softi2c.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\softi2c.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\softi2c.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\softi2c.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\softi2c.c **** // 
+  14:C:/StellarisWare/utils\softi2c.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\softi2c.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\softi2c.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\softi2c.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\softi2c.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\softi2c.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\softi2c.c **** // 
+  21:C:/StellarisWare/utils\softi2c.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\softi2c.c **** //
+  23:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\softi2c.c **** 
+  25:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  26:C:/StellarisWare/utils\softi2c.c **** //
+  27:C:/StellarisWare/utils\softi2c.c **** //! \addtogroup softi2c_api
+  28:C:/StellarisWare/utils\softi2c.c **** //! @{
+  29:C:/StellarisWare/utils\softi2c.c **** //
+  30:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  31:C:/StellarisWare/utils\softi2c.c **** 
+  32:C:/StellarisWare/utils\softi2c.c **** #include "inc/hw_types.h"
+  33:C:/StellarisWare/utils\softi2c.c **** #include "driverlib/debug.h"
+  34:C:/StellarisWare/utils\softi2c.c **** #include "driverlib/gpio.h"
+  35:C:/StellarisWare/utils\softi2c.c **** #include "driverlib/rom.h"
+  36:C:/StellarisWare/utils\softi2c.c **** #include "driverlib/rom_map.h"
+  37:C:/StellarisWare/utils\softi2c.c **** #include "utils/softi2c.h"
+  38:C:/StellarisWare/utils\softi2c.c **** 
+  39:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  40:C:/StellarisWare/utils\softi2c.c **** //
+  41:C:/StellarisWare/utils\softi2c.c **** // The states in the SoftI2C state machine.  The code depends upon the fact
+  42:C:/StellarisWare/utils\softi2c.c **** // that the value of STATE_X1 is exactly one greater than STATE_X0 (for any
+  43:C:/StellarisWare/utils\softi2c.c **** // value of X and for any following digit)...however there is no dependence on
+  44:C:/StellarisWare/utils\softi2c.c **** // the values of STATE_Xn and STATE_Yn.
+  45:C:/StellarisWare/utils\softi2c.c **** //
+  46:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  47:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_IDLE      0
+  48:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START0    1
+  49:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START1    2
+  50:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START2    3
+  51:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START3    4
+  52:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START4    5
+  53:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START5    6
+  54:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START6    7
+  55:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_START7    8
+  56:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_ADDR0     9
+  57:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_ADDR1     10
+  58:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_ADDR2     11
+  59:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_ADDR3     12
+  60:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_SEND0     13
+  61:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_SEND1     14
+  62:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_SEND2     15
+  63:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_SEND3     16
+  64:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_RECV0     17
+  65:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_RECV1     18
+  66:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_RECV2     19
+  67:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_RECV3     20
+  68:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_STOP0     21
+  69:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_STOP1     22
+  70:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_STOP2     23
+  71:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_STOP3     24
+  72:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_STATE_STOP4     25
+  73:C:/StellarisWare/utils\softi2c.c **** 
+  74:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  75:C:/StellarisWare/utils\softi2c.c **** //
+  76:C:/StellarisWare/utils\softi2c.c **** // The flags in the SoftI2C ucFlags structure member.  The first four flags,
+  77:C:/StellarisWare/utils\softi2c.c **** // RUN, START, STOP, and ACK, must match with the definitions of the
+  78:C:/StellarisWare/utils\softi2c.c **** // SOFTI2C_CMD_* commands in softi2c.h.
+  79:C:/StellarisWare/utils\softi2c.c **** //
+  80:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  81:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_RUN        0
+  82:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_START      1
+  83:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_STOP       2
+  84:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_ACK        3
+  85:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_ADDR_ACK   5
+  86:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_DATA_ACK   6
+  87:C:/StellarisWare/utils\softi2c.c **** #define SOFTI2C_FLAG_RECEIVE    7
+  88:C:/StellarisWare/utils\softi2c.c **** 
+  89:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+  90:C:/StellarisWare/utils\softi2c.c **** //
+  91:C:/StellarisWare/utils\softi2c.c **** //! Performs the periodic update of the SoftI2C module.
+  92:C:/StellarisWare/utils\softi2c.c **** //!
+  93:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+  94:C:/StellarisWare/utils\softi2c.c **** //!
+  95:C:/StellarisWare/utils\softi2c.c **** //! This function performs the periodic, time-based updates to the SoftI2C
+  96:C:/StellarisWare/utils\softi2c.c **** //! module.  The transmission and reception of data over the SoftI2C link is
+  97:C:/StellarisWare/utils\softi2c.c **** //! performed by the state machine in this function.
+  98:C:/StellarisWare/utils\softi2c.c **** //!
+  99:C:/StellarisWare/utils\softi2c.c **** //! This function must be called at four times the desired SoftI2C clock rate.
+ 100:C:/StellarisWare/utils\softi2c.c **** //! For example, to run the SoftI2C clock at 10 KHz, this function must be
+ 101:C:/StellarisWare/utils\softi2c.c **** //! called at a 40 KHz rate.
+ 102:C:/StellarisWare/utils\softi2c.c **** //!
+ 103:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+ 104:C:/StellarisWare/utils\softi2c.c **** //
+ 105:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 106:C:/StellarisWare/utils\softi2c.c **** void
+ 107:C:/StellarisWare/utils\softi2c.c **** SoftI2CTimerTick(tSoftI2C *pI2C)
+ 108:C:/StellarisWare/utils\softi2c.c **** {
+  27              		.loc 1 108 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 14, -4
+  35              		.cfi_offset 7, -8
+  36 0002 82B0     		sub	sp, sp, #8
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+ 109:C:/StellarisWare/utils\softi2c.c ****     //
+ 110:C:/StellarisWare/utils\softi2c.c ****     // Determine the current state of the state machine.
+ 111:C:/StellarisWare/utils\softi2c.c ****     //
+ 112:C:/StellarisWare/utils\softi2c.c ****     switch(pI2C->ucState)
+  43              		.loc 1 112 0
+  44 0008 7B68     		ldr	r3, [r7, #4]
+  45 000a DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+  46 000c 192B     		cmp	r3, #25
+  47 000e 00F2FA83 		bhi	.L59
+  48 0012 01A2     		adr	r2, .L18
+  49 0014 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+  50              		.align	2
+  51              	.L18:
+  52 0018 81000000 		.word	.L3+1
+  53 001c F7010000 		.word	.L4+1
+  54 0020 0B020000 		.word	.L5+1
+  55 0024 1B020000 		.word	.L6+1
+  56 0028 0B020000 		.word	.L5+1
+  57 002c 35020000 		.word	.L7+1
+  58 0030 0B020000 		.word	.L5+1
+  59 0034 4F020000 		.word	.L8+1
+  60 0038 63020000 		.word	.L9+1
+  61 003c 75020000 		.word	.L10+1
+  62 0040 1B020000 		.word	.L6+1
+  63 0044 2B030000 		.word	.L11+1
+  64 0048 47030000 		.word	.L12+1
+  65 004c C5040000 		.word	.L13+1
+  66 0050 1B020000 		.word	.L6+1
+  67 0054 2B030000 		.word	.L11+1
+  68 0058 31050000 		.word	.L14+1
+  69 005c 2D060000 		.word	.L15+1
+  70 0060 1B020000 		.word	.L6+1
+  71 0064 2B030000 		.word	.L11+1
+  72 0068 E1060000 		.word	.L16+1
+  73 006c 35020000 		.word	.L7+1
+  74 0070 0B020000 		.word	.L5+1
+  75 0074 1B020000 		.word	.L6+1
+  76 0078 0B020000 		.word	.L5+1
+  77 007c AF070000 		.word	.L17+1
+  78              	.L3:
+ 113:C:/StellarisWare/utils\softi2c.c ****     {
+ 114:C:/StellarisWare/utils\softi2c.c ****         //
+ 115:C:/StellarisWare/utils\softi2c.c ****         // The state machine is idle.
+ 116:C:/StellarisWare/utils\softi2c.c ****         //
+ 117:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_IDLE:
+ 118:C:/StellarisWare/utils\softi2c.c ****         {
+ 119:C:/StellarisWare/utils\softi2c.c ****             //
+ 120:C:/StellarisWare/utils\softi2c.c ****             // See if the START flag is set, indicating that a start condition
+ 121:C:/StellarisWare/utils\softi2c.c ****             // should be generated.
+ 122:C:/StellarisWare/utils\softi2c.c ****             //
+ 123:C:/StellarisWare/utils\softi2c.c ****             if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_START) == 1)
+  79              		.loc 1 123 0
+  80 0080 7B68     		ldr	r3, [r7, #4]
+  81 0082 03F10C03 		add	r3, r3, #12
+  82 0086 03F07042 		and	r2, r3, #-268435456
+  83 008a 7B68     		ldr	r3, [r7, #4]
+  84 008c 03F10C03 		add	r3, r3, #12
+  85 0090 23F07F43 		bic	r3, r3, #-16777216
+  86 0094 23F47003 		bic	r3, r3, #15728640
+  87 0098 4FEA4313 		lsl	r3, r3, #5
+  88 009c 1343     		orrs	r3, r3, r2
+  89 009e 43F00073 		orr	r3, r3, #33554432
+  90 00a2 43F00403 		orr	r3, r3, #4
+  91 00a6 1B78     		ldrb	r3, [r3, #0]
+  92 00a8 DBB2     		uxtb	r3, r3
+  93 00aa 012B     		cmp	r3, #1
+  94 00ac 18D1     		bne	.L19
+ 124:C:/StellarisWare/utils\softi2c.c ****             {
+ 125:C:/StellarisWare/utils\softi2c.c ****                 //
+ 126:C:/StellarisWare/utils\softi2c.c ****                 // Based on the current state of the SCL and SDA pins, pick the
+ 127:C:/StellarisWare/utils\softi2c.c ****                 // appropriate place within the state machine to begin the
+ 128:C:/StellarisWare/utils\softi2c.c ****                 // start/repeated-start signalling.
+ 129:C:/StellarisWare/utils\softi2c.c ****                 //
+ 130:C:/StellarisWare/utils\softi2c.c ****                 if(HWREG(pI2C->ulSCLGPIO) != 0)
+  95              		.loc 1 130 0
+  96 00ae 7B68     		ldr	r3, [r7, #4]
+  97 00b0 5B68     		ldr	r3, [r3, #4]
+  98 00b2 1B68     		ldr	r3, [r3, #0]
+  99 00b4 002B     		cmp	r3, #0
+ 100 00b6 04D0     		beq	.L20
+ 131:C:/StellarisWare/utils\softi2c.c ****                 {
+ 132:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_START4;
+ 101              		.loc 1 132 0
+ 102 00b8 7B68     		ldr	r3, [r7, #4]
+ 103 00ba 4FF00502 		mov	r2, #5
+ 104 00be DA73     		strb	r2, [r3, #15]
+ 105 00c0 67E0     		b	.L21
+ 106              	.L20:
+ 133:C:/StellarisWare/utils\softi2c.c ****                 }
+ 134:C:/StellarisWare/utils\softi2c.c ****                 else if(HWREG(pI2C->ulSDAGPIO) == 0)
+ 107              		.loc 1 134 0
+ 108 00c2 7B68     		ldr	r3, [r7, #4]
+ 109 00c4 9B68     		ldr	r3, [r3, #8]
+ 110 00c6 1B68     		ldr	r3, [r3, #0]
+ 111 00c8 002B     		cmp	r3, #0
+ 112 00ca 04D1     		bne	.L22
+ 135:C:/StellarisWare/utils\softi2c.c ****                 {
+ 136:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_START0;
+ 113              		.loc 1 136 0
+ 114 00cc 7B68     		ldr	r3, [r7, #4]
+ 115 00ce 4FF00102 		mov	r2, #1
+ 116 00d2 DA73     		strb	r2, [r3, #15]
+ 117 00d4 5DE0     		b	.L21
+ 118              	.L22:
+ 137:C:/StellarisWare/utils\softi2c.c ****                 }
+ 138:C:/StellarisWare/utils\softi2c.c ****                 else
+ 139:C:/StellarisWare/utils\softi2c.c ****                 {
+ 140:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_START2;
+ 119              		.loc 1 140 0
+ 120 00d6 7B68     		ldr	r3, [r7, #4]
+ 121 00d8 4FF00302 		mov	r2, #3
+ 122 00dc DA73     		strb	r2, [r3, #15]
+ 123 00de 58E0     		b	.L21
+ 124              	.L19:
+ 141:C:/StellarisWare/utils\softi2c.c ****                 }
+ 142:C:/StellarisWare/utils\softi2c.c ****             }
+ 143:C:/StellarisWare/utils\softi2c.c **** 
+ 144:C:/StellarisWare/utils\softi2c.c ****             //
+ 145:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, see if the RUN flag is set, indicating that a data
+ 146:C:/StellarisWare/utils\softi2c.c ****             // byte should be transferred.
+ 147:C:/StellarisWare/utils\softi2c.c ****             //
+ 148:C:/StellarisWare/utils\softi2c.c ****             else if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RUN) == 1)
+ 125              		.loc 1 148 0
+ 126 00e0 7B68     		ldr	r3, [r7, #4]
+ 127 00e2 03F10C03 		add	r3, r3, #12
+ 128 00e6 03F07042 		and	r2, r3, #-268435456
+ 129 00ea 7B68     		ldr	r3, [r7, #4]
+ 130 00ec 03F10C03 		add	r3, r3, #12
+ 131 00f0 23F07F43 		bic	r3, r3, #-16777216
+ 132 00f4 23F47003 		bic	r3, r3, #15728640
+ 133 00f8 4FEA4313 		lsl	r3, r3, #5
+ 134 00fc 1343     		orrs	r3, r3, r2
+ 135 00fe 43F00073 		orr	r3, r3, #33554432
+ 136 0102 1B78     		ldrb	r3, [r3, #0]
+ 137 0104 DBB2     		uxtb	r3, r3
+ 138 0106 012B     		cmp	r3, #1
+ 139 0108 28D1     		bne	.L23
+ 149:C:/StellarisWare/utils\softi2c.c ****             {
+ 150:C:/StellarisWare/utils\softi2c.c ****                 //
+ 151:C:/StellarisWare/utils\softi2c.c ****                 // Start the transfer from the first bit.
+ 152:C:/StellarisWare/utils\softi2c.c ****                 //
+ 153:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucCurrentBit = 0;
+ 140              		.loc 1 153 0
+ 141 010a 7B68     		ldr	r3, [r7, #4]
+ 142 010c 4FF00002 		mov	r2, #0
+ 143 0110 1A74     		strb	r2, [r3, #16]
+ 154:C:/StellarisWare/utils\softi2c.c **** 
+ 155:C:/StellarisWare/utils\softi2c.c ****                 //
+ 156:C:/StellarisWare/utils\softi2c.c ****                 // See if a byte should be sent or received.
+ 157:C:/StellarisWare/utils\softi2c.c ****                 //
+ 158:C:/StellarisWare/utils\softi2c.c ****                 if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RECEIVE) == 0)
+ 144              		.loc 1 158 0
+ 145 0112 7B68     		ldr	r3, [r7, #4]
+ 146 0114 03F10C03 		add	r3, r3, #12
+ 147 0118 03F07042 		and	r2, r3, #-268435456
+ 148 011c 7B68     		ldr	r3, [r7, #4]
+ 149 011e 03F10C03 		add	r3, r3, #12
+ 150 0122 23F07F43 		bic	r3, r3, #-16777216
+ 151 0126 23F47003 		bic	r3, r3, #15728640
+ 152 012a 4FEA4313 		lsl	r3, r3, #5
+ 153 012e 1343     		orrs	r3, r3, r2
+ 154 0130 43F00073 		orr	r3, r3, #33554432
+ 155 0134 43F01C03 		orr	r3, r3, #28
+ 156 0138 1B78     		ldrb	r3, [r3, #0]
+ 157 013a DBB2     		uxtb	r3, r3
+ 158 013c 002B     		cmp	r3, #0
+ 159 013e 04D1     		bne	.L24
+ 159:C:/StellarisWare/utils\softi2c.c ****                 {
+ 160:C:/StellarisWare/utils\softi2c.c ****                     //
+ 161:C:/StellarisWare/utils\softi2c.c ****                     // A byte should be sent.
+ 162:C:/StellarisWare/utils\softi2c.c ****                     //
+ 163:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_SEND0;
+ 160              		.loc 1 163 0
+ 161 0140 7B68     		ldr	r3, [r7, #4]
+ 162 0142 4FF00D02 		mov	r2, #13
+ 163 0146 DA73     		strb	r2, [r3, #15]
+ 164 0148 23E0     		b	.L21
+ 165              	.L24:
+ 164:C:/StellarisWare/utils\softi2c.c ****                 }
+ 165:C:/StellarisWare/utils\softi2c.c ****                 else
+ 166:C:/StellarisWare/utils\softi2c.c ****                 {
+ 167:C:/StellarisWare/utils\softi2c.c ****                     //
+ 168:C:/StellarisWare/utils\softi2c.c ****                     // A byte should be received.  Clear out the receive data
+ 169:C:/StellarisWare/utils\softi2c.c ****                     // buffer in preparation for receiving the new byte.
+ 170:C:/StellarisWare/utils\softi2c.c ****                     //
+ 171:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucData = 0;
+ 166              		.loc 1 171 0
+ 167 014a 7B68     		ldr	r3, [r7, #4]
+ 168 014c 4FF00002 		mov	r2, #0
+ 169 0150 9A73     		strb	r2, [r3, #14]
+ 172:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_RECV0;
+ 170              		.loc 1 172 0
+ 171 0152 7B68     		ldr	r3, [r7, #4]
+ 172 0154 4FF01102 		mov	r2, #17
+ 173 0158 DA73     		strb	r2, [r3, #15]
+ 174 015a 1AE0     		b	.L21
+ 175              	.L23:
+ 173:C:/StellarisWare/utils\softi2c.c ****                 }
+ 174:C:/StellarisWare/utils\softi2c.c ****             }
+ 175:C:/StellarisWare/utils\softi2c.c **** 
+ 176:C:/StellarisWare/utils\softi2c.c ****             //
+ 177:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, see if the STOP flag is set, indicating that a stop
+ 178:C:/StellarisWare/utils\softi2c.c ****             // condition should be generated.
+ 179:C:/StellarisWare/utils\softi2c.c ****             //
+ 180:C:/StellarisWare/utils\softi2c.c ****             else if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_STOP) == 1)
+ 176              		.loc 1 180 0
+ 177 015c 7B68     		ldr	r3, [r7, #4]
+ 178 015e 03F10C03 		add	r3, r3, #12
+ 179 0162 03F07042 		and	r2, r3, #-268435456
+ 180 0166 7B68     		ldr	r3, [r7, #4]
+ 181 0168 03F10C03 		add	r3, r3, #12
+ 182 016c 23F07F43 		bic	r3, r3, #-16777216
+ 183 0170 23F47003 		bic	r3, r3, #15728640
+ 184 0174 4FEA4313 		lsl	r3, r3, #5
+ 185 0178 1343     		orrs	r3, r3, r2
+ 186 017a 43F00073 		orr	r3, r3, #33554432
+ 187 017e 43F00803 		orr	r3, r3, #8
+ 188 0182 1B78     		ldrb	r3, [r3, #0]
+ 189 0184 DBB2     		uxtb	r3, r3
+ 190 0186 012B     		cmp	r3, #1
+ 191 0188 03D1     		bne	.L21
+ 181:C:/StellarisWare/utils\softi2c.c ****             {
+ 182:C:/StellarisWare/utils\softi2c.c ****                 //
+ 183:C:/StellarisWare/utils\softi2c.c ****                 // Generate a stop condition.
+ 184:C:/StellarisWare/utils\softi2c.c ****                 //
+ 185:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucState = SOFTI2C_STATE_STOP0;
+ 192              		.loc 1 185 0
+ 193 018a 7B68     		ldr	r3, [r7, #4]
+ 194 018c 4FF01502 		mov	r2, #21
+ 195 0190 DA73     		strb	r2, [r3, #15]
+ 196              	.L21:
+ 186:C:/StellarisWare/utils\softi2c.c ****             }
+ 187:C:/StellarisWare/utils\softi2c.c **** 
+ 188:C:/StellarisWare/utils\softi2c.c ****             //
+ 189:C:/StellarisWare/utils\softi2c.c ****             // See if the SoftI2C state machine has left the idle state.
+ 190:C:/StellarisWare/utils\softi2c.c ****             //
+ 191:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucState != SOFTI2C_STATE_IDLE)
+ 197              		.loc 1 191 0
+ 198 0192 7B68     		ldr	r3, [r7, #4]
+ 199 0194 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 200 0196 002B     		cmp	r3, #0
+ 201 0198 00F02D83 		beq	.L60
+ 192:C:/StellarisWare/utils\softi2c.c ****             {
+ 193:C:/StellarisWare/utils\softi2c.c ****                 //
+ 194:C:/StellarisWare/utils\softi2c.c ****                 // The address and data ACK error flags should be cleared; they
+ 195:C:/StellarisWare/utils\softi2c.c ****                 // will be set if appropriate while the current command is
+ 196:C:/StellarisWare/utils\softi2c.c ****                 // being executed.
+ 197:C:/StellarisWare/utils\softi2c.c ****                 //
+ 198:C:/StellarisWare/utils\softi2c.c ****                 HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_ADDR_ACK) = 0;
+ 202              		.loc 1 198 0
+ 203 019c 7B68     		ldr	r3, [r7, #4]
+ 204 019e 03F10C03 		add	r3, r3, #12
+ 205 01a2 03F07042 		and	r2, r3, #-268435456
+ 206 01a6 7B68     		ldr	r3, [r7, #4]
+ 207 01a8 03F10C03 		add	r3, r3, #12
+ 208 01ac 23F07F43 		bic	r3, r3, #-16777216
+ 209 01b0 23F47003 		bic	r3, r3, #15728640
+ 210 01b4 4FEA4313 		lsl	r3, r3, #5
+ 211 01b8 1343     		orrs	r3, r3, r2
+ 212 01ba 43F00073 		orr	r3, r3, #33554432
+ 213 01be 43F01403 		orr	r3, r3, #20
+ 214 01c2 4FF00002 		mov	r2, #0
+ 215 01c6 1A70     		strb	r2, [r3, #0]
+ 199:C:/StellarisWare/utils\softi2c.c ****                 HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_DATA_ACK) = 0;
+ 216              		.loc 1 199 0
+ 217 01c8 7B68     		ldr	r3, [r7, #4]
+ 218 01ca 03F10C03 		add	r3, r3, #12
+ 219 01ce 03F07042 		and	r2, r3, #-268435456
+ 220 01d2 7B68     		ldr	r3, [r7, #4]
+ 221 01d4 03F10C03 		add	r3, r3, #12
+ 222 01d8 23F07F43 		bic	r3, r3, #-16777216
+ 223 01dc 23F47003 		bic	r3, r3, #15728640
+ 224 01e0 4FEA4313 		lsl	r3, r3, #5
+ 225 01e4 1343     		orrs	r3, r3, r2
+ 226 01e6 43F00073 		orr	r3, r3, #33554432
+ 227 01ea 43F01803 		orr	r3, r3, #24
+ 228 01ee 4FF00002 		mov	r2, #0
+ 229 01f2 1A70     		strb	r2, [r3, #0]
+ 200:C:/StellarisWare/utils\softi2c.c ****             }
+ 201:C:/StellarisWare/utils\softi2c.c **** 
+ 202:C:/StellarisWare/utils\softi2c.c ****             //
+ 203:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 204:C:/StellarisWare/utils\softi2c.c ****             //
+ 205:C:/StellarisWare/utils\softi2c.c ****             break;
+ 230              		.loc 1 205 0
+ 231 01f4 FFE2     		b	.L60
+ 232              	.L4:
+ 206:C:/StellarisWare/utils\softi2c.c ****         }
+ 207:C:/StellarisWare/utils\softi2c.c **** 
+ 208:C:/StellarisWare/utils\softi2c.c ****         //
+ 209:C:/StellarisWare/utils\softi2c.c ****         // The beginning of the start condition sequence when SDA and SCL are
+ 210:C:/StellarisWare/utils\softi2c.c ****         // low.  SDA must be driven high prior to driving SCL high so that a
+ 211:C:/StellarisWare/utils\softi2c.c ****         // repeated-start is generated, instead of a stop then start.
+ 212:C:/StellarisWare/utils\softi2c.c ****         //
+ 213:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START0:
+ 214:C:/StellarisWare/utils\softi2c.c ****         {
+ 215:C:/StellarisWare/utils\softi2c.c ****             //
+ 216:C:/StellarisWare/utils\softi2c.c ****             // Set SDA high.
+ 217:C:/StellarisWare/utils\softi2c.c ****             //
+ 218:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSDAGPIO) = 255;
+ 233              		.loc 1 218 0
+ 234 01f6 7B68     		ldr	r3, [r7, #4]
+ 235 01f8 9B68     		ldr	r3, [r3, #8]
+ 236 01fa 4FF0FF02 		mov	r2, #255
+ 237 01fe 1A60     		str	r2, [r3, #0]
+ 219:C:/StellarisWare/utils\softi2c.c **** 
+ 220:C:/StellarisWare/utils\softi2c.c ****             //
+ 221:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 222:C:/StellarisWare/utils\softi2c.c ****             //
+ 223:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_START1;
+ 238              		.loc 1 223 0
+ 239 0200 7B68     		ldr	r3, [r7, #4]
+ 240 0202 4FF00202 		mov	r2, #2
+ 241 0206 DA73     		strb	r2, [r3, #15]
+ 224:C:/StellarisWare/utils\softi2c.c **** 
+ 225:C:/StellarisWare/utils\softi2c.c ****             //
+ 226:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 227:C:/StellarisWare/utils\softi2c.c ****             //
+ 228:C:/StellarisWare/utils\softi2c.c ****             break;
+ 242              		.loc 1 228 0
+ 243 0208 F8E2     		b	.L2
+ 244              	.L5:
+ 229:C:/StellarisWare/utils\softi2c.c ****         }
+ 230:C:/StellarisWare/utils\softi2c.c **** 
+ 231:C:/StellarisWare/utils\softi2c.c ****         //
+ 232:C:/StellarisWare/utils\softi2c.c ****         // Each of these states exists only to provide some timing delay in
+ 233:C:/StellarisWare/utils\softi2c.c ****         // order to conform with the signalling requirements of I2C.  This
+ 234:C:/StellarisWare/utils\softi2c.c ****         // depends upon STATE_Xn and STATE_X(n+1) being consecutively numbered.
+ 235:C:/StellarisWare/utils\softi2c.c ****         //
+ 236:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START1:
+ 237:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START3:
+ 238:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START5:
+ 239:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_STOP1:
+ 240:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_STOP3:
+ 241:C:/StellarisWare/utils\softi2c.c ****         {
+ 242:C:/StellarisWare/utils\softi2c.c ****             //
+ 243:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 244:C:/StellarisWare/utils\softi2c.c ****             //
+ 245:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState++;
+ 245              		.loc 1 245 0
+ 246 020a 7B68     		ldr	r3, [r7, #4]
+ 247 020c DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 248 020e 03F10103 		add	r3, r3, #1
+ 249 0212 DAB2     		uxtb	r2, r3
+ 250 0214 7B68     		ldr	r3, [r7, #4]
+ 251 0216 DA73     		strb	r2, [r3, #15]
+ 246:C:/StellarisWare/utils\softi2c.c **** 
+ 247:C:/StellarisWare/utils\softi2c.c ****             //
+ 248:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 249:C:/StellarisWare/utils\softi2c.c ****             //
+ 250:C:/StellarisWare/utils\softi2c.c ****             break;
+ 252              		.loc 1 250 0
+ 253 0218 F0E2     		b	.L2
+ 254              	.L6:
+ 251:C:/StellarisWare/utils\softi2c.c ****         }
+ 252:C:/StellarisWare/utils\softi2c.c **** 
+ 253:C:/StellarisWare/utils\softi2c.c ****         //
+ 254:C:/StellarisWare/utils\softi2c.c ****         // In each of these states, SCL must be driven high.  This depends upon
+ 255:C:/StellarisWare/utils\softi2c.c ****         // STATE_Xn and STATE_X(n+1) being consecutively numbered.
+ 256:C:/StellarisWare/utils\softi2c.c ****         //
+ 257:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START2:
+ 258:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_ADDR1:
+ 259:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_SEND1:
+ 260:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_RECV1:
+ 261:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_STOP2:
+ 262:C:/StellarisWare/utils\softi2c.c ****         {
+ 263:C:/StellarisWare/utils\softi2c.c ****             //
+ 264:C:/StellarisWare/utils\softi2c.c ****             // Set SCL high.
+ 265:C:/StellarisWare/utils\softi2c.c ****             //
+ 266:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSCLGPIO) = 255;
+ 255              		.loc 1 266 0
+ 256 021a 7B68     		ldr	r3, [r7, #4]
+ 257 021c 5B68     		ldr	r3, [r3, #4]
+ 258 021e 4FF0FF02 		mov	r2, #255
+ 259 0222 1A60     		str	r2, [r3, #0]
+ 267:C:/StellarisWare/utils\softi2c.c **** 
+ 268:C:/StellarisWare/utils\softi2c.c ****             //
+ 269:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 270:C:/StellarisWare/utils\softi2c.c ****             //
+ 271:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState++;
+ 260              		.loc 1 271 0
+ 261 0224 7B68     		ldr	r3, [r7, #4]
+ 262 0226 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 263 0228 03F10103 		add	r3, r3, #1
+ 264 022c DAB2     		uxtb	r2, r3
+ 265 022e 7B68     		ldr	r3, [r7, #4]
+ 266 0230 DA73     		strb	r2, [r3, #15]
+ 272:C:/StellarisWare/utils\softi2c.c **** 
+ 273:C:/StellarisWare/utils\softi2c.c ****             //
+ 274:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 275:C:/StellarisWare/utils\softi2c.c ****             //
+ 276:C:/StellarisWare/utils\softi2c.c ****             break;
+ 267              		.loc 1 276 0
+ 268 0232 E3E2     		b	.L2
+ 269              	.L7:
+ 277:C:/StellarisWare/utils\softi2c.c ****         }
+ 278:C:/StellarisWare/utils\softi2c.c **** 
+ 279:C:/StellarisWare/utils\softi2c.c ****         //
+ 280:C:/StellarisWare/utils\softi2c.c ****         // In each of these states, SDA must be driven low.  This depends upon
+ 281:C:/StellarisWare/utils\softi2c.c ****         // STATE_Xn and STATE_X(n+1) being consecutively numbered.
+ 282:C:/StellarisWare/utils\softi2c.c ****         //
+ 283:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START4:
+ 284:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_STOP0:
+ 285:C:/StellarisWare/utils\softi2c.c ****         {
+ 286:C:/StellarisWare/utils\softi2c.c ****             //
+ 287:C:/StellarisWare/utils\softi2c.c ****             // Set SDA low.
+ 288:C:/StellarisWare/utils\softi2c.c ****             //
+ 289:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSDAGPIO) = 0;
+ 270              		.loc 1 289 0
+ 271 0234 7B68     		ldr	r3, [r7, #4]
+ 272 0236 9B68     		ldr	r3, [r3, #8]
+ 273 0238 4FF00002 		mov	r2, #0
+ 274 023c 1A60     		str	r2, [r3, #0]
+ 290:C:/StellarisWare/utils\softi2c.c **** 
+ 291:C:/StellarisWare/utils\softi2c.c ****             //
+ 292:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 293:C:/StellarisWare/utils\softi2c.c ****             //
+ 294:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState++;
+ 275              		.loc 1 294 0
+ 276 023e 7B68     		ldr	r3, [r7, #4]
+ 277 0240 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 278 0242 03F10103 		add	r3, r3, #1
+ 279 0246 DAB2     		uxtb	r2, r3
+ 280 0248 7B68     		ldr	r3, [r7, #4]
+ 281 024a DA73     		strb	r2, [r3, #15]
+ 295:C:/StellarisWare/utils\softi2c.c **** 
+ 296:C:/StellarisWare/utils\softi2c.c ****             //
+ 297:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 298:C:/StellarisWare/utils\softi2c.c ****             //
+ 299:C:/StellarisWare/utils\softi2c.c ****             break;
+ 282              		.loc 1 299 0
+ 283 024c D6E2     		b	.L2
+ 284              	.L8:
+ 300:C:/StellarisWare/utils\softi2c.c ****         }
+ 301:C:/StellarisWare/utils\softi2c.c **** 
+ 302:C:/StellarisWare/utils\softi2c.c ****         //
+ 303:C:/StellarisWare/utils\softi2c.c ****         // In this state, SCL must be driven low.
+ 304:C:/StellarisWare/utils\softi2c.c ****         //
+ 305:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START6:
+ 306:C:/StellarisWare/utils\softi2c.c ****         {
+ 307:C:/StellarisWare/utils\softi2c.c ****             //
+ 308:C:/StellarisWare/utils\softi2c.c ****             // Set SCL low.
+ 309:C:/StellarisWare/utils\softi2c.c ****             //
+ 310:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSCLGPIO) = 0;
+ 285              		.loc 1 310 0
+ 286 024e 7B68     		ldr	r3, [r7, #4]
+ 287 0250 5B68     		ldr	r3, [r3, #4]
+ 288 0252 4FF00002 		mov	r2, #0
+ 289 0256 1A60     		str	r2, [r3, #0]
+ 311:C:/StellarisWare/utils\softi2c.c **** 
+ 312:C:/StellarisWare/utils\softi2c.c ****             //
+ 313:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 314:C:/StellarisWare/utils\softi2c.c ****             //
+ 315:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_START7;
+ 290              		.loc 1 315 0
+ 291 0258 7B68     		ldr	r3, [r7, #4]
+ 292 025a 4FF00802 		mov	r2, #8
+ 293 025e DA73     		strb	r2, [r3, #15]
+ 316:C:/StellarisWare/utils\softi2c.c **** 
+ 317:C:/StellarisWare/utils\softi2c.c ****             //
+ 318:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 319:C:/StellarisWare/utils\softi2c.c ****             //
+ 320:C:/StellarisWare/utils\softi2c.c ****             break;
+ 294              		.loc 1 320 0
+ 295 0260 CCE2     		b	.L2
+ 296              	.L9:
+ 321:C:/StellarisWare/utils\softi2c.c ****         }
+ 322:C:/StellarisWare/utils\softi2c.c **** 
+ 323:C:/StellarisWare/utils\softi2c.c ****         //
+ 324:C:/StellarisWare/utils\softi2c.c ****         // In this state, the start condition has been generated.
+ 325:C:/StellarisWare/utils\softi2c.c ****         //
+ 326:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_START7:
+ 327:C:/StellarisWare/utils\softi2c.c ****         {
+ 328:C:/StellarisWare/utils\softi2c.c ****             //
+ 329:C:/StellarisWare/utils\softi2c.c ****             // Start with the first bit of the address.
+ 330:C:/StellarisWare/utils\softi2c.c ****             //
+ 331:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucCurrentBit = 0;
+ 297              		.loc 1 331 0
+ 298 0262 7B68     		ldr	r3, [r7, #4]
+ 299 0264 4FF00002 		mov	r2, #0
+ 300 0268 1A74     		strb	r2, [r3, #16]
+ 332:C:/StellarisWare/utils\softi2c.c **** 
+ 333:C:/StellarisWare/utils\softi2c.c ****             //
+ 334:C:/StellarisWare/utils\softi2c.c ****             // Advance to the address output state.
+ 335:C:/StellarisWare/utils\softi2c.c ****             //
+ 336:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_ADDR0;
+ 301              		.loc 1 336 0
+ 302 026a 7B68     		ldr	r3, [r7, #4]
+ 303 026c 4FF00902 		mov	r2, #9
+ 304 0270 DA73     		strb	r2, [r3, #15]
+ 337:C:/StellarisWare/utils\softi2c.c **** 
+ 338:C:/StellarisWare/utils\softi2c.c ****             //
+ 339:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 340:C:/StellarisWare/utils\softi2c.c ****             //
+ 341:C:/StellarisWare/utils\softi2c.c ****             break;
+ 305              		.loc 1 341 0
+ 306 0272 C3E2     		b	.L2
+ 307              	.L10:
+ 342:C:/StellarisWare/utils\softi2c.c ****         }
+ 343:C:/StellarisWare/utils\softi2c.c **** 
+ 344:C:/StellarisWare/utils\softi2c.c ****         //
+ 345:C:/StellarisWare/utils\softi2c.c ****         // In this state, the next bit of the slave address must be sent.
+ 346:C:/StellarisWare/utils\softi2c.c ****         //
+ 347:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_ADDR0:
+ 348:C:/StellarisWare/utils\softi2c.c ****         {
+ 349:C:/StellarisWare/utils\softi2c.c ****             //
+ 350:C:/StellarisWare/utils\softi2c.c ****             // See if this is one of the first seven bits of the address phase.
+ 351:C:/StellarisWare/utils\softi2c.c ****             //
+ 352:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit < 7)
+ 308              		.loc 1 352 0
+ 309 0274 7B68     		ldr	r3, [r7, #4]
+ 310 0276 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 311 0278 062B     		cmp	r3, #6
+ 312 027a 17D8     		bhi	.L26
+ 353:C:/StellarisWare/utils\softi2c.c ****             {
+ 354:C:/StellarisWare/utils\softi2c.c ****                 //
+ 355:C:/StellarisWare/utils\softi2c.c ****                 // Write the next bit of the slave address to SDA.
+ 356:C:/StellarisWare/utils\softi2c.c ****                 //
+ 357:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucSlaveAddr &
+ 313              		.loc 1 357 0
+ 314 027c 7B68     		ldr	r3, [r7, #4]
+ 315 027e 9B68     		ldr	r3, [r3, #8]
+ 316 0280 1A46     		mov	r2, r3
+ 317 0282 7B68     		ldr	r3, [r7, #4]
+ 318 0284 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 358:C:/StellarisWare/utils\softi2c.c ****                                            (1 << (6 - pI2C->ucCurrentBit))) ?
+ 319              		.loc 1 358 0
+ 320 0286 1946     		mov	r1, r3
+ 321 0288 7B68     		ldr	r3, [r7, #4]
+ 322 028a 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 323 028c C3F10603 		rsb	r3, r3, #6
+ 324 0290 41FA03F3 		asr	r3, r1, r3
+ 325 0294 03F00103 		and	r3, r3, #1
+ 326 0298 DBB2     		uxtb	r3, r3
+ 357:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucSlaveAddr &
+ 327              		.loc 1 357 0
+ 328 029a 002B     		cmp	r3, #0
+ 329 029c 02D0     		beq	.L27
+ 357:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucSlaveAddr &
+ 330              		.loc 1 357 0 is_stmt 0 discriminator 1
+ 331 029e 4FF0FF03 		mov	r3, #255
+ 332 02a2 01E0     		b	.L28
+ 333              	.L27:
+ 357:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucSlaveAddr &
+ 334              		.loc 1 357 0 discriminator 2
+ 335 02a4 4FF00003 		mov	r3, #0
+ 336              	.L28:
+ 357:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucSlaveAddr &
+ 337              		.loc 1 357 0 discriminator 3
+ 338 02a8 1360     		str	r3, [r2, #0]
+ 339 02aa 39E0     		b	.L29
+ 340              	.L26:
+ 359:C:/StellarisWare/utils\softi2c.c ****                                           255 : 0);
+ 360:C:/StellarisWare/utils\softi2c.c ****             }
+ 361:C:/StellarisWare/utils\softi2c.c **** 
+ 362:C:/StellarisWare/utils\softi2c.c ****             //
+ 363:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, see if this is the eight bit of the address phase
+ 364:C:/StellarisWare/utils\softi2c.c ****             // (which is the read/not write bit).
+ 365:C:/StellarisWare/utils\softi2c.c ****             //
+ 366:C:/StellarisWare/utils\softi2c.c ****             else if(pI2C->ucCurrentBit == 7)
+ 341              		.loc 1 366 0 is_stmt 1
+ 342 02ac 7B68     		ldr	r3, [r7, #4]
+ 343 02ae 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 344 02b0 072B     		cmp	r3, #7
+ 345 02b2 20D1     		bne	.L30
+ 367:C:/StellarisWare/utils\softi2c.c ****             {
+ 368:C:/StellarisWare/utils\softi2c.c ****                 //
+ 369:C:/StellarisWare/utils\softi2c.c ****                 // Write the read/not write bit to SDA.
+ 370:C:/StellarisWare/utils\softi2c.c ****                 //
+ 371:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) =
+ 346              		.loc 1 371 0
+ 347 02b4 7B68     		ldr	r3, [r7, #4]
+ 348 02b6 9B68     		ldr	r3, [r3, #8]
+ 349 02b8 1A46     		mov	r2, r3
+ 372:C:/StellarisWare/utils\softi2c.c ****                     (HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RECEIVE) ?
+ 350              		.loc 1 372 0
+ 351 02ba 7B68     		ldr	r3, [r7, #4]
+ 352 02bc 03F10C03 		add	r3, r3, #12
+ 353 02c0 03F07041 		and	r1, r3, #-268435456
+ 354 02c4 7B68     		ldr	r3, [r7, #4]
+ 355 02c6 03F10C03 		add	r3, r3, #12
+ 356 02ca 23F07F43 		bic	r3, r3, #-16777216
+ 357 02ce 23F47003 		bic	r3, r3, #15728640
+ 358 02d2 4FEA4313 		lsl	r3, r3, #5
+ 359 02d6 0B43     		orrs	r3, r3, r1
+ 360 02d8 43F00073 		orr	r3, r3, #33554432
+ 361 02dc 43F01C03 		orr	r3, r3, #28
+ 362 02e0 1B78     		ldrb	r3, [r3, #0]
+ 363 02e2 DBB2     		uxtb	r3, r3
+ 371:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) =
+ 364              		.loc 1 371 0
+ 365 02e4 002B     		cmp	r3, #0
+ 366 02e6 02D0     		beq	.L31
+ 371:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) =
+ 367              		.loc 1 371 0 is_stmt 0 discriminator 1
+ 368 02e8 4FF0FF03 		mov	r3, #255
+ 369 02ec 01E0     		b	.L32
+ 370              	.L31:
+ 371:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) =
+ 371              		.loc 1 371 0 discriminator 2
+ 372 02ee 4FF00003 		mov	r3, #0
+ 373              	.L32:
+ 371:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) =
+ 374              		.loc 1 371 0 discriminator 3
+ 375 02f2 1360     		str	r3, [r2, #0]
+ 376 02f4 14E0     		b	.L29
+ 377              	.L30:
+ 373:C:/StellarisWare/utils\softi2c.c ****                      255 : 0);
+ 374:C:/StellarisWare/utils\softi2c.c ****             }
+ 375:C:/StellarisWare/utils\softi2c.c **** 
+ 376:C:/StellarisWare/utils\softi2c.c ****             //
+ 377:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, this is the ninth bit of the address phase (in other
+ 378:C:/StellarisWare/utils\softi2c.c ****             // words, the ACK bit).
+ 379:C:/StellarisWare/utils\softi2c.c ****             //
+ 380:C:/StellarisWare/utils\softi2c.c ****             else
+ 381:C:/StellarisWare/utils\softi2c.c ****             {
+ 382:C:/StellarisWare/utils\softi2c.c ****                 //
+ 383:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO into an input so that the ACK or NAK
+ 384:C:/StellarisWare/utils\softi2c.c ****                 // provided by the slave can be read.
+ 385:C:/StellarisWare/utils\softi2c.c ****                 //
+ 386:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 378              		.loc 1 386 0 is_stmt 1
+ 379 02f6 7B68     		ldr	r3, [r7, #4]
+ 380 02f8 9B68     		ldr	r3, [r3, #8]
+ 381 02fa 23F47E63 		bic	r3, r3, #4064
+ 382 02fe 23F01F03 		bic	r3, r3, #31
+ 387:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 383              		.loc 1 387 0
+ 384 0302 7A68     		ldr	r2, [r7, #4]
+ 385 0304 9268     		ldr	r2, [r2, #8]
+ 386 0306 4FEA0252 		lsl	r2, r2, #20
+ 387 030a 4FEA1252 		lsr	r2, r2, #20
+ 388 030e 4FEA9202 		lsr	r2, r2, #2
+ 386:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 389              		.loc 1 386 0
+ 390 0312 D2B2     		uxtb	r2, r2
+ 391 0314 1846     		mov	r0, r3
+ 392 0316 1146     		mov	r1, r2
+ 393 0318 4FF00002 		mov	r2, #0
+ 394 031c FFF7FEFF 		bl	GPIODirModeSet
+ 395              	.L29:
+ 388:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_IN);
+ 389:C:/StellarisWare/utils\softi2c.c ****             }
+ 390:C:/StellarisWare/utils\softi2c.c **** 
+ 391:C:/StellarisWare/utils\softi2c.c ****             //
+ 392:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 393:C:/StellarisWare/utils\softi2c.c ****             //
+ 394:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_ADDR1;
+ 396              		.loc 1 394 0
+ 397 0320 7B68     		ldr	r3, [r7, #4]
+ 398 0322 4FF00A02 		mov	r2, #10
+ 399 0326 DA73     		strb	r2, [r3, #15]
+ 395:C:/StellarisWare/utils\softi2c.c **** 
+ 396:C:/StellarisWare/utils\softi2c.c ****             //
+ 397:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 398:C:/StellarisWare/utils\softi2c.c ****             //
+ 399:C:/StellarisWare/utils\softi2c.c ****             break;
+ 400              		.loc 1 399 0
+ 401 0328 68E2     		b	.L2
+ 402              	.L11:
+ 400:C:/StellarisWare/utils\softi2c.c ****         }
+ 401:C:/StellarisWare/utils\softi2c.c **** 
+ 402:C:/StellarisWare/utils\softi2c.c ****         //
+ 403:C:/StellarisWare/utils\softi2c.c ****         // In each of these states, wait until SCL has gone high (it has been
+ 404:C:/StellarisWare/utils\softi2c.c ****         // released by the SoftI2C master, but may be held low by the slave).
+ 405:C:/StellarisWare/utils\softi2c.c ****         // This depends upon STATE_Xn and STATE_X(n+1) being consecutively
+ 406:C:/StellarisWare/utils\softi2c.c ****         // numbered.
+ 407:C:/StellarisWare/utils\softi2c.c ****         //
+ 408:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_ADDR2:
+ 409:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_SEND2:
+ 410:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_RECV2:
+ 411:C:/StellarisWare/utils\softi2c.c ****         {
+ 412:C:/StellarisWare/utils\softi2c.c ****             //
+ 413:C:/StellarisWare/utils\softi2c.c ****             // See if SCL has gone high.
+ 414:C:/StellarisWare/utils\softi2c.c ****             //
+ 415:C:/StellarisWare/utils\softi2c.c ****             if(HWREG(pI2C->ulSCLGPIO) != 0)
+ 403              		.loc 1 415 0
+ 404 032a 7B68     		ldr	r3, [r7, #4]
+ 405 032c 5B68     		ldr	r3, [r3, #4]
+ 406 032e 1B68     		ldr	r3, [r3, #0]
+ 407 0330 002B     		cmp	r3, #0
+ 408 0332 00F06282 		beq	.L61
+ 416:C:/StellarisWare/utils\softi2c.c ****             {
+ 417:C:/StellarisWare/utils\softi2c.c ****                 //
+ 418:C:/StellarisWare/utils\softi2c.c ****                 // Advance to the next state now that SCL has gone high.
+ 419:C:/StellarisWare/utils\softi2c.c ****                 //
+ 420:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucState++;
+ 409              		.loc 1 420 0
+ 410 0336 7B68     		ldr	r3, [r7, #4]
+ 411 0338 DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 412 033a 03F10103 		add	r3, r3, #1
+ 413 033e DAB2     		uxtb	r2, r3
+ 414 0340 7B68     		ldr	r3, [r7, #4]
+ 415 0342 DA73     		strb	r2, [r3, #15]
+ 421:C:/StellarisWare/utils\softi2c.c ****             }
+ 422:C:/StellarisWare/utils\softi2c.c **** 
+ 423:C:/StellarisWare/utils\softi2c.c ****             //
+ 424:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 425:C:/StellarisWare/utils\softi2c.c ****             //
+ 426:C:/StellarisWare/utils\softi2c.c ****             break;
+ 416              		.loc 1 426 0
+ 417 0344 59E2     		b	.L61
+ 418              	.L12:
+ 427:C:/StellarisWare/utils\softi2c.c ****         }
+ 428:C:/StellarisWare/utils\softi2c.c **** 
+ 429:C:/StellarisWare/utils\softi2c.c ****         //
+ 430:C:/StellarisWare/utils\softi2c.c ****         // In this state, SCL must be driven low.  If on the ninth bit of the
+ 431:C:/StellarisWare/utils\softi2c.c ****         // address transfer, the ACK/NAK status is read from the slave.
+ 432:C:/StellarisWare/utils\softi2c.c ****         //
+ 433:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_ADDR3:
+ 434:C:/StellarisWare/utils\softi2c.c ****         {
+ 435:C:/StellarisWare/utils\softi2c.c ****             //
+ 436:C:/StellarisWare/utils\softi2c.c ****             // See if this is the ninth bit of the address phase (in other
+ 437:C:/StellarisWare/utils\softi2c.c ****             // words, the ACK bit).
+ 438:C:/StellarisWare/utils\softi2c.c ****             //
+ 439:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit == 8)
+ 419              		.loc 1 439 0
+ 420 0346 7B68     		ldr	r3, [r7, #4]
+ 421 0348 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 422 034a 082B     		cmp	r3, #8
+ 423 034c 40F0A980 		bne	.L34
+ 440:C:/StellarisWare/utils\softi2c.c ****             {
+ 441:C:/StellarisWare/utils\softi2c.c ****                 //
+ 442:C:/StellarisWare/utils\softi2c.c ****                 // See if the SDA line is high.
+ 443:C:/StellarisWare/utils\softi2c.c ****                 //
+ 444:C:/StellarisWare/utils\softi2c.c ****                 if(HWREG(pI2C->ulSDAGPIO) != 0)
+ 424              		.loc 1 444 0
+ 425 0350 7B68     		ldr	r3, [r7, #4]
+ 426 0352 9B68     		ldr	r3, [r3, #8]
+ 427 0354 1B68     		ldr	r3, [r3, #0]
+ 428 0356 002B     		cmp	r3, #0
+ 429 0358 15D0     		beq	.L35
+ 445:C:/StellarisWare/utils\softi2c.c ****                 {
+ 446:C:/StellarisWare/utils\softi2c.c ****                     //
+ 447:C:/StellarisWare/utils\softi2c.c ****                     // Since the SDA line is high, the address byte has not
+ 448:C:/StellarisWare/utils\softi2c.c ****                     // been ACKed by any slave.
+ 449:C:/StellarisWare/utils\softi2c.c ****                     //
+ 450:C:/StellarisWare/utils\softi2c.c ****                     HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_ADDR_ACK) = 1;
+ 430              		.loc 1 450 0
+ 431 035a 7B68     		ldr	r3, [r7, #4]
+ 432 035c 03F10C03 		add	r3, r3, #12
+ 433 0360 03F07042 		and	r2, r3, #-268435456
+ 434 0364 7B68     		ldr	r3, [r7, #4]
+ 435 0366 03F10C03 		add	r3, r3, #12
+ 436 036a 23F07F43 		bic	r3, r3, #-16777216
+ 437 036e 23F47003 		bic	r3, r3, #15728640
+ 438 0372 4FEA4313 		lsl	r3, r3, #5
+ 439 0376 1343     		orrs	r3, r3, r2
+ 440 0378 43F00073 		orr	r3, r3, #33554432
+ 441 037c 43F01403 		orr	r3, r3, #20
+ 442 0380 4FF00102 		mov	r2, #1
+ 443 0384 1A70     		strb	r2, [r3, #0]
+ 444              	.L35:
+ 451:C:/StellarisWare/utils\softi2c.c ****                 }
+ 452:C:/StellarisWare/utils\softi2c.c **** 
+ 453:C:/StellarisWare/utils\softi2c.c ****                 //
+ 454:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO back into an output.
+ 455:C:/StellarisWare/utils\softi2c.c ****                 //
+ 456:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 445              		.loc 1 456 0
+ 446 0386 7B68     		ldr	r3, [r7, #4]
+ 447 0388 9B68     		ldr	r3, [r3, #8]
+ 448 038a 23F47E63 		bic	r3, r3, #4064
+ 449 038e 23F01F03 		bic	r3, r3, #31
+ 457:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 450              		.loc 1 457 0
+ 451 0392 7A68     		ldr	r2, [r7, #4]
+ 452 0394 9268     		ldr	r2, [r2, #8]
+ 453 0396 4FEA0252 		lsl	r2, r2, #20
+ 454 039a 4FEA1252 		lsr	r2, r2, #20
+ 455 039e 4FEA9202 		lsr	r2, r2, #2
+ 456:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 456              		.loc 1 456 0
+ 457 03a2 D2B2     		uxtb	r2, r2
+ 458 03a4 1846     		mov	r0, r3
+ 459 03a6 1146     		mov	r1, r2
+ 460 03a8 4FF00102 		mov	r2, #1
+ 461 03ac FFF7FEFF 		bl	GPIODirModeSet
+ 458:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_OUT);
+ 459:C:/StellarisWare/utils\softi2c.c **** 
+ 460:C:/StellarisWare/utils\softi2c.c ****                 //
+ 461:C:/StellarisWare/utils\softi2c.c ****                 // The start phase (start or repeated-start, plus the address
+ 462:C:/StellarisWare/utils\softi2c.c ****                 // byte) have completed, so clear the START flag.
+ 463:C:/StellarisWare/utils\softi2c.c ****                 //
+ 464:C:/StellarisWare/utils\softi2c.c ****                 HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_START) = 0;
+ 462              		.loc 1 464 0
+ 463 03b0 7B68     		ldr	r3, [r7, #4]
+ 464 03b2 03F10C03 		add	r3, r3, #12
+ 465 03b6 03F07042 		and	r2, r3, #-268435456
+ 466 03ba 7B68     		ldr	r3, [r7, #4]
+ 467 03bc 03F10C03 		add	r3, r3, #12
+ 468 03c0 23F07F43 		bic	r3, r3, #-16777216
+ 469 03c4 23F47003 		bic	r3, r3, #15728640
+ 470 03c8 4FEA4313 		lsl	r3, r3, #5
+ 471 03cc 1343     		orrs	r3, r3, r2
+ 472 03ce 43F00073 		orr	r3, r3, #33554432
+ 473 03d2 43F00403 		orr	r3, r3, #4
+ 474 03d6 4FF00002 		mov	r2, #0
+ 475 03da 1A70     		strb	r2, [r3, #0]
+ 465:C:/StellarisWare/utils\softi2c.c **** 
+ 466:C:/StellarisWare/utils\softi2c.c ****                 //
+ 467:C:/StellarisWare/utils\softi2c.c ****                 // See if the RUN flag is set, indicating that a data byte
+ 468:C:/StellarisWare/utils\softi2c.c ****                 // should be transferred as well.
+ 469:C:/StellarisWare/utils\softi2c.c ****                 //
+ 470:C:/StellarisWare/utils\softi2c.c ****                 if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RUN) == 1)
+ 476              		.loc 1 470 0
+ 477 03dc 7B68     		ldr	r3, [r7, #4]
+ 478 03de 03F10C03 		add	r3, r3, #12
+ 479 03e2 03F07042 		and	r2, r3, #-268435456
+ 480 03e6 7B68     		ldr	r3, [r7, #4]
+ 481 03e8 03F10C03 		add	r3, r3, #12
+ 482 03ec 23F07F43 		bic	r3, r3, #-16777216
+ 483 03f0 23F47003 		bic	r3, r3, #15728640
+ 484 03f4 4FEA4313 		lsl	r3, r3, #5
+ 485 03f8 1343     		orrs	r3, r3, r2
+ 486 03fa 43F00073 		orr	r3, r3, #33554432
+ 487 03fe 1B78     		ldrb	r3, [r3, #0]
+ 488 0400 DBB2     		uxtb	r3, r3
+ 489 0402 012B     		cmp	r3, #1
+ 490 0404 28D1     		bne	.L36
+ 471:C:/StellarisWare/utils\softi2c.c ****                 {
+ 472:C:/StellarisWare/utils\softi2c.c ****                     //
+ 473:C:/StellarisWare/utils\softi2c.c ****                     // Reset the current bit to zero for the start of the data
+ 474:C:/StellarisWare/utils\softi2c.c ****                     // phase.
+ 475:C:/StellarisWare/utils\softi2c.c ****                     //
+ 476:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucCurrentBit = 0;
+ 491              		.loc 1 476 0
+ 492 0406 7B68     		ldr	r3, [r7, #4]
+ 493 0408 4FF00002 		mov	r2, #0
+ 494 040c 1A74     		strb	r2, [r3, #16]
+ 477:C:/StellarisWare/utils\softi2c.c **** 
+ 478:C:/StellarisWare/utils\softi2c.c ****                     //
+ 479:C:/StellarisWare/utils\softi2c.c ****                     // See if the data byte is being sent or received.
+ 480:C:/StellarisWare/utils\softi2c.c ****                     //
+ 481:C:/StellarisWare/utils\softi2c.c ****                     if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RECEIVE) == 0)
+ 495              		.loc 1 481 0
+ 496 040e 7B68     		ldr	r3, [r7, #4]
+ 497 0410 03F10C03 		add	r3, r3, #12
+ 498 0414 03F07042 		and	r2, r3, #-268435456
+ 499 0418 7B68     		ldr	r3, [r7, #4]
+ 500 041a 03F10C03 		add	r3, r3, #12
+ 501 041e 23F07F43 		bic	r3, r3, #-16777216
+ 502 0422 23F47003 		bic	r3, r3, #15728640
+ 503 0426 4FEA4313 		lsl	r3, r3, #5
+ 504 042a 1343     		orrs	r3, r3, r2
+ 505 042c 43F00073 		orr	r3, r3, #33554432
+ 506 0430 43F01C03 		orr	r3, r3, #28
+ 507 0434 1B78     		ldrb	r3, [r3, #0]
+ 508 0436 DBB2     		uxtb	r3, r3
+ 509 0438 002B     		cmp	r3, #0
+ 510 043a 04D1     		bne	.L37
+ 482:C:/StellarisWare/utils\softi2c.c ****                     {
+ 483:C:/StellarisWare/utils\softi2c.c ****                         //
+ 484:C:/StellarisWare/utils\softi2c.c ****                         // The data byte is being sent, so advance to the data
+ 485:C:/StellarisWare/utils\softi2c.c ****                         // send state.
+ 486:C:/StellarisWare/utils\softi2c.c ****                         //
+ 487:C:/StellarisWare/utils\softi2c.c ****                         pI2C->ucState = SOFTI2C_STATE_SEND0;
+ 511              		.loc 1 487 0
+ 512 043c 7B68     		ldr	r3, [r7, #4]
+ 513 043e 4FF00D02 		mov	r2, #13
+ 514 0442 DA73     		strb	r2, [r3, #15]
+ 515 0444 38E0     		b	.L38
+ 516              	.L37:
+ 488:C:/StellarisWare/utils\softi2c.c ****                     }
+ 489:C:/StellarisWare/utils\softi2c.c ****                     else
+ 490:C:/StellarisWare/utils\softi2c.c ****                     {
+ 491:C:/StellarisWare/utils\softi2c.c ****                         //
+ 492:C:/StellarisWare/utils\softi2c.c ****                         // The data byte is being received, so clear the data
+ 493:C:/StellarisWare/utils\softi2c.c ****                         // buffer and advance to the data receive state.
+ 494:C:/StellarisWare/utils\softi2c.c ****                         //
+ 495:C:/StellarisWare/utils\softi2c.c ****                         pI2C->ucData = 0;
+ 517              		.loc 1 495 0
+ 518 0446 7B68     		ldr	r3, [r7, #4]
+ 519 0448 4FF00002 		mov	r2, #0
+ 520 044c 9A73     		strb	r2, [r3, #14]
+ 496:C:/StellarisWare/utils\softi2c.c ****                         pI2C->ucState = SOFTI2C_STATE_RECV0;
+ 521              		.loc 1 496 0
+ 522 044e 7B68     		ldr	r3, [r7, #4]
+ 523 0450 4FF01102 		mov	r2, #17
+ 524 0454 DA73     		strb	r2, [r3, #15]
+ 525 0456 2FE0     		b	.L38
+ 526              	.L36:
+ 497:C:/StellarisWare/utils\softi2c.c ****                     }
+ 498:C:/StellarisWare/utils\softi2c.c ****                 }
+ 499:C:/StellarisWare/utils\softi2c.c **** 
+ 500:C:/StellarisWare/utils\softi2c.c ****                 //
+ 501:C:/StellarisWare/utils\softi2c.c ****                 // Otherwise, see if the STOP flag is set, indicating that a
+ 502:C:/StellarisWare/utils\softi2c.c ****                 // stop condition should be generated.
+ 503:C:/StellarisWare/utils\softi2c.c ****                 //
+ 504:C:/StellarisWare/utils\softi2c.c ****                 else if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_STOP) == 1)
+ 527              		.loc 1 504 0
+ 528 0458 7B68     		ldr	r3, [r7, #4]
+ 529 045a 03F10C03 		add	r3, r3, #12
+ 530 045e 03F07042 		and	r2, r3, #-268435456
+ 531 0462 7B68     		ldr	r3, [r7, #4]
+ 532 0464 03F10C03 		add	r3, r3, #12
+ 533 0468 23F07F43 		bic	r3, r3, #-16777216
+ 534 046c 23F47003 		bic	r3, r3, #15728640
+ 535 0470 4FEA4313 		lsl	r3, r3, #5
+ 536 0474 1343     		orrs	r3, r3, r2
+ 537 0476 43F00073 		orr	r3, r3, #33554432
+ 538 047a 43F00803 		orr	r3, r3, #8
+ 539 047e 1B78     		ldrb	r3, [r3, #0]
+ 540 0480 DBB2     		uxtb	r3, r3
+ 541 0482 012B     		cmp	r3, #1
+ 542 0484 04D1     		bne	.L39
+ 505:C:/StellarisWare/utils\softi2c.c ****                 {
+ 506:C:/StellarisWare/utils\softi2c.c ****                     //
+ 507:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the stop state.
+ 508:C:/StellarisWare/utils\softi2c.c ****                     //
+ 509:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_STOP0;
+ 543              		.loc 1 509 0
+ 544 0486 7B68     		ldr	r3, [r7, #4]
+ 545 0488 4FF01502 		mov	r2, #21
+ 546 048c DA73     		strb	r2, [r3, #15]
+ 547 048e 13E0     		b	.L38
+ 548              	.L39:
+ 510:C:/StellarisWare/utils\softi2c.c ****                 }
+ 511:C:/StellarisWare/utils\softi2c.c **** 
+ 512:C:/StellarisWare/utils\softi2c.c ****                 //
+ 513:C:/StellarisWare/utils\softi2c.c ****                 // Otherwise, go to the idle state.
+ 514:C:/StellarisWare/utils\softi2c.c ****                 //
+ 515:C:/StellarisWare/utils\softi2c.c ****                 else
+ 516:C:/StellarisWare/utils\softi2c.c ****                 {
+ 517:C:/StellarisWare/utils\softi2c.c ****                     //
+ 518:C:/StellarisWare/utils\softi2c.c ****                     // Since the requested operations have completed, set the
+ 519:C:/StellarisWare/utils\softi2c.c ****                     // SoftI2C ``interrupt''.
+ 520:C:/StellarisWare/utils\softi2c.c ****                     //
+ 521:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucIntStatus = 1;
+ 549              		.loc 1 521 0
+ 550 0490 7B68     		ldr	r3, [r7, #4]
+ 551 0492 4FF00102 		mov	r2, #1
+ 552 0496 9A74     		strb	r2, [r3, #18]
+ 522:C:/StellarisWare/utils\softi2c.c **** 
+ 523:C:/StellarisWare/utils\softi2c.c ****                     //
+ 524:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the idle state.
+ 525:C:/StellarisWare/utils\softi2c.c ****                     //
+ 526:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_IDLE;
+ 553              		.loc 1 526 0
+ 554 0498 7B68     		ldr	r3, [r7, #4]
+ 555 049a 4FF00002 		mov	r2, #0
+ 556 049e DA73     		strb	r2, [r3, #15]
+ 557 04a0 0AE0     		b	.L38
+ 558              	.L34:
+ 527:C:/StellarisWare/utils\softi2c.c ****                 }
+ 528:C:/StellarisWare/utils\softi2c.c ****             }
+ 529:C:/StellarisWare/utils\softi2c.c **** 
+ 530:C:/StellarisWare/utils\softi2c.c ****             //
+ 531:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, the next bit of the address should be transferred.
+ 532:C:/StellarisWare/utils\softi2c.c ****             //
+ 533:C:/StellarisWare/utils\softi2c.c ****             else
+ 534:C:/StellarisWare/utils\softi2c.c ****             {
+ 535:C:/StellarisWare/utils\softi2c.c ****                 //
+ 536:C:/StellarisWare/utils\softi2c.c ****                 // Increment the bit count.
+ 537:C:/StellarisWare/utils\softi2c.c ****                 //
+ 538:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucCurrentBit++;
+ 559              		.loc 1 538 0
+ 560 04a2 7B68     		ldr	r3, [r7, #4]
+ 561 04a4 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 562 04a6 03F10103 		add	r3, r3, #1
+ 563 04aa DAB2     		uxtb	r2, r3
+ 564 04ac 7B68     		ldr	r3, [r7, #4]
+ 565 04ae 1A74     		strb	r2, [r3, #16]
+ 539:C:/StellarisWare/utils\softi2c.c **** 
+ 540:C:/StellarisWare/utils\softi2c.c ****                 //
+ 541:C:/StellarisWare/utils\softi2c.c ****                 // Advance to the address tranfer state.
+ 542:C:/StellarisWare/utils\softi2c.c ****                 //
+ 543:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucState = SOFTI2C_STATE_ADDR0;
+ 566              		.loc 1 543 0
+ 567 04b0 7B68     		ldr	r3, [r7, #4]
+ 568 04b2 4FF00902 		mov	r2, #9
+ 569 04b6 DA73     		strb	r2, [r3, #15]
+ 570              	.L38:
+ 544:C:/StellarisWare/utils\softi2c.c ****             }
+ 545:C:/StellarisWare/utils\softi2c.c **** 
+ 546:C:/StellarisWare/utils\softi2c.c ****             //
+ 547:C:/StellarisWare/utils\softi2c.c ****             // Set SCL low.
+ 548:C:/StellarisWare/utils\softi2c.c ****             //
+ 549:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSCLGPIO) = 0;
+ 571              		.loc 1 549 0
+ 572 04b8 7B68     		ldr	r3, [r7, #4]
+ 573 04ba 5B68     		ldr	r3, [r3, #4]
+ 574 04bc 4FF00002 		mov	r2, #0
+ 575 04c0 1A60     		str	r2, [r3, #0]
+ 550:C:/StellarisWare/utils\softi2c.c **** 
+ 551:C:/StellarisWare/utils\softi2c.c ****             //
+ 552:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 553:C:/StellarisWare/utils\softi2c.c ****             //
+ 554:C:/StellarisWare/utils\softi2c.c ****             break;
+ 576              		.loc 1 554 0
+ 577 04c2 9BE1     		b	.L2
+ 578              	.L13:
+ 555:C:/StellarisWare/utils\softi2c.c ****         }
+ 556:C:/StellarisWare/utils\softi2c.c **** 
+ 557:C:/StellarisWare/utils\softi2c.c ****         //
+ 558:C:/StellarisWare/utils\softi2c.c ****         // In this state, the next bit of the data byte must be sent.
+ 559:C:/StellarisWare/utils\softi2c.c ****         //
+ 560:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_SEND0:
+ 561:C:/StellarisWare/utils\softi2c.c ****         {
+ 562:C:/StellarisWare/utils\softi2c.c ****             //
+ 563:C:/StellarisWare/utils\softi2c.c ****             // See if this is one of the first eight bits of the data phase.
+ 564:C:/StellarisWare/utils\softi2c.c ****             //
+ 565:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit < 8)
+ 579              		.loc 1 565 0
+ 580 04c4 7B68     		ldr	r3, [r7, #4]
+ 581 04c6 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 582 04c8 072B     		cmp	r3, #7
+ 583 04ca 17D8     		bhi	.L40
+ 566:C:/StellarisWare/utils\softi2c.c ****             {
+ 567:C:/StellarisWare/utils\softi2c.c ****                 //
+ 568:C:/StellarisWare/utils\softi2c.c ****                 // Write the next bit of the data byte to SDA.
+ 569:C:/StellarisWare/utils\softi2c.c ****                 //
+ 570:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucData &
+ 584              		.loc 1 570 0
+ 585 04cc 7B68     		ldr	r3, [r7, #4]
+ 586 04ce 9B68     		ldr	r3, [r3, #8]
+ 587 04d0 1A46     		mov	r2, r3
+ 588 04d2 7B68     		ldr	r3, [r7, #4]
+ 589 04d4 9B7B     		ldrb	r3, [r3, #14]	@ zero_extendqisi2
+ 571:C:/StellarisWare/utils\softi2c.c ****                                            (1 << (7 - pI2C->ucCurrentBit))) ?
+ 590              		.loc 1 571 0
+ 591 04d6 1946     		mov	r1, r3
+ 592 04d8 7B68     		ldr	r3, [r7, #4]
+ 593 04da 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 594 04dc C3F10703 		rsb	r3, r3, #7
+ 595 04e0 41FA03F3 		asr	r3, r1, r3
+ 596 04e4 03F00103 		and	r3, r3, #1
+ 597 04e8 DBB2     		uxtb	r3, r3
+ 570:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucData &
+ 598              		.loc 1 570 0
+ 599 04ea 002B     		cmp	r3, #0
+ 600 04ec 02D0     		beq	.L41
+ 570:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucData &
+ 601              		.loc 1 570 0 is_stmt 0 discriminator 1
+ 602 04ee 4FF0FF03 		mov	r3, #255
+ 603 04f2 01E0     		b	.L42
+ 604              	.L41:
+ 570:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucData &
+ 605              		.loc 1 570 0 discriminator 2
+ 606 04f4 4FF00003 		mov	r3, #0
+ 607              	.L42:
+ 570:C:/StellarisWare/utils\softi2c.c ****                 HWREG(pI2C->ulSDAGPIO) = ((pI2C->ucData &
+ 608              		.loc 1 570 0 discriminator 3
+ 609 04f8 1360     		str	r3, [r2, #0]
+ 610 04fa 14E0     		b	.L43
+ 611              	.L40:
+ 572:C:/StellarisWare/utils\softi2c.c ****                                           255 : 0);
+ 573:C:/StellarisWare/utils\softi2c.c ****             }
+ 574:C:/StellarisWare/utils\softi2c.c **** 
+ 575:C:/StellarisWare/utils\softi2c.c ****             //
+ 576:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, this is the ninth bit of the data phase (in other
+ 577:C:/StellarisWare/utils\softi2c.c ****             // words, the ACK bit).
+ 578:C:/StellarisWare/utils\softi2c.c ****             //
+ 579:C:/StellarisWare/utils\softi2c.c ****             else
+ 580:C:/StellarisWare/utils\softi2c.c ****             {
+ 581:C:/StellarisWare/utils\softi2c.c ****                 //
+ 582:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO into an input so that the ACK or NAK
+ 583:C:/StellarisWare/utils\softi2c.c ****                 // provided by the slave can be read.
+ 584:C:/StellarisWare/utils\softi2c.c ****                 //
+ 585:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 612              		.loc 1 585 0 is_stmt 1
+ 613 04fc 7B68     		ldr	r3, [r7, #4]
+ 614 04fe 9B68     		ldr	r3, [r3, #8]
+ 615 0500 23F47E63 		bic	r3, r3, #4064
+ 616 0504 23F01F03 		bic	r3, r3, #31
+ 586:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 617              		.loc 1 586 0
+ 618 0508 7A68     		ldr	r2, [r7, #4]
+ 619 050a 9268     		ldr	r2, [r2, #8]
+ 620 050c 4FEA0252 		lsl	r2, r2, #20
+ 621 0510 4FEA1252 		lsr	r2, r2, #20
+ 622 0514 4FEA9202 		lsr	r2, r2, #2
+ 585:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 623              		.loc 1 585 0
+ 624 0518 D2B2     		uxtb	r2, r2
+ 625 051a 1846     		mov	r0, r3
+ 626 051c 1146     		mov	r1, r2
+ 627 051e 4FF00002 		mov	r2, #0
+ 628 0522 FFF7FEFF 		bl	GPIODirModeSet
+ 629              	.L43:
+ 587:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_IN);
+ 588:C:/StellarisWare/utils\softi2c.c ****             }
+ 589:C:/StellarisWare/utils\softi2c.c **** 
+ 590:C:/StellarisWare/utils\softi2c.c ****             //
+ 591:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 592:C:/StellarisWare/utils\softi2c.c ****             //
+ 593:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_SEND1;
+ 630              		.loc 1 593 0
+ 631 0526 7B68     		ldr	r3, [r7, #4]
+ 632 0528 4FF00E02 		mov	r2, #14
+ 633 052c DA73     		strb	r2, [r3, #15]
+ 594:C:/StellarisWare/utils\softi2c.c **** 
+ 595:C:/StellarisWare/utils\softi2c.c ****             //
+ 596:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 597:C:/StellarisWare/utils\softi2c.c ****             //
+ 598:C:/StellarisWare/utils\softi2c.c ****             break;
+ 634              		.loc 1 598 0
+ 635 052e 65E1     		b	.L2
+ 636              	.L14:
+ 599:C:/StellarisWare/utils\softi2c.c ****         }
+ 600:C:/StellarisWare/utils\softi2c.c **** 
+ 601:C:/StellarisWare/utils\softi2c.c ****         //
+ 602:C:/StellarisWare/utils\softi2c.c ****         // In this state, SCL must be driven low.  If on the ninth bit of the
+ 603:C:/StellarisWare/utils\softi2c.c ****         // data transfer, the ACK/NAK status is read from the slave.
+ 604:C:/StellarisWare/utils\softi2c.c ****         //
+ 605:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_SEND3:
+ 606:C:/StellarisWare/utils\softi2c.c ****         {
+ 607:C:/StellarisWare/utils\softi2c.c ****             //
+ 608:C:/StellarisWare/utils\softi2c.c ****             // See if this is the ninth bit of the data phase (in other words,
+ 609:C:/StellarisWare/utils\softi2c.c ****             // the ACK bit).
+ 610:C:/StellarisWare/utils\softi2c.c ****             //
+ 611:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit == 8)
+ 637              		.loc 1 611 0
+ 638 0530 7B68     		ldr	r3, [r7, #4]
+ 639 0532 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 640 0534 082B     		cmp	r3, #8
+ 641 0536 68D1     		bne	.L44
+ 612:C:/StellarisWare/utils\softi2c.c ****             {
+ 613:C:/StellarisWare/utils\softi2c.c ****                 //
+ 614:C:/StellarisWare/utils\softi2c.c ****                 // See if the SDA line is high.
+ 615:C:/StellarisWare/utils\softi2c.c ****                 //
+ 616:C:/StellarisWare/utils\softi2c.c ****                 if(HWREG(pI2C->ulSDAGPIO) != 0)
+ 642              		.loc 1 616 0
+ 643 0538 7B68     		ldr	r3, [r7, #4]
+ 644 053a 9B68     		ldr	r3, [r3, #8]
+ 645 053c 1B68     		ldr	r3, [r3, #0]
+ 646 053e 002B     		cmp	r3, #0
+ 647 0540 15D0     		beq	.L45
+ 617:C:/StellarisWare/utils\softi2c.c ****                 {
+ 618:C:/StellarisWare/utils\softi2c.c ****                     //
+ 619:C:/StellarisWare/utils\softi2c.c ****                     // Since the SDA line is high, the data byte has not been
+ 620:C:/StellarisWare/utils\softi2c.c ****                     // ACKed by the slave.
+ 621:C:/StellarisWare/utils\softi2c.c ****                     //
+ 622:C:/StellarisWare/utils\softi2c.c ****                     HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_DATA_ACK) = 1;
+ 648              		.loc 1 622 0
+ 649 0542 7B68     		ldr	r3, [r7, #4]
+ 650 0544 03F10C03 		add	r3, r3, #12
+ 651 0548 03F07042 		and	r2, r3, #-268435456
+ 652 054c 7B68     		ldr	r3, [r7, #4]
+ 653 054e 03F10C03 		add	r3, r3, #12
+ 654 0552 23F07F43 		bic	r3, r3, #-16777216
+ 655 0556 23F47003 		bic	r3, r3, #15728640
+ 656 055a 4FEA4313 		lsl	r3, r3, #5
+ 657 055e 1343     		orrs	r3, r3, r2
+ 658 0560 43F00073 		orr	r3, r3, #33554432
+ 659 0564 43F01803 		orr	r3, r3, #24
+ 660 0568 4FF00102 		mov	r2, #1
+ 661 056c 1A70     		strb	r2, [r3, #0]
+ 662              	.L45:
+ 623:C:/StellarisWare/utils\softi2c.c ****                 }
+ 624:C:/StellarisWare/utils\softi2c.c **** 
+ 625:C:/StellarisWare/utils\softi2c.c ****                 //
+ 626:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO back into an output.
+ 627:C:/StellarisWare/utils\softi2c.c ****                 //
+ 628:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 663              		.loc 1 628 0
+ 664 056e 7B68     		ldr	r3, [r7, #4]
+ 665 0570 9B68     		ldr	r3, [r3, #8]
+ 666 0572 23F47E63 		bic	r3, r3, #4064
+ 667 0576 23F01F03 		bic	r3, r3, #31
+ 629:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 668              		.loc 1 629 0
+ 669 057a 7A68     		ldr	r2, [r7, #4]
+ 670 057c 9268     		ldr	r2, [r2, #8]
+ 671 057e 4FEA0252 		lsl	r2, r2, #20
+ 672 0582 4FEA1252 		lsr	r2, r2, #20
+ 673 0586 4FEA9202 		lsr	r2, r2, #2
+ 628:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 674              		.loc 1 628 0
+ 675 058a D2B2     		uxtb	r2, r2
+ 676 058c 1846     		mov	r0, r3
+ 677 058e 1146     		mov	r1, r2
+ 678 0590 4FF00102 		mov	r2, #1
+ 679 0594 FFF7FEFF 		bl	GPIODirModeSet
+ 630:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_OUT);
+ 631:C:/StellarisWare/utils\softi2c.c **** 
+ 632:C:/StellarisWare/utils\softi2c.c ****                 //
+ 633:C:/StellarisWare/utils\softi2c.c ****                 // The data phase has completed, so clear the RUN flag.
+ 634:C:/StellarisWare/utils\softi2c.c ****                 //
+ 635:C:/StellarisWare/utils\softi2c.c ****                 HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RUN) = 0;
+ 680              		.loc 1 635 0
+ 681 0598 7B68     		ldr	r3, [r7, #4]
+ 682 059a 03F10C03 		add	r3, r3, #12
+ 683 059e 03F07042 		and	r2, r3, #-268435456
+ 684 05a2 7B68     		ldr	r3, [r7, #4]
+ 685 05a4 03F10C03 		add	r3, r3, #12
+ 686 05a8 23F07F43 		bic	r3, r3, #-16777216
+ 687 05ac 23F47003 		bic	r3, r3, #15728640
+ 688 05b0 4FEA4313 		lsl	r3, r3, #5
+ 689 05b4 1343     		orrs	r3, r3, r2
+ 690 05b6 43F00073 		orr	r3, r3, #33554432
+ 691 05ba 4FF00002 		mov	r2, #0
+ 692 05be 1A70     		strb	r2, [r3, #0]
+ 636:C:/StellarisWare/utils\softi2c.c **** 
+ 637:C:/StellarisWare/utils\softi2c.c ****                 //
+ 638:C:/StellarisWare/utils\softi2c.c ****                 // See if the STOP flag is set, indicating that a stop
+ 639:C:/StellarisWare/utils\softi2c.c ****                 // condition should be generated.
+ 640:C:/StellarisWare/utils\softi2c.c ****                 //
+ 641:C:/StellarisWare/utils\softi2c.c ****                 if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_STOP) == 1)
+ 693              		.loc 1 641 0
+ 694 05c0 7B68     		ldr	r3, [r7, #4]
+ 695 05c2 03F10C03 		add	r3, r3, #12
+ 696 05c6 03F07042 		and	r2, r3, #-268435456
+ 697 05ca 7B68     		ldr	r3, [r7, #4]
+ 698 05cc 03F10C03 		add	r3, r3, #12
+ 699 05d0 23F07F43 		bic	r3, r3, #-16777216
+ 700 05d4 23F47003 		bic	r3, r3, #15728640
+ 701 05d8 4FEA4313 		lsl	r3, r3, #5
+ 702 05dc 1343     		orrs	r3, r3, r2
+ 703 05de 43F00073 		orr	r3, r3, #33554432
+ 704 05e2 43F00803 		orr	r3, r3, #8
+ 705 05e6 1B78     		ldrb	r3, [r3, #0]
+ 706 05e8 DBB2     		uxtb	r3, r3
+ 707 05ea 012B     		cmp	r3, #1
+ 708 05ec 04D1     		bne	.L46
+ 642:C:/StellarisWare/utils\softi2c.c ****                 {
+ 643:C:/StellarisWare/utils\softi2c.c ****                     //
+ 644:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the stop state.
+ 645:C:/StellarisWare/utils\softi2c.c ****                     //
+ 646:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_STOP0;
+ 709              		.loc 1 646 0
+ 710 05ee 7B68     		ldr	r3, [r7, #4]
+ 711 05f0 4FF01502 		mov	r2, #21
+ 712 05f4 DA73     		strb	r2, [r3, #15]
+ 713 05f6 13E0     		b	.L47
+ 714              	.L46:
+ 647:C:/StellarisWare/utils\softi2c.c ****                 }
+ 648:C:/StellarisWare/utils\softi2c.c **** 
+ 649:C:/StellarisWare/utils\softi2c.c ****                 //
+ 650:C:/StellarisWare/utils\softi2c.c ****                 // Otherwise, go to the idle state.
+ 651:C:/StellarisWare/utils\softi2c.c ****                 //
+ 652:C:/StellarisWare/utils\softi2c.c ****                 else
+ 653:C:/StellarisWare/utils\softi2c.c ****                 {
+ 654:C:/StellarisWare/utils\softi2c.c ****                     //
+ 655:C:/StellarisWare/utils\softi2c.c ****                     // Since the requested operations have completed, set the
+ 656:C:/StellarisWare/utils\softi2c.c ****                     // SoftI2C ``interrupt''.
+ 657:C:/StellarisWare/utils\softi2c.c ****                     //
+ 658:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucIntStatus = 1;
+ 715              		.loc 1 658 0
+ 716 05f8 7B68     		ldr	r3, [r7, #4]
+ 717 05fa 4FF00102 		mov	r2, #1
+ 718 05fe 9A74     		strb	r2, [r3, #18]
+ 659:C:/StellarisWare/utils\softi2c.c **** 
+ 660:C:/StellarisWare/utils\softi2c.c ****                     //
+ 661:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the idle state.
+ 662:C:/StellarisWare/utils\softi2c.c ****                     //
+ 663:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_IDLE;
+ 719              		.loc 1 663 0
+ 720 0600 7B68     		ldr	r3, [r7, #4]
+ 721 0602 4FF00002 		mov	r2, #0
+ 722 0606 DA73     		strb	r2, [r3, #15]
+ 723 0608 0AE0     		b	.L47
+ 724              	.L44:
+ 664:C:/StellarisWare/utils\softi2c.c ****                 }
+ 665:C:/StellarisWare/utils\softi2c.c ****             }
+ 666:C:/StellarisWare/utils\softi2c.c **** 
+ 667:C:/StellarisWare/utils\softi2c.c ****             //
+ 668:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, the next bit of the data should be transferred.
+ 669:C:/StellarisWare/utils\softi2c.c ****             //
+ 670:C:/StellarisWare/utils\softi2c.c ****             else
+ 671:C:/StellarisWare/utils\softi2c.c ****             {
+ 672:C:/StellarisWare/utils\softi2c.c ****                 //
+ 673:C:/StellarisWare/utils\softi2c.c ****                 // Increment the bit count.
+ 674:C:/StellarisWare/utils\softi2c.c ****                 //
+ 675:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucCurrentBit++;
+ 725              		.loc 1 675 0
+ 726 060a 7B68     		ldr	r3, [r7, #4]
+ 727 060c 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 728 060e 03F10103 		add	r3, r3, #1
+ 729 0612 DAB2     		uxtb	r2, r3
+ 730 0614 7B68     		ldr	r3, [r7, #4]
+ 731 0616 1A74     		strb	r2, [r3, #16]
+ 676:C:/StellarisWare/utils\softi2c.c **** 
+ 677:C:/StellarisWare/utils\softi2c.c ****                 //
+ 678:C:/StellarisWare/utils\softi2c.c ****                 // Advance to the data transmit state.
+ 679:C:/StellarisWare/utils\softi2c.c ****                 //
+ 680:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucState = SOFTI2C_STATE_SEND0;
+ 732              		.loc 1 680 0
+ 733 0618 7B68     		ldr	r3, [r7, #4]
+ 734 061a 4FF00D02 		mov	r2, #13
+ 735 061e DA73     		strb	r2, [r3, #15]
+ 736              	.L47:
+ 681:C:/StellarisWare/utils\softi2c.c ****             }
+ 682:C:/StellarisWare/utils\softi2c.c **** 
+ 683:C:/StellarisWare/utils\softi2c.c ****             //
+ 684:C:/StellarisWare/utils\softi2c.c ****             // Set SCL low.
+ 685:C:/StellarisWare/utils\softi2c.c ****             //
+ 686:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSCLGPIO) = 0;
+ 737              		.loc 1 686 0
+ 738 0620 7B68     		ldr	r3, [r7, #4]
+ 739 0622 5B68     		ldr	r3, [r3, #4]
+ 740 0624 4FF00002 		mov	r2, #0
+ 741 0628 1A60     		str	r2, [r3, #0]
+ 687:C:/StellarisWare/utils\softi2c.c **** 
+ 688:C:/StellarisWare/utils\softi2c.c ****             //
+ 689:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 690:C:/StellarisWare/utils\softi2c.c ****             //
+ 691:C:/StellarisWare/utils\softi2c.c ****             break;
+ 742              		.loc 1 691 0
+ 743 062a E7E0     		b	.L2
+ 744              	.L15:
+ 692:C:/StellarisWare/utils\softi2c.c ****         }
+ 693:C:/StellarisWare/utils\softi2c.c **** 
+ 694:C:/StellarisWare/utils\softi2c.c ****         //
+ 695:C:/StellarisWare/utils\softi2c.c ****         // In this state, the next bit of the data byte must be received.
+ 696:C:/StellarisWare/utils\softi2c.c ****         //
+ 697:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_RECV0:
+ 698:C:/StellarisWare/utils\softi2c.c ****         {
+ 699:C:/StellarisWare/utils\softi2c.c ****             //
+ 700:C:/StellarisWare/utils\softi2c.c ****             // See if this is the first bit of the data phase.
+ 701:C:/StellarisWare/utils\softi2c.c ****             //
+ 702:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit == 0)
+ 745              		.loc 1 702 0
+ 746 062c 7B68     		ldr	r3, [r7, #4]
+ 747 062e 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 748 0630 002B     		cmp	r3, #0
+ 749 0632 15D1     		bne	.L48
+ 703:C:/StellarisWare/utils\softi2c.c ****             {
+ 704:C:/StellarisWare/utils\softi2c.c ****                 //
+ 705:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO into an input so that the data provided
+ 706:C:/StellarisWare/utils\softi2c.c ****                 // by the slave can be read.
+ 707:C:/StellarisWare/utils\softi2c.c ****                 //
+ 708:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 750              		.loc 1 708 0
+ 751 0634 7B68     		ldr	r3, [r7, #4]
+ 752 0636 9B68     		ldr	r3, [r3, #8]
+ 753 0638 23F47E63 		bic	r3, r3, #4064
+ 754 063c 23F01F03 		bic	r3, r3, #31
+ 709:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 755              		.loc 1 709 0
+ 756 0640 7A68     		ldr	r2, [r7, #4]
+ 757 0642 9268     		ldr	r2, [r2, #8]
+ 758 0644 4FEA0252 		lsl	r2, r2, #20
+ 759 0648 4FEA1252 		lsr	r2, r2, #20
+ 760 064c 4FEA9202 		lsr	r2, r2, #2
+ 708:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 761              		.loc 1 708 0
+ 762 0650 D2B2     		uxtb	r2, r2
+ 763 0652 1846     		mov	r0, r3
+ 764 0654 1146     		mov	r1, r2
+ 765 0656 4FF00002 		mov	r2, #0
+ 766 065a FFF7FEFF 		bl	GPIODirModeSet
+ 767 065e 3AE0     		b	.L49
+ 768              	.L48:
+ 710:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_IN);
+ 711:C:/StellarisWare/utils\softi2c.c ****             }
+ 712:C:/StellarisWare/utils\softi2c.c **** 
+ 713:C:/StellarisWare/utils\softi2c.c ****             //
+ 714:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, see if this is the ninth bit of the data phase (in
+ 715:C:/StellarisWare/utils\softi2c.c ****             // other words, the ACK bit).
+ 716:C:/StellarisWare/utils\softi2c.c ****             //
+ 717:C:/StellarisWare/utils\softi2c.c ****             else if(pI2C->ucCurrentBit == 8)
+ 769              		.loc 1 717 0
+ 770 0660 7B68     		ldr	r3, [r7, #4]
+ 771 0662 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 772 0664 082B     		cmp	r3, #8
+ 773 0666 36D1     		bne	.L49
+ 718:C:/StellarisWare/utils\softi2c.c ****             {
+ 719:C:/StellarisWare/utils\softi2c.c ****                 //
+ 720:C:/StellarisWare/utils\softi2c.c ****                 // Change the SDA GPIO into an output so that the ACK bit can
+ 721:C:/StellarisWare/utils\softi2c.c ****                 // be driven to the slave.
+ 722:C:/StellarisWare/utils\softi2c.c ****                 //
+ 723:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 774              		.loc 1 723 0
+ 775 0668 7B68     		ldr	r3, [r7, #4]
+ 776 066a 9B68     		ldr	r3, [r3, #8]
+ 777 066c 23F47E63 		bic	r3, r3, #4064
+ 778 0670 23F01F03 		bic	r3, r3, #31
+ 724:C:/StellarisWare/utils\softi2c.c ****                                    (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 779              		.loc 1 724 0
+ 780 0674 7A68     		ldr	r2, [r7, #4]
+ 781 0676 9268     		ldr	r2, [r2, #8]
+ 782 0678 4FEA0252 		lsl	r2, r2, #20
+ 783 067c 4FEA1252 		lsr	r2, r2, #20
+ 784 0680 4FEA9202 		lsr	r2, r2, #2
+ 723:C:/StellarisWare/utils\softi2c.c ****                 MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 785              		.loc 1 723 0
+ 786 0684 D2B2     		uxtb	r2, r2
+ 787 0686 1846     		mov	r0, r3
+ 788 0688 1146     		mov	r1, r2
+ 789 068a 4FF00102 		mov	r2, #1
+ 790 068e FFF7FEFF 		bl	GPIODirModeSet
+ 725:C:/StellarisWare/utils\softi2c.c ****                                    GPIO_DIR_MODE_OUT);
+ 726:C:/StellarisWare/utils\softi2c.c **** 
+ 727:C:/StellarisWare/utils\softi2c.c ****                 //
+ 728:C:/StellarisWare/utils\softi2c.c ****                 // See if this byte should be ACKed or NAKed.
+ 729:C:/StellarisWare/utils\softi2c.c ****                 //
+ 730:C:/StellarisWare/utils\softi2c.c ****                 if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_ACK) == 1)
+ 791              		.loc 1 730 0
+ 792 0692 7B68     		ldr	r3, [r7, #4]
+ 793 0694 03F10C03 		add	r3, r3, #12
+ 794 0698 03F07042 		and	r2, r3, #-268435456
+ 795 069c 7B68     		ldr	r3, [r7, #4]
+ 796 069e 03F10C03 		add	r3, r3, #12
+ 797 06a2 23F07F43 		bic	r3, r3, #-16777216
+ 798 06a6 23F47003 		bic	r3, r3, #15728640
+ 799 06aa 4FEA4313 		lsl	r3, r3, #5
+ 800 06ae 1343     		orrs	r3, r3, r2
+ 801 06b0 43F00073 		orr	r3, r3, #33554432
+ 802 06b4 43F00C03 		orr	r3, r3, #12
+ 803 06b8 1B78     		ldrb	r3, [r3, #0]
+ 804 06ba DBB2     		uxtb	r3, r3
+ 805 06bc 012B     		cmp	r3, #1
+ 806 06be 05D1     		bne	.L50
+ 731:C:/StellarisWare/utils\softi2c.c ****                 {
+ 732:C:/StellarisWare/utils\softi2c.c ****                     //
+ 733:C:/StellarisWare/utils\softi2c.c ****                     // Drive SDA low to ACK the data byte.
+ 734:C:/StellarisWare/utils\softi2c.c ****                     //
+ 735:C:/StellarisWare/utils\softi2c.c ****                     HWREG(pI2C->ulSDAGPIO) = 0;
+ 807              		.loc 1 735 0
+ 808 06c0 7B68     		ldr	r3, [r7, #4]
+ 809 06c2 9B68     		ldr	r3, [r3, #8]
+ 810 06c4 4FF00002 		mov	r2, #0
+ 811 06c8 1A60     		str	r2, [r3, #0]
+ 812 06ca 04E0     		b	.L49
+ 813              	.L50:
+ 736:C:/StellarisWare/utils\softi2c.c ****                 }
+ 737:C:/StellarisWare/utils\softi2c.c ****                 else
+ 738:C:/StellarisWare/utils\softi2c.c ****                 {
+ 739:C:/StellarisWare/utils\softi2c.c ****                     //
+ 740:C:/StellarisWare/utils\softi2c.c ****                     // Allow SDA to get pulled high to NAK the data byte.
+ 741:C:/StellarisWare/utils\softi2c.c ****                     //
+ 742:C:/StellarisWare/utils\softi2c.c ****                     HWREG(pI2C->ulSDAGPIO) = 255;
+ 814              		.loc 1 742 0
+ 815 06cc 7B68     		ldr	r3, [r7, #4]
+ 816 06ce 9B68     		ldr	r3, [r3, #8]
+ 817 06d0 4FF0FF02 		mov	r2, #255
+ 818 06d4 1A60     		str	r2, [r3, #0]
+ 819              	.L49:
+ 743:C:/StellarisWare/utils\softi2c.c ****                 }
+ 744:C:/StellarisWare/utils\softi2c.c ****             }
+ 745:C:/StellarisWare/utils\softi2c.c **** 
+ 746:C:/StellarisWare/utils\softi2c.c ****             //
+ 747:C:/StellarisWare/utils\softi2c.c ****             // Advance to the next state.
+ 748:C:/StellarisWare/utils\softi2c.c ****             //
+ 749:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_RECV1;
+ 820              		.loc 1 749 0
+ 821 06d6 7B68     		ldr	r3, [r7, #4]
+ 822 06d8 4FF01202 		mov	r2, #18
+ 823 06dc DA73     		strb	r2, [r3, #15]
+ 750:C:/StellarisWare/utils\softi2c.c **** 
+ 751:C:/StellarisWare/utils\softi2c.c ****             //
+ 752:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 753:C:/StellarisWare/utils\softi2c.c ****             //
+ 754:C:/StellarisWare/utils\softi2c.c ****             break;
+ 824              		.loc 1 754 0
+ 825 06de 8DE0     		b	.L2
+ 826              	.L16:
+ 755:C:/StellarisWare/utils\softi2c.c ****         }
+ 756:C:/StellarisWare/utils\softi2c.c **** 
+ 757:C:/StellarisWare/utils\softi2c.c ****         //
+ 758:C:/StellarisWare/utils\softi2c.c ****         // In this state, SCL must be driven low.  For the first eight bits of
+ 759:C:/StellarisWare/utils\softi2c.c ****         // the data transfer, the data bits are read from the slave.
+ 760:C:/StellarisWare/utils\softi2c.c ****         //
+ 761:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_RECV3:
+ 762:C:/StellarisWare/utils\softi2c.c ****         {
+ 763:C:/StellarisWare/utils\softi2c.c ****             //
+ 764:C:/StellarisWare/utils\softi2c.c ****             // See if this is the ninth bit of the data phase (in other words,
+ 765:C:/StellarisWare/utils\softi2c.c ****             // the ACK bit).
+ 766:C:/StellarisWare/utils\softi2c.c ****             //
+ 767:C:/StellarisWare/utils\softi2c.c ****             if(pI2C->ucCurrentBit == 8)
+ 827              		.loc 1 767 0
+ 828 06e0 7B68     		ldr	r3, [r7, #4]
+ 829 06e2 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 830 06e4 082B     		cmp	r3, #8
+ 831 06e6 38D1     		bne	.L51
+ 768:C:/StellarisWare/utils\softi2c.c ****             {
+ 769:C:/StellarisWare/utils\softi2c.c ****                 //
+ 770:C:/StellarisWare/utils\softi2c.c ****                 // The data phase has completed, so clear the RUN flag.
+ 771:C:/StellarisWare/utils\softi2c.c ****                 //
+ 772:C:/StellarisWare/utils\softi2c.c ****                 HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RUN) = 0;
+ 832              		.loc 1 772 0
+ 833 06e8 7B68     		ldr	r3, [r7, #4]
+ 834 06ea 03F10C03 		add	r3, r3, #12
+ 835 06ee 03F07042 		and	r2, r3, #-268435456
+ 836 06f2 7B68     		ldr	r3, [r7, #4]
+ 837 06f4 03F10C03 		add	r3, r3, #12
+ 838 06f8 23F07F43 		bic	r3, r3, #-16777216
+ 839 06fc 23F47003 		bic	r3, r3, #15728640
+ 840 0700 4FEA4313 		lsl	r3, r3, #5
+ 841 0704 1343     		orrs	r3, r3, r2
+ 842 0706 43F00073 		orr	r3, r3, #33554432
+ 843 070a 4FF00002 		mov	r2, #0
+ 844 070e 1A70     		strb	r2, [r3, #0]
+ 773:C:/StellarisWare/utils\softi2c.c **** 
+ 774:C:/StellarisWare/utils\softi2c.c ****                 //
+ 775:C:/StellarisWare/utils\softi2c.c ****                 // See if the STOP flag is set, indicating that a stop
+ 776:C:/StellarisWare/utils\softi2c.c ****                 // condition should be generated.
+ 777:C:/StellarisWare/utils\softi2c.c ****                 //
+ 778:C:/StellarisWare/utils\softi2c.c ****                 if(HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_STOP) == 1)
+ 845              		.loc 1 778 0
+ 846 0710 7B68     		ldr	r3, [r7, #4]
+ 847 0712 03F10C03 		add	r3, r3, #12
+ 848 0716 03F07042 		and	r2, r3, #-268435456
+ 849 071a 7B68     		ldr	r3, [r7, #4]
+ 850 071c 03F10C03 		add	r3, r3, #12
+ 851 0720 23F07F43 		bic	r3, r3, #-16777216
+ 852 0724 23F47003 		bic	r3, r3, #15728640
+ 853 0728 4FEA4313 		lsl	r3, r3, #5
+ 854 072c 1343     		orrs	r3, r3, r2
+ 855 072e 43F00073 		orr	r3, r3, #33554432
+ 856 0732 43F00803 		orr	r3, r3, #8
+ 857 0736 1B78     		ldrb	r3, [r3, #0]
+ 858 0738 DBB2     		uxtb	r3, r3
+ 859 073a 012B     		cmp	r3, #1
+ 860 073c 04D1     		bne	.L52
+ 779:C:/StellarisWare/utils\softi2c.c ****                 {
+ 780:C:/StellarisWare/utils\softi2c.c ****                     //
+ 781:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the stop state.
+ 782:C:/StellarisWare/utils\softi2c.c ****                     //
+ 783:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_STOP0;
+ 861              		.loc 1 783 0
+ 862 073e 7B68     		ldr	r3, [r7, #4]
+ 863 0740 4FF01502 		mov	r2, #21
+ 864 0744 DA73     		strb	r2, [r3, #15]
+ 865 0746 2CE0     		b	.L53
+ 866              	.L52:
+ 784:C:/StellarisWare/utils\softi2c.c ****                 }
+ 785:C:/StellarisWare/utils\softi2c.c **** 
+ 786:C:/StellarisWare/utils\softi2c.c ****                 //
+ 787:C:/StellarisWare/utils\softi2c.c ****                 // Otherwise, go to the idle state.
+ 788:C:/StellarisWare/utils\softi2c.c ****                 //
+ 789:C:/StellarisWare/utils\softi2c.c ****                 else
+ 790:C:/StellarisWare/utils\softi2c.c ****                 {
+ 791:C:/StellarisWare/utils\softi2c.c ****                     //
+ 792:C:/StellarisWare/utils\softi2c.c ****                     // Since the requested operations have completed, set the
+ 793:C:/StellarisWare/utils\softi2c.c ****                     // SoftI2C ``interrupt''.
+ 794:C:/StellarisWare/utils\softi2c.c ****                     //
+ 795:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucIntStatus = 1;
+ 867              		.loc 1 795 0
+ 868 0748 7B68     		ldr	r3, [r7, #4]
+ 869 074a 4FF00102 		mov	r2, #1
+ 870 074e 9A74     		strb	r2, [r3, #18]
+ 796:C:/StellarisWare/utils\softi2c.c **** 
+ 797:C:/StellarisWare/utils\softi2c.c ****                     //
+ 798:C:/StellarisWare/utils\softi2c.c ****                     // Advance to the idle state.
+ 799:C:/StellarisWare/utils\softi2c.c ****                     //
+ 800:C:/StellarisWare/utils\softi2c.c ****                     pI2C->ucState = SOFTI2C_STATE_IDLE;
+ 871              		.loc 1 800 0
+ 872 0750 7B68     		ldr	r3, [r7, #4]
+ 873 0752 4FF00002 		mov	r2, #0
+ 874 0756 DA73     		strb	r2, [r3, #15]
+ 875 0758 23E0     		b	.L53
+ 876              	.L51:
+ 801:C:/StellarisWare/utils\softi2c.c ****                 }
+ 802:C:/StellarisWare/utils\softi2c.c ****             }
+ 803:C:/StellarisWare/utils\softi2c.c **** 
+ 804:C:/StellarisWare/utils\softi2c.c ****             //
+ 805:C:/StellarisWare/utils\softi2c.c ****             // Otherwise, the next bit of the data should be transferred.
+ 806:C:/StellarisWare/utils\softi2c.c ****             //
+ 807:C:/StellarisWare/utils\softi2c.c ****             else
+ 808:C:/StellarisWare/utils\softi2c.c ****             {
+ 809:C:/StellarisWare/utils\softi2c.c ****                 //
+ 810:C:/StellarisWare/utils\softi2c.c ****                 // Read the next bit of data from the SDA line.
+ 811:C:/StellarisWare/utils\softi2c.c ****                 //
+ 812:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucData |= (HWREG(pI2C->ulSDAGPIO) ?
+ 877              		.loc 1 812 0
+ 878 075a 7B68     		ldr	r3, [r7, #4]
+ 879 075c 9B7B     		ldrb	r3, [r3, #14]	@ zero_extendqisi2
+ 880 075e DAB2     		uxtb	r2, r3
+ 881 0760 7B68     		ldr	r3, [r7, #4]
+ 882 0762 9B68     		ldr	r3, [r3, #8]
+ 883 0764 1B68     		ldr	r3, [r3, #0]
+ 884 0766 002B     		cmp	r3, #0
+ 885 0768 09D0     		beq	.L54
+ 813:C:/StellarisWare/utils\softi2c.c ****                                  (1 << (7 - pI2C->ucCurrentBit)) : 0);
+ 886              		.loc 1 813 0
+ 887 076a 7B68     		ldr	r3, [r7, #4]
+ 888 076c 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 889 076e C3F10703 		rsb	r3, r3, #7
+ 890 0772 4FF00101 		mov	r1, #1
+ 891 0776 01FA03F3 		lsl	r3, r1, r3
+ 812:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucData |= (HWREG(pI2C->ulSDAGPIO) ?
+ 892              		.loc 1 812 0
+ 893 077a DBB2     		uxtb	r3, r3
+ 894 077c 01E0     		b	.L55
+ 895              	.L54:
+ 812:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucData |= (HWREG(pI2C->ulSDAGPIO) ?
+ 896              		.loc 1 812 0 is_stmt 0 discriminator 1
+ 897 077e 4FF00003 		mov	r3, #0
+ 898              	.L55:
+ 812:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucData |= (HWREG(pI2C->ulSDAGPIO) ?
+ 899              		.loc 1 812 0 discriminator 2
+ 900 0782 1343     		orrs	r3, r3, r2
+ 901 0784 DBB2     		uxtb	r3, r3
+ 902 0786 DAB2     		uxtb	r2, r3
+ 903 0788 7B68     		ldr	r3, [r7, #4]
+ 904 078a 9A73     		strb	r2, [r3, #14]
+ 814:C:/StellarisWare/utils\softi2c.c **** 
+ 815:C:/StellarisWare/utils\softi2c.c ****                 //
+ 816:C:/StellarisWare/utils\softi2c.c ****                 // Increment the bit count.
+ 817:C:/StellarisWare/utils\softi2c.c ****                 //
+ 818:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucCurrentBit++;
+ 905              		.loc 1 818 0 is_stmt 1 discriminator 2
+ 906 078c 7B68     		ldr	r3, [r7, #4]
+ 907 078e 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 908 0790 03F10103 		add	r3, r3, #1
+ 909 0794 DAB2     		uxtb	r2, r3
+ 910 0796 7B68     		ldr	r3, [r7, #4]
+ 911 0798 1A74     		strb	r2, [r3, #16]
+ 819:C:/StellarisWare/utils\softi2c.c **** 
+ 820:C:/StellarisWare/utils\softi2c.c ****                 //
+ 821:C:/StellarisWare/utils\softi2c.c ****                 // Advance to the data receive state.
+ 822:C:/StellarisWare/utils\softi2c.c ****                 //
+ 823:C:/StellarisWare/utils\softi2c.c ****                 pI2C->ucState = SOFTI2C_STATE_RECV0;
+ 912              		.loc 1 823 0 discriminator 2
+ 913 079a 7B68     		ldr	r3, [r7, #4]
+ 914 079c 4FF01102 		mov	r2, #17
+ 915 07a0 DA73     		strb	r2, [r3, #15]
+ 916              	.L53:
+ 824:C:/StellarisWare/utils\softi2c.c ****             }
+ 825:C:/StellarisWare/utils\softi2c.c **** 
+ 826:C:/StellarisWare/utils\softi2c.c ****             //
+ 827:C:/StellarisWare/utils\softi2c.c ****             // Set SCL low.
+ 828:C:/StellarisWare/utils\softi2c.c ****             //
+ 829:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSCLGPIO) = 0;
+ 917              		.loc 1 829 0
+ 918 07a2 7B68     		ldr	r3, [r7, #4]
+ 919 07a4 5B68     		ldr	r3, [r3, #4]
+ 920 07a6 4FF00002 		mov	r2, #0
+ 921 07aa 1A60     		str	r2, [r3, #0]
+ 830:C:/StellarisWare/utils\softi2c.c **** 
+ 831:C:/StellarisWare/utils\softi2c.c ****             //
+ 832:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 833:C:/StellarisWare/utils\softi2c.c ****             //
+ 834:C:/StellarisWare/utils\softi2c.c ****             break;
+ 922              		.loc 1 834 0
+ 923 07ac 26E0     		b	.L2
+ 924              	.L17:
+ 835:C:/StellarisWare/utils\softi2c.c ****         }
+ 836:C:/StellarisWare/utils\softi2c.c **** 
+ 837:C:/StellarisWare/utils\softi2c.c ****         //
+ 838:C:/StellarisWare/utils\softi2c.c ****         // In this state, SDA must be driven high to create the stop condition.
+ 839:C:/StellarisWare/utils\softi2c.c ****         //
+ 840:C:/StellarisWare/utils\softi2c.c ****         case SOFTI2C_STATE_STOP4:
+ 841:C:/StellarisWare/utils\softi2c.c ****         {
+ 842:C:/StellarisWare/utils\softi2c.c ****             //
+ 843:C:/StellarisWare/utils\softi2c.c ****             // Set SDA high to create the stop condition.
+ 844:C:/StellarisWare/utils\softi2c.c ****             //
+ 845:C:/StellarisWare/utils\softi2c.c ****             HWREG(pI2C->ulSDAGPIO) = 255;
+ 925              		.loc 1 845 0
+ 926 07ae 7B68     		ldr	r3, [r7, #4]
+ 927 07b0 9B68     		ldr	r3, [r3, #8]
+ 928 07b2 4FF0FF02 		mov	r2, #255
+ 929 07b6 1A60     		str	r2, [r3, #0]
+ 846:C:/StellarisWare/utils\softi2c.c **** 
+ 847:C:/StellarisWare/utils\softi2c.c ****             //
+ 848:C:/StellarisWare/utils\softi2c.c ****             // The stop condition has been generated, so clear the STOP flag.
+ 849:C:/StellarisWare/utils\softi2c.c ****             //
+ 850:C:/StellarisWare/utils\softi2c.c ****             HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_STOP) = 0;
+ 930              		.loc 1 850 0
+ 931 07b8 7B68     		ldr	r3, [r7, #4]
+ 932 07ba 03F10C03 		add	r3, r3, #12
+ 933 07be 03F07042 		and	r2, r3, #-268435456
+ 934 07c2 7B68     		ldr	r3, [r7, #4]
+ 935 07c4 03F10C03 		add	r3, r3, #12
+ 936 07c8 23F07F43 		bic	r3, r3, #-16777216
+ 937 07cc 23F47003 		bic	r3, r3, #15728640
+ 938 07d0 4FEA4313 		lsl	r3, r3, #5
+ 939 07d4 1343     		orrs	r3, r3, r2
+ 940 07d6 43F00073 		orr	r3, r3, #33554432
+ 941 07da 43F00803 		orr	r3, r3, #8
+ 942 07de 4FF00002 		mov	r2, #0
+ 943 07e2 1A70     		strb	r2, [r3, #0]
+ 851:C:/StellarisWare/utils\softi2c.c **** 
+ 852:C:/StellarisWare/utils\softi2c.c ****             //
+ 853:C:/StellarisWare/utils\softi2c.c ****             // Since the requested operations have completed, set the SoftI2C
+ 854:C:/StellarisWare/utils\softi2c.c ****             // ``interrupt''.
+ 855:C:/StellarisWare/utils\softi2c.c ****             //
+ 856:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucIntStatus = 1;
+ 944              		.loc 1 856 0
+ 945 07e4 7B68     		ldr	r3, [r7, #4]
+ 946 07e6 4FF00102 		mov	r2, #1
+ 947 07ea 9A74     		strb	r2, [r3, #18]
+ 857:C:/StellarisWare/utils\softi2c.c **** 
+ 858:C:/StellarisWare/utils\softi2c.c ****             //
+ 859:C:/StellarisWare/utils\softi2c.c ****             // Advance to the idle state.
+ 860:C:/StellarisWare/utils\softi2c.c ****             //
+ 861:C:/StellarisWare/utils\softi2c.c ****             pI2C->ucState = SOFTI2C_STATE_IDLE;
+ 948              		.loc 1 861 0
+ 949 07ec 7B68     		ldr	r3, [r7, #4]
+ 950 07ee 4FF00002 		mov	r2, #0
+ 951 07f2 DA73     		strb	r2, [r3, #15]
+ 862:C:/StellarisWare/utils\softi2c.c **** 
+ 863:C:/StellarisWare/utils\softi2c.c ****             //
+ 864:C:/StellarisWare/utils\softi2c.c ****             // This state has been handled.
+ 865:C:/StellarisWare/utils\softi2c.c ****             //
+ 866:C:/StellarisWare/utils\softi2c.c ****             break;
+ 952              		.loc 1 866 0
+ 953 07f4 02E0     		b	.L2
+ 954              	.L60:
+ 205:C:/StellarisWare/utils\softi2c.c ****             break;
+ 955              		.loc 1 205 0
+ 956 07f6 00BF     		nop
+ 957 07f8 00E0     		b	.L2
+ 958              	.L61:
+ 426:C:/StellarisWare/utils\softi2c.c ****             break;
+ 959              		.loc 1 426 0
+ 960 07fa 00BF     		nop
+ 961              	.L2:
+ 867:C:/StellarisWare/utils\softi2c.c ****         }
+ 868:C:/StellarisWare/utils\softi2c.c ****     }
+ 869:C:/StellarisWare/utils\softi2c.c **** 
+ 870:C:/StellarisWare/utils\softi2c.c ****     //
+ 871:C:/StellarisWare/utils\softi2c.c ****     // Call the "interrupt" callback while there are enabled "interrupts"
+ 872:C:/StellarisWare/utils\softi2c.c ****     // asserted.  By calling in a loop until the "interrupts" are no longer
+ 873:C:/StellarisWare/utils\softi2c.c ****     // asserted, this mimics the behavior of a real hardware implementation of
+ 874:C:/StellarisWare/utils\softi2c.c ****     // the I2C peripheral.
+ 875:C:/StellarisWare/utils\softi2c.c ****     //
+ 876:C:/StellarisWare/utils\softi2c.c ****     while(((pI2C->ucIntStatus & pI2C->ucIntMask) != 0) &&
+ 962              		.loc 1 876 0
+ 963 07fc 03E0     		b	.L59
+ 964              	.L58:
+ 877:C:/StellarisWare/utils\softi2c.c ****           (pI2C->pfnIntCallback != 0))
+ 878:C:/StellarisWare/utils\softi2c.c ****     {
+ 879:C:/StellarisWare/utils\softi2c.c ****         //
+ 880:C:/StellarisWare/utils\softi2c.c ****         // Call the callback function.
+ 881:C:/StellarisWare/utils\softi2c.c ****         //
+ 882:C:/StellarisWare/utils\softi2c.c ****         pI2C->pfnIntCallback();
+ 965              		.loc 1 882 0
+ 966 07fe 7B68     		ldr	r3, [r7, #4]
+ 967 0800 1B68     		ldr	r3, [r3, #0]
+ 968 0802 9847     		blx	r3
+ 969 0804 00E0     		b	.L56
+ 970              	.L59:
+ 876:C:/StellarisWare/utils\softi2c.c ****     while(((pI2C->ucIntStatus & pI2C->ucIntMask) != 0) &&
+ 971              		.loc 1 876 0
+ 972 0806 00BF     		nop
+ 973              	.L56:
+ 876:C:/StellarisWare/utils\softi2c.c ****     while(((pI2C->ucIntStatus & pI2C->ucIntMask) != 0) &&
+ 974              		.loc 1 876 0 is_stmt 0 discriminator 1
+ 975 0808 7B68     		ldr	r3, [r7, #4]
+ 976 080a 9A7C     		ldrb	r2, [r3, #18]	@ zero_extendqisi2
+ 977 080c 7B68     		ldr	r3, [r7, #4]
+ 978 080e 5B7C     		ldrb	r3, [r3, #17]	@ zero_extendqisi2
+ 979 0810 1340     		ands	r3, r3, r2
+ 980 0812 DBB2     		uxtb	r3, r3
+ 981 0814 002B     		cmp	r3, #0
+ 982 0816 03D0     		beq	.L1
+ 877:C:/StellarisWare/utils\softi2c.c ****           (pI2C->pfnIntCallback != 0))
+ 983              		.loc 1 877 0 is_stmt 1 discriminator 2
+ 984 0818 7B68     		ldr	r3, [r7, #4]
+ 985 081a 1B68     		ldr	r3, [r3, #0]
+ 876:C:/StellarisWare/utils\softi2c.c ****     while(((pI2C->ucIntStatus & pI2C->ucIntMask) != 0) &&
+ 986              		.loc 1 876 0 discriminator 2
+ 987 081c 002B     		cmp	r3, #0
+ 988 081e EED1     		bne	.L58
+ 989              	.L1:
+ 883:C:/StellarisWare/utils\softi2c.c ****     }
+ 884:C:/StellarisWare/utils\softi2c.c **** }
+ 990              		.loc 1 884 0
+ 991 0820 07F10807 		add	r7, r7, #8
+ 992 0824 BD46     		mov	sp, r7
+ 993 0826 80BD     		pop	{r7, pc}
+ 994              		.cfi_endproc
+ 995              	.LFE0:
+ 997              		.section	.text.SoftI2CInit,"ax",%progbits
+ 998              		.align	2
+ 999              		.global	SoftI2CInit
+ 1000              		.thumb
+ 1001              		.thumb_func
+ 1003              	SoftI2CInit:
+ 1004              	.LFB1:
+ 885:C:/StellarisWare/utils\softi2c.c **** 
+ 886:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 887:C:/StellarisWare/utils\softi2c.c **** //
+ 888:C:/StellarisWare/utils\softi2c.c **** //! Initializes the SoftI2C module.
+ 889:C:/StellarisWare/utils\softi2c.c **** //!
+ 890:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+ 891:C:/StellarisWare/utils\softi2c.c **** //!
+ 892:C:/StellarisWare/utils\softi2c.c **** //! This function initializes operation of the SoftI2C module.  After
+ 893:C:/StellarisWare/utils\softi2c.c **** //! successful initialization of the SoftI2C module, the software I2C bus is in
+ 894:C:/StellarisWare/utils\softi2c.c **** //! the idle state.
+ 895:C:/StellarisWare/utils\softi2c.c **** //!
+ 896:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+ 897:C:/StellarisWare/utils\softi2c.c **** //
+ 898:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 899:C:/StellarisWare/utils\softi2c.c **** void
+ 900:C:/StellarisWare/utils\softi2c.c **** SoftI2CInit(tSoftI2C *pI2C)
+ 901:C:/StellarisWare/utils\softi2c.c **** {
+ 1005              		.loc 1 901 0
+ 1006              		.cfi_startproc
+ 1007              		@ args = 0, pretend = 0, frame = 8
+ 1008              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1009 0000 80B5     		push	{r7, lr}
+ 1010              	.LCFI3:
+ 1011              		.cfi_def_cfa_offset 8
+ 1012              		.cfi_offset 14, -4
+ 1013              		.cfi_offset 7, -8
+ 1014 0002 82B0     		sub	sp, sp, #8
+ 1015              	.LCFI4:
+ 1016              		.cfi_def_cfa_offset 16
+ 1017 0004 00AF     		add	r7, sp, #0
+ 1018              	.LCFI5:
+ 1019              		.cfi_def_cfa_register 7
+ 1020 0006 7860     		str	r0, [r7, #4]
+ 902:C:/StellarisWare/utils\softi2c.c ****     //
+ 903:C:/StellarisWare/utils\softi2c.c ****     // Configure the SCL pin.
+ 904:C:/StellarisWare/utils\softi2c.c ****     //
+ 905:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIODirModeSet(pI2C->ulSCLGPIO & 0xfffff000,
+ 1021              		.loc 1 905 0
+ 1022 0008 7B68     		ldr	r3, [r7, #4]
+ 1023 000a 5B68     		ldr	r3, [r3, #4]
+ 1024 000c 23F47E63 		bic	r3, r3, #4064
+ 1025 0010 23F01F03 		bic	r3, r3, #31
+ 906:C:/StellarisWare/utils\softi2c.c ****                        (pI2C->ulSCLGPIO & 0x00000fff) >> 2, GPIO_DIR_MODE_OUT);
+ 1026              		.loc 1 906 0
+ 1027 0014 7A68     		ldr	r2, [r7, #4]
+ 1028 0016 5268     		ldr	r2, [r2, #4]
+ 1029 0018 4FEA0252 		lsl	r2, r2, #20
+ 1030 001c 4FEA1252 		lsr	r2, r2, #20
+ 1031 0020 4FEA9202 		lsr	r2, r2, #2
+ 905:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIODirModeSet(pI2C->ulSCLGPIO & 0xfffff000,
+ 1032              		.loc 1 905 0
+ 1033 0024 D2B2     		uxtb	r2, r2
+ 1034 0026 1846     		mov	r0, r3
+ 1035 0028 1146     		mov	r1, r2
+ 1036 002a 4FF00102 		mov	r2, #1
+ 1037 002e FFF7FEFF 		bl	GPIODirModeSet
+ 907:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIOPadConfigSet(pI2C->ulSCLGPIO & 0xfffff000,
+ 1038              		.loc 1 907 0
+ 1039 0032 7B68     		ldr	r3, [r7, #4]
+ 1040 0034 5B68     		ldr	r3, [r3, #4]
+ 1041 0036 23F47E63 		bic	r3, r3, #4064
+ 1042 003a 23F01F03 		bic	r3, r3, #31
+ 908:C:/StellarisWare/utils\softi2c.c ****                          (pI2C->ulSCLGPIO & 0x00000fff) >> 2,
+ 1043              		.loc 1 908 0
+ 1044 003e 7A68     		ldr	r2, [r7, #4]
+ 1045 0040 5268     		ldr	r2, [r2, #4]
+ 1046 0042 4FEA0252 		lsl	r2, r2, #20
+ 1047 0046 4FEA1252 		lsr	r2, r2, #20
+ 1048 004a 4FEA9202 		lsr	r2, r2, #2
+ 907:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIOPadConfigSet(pI2C->ulSCLGPIO & 0xfffff000,
+ 1049              		.loc 1 907 0
+ 1050 004e D2B2     		uxtb	r2, r2
+ 1051 0050 1846     		mov	r0, r3
+ 1052 0052 1146     		mov	r1, r2
+ 1053 0054 4FF00402 		mov	r2, #4
+ 1054 0058 4FF00903 		mov	r3, #9
+ 1055 005c FFF7FEFF 		bl	GPIOPadConfigSet
+ 909:C:/StellarisWare/utils\softi2c.c ****                          GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_OD);
+ 910:C:/StellarisWare/utils\softi2c.c **** 
+ 911:C:/StellarisWare/utils\softi2c.c ****     //
+ 912:C:/StellarisWare/utils\softi2c.c ****     // Set the SCL pin high.
+ 913:C:/StellarisWare/utils\softi2c.c ****     //
+ 914:C:/StellarisWare/utils\softi2c.c ****     HWREG(pI2C->ulSCLGPIO) = 255;
+ 1056              		.loc 1 914 0
+ 1057 0060 7B68     		ldr	r3, [r7, #4]
+ 1058 0062 5B68     		ldr	r3, [r3, #4]
+ 1059 0064 4FF0FF02 		mov	r2, #255
+ 1060 0068 1A60     		str	r2, [r3, #0]
+ 915:C:/StellarisWare/utils\softi2c.c **** 
+ 916:C:/StellarisWare/utils\softi2c.c ****     //
+ 917:C:/StellarisWare/utils\softi2c.c ****     // Configure the SDA pin.
+ 918:C:/StellarisWare/utils\softi2c.c ****     //
+ 919:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 1061              		.loc 1 919 0
+ 1062 006a 7B68     		ldr	r3, [r7, #4]
+ 1063 006c 9B68     		ldr	r3, [r3, #8]
+ 1064 006e 23F47E63 		bic	r3, r3, #4064
+ 1065 0072 23F01F03 		bic	r3, r3, #31
+ 920:C:/StellarisWare/utils\softi2c.c ****                        (pI2C->ulSDAGPIO & 0x00000fff) >> 2, GPIO_DIR_MODE_OUT);
+ 1066              		.loc 1 920 0
+ 1067 0076 7A68     		ldr	r2, [r7, #4]
+ 1068 0078 9268     		ldr	r2, [r2, #8]
+ 1069 007a 4FEA0252 		lsl	r2, r2, #20
+ 1070 007e 4FEA1252 		lsr	r2, r2, #20
+ 1071 0082 4FEA9202 		lsr	r2, r2, #2
+ 919:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIODirModeSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 1072              		.loc 1 919 0
+ 1073 0086 D2B2     		uxtb	r2, r2
+ 1074 0088 1846     		mov	r0, r3
+ 1075 008a 1146     		mov	r1, r2
+ 1076 008c 4FF00102 		mov	r2, #1
+ 1077 0090 FFF7FEFF 		bl	GPIODirModeSet
+ 921:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIOPadConfigSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 1078              		.loc 1 921 0
+ 1079 0094 7B68     		ldr	r3, [r7, #4]
+ 1080 0096 9B68     		ldr	r3, [r3, #8]
+ 1081 0098 23F47E63 		bic	r3, r3, #4064
+ 1082 009c 23F01F03 		bic	r3, r3, #31
+ 922:C:/StellarisWare/utils\softi2c.c ****                          (pI2C->ulSDAGPIO & 0x00000fff) >> 2,
+ 1083              		.loc 1 922 0
+ 1084 00a0 7A68     		ldr	r2, [r7, #4]
+ 1085 00a2 9268     		ldr	r2, [r2, #8]
+ 1086 00a4 4FEA0252 		lsl	r2, r2, #20
+ 1087 00a8 4FEA1252 		lsr	r2, r2, #20
+ 1088 00ac 4FEA9202 		lsr	r2, r2, #2
+ 921:C:/StellarisWare/utils\softi2c.c ****     MAP_GPIOPadConfigSet(pI2C->ulSDAGPIO & 0xfffff000,
+ 1089              		.loc 1 921 0
+ 1090 00b0 D2B2     		uxtb	r2, r2
+ 1091 00b2 1846     		mov	r0, r3
+ 1092 00b4 1146     		mov	r1, r2
+ 1093 00b6 4FF00402 		mov	r2, #4
+ 1094 00ba 4FF00903 		mov	r3, #9
+ 1095 00be FFF7FEFF 		bl	GPIOPadConfigSet
+ 923:C:/StellarisWare/utils\softi2c.c ****                          GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_OD);
+ 924:C:/StellarisWare/utils\softi2c.c **** 
+ 925:C:/StellarisWare/utils\softi2c.c ****     //
+ 926:C:/StellarisWare/utils\softi2c.c ****     // Set the SDA pin high.
+ 927:C:/StellarisWare/utils\softi2c.c ****     //
+ 928:C:/StellarisWare/utils\softi2c.c ****     HWREG(pI2C->ulSDAGPIO) = 255;
+ 1096              		.loc 1 928 0
+ 1097 00c2 7B68     		ldr	r3, [r7, #4]
+ 1098 00c4 9B68     		ldr	r3, [r3, #8]
+ 1099 00c6 4FF0FF02 		mov	r2, #255
+ 1100 00ca 1A60     		str	r2, [r3, #0]
+ 929:C:/StellarisWare/utils\softi2c.c **** 
+ 930:C:/StellarisWare/utils\softi2c.c ****     //
+ 931:C:/StellarisWare/utils\softi2c.c ****     // The ``interrupt'' is not asserted at the start.
+ 932:C:/StellarisWare/utils\softi2c.c ****     //
+ 933:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucIntStatus = 0;
+ 1101              		.loc 1 933 0
+ 1102 00cc 7B68     		ldr	r3, [r7, #4]
+ 1103 00ce 4FF00002 		mov	r2, #0
+ 1104 00d2 9A74     		strb	r2, [r3, #18]
+ 934:C:/StellarisWare/utils\softi2c.c **** 
+ 935:C:/StellarisWare/utils\softi2c.c ****     //
+ 936:C:/StellarisWare/utils\softi2c.c ****     // There are no flags at the start.
+ 937:C:/StellarisWare/utils\softi2c.c ****     //
+ 938:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucFlags = 0;
+ 1105              		.loc 1 938 0
+ 1106 00d4 7B68     		ldr	r3, [r7, #4]
+ 1107 00d6 4FF00002 		mov	r2, #0
+ 1108 00da 1A73     		strb	r2, [r3, #12]
+ 939:C:/StellarisWare/utils\softi2c.c **** 
+ 940:C:/StellarisWare/utils\softi2c.c ****     //
+ 941:C:/StellarisWare/utils\softi2c.c ****     // Start the SoftI2C state machine in the idle state.
+ 942:C:/StellarisWare/utils\softi2c.c ****     //
+ 943:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucState = SOFTI2C_STATE_IDLE;
+ 1109              		.loc 1 943 0
+ 1110 00dc 7B68     		ldr	r3, [r7, #4]
+ 1111 00de 4FF00002 		mov	r2, #0
+ 1112 00e2 DA73     		strb	r2, [r3, #15]
+ 944:C:/StellarisWare/utils\softi2c.c **** }
+ 1113              		.loc 1 944 0
+ 1114 00e4 07F10807 		add	r7, r7, #8
+ 1115 00e8 BD46     		mov	sp, r7
+ 1116 00ea 80BD     		pop	{r7, pc}
+ 1117              		.cfi_endproc
+ 1118              	.LFE1:
+ 1120              		.section	.text.SoftI2CCallbackSet,"ax",%progbits
+ 1121              		.align	2
+ 1122              		.global	SoftI2CCallbackSet
+ 1123              		.thumb
+ 1124              		.thumb_func
+ 1126              	SoftI2CCallbackSet:
+ 1127              	.LFB2:
+ 945:C:/StellarisWare/utils\softi2c.c **** 
+ 946:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 947:C:/StellarisWare/utils\softi2c.c **** //
+ 948:C:/StellarisWare/utils\softi2c.c **** //! Sets the callback used by the SoftI2C module.
+ 949:C:/StellarisWare/utils\softi2c.c **** //!
+ 950:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+ 951:C:/StellarisWare/utils\softi2c.c **** //! \param pfnCallback is a pointer to the callback function.
+ 952:C:/StellarisWare/utils\softi2c.c **** //!
+ 953:C:/StellarisWare/utils\softi2c.c **** //! This function sets the address of the callback function that is called when
+ 954:C:/StellarisWare/utils\softi2c.c **** //! there is an ``interrupt'' produced by the SoftI2C module.
+ 955:C:/StellarisWare/utils\softi2c.c **** //!
+ 956:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+ 957:C:/StellarisWare/utils\softi2c.c **** //
+ 958:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 959:C:/StellarisWare/utils\softi2c.c **** void
+ 960:C:/StellarisWare/utils\softi2c.c **** SoftI2CCallbackSet(tSoftI2C *pI2C, void (*pfnCallback)(void))
+ 961:C:/StellarisWare/utils\softi2c.c **** {
+ 1128              		.loc 1 961 0
+ 1129              		.cfi_startproc
+ 1130              		@ args = 0, pretend = 0, frame = 8
+ 1131              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1132              		@ link register save eliminated.
+ 1133 0000 80B4     		push	{r7}
+ 1134              	.LCFI6:
+ 1135              		.cfi_def_cfa_offset 4
+ 1136              		.cfi_offset 7, -4
+ 1137 0002 83B0     		sub	sp, sp, #12
+ 1138              	.LCFI7:
+ 1139              		.cfi_def_cfa_offset 16
+ 1140 0004 00AF     		add	r7, sp, #0
+ 1141              	.LCFI8:
+ 1142              		.cfi_def_cfa_register 7
+ 1143 0006 7860     		str	r0, [r7, #4]
+ 1144 0008 3960     		str	r1, [r7, #0]
+ 962:C:/StellarisWare/utils\softi2c.c ****     //
+ 963:C:/StellarisWare/utils\softi2c.c ****     // Save the callback function address.
+ 964:C:/StellarisWare/utils\softi2c.c ****     //
+ 965:C:/StellarisWare/utils\softi2c.c ****     pI2C->pfnIntCallback = pfnCallback;
+ 1145              		.loc 1 965 0
+ 1146 000a 7B68     		ldr	r3, [r7, #4]
+ 1147 000c 3A68     		ldr	r2, [r7, #0]
+ 1148 000e 1A60     		str	r2, [r3, #0]
+ 966:C:/StellarisWare/utils\softi2c.c **** }
+ 1149              		.loc 1 966 0
+ 1150 0010 07F10C07 		add	r7, r7, #12
+ 1151 0014 BD46     		mov	sp, r7
+ 1152 0016 80BC     		pop	{r7}
+ 1153 0018 7047     		bx	lr
+ 1154              		.cfi_endproc
+ 1155              	.LFE2:
+ 1157 001a 00BF     		.section	.text.SoftI2CSCLGPIOSet,"ax",%progbits
+ 1158              		.align	2
+ 1159              		.global	SoftI2CSCLGPIOSet
+ 1160              		.thumb
+ 1161              		.thumb_func
+ 1163              	SoftI2CSCLGPIOSet:
+ 1164              	.LFB3:
+ 967:C:/StellarisWare/utils\softi2c.c **** 
+ 968:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 969:C:/StellarisWare/utils\softi2c.c **** //
+ 970:C:/StellarisWare/utils\softi2c.c **** //! Sets the GPIO pin to be used as the SoftI2C SCL signal.
+ 971:C:/StellarisWare/utils\softi2c.c **** //!
+ 972:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+ 973:C:/StellarisWare/utils\softi2c.c **** //! \param ulBase is the base address of the GPIO module.
+ 974:C:/StellarisWare/utils\softi2c.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+ 975:C:/StellarisWare/utils\softi2c.c **** //!
+ 976:C:/StellarisWare/utils\softi2c.c **** //! This function sets the GPIO pin that is used for the SoftI2C SCL signal.
+ 977:C:/StellarisWare/utils\softi2c.c **** //!
+ 978:C:/StellarisWare/utils\softi2c.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+ 979:C:/StellarisWare/utils\softi2c.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+ 980:C:/StellarisWare/utils\softi2c.c **** //!
+ 981:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+ 982:C:/StellarisWare/utils\softi2c.c **** //
+ 983:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 984:C:/StellarisWare/utils\softi2c.c **** void
+ 985:C:/StellarisWare/utils\softi2c.c **** SoftI2CSCLGPIOSet(tSoftI2C *pI2C, unsigned long ulBase, unsigned char ucPin)
+ 986:C:/StellarisWare/utils\softi2c.c **** {
+ 1165              		.loc 1 986 0
+ 1166              		.cfi_startproc
+ 1167              		@ args = 0, pretend = 0, frame = 16
+ 1168              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1169              		@ link register save eliminated.
+ 1170 0000 80B4     		push	{r7}
+ 1171              	.LCFI9:
+ 1172              		.cfi_def_cfa_offset 4
+ 1173              		.cfi_offset 7, -4
+ 1174 0002 85B0     		sub	sp, sp, #20
+ 1175              	.LCFI10:
+ 1176              		.cfi_def_cfa_offset 24
+ 1177 0004 00AF     		add	r7, sp, #0
+ 1178              	.LCFI11:
+ 1179              		.cfi_def_cfa_register 7
+ 1180 0006 F860     		str	r0, [r7, #12]
+ 1181 0008 B960     		str	r1, [r7, #8]
+ 1182 000a 1346     		mov	r3, r2
+ 1183 000c FB71     		strb	r3, [r7, #7]
+ 987:C:/StellarisWare/utils\softi2c.c ****     //
+ 988:C:/StellarisWare/utils\softi2c.c ****     // Save the base address and pin for the SCL signal.
+ 989:C:/StellarisWare/utils\softi2c.c ****     //
+ 990:C:/StellarisWare/utils\softi2c.c ****     pI2C->ulSCLGPIO = ulBase + (ucPin << 2);
+ 1184              		.loc 1 990 0
+ 1185 000e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1186 0010 4FEA8303 		lsl	r3, r3, #2
+ 1187 0014 1A46     		mov	r2, r3
+ 1188 0016 BB68     		ldr	r3, [r7, #8]
+ 1189 0018 D218     		adds	r2, r2, r3
+ 1190 001a FB68     		ldr	r3, [r7, #12]
+ 1191 001c 5A60     		str	r2, [r3, #4]
+ 991:C:/StellarisWare/utils\softi2c.c **** }
+ 1192              		.loc 1 991 0
+ 1193 001e 07F11407 		add	r7, r7, #20
+ 1194 0022 BD46     		mov	sp, r7
+ 1195 0024 80BC     		pop	{r7}
+ 1196 0026 7047     		bx	lr
+ 1197              		.cfi_endproc
+ 1198              	.LFE3:
+ 1200              		.section	.text.SoftI2CSDAGPIOSet,"ax",%progbits
+ 1201              		.align	2
+ 1202              		.global	SoftI2CSDAGPIOSet
+ 1203              		.thumb
+ 1204              		.thumb_func
+ 1206              	SoftI2CSDAGPIOSet:
+ 1207              	.LFB4:
+ 992:C:/StellarisWare/utils\softi2c.c **** 
+ 993:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+ 994:C:/StellarisWare/utils\softi2c.c **** //
+ 995:C:/StellarisWare/utils\softi2c.c **** //! Sets the GPIO pin to be used as the SoftI2C SDA signal.
+ 996:C:/StellarisWare/utils\softi2c.c **** //!
+ 997:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+ 998:C:/StellarisWare/utils\softi2c.c **** //! \param ulBase is the base address of the GPIO module.
+ 999:C:/StellarisWare/utils\softi2c.c **** //! \param ucPin is the bit-packed representation of the pin to use.
+1000:C:/StellarisWare/utils\softi2c.c **** //!
+1001:C:/StellarisWare/utils\softi2c.c **** //! This function sets the GPIO pin that is used for the SoftI2C SDA signal.
+1002:C:/StellarisWare/utils\softi2c.c **** //!
+1003:C:/StellarisWare/utils\softi2c.c **** //! The pin is specified using a bit-packed byte, where bit 0 of the byte
+1004:C:/StellarisWare/utils\softi2c.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+1005:C:/StellarisWare/utils\softi2c.c **** //!
+1006:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1007:C:/StellarisWare/utils\softi2c.c **** //
+1008:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1009:C:/StellarisWare/utils\softi2c.c **** void
+1010:C:/StellarisWare/utils\softi2c.c **** SoftI2CSDAGPIOSet(tSoftI2C *pI2C, unsigned long ulBase, unsigned char ucPin)
+1011:C:/StellarisWare/utils\softi2c.c **** {
+ 1208              		.loc 1 1011 0
+ 1209              		.cfi_startproc
+ 1210              		@ args = 0, pretend = 0, frame = 16
+ 1211              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1212              		@ link register save eliminated.
+ 1213 0000 80B4     		push	{r7}
+ 1214              	.LCFI12:
+ 1215              		.cfi_def_cfa_offset 4
+ 1216              		.cfi_offset 7, -4
+ 1217 0002 85B0     		sub	sp, sp, #20
+ 1218              	.LCFI13:
+ 1219              		.cfi_def_cfa_offset 24
+ 1220 0004 00AF     		add	r7, sp, #0
+ 1221              	.LCFI14:
+ 1222              		.cfi_def_cfa_register 7
+ 1223 0006 F860     		str	r0, [r7, #12]
+ 1224 0008 B960     		str	r1, [r7, #8]
+ 1225 000a 1346     		mov	r3, r2
+ 1226 000c FB71     		strb	r3, [r7, #7]
+1012:C:/StellarisWare/utils\softi2c.c ****     //
+1013:C:/StellarisWare/utils\softi2c.c ****     // Save the base address and pin for the SDA signal.
+1014:C:/StellarisWare/utils\softi2c.c ****     //
+1015:C:/StellarisWare/utils\softi2c.c ****     pI2C->ulSDAGPIO = ulBase + (ucPin << 2);
+ 1227              		.loc 1 1015 0
+ 1228 000e FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1229 0010 4FEA8303 		lsl	r3, r3, #2
+ 1230 0014 1A46     		mov	r2, r3
+ 1231 0016 BB68     		ldr	r3, [r7, #8]
+ 1232 0018 D218     		adds	r2, r2, r3
+ 1233 001a FB68     		ldr	r3, [r7, #12]
+ 1234 001c 9A60     		str	r2, [r3, #8]
+1016:C:/StellarisWare/utils\softi2c.c **** }
+ 1235              		.loc 1 1016 0
+ 1236 001e 07F11407 		add	r7, r7, #20
+ 1237 0022 BD46     		mov	sp, r7
+ 1238 0024 80BC     		pop	{r7}
+ 1239 0026 7047     		bx	lr
+ 1240              		.cfi_endproc
+ 1241              	.LFE4:
+ 1243              		.section	.text.SoftI2CIntEnable,"ax",%progbits
+ 1244              		.align	2
+ 1245              		.global	SoftI2CIntEnable
+ 1246              		.thumb
+ 1247              		.thumb_func
+ 1249              	SoftI2CIntEnable:
+ 1250              	.LFB5:
+1017:C:/StellarisWare/utils\softi2c.c **** 
+1018:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1019:C:/StellarisWare/utils\softi2c.c **** //
+1020:C:/StellarisWare/utils\softi2c.c **** //! Enables the SoftI2C ``interrupt''.
+1021:C:/StellarisWare/utils\softi2c.c **** //!
+1022:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1023:C:/StellarisWare/utils\softi2c.c **** //!
+1024:C:/StellarisWare/utils\softi2c.c **** //! Enables the SoftI2C ``interrupt'' source.
+1025:C:/StellarisWare/utils\softi2c.c **** //!
+1026:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1027:C:/StellarisWare/utils\softi2c.c **** //
+1028:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1029:C:/StellarisWare/utils\softi2c.c **** void
+1030:C:/StellarisWare/utils\softi2c.c **** SoftI2CIntEnable(tSoftI2C *pI2C)
+1031:C:/StellarisWare/utils\softi2c.c **** {
+ 1251              		.loc 1 1031 0
+ 1252              		.cfi_startproc
+ 1253              		@ args = 0, pretend = 0, frame = 8
+ 1254              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1255              		@ link register save eliminated.
+ 1256 0000 80B4     		push	{r7}
+ 1257              	.LCFI15:
+ 1258              		.cfi_def_cfa_offset 4
+ 1259              		.cfi_offset 7, -4
+ 1260 0002 83B0     		sub	sp, sp, #12
+ 1261              	.LCFI16:
+ 1262              		.cfi_def_cfa_offset 16
+ 1263 0004 00AF     		add	r7, sp, #0
+ 1264              	.LCFI17:
+ 1265              		.cfi_def_cfa_register 7
+ 1266 0006 7860     		str	r0, [r7, #4]
+1032:C:/StellarisWare/utils\softi2c.c ****     //
+1033:C:/StellarisWare/utils\softi2c.c ****     // Enable the master interrupt.
+1034:C:/StellarisWare/utils\softi2c.c ****     //
+1035:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucIntMask = 1;
+ 1267              		.loc 1 1035 0
+ 1268 0008 7B68     		ldr	r3, [r7, #4]
+ 1269 000a 4FF00102 		mov	r2, #1
+ 1270 000e 5A74     		strb	r2, [r3, #17]
+1036:C:/StellarisWare/utils\softi2c.c **** }
+ 1271              		.loc 1 1036 0
+ 1272 0010 07F10C07 		add	r7, r7, #12
+ 1273 0014 BD46     		mov	sp, r7
+ 1274 0016 80BC     		pop	{r7}
+ 1275 0018 7047     		bx	lr
+ 1276              		.cfi_endproc
+ 1277              	.LFE5:
+ 1279 001a 00BF     		.section	.text.SoftI2CIntDisable,"ax",%progbits
+ 1280              		.align	2
+ 1281              		.global	SoftI2CIntDisable
+ 1282              		.thumb
+ 1283              		.thumb_func
+ 1285              	SoftI2CIntDisable:
+ 1286              	.LFB6:
+1037:C:/StellarisWare/utils\softi2c.c **** 
+1038:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1039:C:/StellarisWare/utils\softi2c.c **** //
+1040:C:/StellarisWare/utils\softi2c.c **** //! Disables the SoftI2C ``interrupt''.
+1041:C:/StellarisWare/utils\softi2c.c **** //!
+1042:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1043:C:/StellarisWare/utils\softi2c.c **** //!
+1044:C:/StellarisWare/utils\softi2c.c **** //! Disables the SoftI2C ``interrupt'' source.
+1045:C:/StellarisWare/utils\softi2c.c **** //!
+1046:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1047:C:/StellarisWare/utils\softi2c.c **** //
+1048:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1049:C:/StellarisWare/utils\softi2c.c **** void
+1050:C:/StellarisWare/utils\softi2c.c **** SoftI2CIntDisable(tSoftI2C *pI2C)
+1051:C:/StellarisWare/utils\softi2c.c **** {
+ 1287              		.loc 1 1051 0
+ 1288              		.cfi_startproc
+ 1289              		@ args = 0, pretend = 0, frame = 8
+ 1290              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1291              		@ link register save eliminated.
+ 1292 0000 80B4     		push	{r7}
+ 1293              	.LCFI18:
+ 1294              		.cfi_def_cfa_offset 4
+ 1295              		.cfi_offset 7, -4
+ 1296 0002 83B0     		sub	sp, sp, #12
+ 1297              	.LCFI19:
+ 1298              		.cfi_def_cfa_offset 16
+ 1299 0004 00AF     		add	r7, sp, #0
+ 1300              	.LCFI20:
+ 1301              		.cfi_def_cfa_register 7
+ 1302 0006 7860     		str	r0, [r7, #4]
+1052:C:/StellarisWare/utils\softi2c.c ****     //
+1053:C:/StellarisWare/utils\softi2c.c ****     // Disable the master interrupt.
+1054:C:/StellarisWare/utils\softi2c.c ****     //
+1055:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucIntMask = 0;
+ 1303              		.loc 1 1055 0
+ 1304 0008 7B68     		ldr	r3, [r7, #4]
+ 1305 000a 4FF00002 		mov	r2, #0
+ 1306 000e 5A74     		strb	r2, [r3, #17]
+1056:C:/StellarisWare/utils\softi2c.c **** }
+ 1307              		.loc 1 1056 0
+ 1308 0010 07F10C07 		add	r7, r7, #12
+ 1309 0014 BD46     		mov	sp, r7
+ 1310 0016 80BC     		pop	{r7}
+ 1311 0018 7047     		bx	lr
+ 1312              		.cfi_endproc
+ 1313              	.LFE6:
+ 1315 001a 00BF     		.section	.text.SoftI2CIntStatus,"ax",%progbits
+ 1316              		.align	2
+ 1317              		.global	SoftI2CIntStatus
+ 1318              		.thumb
+ 1319              		.thumb_func
+ 1321              	SoftI2CIntStatus:
+ 1322              	.LFB7:
+1057:C:/StellarisWare/utils\softi2c.c **** 
+1058:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1059:C:/StellarisWare/utils\softi2c.c **** //
+1060:C:/StellarisWare/utils\softi2c.c **** //! Gets the current SoftI2C ``interrupt'' status.
+1061:C:/StellarisWare/utils\softi2c.c **** //!
+1062:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1063:C:/StellarisWare/utils\softi2c.c **** //! \param bMasked is \b false if the raw ``interrupt'' status is requested and
+1064:C:/StellarisWare/utils\softi2c.c **** //! \b true if the masked ``interrupt'' status is requested.
+1065:C:/StellarisWare/utils\softi2c.c **** //!
+1066:C:/StellarisWare/utils\softi2c.c **** //! This returns the ``interrupt'' status for the SoftI2C module.  Either the
+1067:C:/StellarisWare/utils\softi2c.c **** //! raw ``interrupt'' status or the status of ``interrupts'' that are allowed
+1068:C:/StellarisWare/utils\softi2c.c **** //! to reflect to the processor can be returned.
+1069:C:/StellarisWare/utils\softi2c.c **** //!
+1070:C:/StellarisWare/utils\softi2c.c **** //! \return The current interrupt status, returned as \b true if active
+1071:C:/StellarisWare/utils\softi2c.c **** //! or \b false if not active.
+1072:C:/StellarisWare/utils\softi2c.c **** //
+1073:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1074:C:/StellarisWare/utils\softi2c.c **** tBoolean
+1075:C:/StellarisWare/utils\softi2c.c **** SoftI2CIntStatus(tSoftI2C *pI2C, tBoolean bMasked)
+1076:C:/StellarisWare/utils\softi2c.c **** {
+ 1323              		.loc 1 1076 0
+ 1324              		.cfi_startproc
+ 1325              		@ args = 0, pretend = 0, frame = 8
+ 1326              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1327              		@ link register save eliminated.
+ 1328 0000 80B4     		push	{r7}
+ 1329              	.LCFI21:
+ 1330              		.cfi_def_cfa_offset 4
+ 1331              		.cfi_offset 7, -4
+ 1332 0002 83B0     		sub	sp, sp, #12
+ 1333              	.LCFI22:
+ 1334              		.cfi_def_cfa_offset 16
+ 1335 0004 00AF     		add	r7, sp, #0
+ 1336              	.LCFI23:
+ 1337              		.cfi_def_cfa_register 7
+ 1338 0006 7860     		str	r0, [r7, #4]
+ 1339 0008 0B46     		mov	r3, r1
+ 1340 000a FB70     		strb	r3, [r7, #3]
+1077:C:/StellarisWare/utils\softi2c.c ****     //
+1078:C:/StellarisWare/utils\softi2c.c ****     // Return either the interrupt status or the raw interrupt status as
+1079:C:/StellarisWare/utils\softi2c.c ****     // requested.
+1080:C:/StellarisWare/utils\softi2c.c ****     //
+1081:C:/StellarisWare/utils\softi2c.c ****     if(bMasked)
+ 1341              		.loc 1 1081 0
+ 1342 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1343 000e 002B     		cmp	r3, #0
+ 1344 0010 0BD0     		beq	.L69
+1082:C:/StellarisWare/utils\softi2c.c ****     {
+1083:C:/StellarisWare/utils\softi2c.c ****         return((pI2C->ucIntStatus & pI2C->ucIntMask) ? true : false);
+ 1345              		.loc 1 1083 0
+ 1346 0012 7B68     		ldr	r3, [r7, #4]
+ 1347 0014 9A7C     		ldrb	r2, [r3, #18]	@ zero_extendqisi2
+ 1348 0016 7B68     		ldr	r3, [r7, #4]
+ 1349 0018 5B7C     		ldrb	r3, [r3, #17]	@ zero_extendqisi2
+ 1350 001a 1340     		ands	r3, r3, r2
+ 1351 001c DBB2     		uxtb	r3, r3
+ 1352 001e 002B     		cmp	r3, #0
+ 1353 0020 0CBF     		ite	eq
+ 1354 0022 0023     		moveq	r3, #0
+ 1355 0024 0123     		movne	r3, #1
+ 1356 0026 DBB2     		uxtb	r3, r3
+ 1357 0028 06E0     		b	.L70
+ 1358              	.L69:
+1084:C:/StellarisWare/utils\softi2c.c ****     }
+1085:C:/StellarisWare/utils\softi2c.c ****     else
+1086:C:/StellarisWare/utils\softi2c.c ****     {
+1087:C:/StellarisWare/utils\softi2c.c ****         return(pI2C->ucIntStatus ? true : false);
+ 1359              		.loc 1 1087 0
+ 1360 002a 7B68     		ldr	r3, [r7, #4]
+ 1361 002c 9B7C     		ldrb	r3, [r3, #18]	@ zero_extendqisi2
+ 1362 002e 002B     		cmp	r3, #0
+ 1363 0030 0CBF     		ite	eq
+ 1364 0032 0023     		moveq	r3, #0
+ 1365 0034 0123     		movne	r3, #1
+ 1366 0036 DBB2     		uxtb	r3, r3
+ 1367              	.L70:
+1088:C:/StellarisWare/utils\softi2c.c ****     }
+1089:C:/StellarisWare/utils\softi2c.c **** }
+ 1368              		.loc 1 1089 0
+ 1369 0038 1846     		mov	r0, r3
+ 1370 003a 07F10C07 		add	r7, r7, #12
+ 1371 003e BD46     		mov	sp, r7
+ 1372 0040 80BC     		pop	{r7}
+ 1373 0042 7047     		bx	lr
+ 1374              		.cfi_endproc
+ 1375              	.LFE7:
+ 1377              		.section	.text.SoftI2CIntClear,"ax",%progbits
+ 1378              		.align	2
+ 1379              		.global	SoftI2CIntClear
+ 1380              		.thumb
+ 1381              		.thumb_func
+ 1383              	SoftI2CIntClear:
+ 1384              	.LFB8:
+1090:C:/StellarisWare/utils\softi2c.c **** 
+1091:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1092:C:/StellarisWare/utils\softi2c.c **** //
+1093:C:/StellarisWare/utils\softi2c.c **** //! Clears the SoftI2C ``interrupt''.
+1094:C:/StellarisWare/utils\softi2c.c **** //!
+1095:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1096:C:/StellarisWare/utils\softi2c.c **** //!
+1097:C:/StellarisWare/utils\softi2c.c **** //! The SoftI2C ``interrupt'' source is cleared, so that it no longer asserts.
+1098:C:/StellarisWare/utils\softi2c.c **** //! This function must be called in the ``interrupt'' handler to keep it from
+1099:C:/StellarisWare/utils\softi2c.c **** //! being called again immediately on exit.
+1100:C:/StellarisWare/utils\softi2c.c **** //!
+1101:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1102:C:/StellarisWare/utils\softi2c.c **** //
+1103:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1104:C:/StellarisWare/utils\softi2c.c **** void
+1105:C:/StellarisWare/utils\softi2c.c **** SoftI2CIntClear(tSoftI2C *pI2C)
+1106:C:/StellarisWare/utils\softi2c.c **** {
+ 1385              		.loc 1 1106 0
+ 1386              		.cfi_startproc
+ 1387              		@ args = 0, pretend = 0, frame = 8
+ 1388              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1389              		@ link register save eliminated.
+ 1390 0000 80B4     		push	{r7}
+ 1391              	.LCFI24:
+ 1392              		.cfi_def_cfa_offset 4
+ 1393              		.cfi_offset 7, -4
+ 1394 0002 83B0     		sub	sp, sp, #12
+ 1395              	.LCFI25:
+ 1396              		.cfi_def_cfa_offset 16
+ 1397 0004 00AF     		add	r7, sp, #0
+ 1398              	.LCFI26:
+ 1399              		.cfi_def_cfa_register 7
+ 1400 0006 7860     		str	r0, [r7, #4]
+1107:C:/StellarisWare/utils\softi2c.c ****     //
+1108:C:/StellarisWare/utils\softi2c.c ****     // Clear the SoftI2C interrupt source.
+1109:C:/StellarisWare/utils\softi2c.c ****     //
+1110:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucIntStatus = 0;
+ 1401              		.loc 1 1110 0
+ 1402 0008 7B68     		ldr	r3, [r7, #4]
+ 1403 000a 4FF00002 		mov	r2, #0
+ 1404 000e 9A74     		strb	r2, [r3, #18]
+1111:C:/StellarisWare/utils\softi2c.c **** }
+ 1405              		.loc 1 1111 0
+ 1406 0010 07F10C07 		add	r7, r7, #12
+ 1407 0014 BD46     		mov	sp, r7
+ 1408 0016 80BC     		pop	{r7}
+ 1409 0018 7047     		bx	lr
+ 1410              		.cfi_endproc
+ 1411              	.LFE8:
+ 1413 001a 00BF     		.section	.text.SoftI2CSlaveAddrSet,"ax",%progbits
+ 1414              		.align	2
+ 1415              		.global	SoftI2CSlaveAddrSet
+ 1416              		.thumb
+ 1417              		.thumb_func
+ 1419              	SoftI2CSlaveAddrSet:
+ 1420              	.LFB9:
+1112:C:/StellarisWare/utils\softi2c.c **** 
+1113:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1114:C:/StellarisWare/utils\softi2c.c **** //
+1115:C:/StellarisWare/utils\softi2c.c **** //! Sets the address that the SoftI2C module places on the bus.
+1116:C:/StellarisWare/utils\softi2c.c **** //!
+1117:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1118:C:/StellarisWare/utils\softi2c.c **** //! \param ucSlaveAddr 7-bit slave address
+1119:C:/StellarisWare/utils\softi2c.c **** //! \param bReceive flag indicating the type of communication with the slave.
+1120:C:/StellarisWare/utils\softi2c.c **** //!
+1121:C:/StellarisWare/utils\softi2c.c **** //! This function sets the address that the SoftI2C module places on the bus
+1122:C:/StellarisWare/utils\softi2c.c **** //! when initiating a transaction.  When the \e bReceive parameter is set to
+1123:C:/StellarisWare/utils\softi2c.c **** //! \b true, the address indicates that the SoftI2C moudle is initiating a read
+1124:C:/StellarisWare/utils\softi2c.c **** //! from the slave; otherwise the address indicates that the SoftI2C module is
+1125:C:/StellarisWare/utils\softi2c.c **** //! initiating a write to the slave.
+1126:C:/StellarisWare/utils\softi2c.c **** //!
+1127:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1128:C:/StellarisWare/utils\softi2c.c **** //
+1129:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1130:C:/StellarisWare/utils\softi2c.c **** void
+1131:C:/StellarisWare/utils\softi2c.c **** SoftI2CSlaveAddrSet(tSoftI2C *pI2C, unsigned char ucSlaveAddr,
+1132:C:/StellarisWare/utils\softi2c.c ****                     tBoolean bReceive)
+1133:C:/StellarisWare/utils\softi2c.c **** {
+ 1421              		.loc 1 1133 0
+ 1422              		.cfi_startproc
+ 1423              		@ args = 0, pretend = 0, frame = 8
+ 1424              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1425              		@ link register save eliminated.
+ 1426 0000 80B4     		push	{r7}
+ 1427              	.LCFI27:
+ 1428              		.cfi_def_cfa_offset 4
+ 1429              		.cfi_offset 7, -4
+ 1430 0002 83B0     		sub	sp, sp, #12
+ 1431              	.LCFI28:
+ 1432              		.cfi_def_cfa_offset 16
+ 1433 0004 00AF     		add	r7, sp, #0
+ 1434              	.LCFI29:
+ 1435              		.cfi_def_cfa_register 7
+ 1436 0006 7860     		str	r0, [r7, #4]
+ 1437 0008 1346     		mov	r3, r2
+ 1438 000a 0A46     		mov	r2, r1
+ 1439 000c FA70     		strb	r2, [r7, #3]
+ 1440 000e BB70     		strb	r3, [r7, #2]
+1134:C:/StellarisWare/utils\softi2c.c ****     //
+1135:C:/StellarisWare/utils\softi2c.c ****     // Check the arguments.
+1136:C:/StellarisWare/utils\softi2c.c ****     //
+1137:C:/StellarisWare/utils\softi2c.c ****     ASSERT(!(ucSlaveAddr & 0x80));
+1138:C:/StellarisWare/utils\softi2c.c **** 
+1139:C:/StellarisWare/utils\softi2c.c ****     //
+1140:C:/StellarisWare/utils\softi2c.c ****     // Set the address of the slave with which the master will communicate.
+1141:C:/StellarisWare/utils\softi2c.c ****     //
+1142:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucSlaveAddr = ucSlaveAddr;
+ 1441              		.loc 1 1142 0
+ 1442 0010 7B68     		ldr	r3, [r7, #4]
+ 1443 0012 FA78     		ldrb	r2, [r7, #3]
+ 1444 0014 5A73     		strb	r2, [r3, #13]
+1143:C:/StellarisWare/utils\softi2c.c **** 
+1144:C:/StellarisWare/utils\softi2c.c ****     //
+1145:C:/StellarisWare/utils\softi2c.c ****     // Set a flag to indicate if this is a transmit or receive.
+1146:C:/StellarisWare/utils\softi2c.c ****     //
+1147:C:/StellarisWare/utils\softi2c.c ****     if(bReceive)
+ 1445              		.loc 1 1147 0
+ 1446 0016 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 1447 0018 002B     		cmp	r3, #0
+ 1448 001a 16D0     		beq	.L73
+1148:C:/StellarisWare/utils\softi2c.c ****     {
+1149:C:/StellarisWare/utils\softi2c.c ****         HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RECEIVE) = 1;
+ 1449              		.loc 1 1149 0
+ 1450 001c 7B68     		ldr	r3, [r7, #4]
+ 1451 001e 03F10C03 		add	r3, r3, #12
+ 1452 0022 03F07042 		and	r2, r3, #-268435456
+ 1453 0026 7B68     		ldr	r3, [r7, #4]
+ 1454 0028 03F10C03 		add	r3, r3, #12
+ 1455 002c 23F07F43 		bic	r3, r3, #-16777216
+ 1456 0030 23F47003 		bic	r3, r3, #15728640
+ 1457 0034 4FEA4313 		lsl	r3, r3, #5
+ 1458 0038 1343     		orrs	r3, r3, r2
+ 1459 003a 43F00073 		orr	r3, r3, #33554432
+ 1460 003e 43F01C03 		orr	r3, r3, #28
+ 1461 0042 4FF00102 		mov	r2, #1
+ 1462 0046 1A70     		strb	r2, [r3, #0]
+ 1463 0048 15E0     		b	.L72
+ 1464              	.L73:
+1150:C:/StellarisWare/utils\softi2c.c ****     }
+1151:C:/StellarisWare/utils\softi2c.c ****     else
+1152:C:/StellarisWare/utils\softi2c.c ****     {
+1153:C:/StellarisWare/utils\softi2c.c ****         HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_RECEIVE) = 0;
+ 1465              		.loc 1 1153 0
+ 1466 004a 7B68     		ldr	r3, [r7, #4]
+ 1467 004c 03F10C03 		add	r3, r3, #12
+ 1468 0050 03F07042 		and	r2, r3, #-268435456
+ 1469 0054 7B68     		ldr	r3, [r7, #4]
+ 1470 0056 03F10C03 		add	r3, r3, #12
+ 1471 005a 23F07F43 		bic	r3, r3, #-16777216
+ 1472 005e 23F47003 		bic	r3, r3, #15728640
+ 1473 0062 4FEA4313 		lsl	r3, r3, #5
+ 1474 0066 1343     		orrs	r3, r3, r2
+ 1475 0068 43F00073 		orr	r3, r3, #33554432
+ 1476 006c 43F01C03 		orr	r3, r3, #28
+ 1477 0070 4FF00002 		mov	r2, #0
+ 1478 0074 1A70     		strb	r2, [r3, #0]
+ 1479              	.L72:
+1154:C:/StellarisWare/utils\softi2c.c ****     }
+1155:C:/StellarisWare/utils\softi2c.c **** }
+ 1480              		.loc 1 1155 0
+ 1481 0076 07F10C07 		add	r7, r7, #12
+ 1482 007a BD46     		mov	sp, r7
+ 1483 007c 80BC     		pop	{r7}
+ 1484 007e 7047     		bx	lr
+ 1485              		.cfi_endproc
+ 1486              	.LFE9:
+ 1488              		.section	.text.SoftI2CBusy,"ax",%progbits
+ 1489              		.align	2
+ 1490              		.global	SoftI2CBusy
+ 1491              		.thumb
+ 1492              		.thumb_func
+ 1494              	SoftI2CBusy:
+ 1495              	.LFB10:
+1156:C:/StellarisWare/utils\softi2c.c **** 
+1157:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1158:C:/StellarisWare/utils\softi2c.c **** //
+1159:C:/StellarisWare/utils\softi2c.c **** //! Indicates whether or not the SoftI2C module is busy.
+1160:C:/StellarisWare/utils\softi2c.c **** //!
+1161:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1162:C:/StellarisWare/utils\softi2c.c **** //!
+1163:C:/StellarisWare/utils\softi2c.c **** //! This function returns an indication of whether or not the SoftI2C module is
+1164:C:/StellarisWare/utils\softi2c.c **** //! busy transmitting or receiving data.
+1165:C:/StellarisWare/utils\softi2c.c **** //!
+1166:C:/StellarisWare/utils\softi2c.c **** //! \return Returns \b true if the SoftI2C module is busy; otherwise, returns
+1167:C:/StellarisWare/utils\softi2c.c **** //! \b false.
+1168:C:/StellarisWare/utils\softi2c.c **** //
+1169:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1170:C:/StellarisWare/utils\softi2c.c **** tBoolean
+1171:C:/StellarisWare/utils\softi2c.c **** SoftI2CBusy(tSoftI2C *pI2C)
+1172:C:/StellarisWare/utils\softi2c.c **** {
+ 1496              		.loc 1 1172 0
+ 1497              		.cfi_startproc
+ 1498              		@ args = 0, pretend = 0, frame = 8
+ 1499              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1500              		@ link register save eliminated.
+ 1501 0000 80B4     		push	{r7}
+ 1502              	.LCFI30:
+ 1503              		.cfi_def_cfa_offset 4
+ 1504              		.cfi_offset 7, -4
+ 1505 0002 83B0     		sub	sp, sp, #12
+ 1506              	.LCFI31:
+ 1507              		.cfi_def_cfa_offset 16
+ 1508 0004 00AF     		add	r7, sp, #0
+ 1509              	.LCFI32:
+ 1510              		.cfi_def_cfa_register 7
+ 1511 0006 7860     		str	r0, [r7, #4]
+1173:C:/StellarisWare/utils\softi2c.c ****     //
+1174:C:/StellarisWare/utils\softi2c.c ****     // Return the busy status.
+1175:C:/StellarisWare/utils\softi2c.c ****     //
+1176:C:/StellarisWare/utils\softi2c.c ****     if(pI2C->ucState != SOFTI2C_STATE_IDLE)
+ 1512              		.loc 1 1176 0
+ 1513 0008 7B68     		ldr	r3, [r7, #4]
+ 1514 000a DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 1515 000c 002B     		cmp	r3, #0
+ 1516 000e 02D0     		beq	.L76
+1177:C:/StellarisWare/utils\softi2c.c ****     {
+1178:C:/StellarisWare/utils\softi2c.c ****         return(true);
+ 1517              		.loc 1 1178 0
+ 1518 0010 4FF00103 		mov	r3, #1
+ 1519 0014 01E0     		b	.L77
+ 1520              	.L76:
+1179:C:/StellarisWare/utils\softi2c.c ****     }
+1180:C:/StellarisWare/utils\softi2c.c ****     else
+1181:C:/StellarisWare/utils\softi2c.c ****     {
+1182:C:/StellarisWare/utils\softi2c.c ****         return(false);
+ 1521              		.loc 1 1182 0
+ 1522 0016 4FF00003 		mov	r3, #0
+ 1523              	.L77:
+1183:C:/StellarisWare/utils\softi2c.c ****     }
+1184:C:/StellarisWare/utils\softi2c.c **** }
+ 1524              		.loc 1 1184 0
+ 1525 001a 1846     		mov	r0, r3
+ 1526 001c 07F10C07 		add	r7, r7, #12
+ 1527 0020 BD46     		mov	sp, r7
+ 1528 0022 80BC     		pop	{r7}
+ 1529 0024 7047     		bx	lr
+ 1530              		.cfi_endproc
+ 1531              	.LFE10:
+ 1533 0026 00BF     		.section	.text.SoftI2CControl,"ax",%progbits
+ 1534              		.align	2
+ 1535              		.global	SoftI2CControl
+ 1536              		.thumb
+ 1537              		.thumb_func
+ 1539              	SoftI2CControl:
+ 1540              	.LFB11:
+1185:C:/StellarisWare/utils\softi2c.c **** 
+1186:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1187:C:/StellarisWare/utils\softi2c.c **** //
+1188:C:/StellarisWare/utils\softi2c.c **** //! Controls the state of the SoftI2C module.
+1189:C:/StellarisWare/utils\softi2c.c **** //!
+1190:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1191:C:/StellarisWare/utils\softi2c.c **** //! \param ulCmd command to be issued to the SoftI2C module.
+1192:C:/StellarisWare/utils\softi2c.c **** //!
+1193:C:/StellarisWare/utils\softi2c.c **** //! This function is used to control the state of the SoftI2C module send and
+1194:C:/StellarisWare/utils\softi2c.c **** //! receive operations.  The \e ucCmd parameter can be one of the following
+1195:C:/StellarisWare/utils\softi2c.c **** //! values:
+1196:C:/StellarisWare/utils\softi2c.c **** //!
+1197:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_SINGLE_SEND
+1198:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_SINGLE_RECEIVE
+1199:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_SEND_START
+1200:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_SEND_CONT
+1201:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_SEND_FINISH
+1202:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_SEND_ERROR_STOP
+1203:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_RECEIVE_START
+1204:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_RECEIVE_CONT
+1205:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_RECEIVE_FINISH
+1206:C:/StellarisWare/utils\softi2c.c **** //! - \b SOFTI2C_CMD_BURST_RECEIVE_ERROR_STOP
+1207:C:/StellarisWare/utils\softi2c.c **** //!
+1208:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1209:C:/StellarisWare/utils\softi2c.c **** //
+1210:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1211:C:/StellarisWare/utils\softi2c.c **** void
+1212:C:/StellarisWare/utils\softi2c.c **** SoftI2CControl(tSoftI2C *pI2C, unsigned long ulCmd)
+1213:C:/StellarisWare/utils\softi2c.c **** {
+ 1541              		.loc 1 1213 0
+ 1542              		.cfi_startproc
+ 1543              		@ args = 0, pretend = 0, frame = 8
+ 1544              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1545              		@ link register save eliminated.
+ 1546 0000 80B4     		push	{r7}
+ 1547              	.LCFI33:
+ 1548              		.cfi_def_cfa_offset 4
+ 1549              		.cfi_offset 7, -4
+ 1550 0002 83B0     		sub	sp, sp, #12
+ 1551              	.LCFI34:
+ 1552              		.cfi_def_cfa_offset 16
+ 1553 0004 00AF     		add	r7, sp, #0
+ 1554              	.LCFI35:
+ 1555              		.cfi_def_cfa_register 7
+ 1556 0006 7860     		str	r0, [r7, #4]
+ 1557 0008 3960     		str	r1, [r7, #0]
+1214:C:/StellarisWare/utils\softi2c.c ****     //
+1215:C:/StellarisWare/utils\softi2c.c ****     // Check the arguments.
+1216:C:/StellarisWare/utils\softi2c.c ****     //
+1217:C:/StellarisWare/utils\softi2c.c ****     ASSERT((ulCmd == SOFTI2C_CMD_SINGLE_SEND) ||
+1218:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_SINGLE_RECEIVE) ||
+1219:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_SEND_START) ||
+1220:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_SEND_CONT) ||
+1221:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_SEND_FINISH) ||
+1222:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_SEND_ERROR_STOP) ||
+1223:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_RECEIVE_START) ||
+1224:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_RECEIVE_CONT) ||
+1225:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_RECEIVE_FINISH) ||
+1226:C:/StellarisWare/utils\softi2c.c ****            (ulCmd == SOFTI2C_CMD_BURST_RECEIVE_ERROR_STOP));
+1227:C:/StellarisWare/utils\softi2c.c **** 
+1228:C:/StellarisWare/utils\softi2c.c ****     //
+1229:C:/StellarisWare/utils\softi2c.c ****     // Send the command.
+1230:C:/StellarisWare/utils\softi2c.c ****     //
+1231:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucFlags = (pI2C->ucFlags & 0xf0) | ulCmd;
+ 1558              		.loc 1 1231 0
+ 1559 000a 7B68     		ldr	r3, [r7, #4]
+ 1560 000c 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 1561 000e 23F00F03 		bic	r3, r3, #15
+ 1562 0012 DAB2     		uxtb	r2, r3
+ 1563 0014 3B68     		ldr	r3, [r7, #0]
+ 1564 0016 DBB2     		uxtb	r3, r3
+ 1565 0018 1343     		orrs	r3, r3, r2
+ 1566 001a DAB2     		uxtb	r2, r3
+ 1567 001c 7B68     		ldr	r3, [r7, #4]
+ 1568 001e 1A73     		strb	r2, [r3, #12]
+1232:C:/StellarisWare/utils\softi2c.c **** }
+ 1569              		.loc 1 1232 0
+ 1570 0020 07F10C07 		add	r7, r7, #12
+ 1571 0024 BD46     		mov	sp, r7
+ 1572 0026 80BC     		pop	{r7}
+ 1573 0028 7047     		bx	lr
+ 1574              		.cfi_endproc
+ 1575              	.LFE11:
+ 1577 002a 00BF     		.section	.text.SoftI2CErr,"ax",%progbits
+ 1578              		.align	2
+ 1579              		.global	SoftI2CErr
+ 1580              		.thumb
+ 1581              		.thumb_func
+ 1583              	SoftI2CErr:
+ 1584              	.LFB12:
+1233:C:/StellarisWare/utils\softi2c.c **** 
+1234:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1235:C:/StellarisWare/utils\softi2c.c **** //
+1236:C:/StellarisWare/utils\softi2c.c **** //! Gets the error status of the SoftI2C module.
+1237:C:/StellarisWare/utils\softi2c.c **** //!
+1238:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1239:C:/StellarisWare/utils\softi2c.c **** //!
+1240:C:/StellarisWare/utils\softi2c.c **** //! This function is used to obtain the error status of the SoftI2C module send
+1241:C:/StellarisWare/utils\softi2c.c **** //! and receive operations.
+1242:C:/StellarisWare/utils\softi2c.c **** //!
+1243:C:/StellarisWare/utils\softi2c.c **** //! \return Returns the error status, as one of \b SOFTI2C_ERR_NONE,
+1244:C:/StellarisWare/utils\softi2c.c **** //! \b SOFTI2C_ERR_ADDR_ACK, or \b SOFTI2C_ERR_DATA_ACK.
+1245:C:/StellarisWare/utils\softi2c.c **** //
+1246:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1247:C:/StellarisWare/utils\softi2c.c **** unsigned long
+1248:C:/StellarisWare/utils\softi2c.c **** SoftI2CErr(tSoftI2C *pI2C)
+1249:C:/StellarisWare/utils\softi2c.c **** {
+ 1585              		.loc 1 1249 0
+ 1586              		.cfi_startproc
+ 1587              		@ args = 0, pretend = 0, frame = 8
+ 1588              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1589              		@ link register save eliminated.
+ 1590 0000 80B4     		push	{r7}
+ 1591              	.LCFI36:
+ 1592              		.cfi_def_cfa_offset 4
+ 1593              		.cfi_offset 7, -4
+ 1594 0002 83B0     		sub	sp, sp, #12
+ 1595              	.LCFI37:
+ 1596              		.cfi_def_cfa_offset 16
+ 1597 0004 00AF     		add	r7, sp, #0
+ 1598              	.LCFI38:
+ 1599              		.cfi_def_cfa_register 7
+ 1600 0006 7860     		str	r0, [r7, #4]
+1250:C:/StellarisWare/utils\softi2c.c ****     //
+1251:C:/StellarisWare/utils\softi2c.c ****     // If the SoftI2C is busy, there is no error to report.
+1252:C:/StellarisWare/utils\softi2c.c ****     //
+1253:C:/StellarisWare/utils\softi2c.c ****     if(pI2C->ucState != SOFTI2C_STATE_IDLE)
+ 1601              		.loc 1 1253 0
+ 1602 0008 7B68     		ldr	r3, [r7, #4]
+ 1603 000a DB7B     		ldrb	r3, [r3, #15]	@ zero_extendqisi2
+ 1604 000c 002B     		cmp	r3, #0
+ 1605 000e 02D0     		beq	.L80
+1254:C:/StellarisWare/utils\softi2c.c ****     {
+1255:C:/StellarisWare/utils\softi2c.c ****         return(SOFTI2C_ERR_NONE);
+ 1606              		.loc 1 1255 0
+ 1607 0010 4FF00003 		mov	r3, #0
+ 1608 0014 38E0     		b	.L81
+ 1609              	.L80:
+1256:C:/StellarisWare/utils\softi2c.c ****     }
+1257:C:/StellarisWare/utils\softi2c.c **** 
+1258:C:/StellarisWare/utils\softi2c.c ****     //
+1259:C:/StellarisWare/utils\softi2c.c ****     // Return any errors that may have occurred.
+1260:C:/StellarisWare/utils\softi2c.c ****     //
+1261:C:/StellarisWare/utils\softi2c.c ****     return((HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_ADDR_ACK) ?
+ 1610              		.loc 1 1261 0
+ 1611 0016 7B68     		ldr	r3, [r7, #4]
+ 1612 0018 03F10C03 		add	r3, r3, #12
+ 1613 001c 03F07042 		and	r2, r3, #-268435456
+ 1614 0020 7B68     		ldr	r3, [r7, #4]
+ 1615 0022 03F10C03 		add	r3, r3, #12
+ 1616 0026 23F07F43 		bic	r3, r3, #-16777216
+ 1617 002a 23F47003 		bic	r3, r3, #15728640
+ 1618 002e 4FEA4313 		lsl	r3, r3, #5
+ 1619 0032 1343     		orrs	r3, r3, r2
+ 1620 0034 43F00073 		orr	r3, r3, #33554432
+ 1621 0038 43F01403 		orr	r3, r3, #20
+ 1622 003c 1B78     		ldrb	r3, [r3, #0]
+ 1623 003e DBB2     		uxtb	r3, r3
+1262:C:/StellarisWare/utils\softi2c.c ****             SOFTI2C_ERR_ADDR_ACK : 0) |
+ 1624              		.loc 1 1262 0
+ 1625 0040 002B     		cmp	r3, #0
+ 1626 0042 02D0     		beq	.L82
+ 1627              		.loc 1 1262 0 is_stmt 0 discriminator 1
+ 1628 0044 4FF00402 		mov	r2, #4
+ 1629 0048 01E0     		b	.L83
+ 1630              	.L82:
+ 1631              		.loc 1 1262 0 discriminator 2
+ 1632 004a 4FF00002 		mov	r2, #0
+ 1633              	.L83:
+1263:C:/StellarisWare/utils\softi2c.c ****            (HWREGBITB(&(pI2C->ucFlags), SOFTI2C_FLAG_DATA_ACK) ?
+ 1634              		.loc 1 1263 0 is_stmt 1
+ 1635 004e 7B68     		ldr	r3, [r7, #4]
+ 1636 0050 03F10C03 		add	r3, r3, #12
+ 1637 0054 03F07041 		and	r1, r3, #-268435456
+ 1638 0058 7B68     		ldr	r3, [r7, #4]
+ 1639 005a 03F10C03 		add	r3, r3, #12
+ 1640 005e 23F07F43 		bic	r3, r3, #-16777216
+ 1641 0062 23F47003 		bic	r3, r3, #15728640
+ 1642 0066 4FEA4313 		lsl	r3, r3, #5
+ 1643 006a 0B43     		orrs	r3, r3, r1
+ 1644 006c 43F00073 		orr	r3, r3, #33554432
+ 1645 0070 43F01803 		orr	r3, r3, #24
+ 1646 0074 1B78     		ldrb	r3, [r3, #0]
+ 1647 0076 DBB2     		uxtb	r3, r3
+1264:C:/StellarisWare/utils\softi2c.c ****             SOFTI2C_ERR_DATA_ACK : 0));
+ 1648              		.loc 1 1264 0
+ 1649 0078 002B     		cmp	r3, #0
+ 1650 007a 02D0     		beq	.L84
+ 1651              		.loc 1 1264 0 is_stmt 0 discriminator 1
+ 1652 007c 4FF00803 		mov	r3, #8
+ 1653 0080 01E0     		b	.L85
+ 1654              	.L84:
+ 1655              		.loc 1 1264 0 discriminator 2
+ 1656 0082 4FF00003 		mov	r3, #0
+ 1657              	.L85:
+1262:C:/StellarisWare/utils\softi2c.c ****             SOFTI2C_ERR_ADDR_ACK : 0) |
+ 1658              		.loc 1 1262 0 is_stmt 1
+ 1659 0086 1343     		orrs	r3, r3, r2
+ 1660              	.L81:
+1265:C:/StellarisWare/utils\softi2c.c **** }
+ 1661              		.loc 1 1265 0
+ 1662 0088 1846     		mov	r0, r3
+ 1663 008a 07F10C07 		add	r7, r7, #12
+ 1664 008e BD46     		mov	sp, r7
+ 1665 0090 80BC     		pop	{r7}
+ 1666 0092 7047     		bx	lr
+ 1667              		.cfi_endproc
+ 1668              	.LFE12:
+ 1670              		.section	.text.SoftI2CDataPut,"ax",%progbits
+ 1671              		.align	2
+ 1672              		.global	SoftI2CDataPut
+ 1673              		.thumb
+ 1674              		.thumb_func
+ 1676              	SoftI2CDataPut:
+ 1677              	.LFB13:
+1266:C:/StellarisWare/utils\softi2c.c **** 
+1267:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1268:C:/StellarisWare/utils\softi2c.c **** //
+1269:C:/StellarisWare/utils\softi2c.c **** //! Transmits a byte from the SoftI2C module.
+1270:C:/StellarisWare/utils\softi2c.c **** //!
+1271:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1272:C:/StellarisWare/utils\softi2c.c **** //! \param ucData data to be transmitted from the SoftI2C module.
+1273:C:/StellarisWare/utils\softi2c.c **** //!
+1274:C:/StellarisWare/utils\softi2c.c **** //! This function places the supplied data into SoftI2C module in preparation
+1275:C:/StellarisWare/utils\softi2c.c **** //! for being transmitted via an appropriate call to SoftI2CControl().
+1276:C:/StellarisWare/utils\softi2c.c **** //!
+1277:C:/StellarisWare/utils\softi2c.c **** //! \return None.
+1278:C:/StellarisWare/utils\softi2c.c **** //
+1279:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1280:C:/StellarisWare/utils\softi2c.c **** void
+1281:C:/StellarisWare/utils\softi2c.c **** SoftI2CDataPut(tSoftI2C *pI2C, unsigned char ucData)
+1282:C:/StellarisWare/utils\softi2c.c **** {
+ 1678              		.loc 1 1282 0
+ 1679              		.cfi_startproc
+ 1680              		@ args = 0, pretend = 0, frame = 8
+ 1681              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1682              		@ link register save eliminated.
+ 1683 0000 80B4     		push	{r7}
+ 1684              	.LCFI39:
+ 1685              		.cfi_def_cfa_offset 4
+ 1686              		.cfi_offset 7, -4
+ 1687 0002 83B0     		sub	sp, sp, #12
+ 1688              	.LCFI40:
+ 1689              		.cfi_def_cfa_offset 16
+ 1690 0004 00AF     		add	r7, sp, #0
+ 1691              	.LCFI41:
+ 1692              		.cfi_def_cfa_register 7
+ 1693 0006 7860     		str	r0, [r7, #4]
+ 1694 0008 0B46     		mov	r3, r1
+ 1695 000a FB70     		strb	r3, [r7, #3]
+1283:C:/StellarisWare/utils\softi2c.c ****     //
+1284:C:/StellarisWare/utils\softi2c.c ****     // Write the byte.
+1285:C:/StellarisWare/utils\softi2c.c ****     //
+1286:C:/StellarisWare/utils\softi2c.c ****     pI2C->ucData = ucData;
+ 1696              		.loc 1 1286 0
+ 1697 000c 7B68     		ldr	r3, [r7, #4]
+ 1698 000e FA78     		ldrb	r2, [r7, #3]
+ 1699 0010 9A73     		strb	r2, [r3, #14]
+1287:C:/StellarisWare/utils\softi2c.c **** }
+ 1700              		.loc 1 1287 0
+ 1701 0012 07F10C07 		add	r7, r7, #12
+ 1702 0016 BD46     		mov	sp, r7
+ 1703 0018 80BC     		pop	{r7}
+ 1704 001a 7047     		bx	lr
+ 1705              		.cfi_endproc
+ 1706              	.LFE13:
+ 1708              		.section	.text.SoftI2CDataGet,"ax",%progbits
+ 1709              		.align	2
+ 1710              		.global	SoftI2CDataGet
+ 1711              		.thumb
+ 1712              		.thumb_func
+ 1714              	SoftI2CDataGet:
+ 1715              	.LFB14:
+1288:C:/StellarisWare/utils\softi2c.c **** 
+1289:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1290:C:/StellarisWare/utils\softi2c.c **** //
+1291:C:/StellarisWare/utils\softi2c.c **** //! Receives a byte that has been sent to the SoftI2C module.
+1292:C:/StellarisWare/utils\softi2c.c **** //!
+1293:C:/StellarisWare/utils\softi2c.c **** //! \param pI2C specifies the SoftI2C data structure.
+1294:C:/StellarisWare/utils\softi2c.c **** //!
+1295:C:/StellarisWare/utils\softi2c.c **** //! This function reads a byte of data from the SoftI2C module that was
+1296:C:/StellarisWare/utils\softi2c.c **** //! received as a result of an appropriate call to SoftI2CControl().
+1297:C:/StellarisWare/utils\softi2c.c **** //!
+1298:C:/StellarisWare/utils\softi2c.c **** //! \return Returns the byte received by the SoftI2C module, cast as an
+1299:C:/StellarisWare/utils\softi2c.c **** //! unsigned long.
+1300:C:/StellarisWare/utils\softi2c.c **** //
+1301:C:/StellarisWare/utils\softi2c.c **** //*****************************************************************************
+1302:C:/StellarisWare/utils\softi2c.c **** unsigned long
+1303:C:/StellarisWare/utils\softi2c.c **** SoftI2CDataGet(tSoftI2C *pI2C)
+1304:C:/StellarisWare/utils\softi2c.c **** {
+ 1716              		.loc 1 1304 0
+ 1717              		.cfi_startproc
+ 1718              		@ args = 0, pretend = 0, frame = 8
+ 1719              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1720              		@ link register save eliminated.
+ 1721 0000 80B4     		push	{r7}
+ 1722              	.LCFI42:
+ 1723              		.cfi_def_cfa_offset 4
+ 1724              		.cfi_offset 7, -4
+ 1725 0002 83B0     		sub	sp, sp, #12
+ 1726              	.LCFI43:
+ 1727              		.cfi_def_cfa_offset 16
+ 1728 0004 00AF     		add	r7, sp, #0
+ 1729              	.LCFI44:
+ 1730              		.cfi_def_cfa_register 7
+ 1731 0006 7860     		str	r0, [r7, #4]
+1305:C:/StellarisWare/utils\softi2c.c ****     //
+1306:C:/StellarisWare/utils\softi2c.c ****     // Read a byte.
+1307:C:/StellarisWare/utils\softi2c.c ****     //
+1308:C:/StellarisWare/utils\softi2c.c ****     return(pI2C->ucData);
+ 1732              		.loc 1 1308 0
+ 1733 0008 7B68     		ldr	r3, [r7, #4]
+ 1734 000a 9B7B     		ldrb	r3, [r3, #14]	@ zero_extendqisi2
+1309:C:/StellarisWare/utils\softi2c.c **** }
+ 1735              		.loc 1 1309 0
+ 1736 000c 1846     		mov	r0, r3
+ 1737 000e 07F10C07 		add	r7, r7, #12
+ 1738 0012 BD46     		mov	sp, r7
+ 1739 0014 80BC     		pop	{r7}
+ 1740 0016 7047     		bx	lr
+ 1741              		.cfi_endproc
+ 1742              	.LFE14:
+ 1744              		.text
+ 1745              	.Letext0:
+ 1746              		.file 2 "C:\\StellarisWare/utils/softi2c.h"
+ 1747              		.file 3 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 softi2c.c
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:19     .text.SoftI2CTimerTick:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:24     .text.SoftI2CTimerTick:00000000 SoftI2CTimerTick
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:52     .text.SoftI2CTimerTick:00000018 $d
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:80     .text.SoftI2CTimerTick:00000080 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:998    .text.SoftI2CInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1003   .text.SoftI2CInit:00000000 SoftI2CInit
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1121   .text.SoftI2CCallbackSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1126   .text.SoftI2CCallbackSet:00000000 SoftI2CCallbackSet
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1158   .text.SoftI2CSCLGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1163   .text.SoftI2CSCLGPIOSet:00000000 SoftI2CSCLGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1201   .text.SoftI2CSDAGPIOSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1206   .text.SoftI2CSDAGPIOSet:00000000 SoftI2CSDAGPIOSet
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1244   .text.SoftI2CIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1249   .text.SoftI2CIntEnable:00000000 SoftI2CIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1280   .text.SoftI2CIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1285   .text.SoftI2CIntDisable:00000000 SoftI2CIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1316   .text.SoftI2CIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1321   .text.SoftI2CIntStatus:00000000 SoftI2CIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1378   .text.SoftI2CIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1383   .text.SoftI2CIntClear:00000000 SoftI2CIntClear
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1414   .text.SoftI2CSlaveAddrSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1419   .text.SoftI2CSlaveAddrSet:00000000 SoftI2CSlaveAddrSet
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1489   .text.SoftI2CBusy:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1494   .text.SoftI2CBusy:00000000 SoftI2CBusy
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1534   .text.SoftI2CControl:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1539   .text.SoftI2CControl:00000000 SoftI2CControl
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1578   .text.SoftI2CErr:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1583   .text.SoftI2CErr:00000000 SoftI2CErr
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1671   .text.SoftI2CDataPut:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1676   .text.SoftI2CDataPut:00000000 SoftI2CDataPut
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1709   .text.SoftI2CDataGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cck9W91I.s:1714   .text.SoftI2CDataGet:00000000 SoftI2CDataGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+GPIODirModeSet
+GPIOPadConfigSet

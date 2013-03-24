@@ -1,0 +1,3497 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"lpc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.LPCConfigSet,"ax",%progbits
+  19              		.align	2
+  20              		.global	LPCConfigSet
+  21              		.thumb
+  22              		.thumb_func
+  24              	LPCConfigSet:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/lpc.c"
+   1:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\lpc.c **** //
+   3:C:/StellarisWare/driverlib\lpc.c **** // lpc.c - Driver for the Low Pin Count (LPC) module.
+   4:C:/StellarisWare/driverlib\lpc.c **** //
+   5:C:/StellarisWare/driverlib\lpc.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\lpc.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\lpc.c **** // 
+   8:C:/StellarisWare/driverlib\lpc.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\lpc.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\lpc.c **** //   are met:
+  11:C:/StellarisWare/driverlib\lpc.c **** // 
+  12:C:/StellarisWare/driverlib\lpc.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\lpc.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\lpc.c **** // 
+  15:C:/StellarisWare/driverlib\lpc.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\lpc.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\lpc.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\lpc.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\lpc.c **** // 
+  20:C:/StellarisWare/driverlib\lpc.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\lpc.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\lpc.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\lpc.c **** // 
+  24:C:/StellarisWare/driverlib\lpc.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\lpc.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\lpc.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\lpc.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\lpc.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\lpc.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\lpc.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\lpc.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\lpc.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\lpc.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\lpc.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\lpc.c **** // 
+  36:C:/StellarisWare/driverlib\lpc.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\lpc.c **** //
+  38:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\lpc.c **** 
+  40:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\lpc.c **** //
+  42:C:/StellarisWare/driverlib\lpc.c **** //! \addtogroup lpc_api
+  43:C:/StellarisWare/driverlib\lpc.c **** //! @{
+  44:C:/StellarisWare/driverlib\lpc.c **** //
+  45:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\lpc.c **** 
+  47:C:/StellarisWare/driverlib\lpc.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\lpc.c **** #include "inc/hw_memmap.h"
+  49:C:/StellarisWare/driverlib\lpc.c **** #include "inc/hw_lpc.h"
+  50:C:/StellarisWare/driverlib\lpc.c **** #include "inc/hw_sysctl.h"
+  51:C:/StellarisWare/driverlib\lpc.c **** #include "inc/hw_types.h"
+  52:C:/StellarisWare/driverlib\lpc.c **** #include "driverlib/debug.h"
+  53:C:/StellarisWare/driverlib\lpc.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\lpc.c **** #include "driverlib/lpc.h"
+  55:C:/StellarisWare/driverlib\lpc.c **** 
+  56:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  57:C:/StellarisWare/driverlib\lpc.c **** //
+  58:C:/StellarisWare/driverlib\lpc.c **** //! \internal
+  59:C:/StellarisWare/driverlib\lpc.c **** //! Checks an LPC Channel.
+  60:C:/StellarisWare/driverlib\lpc.c **** //!
+  61:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel is the LPC channel identifier.
+  62:C:/StellarisWare/driverlib\lpc.c **** //!
+  63:C:/StellarisWare/driverlib\lpc.c **** //! This function determines if a channel identifier is valid.  This function
+  64:C:/StellarisWare/driverlib\lpc.c **** //! does not check for Channel 7 (COMx).
+  65:C:/StellarisWare/driverlib\lpc.c **** //!
+  66:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns \b true if the channel identifier is valid and \b false
+  67:C:/StellarisWare/driverlib\lpc.c **** //! otherwise.
+  68:C:/StellarisWare/driverlib\lpc.c **** //
+  69:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  70:C:/StellarisWare/driverlib\lpc.c **** #ifdef DEBUG
+  71:C:/StellarisWare/driverlib\lpc.c **** static tBoolean
+  72:C:/StellarisWare/driverlib\lpc.c **** LPCChannelValid(unsigned long ulChannel)
+  73:C:/StellarisWare/driverlib\lpc.c **** {
+  74:C:/StellarisWare/driverlib\lpc.c ****     return((ulChannel == LPC_CHAN_CH0) ||
+  75:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH1) ||
+  76:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH2) ||
+  77:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH3) ||
+  78:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH4) ||
+  79:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH5) ||
+  80:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH6) ||
+  81:C:/StellarisWare/driverlib\lpc.c ****            (ulChannel == LPC_CHAN_CH7));
+  82:C:/StellarisWare/driverlib\lpc.c **** }
+  83:C:/StellarisWare/driverlib\lpc.c **** #endif // #ifdef DEBUG
+  84:C:/StellarisWare/driverlib\lpc.c **** 
+  85:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+  86:C:/StellarisWare/driverlib\lpc.c **** //
+  87:C:/StellarisWare/driverlib\lpc.c **** //! Sets the configuration of the LPC module.
+  88:C:/StellarisWare/driverlib\lpc.c **** //!
+  89:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+  90:C:/StellarisWare/driverlib\lpc.c **** //! \param ulConfig specifies the configuration of the LPC module.
+  91:C:/StellarisWare/driverlib\lpc.c **** //!
+  92:C:/StellarisWare/driverlib\lpc.c **** //! This function configures the LPC module for basic operation.  The
+  93:C:/StellarisWare/driverlib\lpc.c **** //! configuration of individual channels is handled in a separate function.
+  94:C:/StellarisWare/driverlib\lpc.c **** //!
+  95:C:/StellarisWare/driverlib\lpc.c **** //! The \e ulConfig parameter is the logical OR of the following values:
+  96:C:/StellarisWare/driverlib\lpc.c **** //! - \b LPC_CFG_WAKE - Force assertion of the LPC0CLKRUN signal when the
+  97:C:/StellarisWare/driverlib\lpc.c **** //! LPC bus is powered down (LPC0PD is asserted).
+  98:C:/StellarisWare/driverlib\lpc.c **** //!
+  99:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 100:C:/StellarisWare/driverlib\lpc.c **** //
+ 101:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 102:C:/StellarisWare/driverlib\lpc.c **** void
+ 103:C:/StellarisWare/driverlib\lpc.c **** LPCConfigSet(unsigned long ulBase, unsigned long ulConfig)
+ 104:C:/StellarisWare/driverlib\lpc.c **** {
+  27              		.loc 1 104 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 85B0     		sub	sp, sp, #20
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 24
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 3960     		str	r1, [r7, #0]
+ 105:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+ 106:C:/StellarisWare/driverlib\lpc.c **** 
+ 107:C:/StellarisWare/driverlib\lpc.c ****     //
+ 108:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 109:C:/StellarisWare/driverlib\lpc.c ****     //
+ 110:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 111:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & ~(LPC_CFG_WAKE)) == 0);
+ 112:C:/StellarisWare/driverlib\lpc.c **** 
+ 113:C:/StellarisWare/driverlib\lpc.c ****     //
+ 114:C:/StellarisWare/driverlib\lpc.c ****     // Configure the appropriate LPC Control Register fields.
+ 115:C:/StellarisWare/driverlib\lpc.c ****     //
+ 116:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_CTL);
+  44              		.loc 1 116 0
+  45 000a 7B68     		ldr	r3, [r7, #4]
+  46 000c 1B68     		ldr	r3, [r3, #0]
+  47 000e FB60     		str	r3, [r7, #12]
+ 117:C:/StellarisWare/driverlib\lpc.c ****     ulTemp &= ~LPC_CTL_WAKE;
+  48              		.loc 1 117 0
+  49 0010 FB68     		ldr	r3, [r7, #12]
+  50 0012 23F48073 		bic	r3, r3, #256
+  51 0016 FB60     		str	r3, [r7, #12]
+ 118:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= (ulConfig & LPC_CTL_WAKE);
+  52              		.loc 1 118 0
+  53 0018 3B68     		ldr	r3, [r7, #0]
+  54 001a 03F48073 		and	r3, r3, #256
+  55 001e FA68     		ldr	r2, [r7, #12]
+  56 0020 1343     		orrs	r3, r3, r2
+  57 0022 FB60     		str	r3, [r7, #12]
+ 119:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) = ulTemp;
+  58              		.loc 1 119 0
+  59 0024 7B68     		ldr	r3, [r7, #4]
+  60 0026 FA68     		ldr	r2, [r7, #12]
+  61 0028 1A60     		str	r2, [r3, #0]
+ 120:C:/StellarisWare/driverlib\lpc.c **** }
+  62              		.loc 1 120 0
+  63 002a 07F11407 		add	r7, r7, #20
+  64 002e BD46     		mov	sp, r7
+  65 0030 80BC     		pop	{r7}
+  66 0032 7047     		bx	lr
+  67              		.cfi_endproc
+  68              	.LFE0:
+  70              		.section	.text.LPCConfigGet,"ax",%progbits
+  71              		.align	2
+  72              		.global	LPCConfigGet
+  73              		.thumb
+  74              		.thumb_func
+  76              	LPCConfigGet:
+  77              	.LFB1:
+ 121:C:/StellarisWare/driverlib\lpc.c **** 
+ 122:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 123:C:/StellarisWare/driverlib\lpc.c **** //
+ 124:C:/StellarisWare/driverlib\lpc.c **** //! Gets the current configuration of the LPC module.
+ 125:C:/StellarisWare/driverlib\lpc.c **** //!
+ 126:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 127:C:/StellarisWare/driverlib\lpc.c **** //!
+ 128:C:/StellarisWare/driverlib\lpc.c **** //! This function queries the control register of the LPC module and returns
+ 129:C:/StellarisWare/driverlib\lpc.c **** //! a bit-mapped value.
+ 130:C:/StellarisWare/driverlib\lpc.c **** //!
+ 131:C:/StellarisWare/driverlib\lpc.c **** //! \sa The description of the LPCConfigSet() function provides detailed
+ 132:C:/StellarisWare/driverlib\lpc.c **** //! information for the bit-mapped configuration values that are returned.
+ 133:C:/StellarisWare/driverlib\lpc.c **** //!
+ 134:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the bit-mapped LPC module configration value.
+ 135:C:/StellarisWare/driverlib\lpc.c **** //
+ 136:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 137:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+ 138:C:/StellarisWare/driverlib\lpc.c **** LPCConfigGet(unsigned long ulBase)
+ 139:C:/StellarisWare/driverlib\lpc.c **** {
+  78              		.loc 1 139 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 8
+  81              		@ frame_needed = 1, uses_anonymous_args = 0
+  82              		@ link register save eliminated.
+  83 0000 80B4     		push	{r7}
+  84              	.LCFI3:
+  85              		.cfi_def_cfa_offset 4
+  86              		.cfi_offset 7, -4
+  87 0002 83B0     		sub	sp, sp, #12
+  88              	.LCFI4:
+  89              		.cfi_def_cfa_offset 16
+  90 0004 00AF     		add	r7, sp, #0
+  91              	.LCFI5:
+  92              		.cfi_def_cfa_register 7
+  93 0006 7860     		str	r0, [r7, #4]
+ 140:C:/StellarisWare/driverlib\lpc.c ****     //
+ 141:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 142:C:/StellarisWare/driverlib\lpc.c ****     //
+ 143:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 144:C:/StellarisWare/driverlib\lpc.c **** 
+ 145:C:/StellarisWare/driverlib\lpc.c ****     //
+ 146:C:/StellarisWare/driverlib\lpc.c ****     // Return the configuration value
+ 147:C:/StellarisWare/driverlib\lpc.c ****     //
+ 148:C:/StellarisWare/driverlib\lpc.c ****     return((HWREG(ulBase + LPC_O_CTL) & LPC_CTL_WAKE));
+  94              		.loc 1 148 0
+  95 0008 7B68     		ldr	r3, [r7, #4]
+  96 000a 1B68     		ldr	r3, [r3, #0]
+  97 000c 03F48073 		and	r3, r3, #256
+ 149:C:/StellarisWare/driverlib\lpc.c **** }
+  98              		.loc 1 149 0
+  99 0010 1846     		mov	r0, r3
+ 100 0012 07F10C07 		add	r7, r7, #12
+ 101 0016 BD46     		mov	sp, r7
+ 102 0018 80BC     		pop	{r7}
+ 103 001a 7047     		bx	lr
+ 104              		.cfi_endproc
+ 105              	.LFE1:
+ 107              		.section	.text.LPCStatusBlockAddressSet,"ax",%progbits
+ 108              		.align	2
+ 109              		.global	LPCStatusBlockAddressSet
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	LPCStatusBlockAddressSet:
+ 114              	.LFB2:
+ 150:C:/StellarisWare/driverlib\lpc.c **** 
+ 151:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 152:C:/StellarisWare/driverlib\lpc.c **** //
+ 153:C:/StellarisWare/driverlib\lpc.c **** //! Sets the Status Block Address for the LPC peripheral.
+ 154:C:/StellarisWare/driverlib\lpc.c **** //!
+ 155:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 156:C:/StellarisWare/driverlib\lpc.c **** //! \param ulAddress is the host address to use for the block status.
+ 157:C:/StellarisWare/driverlib\lpc.c **** //! \param bEnabled indicates whether the block address feature should
+ 158:C:/StellarisWare/driverlib\lpc.c **** //! be enabled.
+ 159:C:/StellarisWare/driverlib\lpc.c **** //!
+ 160:C:/StellarisWare/driverlib\lpc.c **** //! This function sets the LPC block address register and optionally enables
+ 161:C:/StellarisWare/driverlib\lpc.c **** //! it.
+ 162:C:/StellarisWare/driverlib\lpc.c **** //!
+ 163:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 164:C:/StellarisWare/driverlib\lpc.c **** //
+ 165:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 166:C:/StellarisWare/driverlib\lpc.c **** void
+ 167:C:/StellarisWare/driverlib\lpc.c **** LPCStatusBlockAddressSet(unsigned long ulBase, unsigned long ulAddress,
+ 168:C:/StellarisWare/driverlib\lpc.c ****                          tBoolean bEnabled)
+ 169:C:/StellarisWare/driverlib\lpc.c **** {
+ 115              		.loc 1 169 0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 16
+ 118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 119              		@ link register save eliminated.
+ 120 0000 80B4     		push	{r7}
+ 121              	.LCFI6:
+ 122              		.cfi_def_cfa_offset 4
+ 123              		.cfi_offset 7, -4
+ 124 0002 85B0     		sub	sp, sp, #20
+ 125              	.LCFI7:
+ 126              		.cfi_def_cfa_offset 24
+ 127 0004 00AF     		add	r7, sp, #0
+ 128              	.LCFI8:
+ 129              		.cfi_def_cfa_register 7
+ 130 0006 F860     		str	r0, [r7, #12]
+ 131 0008 B960     		str	r1, [r7, #8]
+ 132 000a 1346     		mov	r3, r2
+ 133 000c FB71     		strb	r3, [r7, #7]
+ 170:C:/StellarisWare/driverlib\lpc.c ****     //
+ 171:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 172:C:/StellarisWare/driverlib\lpc.c ****     //
+ 173:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 174:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulAddress & ~0xFFFFFFFE) == 0);
+ 175:C:/StellarisWare/driverlib\lpc.c **** 
+ 176:C:/StellarisWare/driverlib\lpc.c ****     //
+ 177:C:/StellarisWare/driverlib\lpc.c ****     // Set (and optionally enable) the Status Block Address
+ 178:C:/StellarisWare/driverlib\lpc.c ****     //
+ 179:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_STSADDR) = (ulAddress | (bEnabled ? 1 : 0));
+ 134              		.loc 1 179 0
+ 135 000e FB68     		ldr	r3, [r7, #12]
+ 136 0010 03F1A003 		add	r3, r3, #160
+ 137 0014 1A46     		mov	r2, r3
+ 138 0016 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 139 0018 002B     		cmp	r3, #0
+ 140 001a 02D0     		beq	.L4
+ 141              		.loc 1 179 0 is_stmt 0 discriminator 1
+ 142 001c 4FF00103 		mov	r3, #1
+ 143 0020 01E0     		b	.L5
+ 144              	.L4:
+ 145              		.loc 1 179 0 discriminator 2
+ 146 0022 4FF00003 		mov	r3, #0
+ 147              	.L5:
+ 148              		.loc 1 179 0 discriminator 3
+ 149 0026 B968     		ldr	r1, [r7, #8]
+ 150 0028 0B43     		orrs	r3, r3, r1
+ 151 002a 1360     		str	r3, [r2, #0]
+ 180:C:/StellarisWare/driverlib\lpc.c **** }
+ 152              		.loc 1 180 0 is_stmt 1 discriminator 3
+ 153 002c 07F11407 		add	r7, r7, #20
+ 154 0030 BD46     		mov	sp, r7
+ 155 0032 80BC     		pop	{r7}
+ 156 0034 7047     		bx	lr
+ 157              		.cfi_endproc
+ 158              	.LFE2:
+ 160 0036 00BF     		.section	.text.LPCStatusBlockAddressGet,"ax",%progbits
+ 161              		.align	2
+ 162              		.global	LPCStatusBlockAddressGet
+ 163              		.thumb
+ 164              		.thumb_func
+ 166              	LPCStatusBlockAddressGet:
+ 167              	.LFB3:
+ 181:C:/StellarisWare/driverlib\lpc.c **** 
+ 182:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 183:C:/StellarisWare/driverlib\lpc.c **** //
+ 184:C:/StellarisWare/driverlib\lpc.c **** //! Gets the Status Block Address for the LPC peripheral.
+ 185:C:/StellarisWare/driverlib\lpc.c **** //!
+ 186:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 187:C:/StellarisWare/driverlib\lpc.c **** //!
+ 188:C:/StellarisWare/driverlib\lpc.c **** //! This function returns the LPC block address register.  The LSB is used
+ 189:C:/StellarisWare/driverlib\lpc.c **** //! to indicate whether this feature has been enabled or not.
+ 190:C:/StellarisWare/driverlib\lpc.c **** //!
+ 191:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 192:C:/StellarisWare/driverlib\lpc.c **** //
+ 193:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 194:C:/StellarisWare/driverlib\lpc.c **** unsigned
+ 195:C:/StellarisWare/driverlib\lpc.c **** LPCStatusBlockAddressGet(unsigned long ulBase)
+ 196:C:/StellarisWare/driverlib\lpc.c **** {
+ 168              		.loc 1 196 0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 8
+ 171              		@ frame_needed = 1, uses_anonymous_args = 0
+ 172              		@ link register save eliminated.
+ 173 0000 80B4     		push	{r7}
+ 174              	.LCFI9:
+ 175              		.cfi_def_cfa_offset 4
+ 176              		.cfi_offset 7, -4
+ 177 0002 83B0     		sub	sp, sp, #12
+ 178              	.LCFI10:
+ 179              		.cfi_def_cfa_offset 16
+ 180 0004 00AF     		add	r7, sp, #0
+ 181              	.LCFI11:
+ 182              		.cfi_def_cfa_register 7
+ 183 0006 7860     		str	r0, [r7, #4]
+ 197:C:/StellarisWare/driverlib\lpc.c ****     //
+ 198:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 199:C:/StellarisWare/driverlib\lpc.c ****     //
+ 200:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 201:C:/StellarisWare/driverlib\lpc.c **** 
+ 202:C:/StellarisWare/driverlib\lpc.c ****     //
+ 203:C:/StellarisWare/driverlib\lpc.c ****     // Return the Status Block Address, including the enable bit.
+ 204:C:/StellarisWare/driverlib\lpc.c ****     //
+ 205:C:/StellarisWare/driverlib\lpc.c ****     return(HWREG(ulBase + LPC_O_STSADDR));
+ 184              		.loc 1 205 0
+ 185 0008 7B68     		ldr	r3, [r7, #4]
+ 186 000a 03F1A003 		add	r3, r3, #160
+ 187 000e 1B68     		ldr	r3, [r3, #0]
+ 206:C:/StellarisWare/driverlib\lpc.c **** }
+ 188              		.loc 1 206 0
+ 189 0010 1846     		mov	r0, r3
+ 190 0012 07F10C07 		add	r7, r7, #12
+ 191 0016 BD46     		mov	sp, r7
+ 192 0018 80BC     		pop	{r7}
+ 193 001a 7047     		bx	lr
+ 194              		.cfi_endproc
+ 195              	.LFE3:
+ 197              		.section	.text.LPCStatusGet,"ax",%progbits
+ 198              		.align	2
+ 199              		.global	LPCStatusGet
+ 200              		.thumb
+ 201              		.thumb_func
+ 203              	LPCStatusGet:
+ 204              	.LFB4:
+ 207:C:/StellarisWare/driverlib\lpc.c **** 
+ 208:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 209:C:/StellarisWare/driverlib\lpc.c **** //
+ 210:C:/StellarisWare/driverlib\lpc.c **** //! Returns the status of the LPC module.
+ 211:C:/StellarisWare/driverlib\lpc.c **** //!
+ 212:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 213:C:/StellarisWare/driverlib\lpc.c **** //! \param pulCount is a pointer to storage for the channel count.
+ 214:C:/StellarisWare/driverlib\lpc.c **** //! \param pulPoolSize is a pointer to storage for the register pool size.
+ 215:C:/StellarisWare/driverlib\lpc.c **** //!
+ 216:C:/StellarisWare/driverlib\lpc.c **** //! This function reads the value of the LPC Status register, calculates the
+ 217:C:/StellarisWare/driverlib\lpc.c **** //! number of channels and buffer pool size, and then returns the raw status
+ 218:C:/StellarisWare/driverlib\lpc.c **** //! value.
+ 219:C:/StellarisWare/driverlib\lpc.c **** //!
+ 220:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the contents of the LPC Status register.
+ 221:C:/StellarisWare/driverlib\lpc.c **** //
+ 222:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 223:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+ 224:C:/StellarisWare/driverlib\lpc.c **** LPCStatusGet(unsigned long ulBase, unsigned long *pulCount,
+ 225:C:/StellarisWare/driverlib\lpc.c ****              unsigned long *pulPoolSize)
+ 226:C:/StellarisWare/driverlib\lpc.c **** {
+ 205              		.loc 1 226 0
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 24
+ 208              		@ frame_needed = 1, uses_anonymous_args = 0
+ 209              		@ link register save eliminated.
+ 210 0000 80B4     		push	{r7}
+ 211              	.LCFI12:
+ 212              		.cfi_def_cfa_offset 4
+ 213              		.cfi_offset 7, -4
+ 214 0002 87B0     		sub	sp, sp, #28
+ 215              	.LCFI13:
+ 216              		.cfi_def_cfa_offset 32
+ 217 0004 00AF     		add	r7, sp, #0
+ 218              	.LCFI14:
+ 219              		.cfi_def_cfa_register 7
+ 220 0006 F860     		str	r0, [r7, #12]
+ 221 0008 B960     		str	r1, [r7, #8]
+ 222 000a 7A60     		str	r2, [r7, #4]
+ 227:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulStatus;
+ 228:C:/StellarisWare/driverlib\lpc.c **** 
+ 229:C:/StellarisWare/driverlib\lpc.c ****     //
+ 230:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 231:C:/StellarisWare/driverlib\lpc.c ****     //
+ 232:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 233:C:/StellarisWare/driverlib\lpc.c **** 
+ 234:C:/StellarisWare/driverlib\lpc.c ****     //
+ 235:C:/StellarisWare/driverlib\lpc.c ****     // Get a snapshot of the status register.
+ 236:C:/StellarisWare/driverlib\lpc.c ****     //
+ 237:C:/StellarisWare/driverlib\lpc.c ****     ulStatus = HWREG(ulBase + LPC_O_STS);
+ 223              		.loc 1 237 0
+ 224 000c FB68     		ldr	r3, [r7, #12]
+ 225 000e 03F10403 		add	r3, r3, #4
+ 226 0012 1B68     		ldr	r3, [r3, #0]
+ 227 0014 7B61     		str	r3, [r7, #20]
+ 238:C:/StellarisWare/driverlib\lpc.c **** 
+ 239:C:/StellarisWare/driverlib\lpc.c ****     //
+ 240:C:/StellarisWare/driverlib\lpc.c ****     // Extract the channel count from the status, including COMx channel.
+ 241:C:/StellarisWare/driverlib\lpc.c ****     //
+ 242:C:/StellarisWare/driverlib\lpc.c ****     if(pulCount)
+ 228              		.loc 1 242 0
+ 229 0016 BB68     		ldr	r3, [r7, #8]
+ 230 0018 002B     		cmp	r3, #0
+ 231 001a 08D0     		beq	.L8
+ 243:C:/StellarisWare/driverlib\lpc.c ****     {
+ 244:C:/StellarisWare/driverlib\lpc.c ****         *pulCount = (((ulStatus & LPC_STS_CHCNT_M) >> LPC_STS_CHCNT_S) + 1);
+ 232              		.loc 1 244 0
+ 233 001c 7B69     		ldr	r3, [r7, #20]
+ 234 001e 03F4E003 		and	r3, r3, #7340032
+ 235 0022 4FEA1353 		lsr	r3, r3, #20
+ 236 0026 03F10102 		add	r2, r3, #1
+ 237 002a BB68     		ldr	r3, [r7, #8]
+ 238 002c 1A60     		str	r2, [r3, #0]
+ 239              	.L8:
+ 245:C:/StellarisWare/driverlib\lpc.c ****     }
+ 246:C:/StellarisWare/driverlib\lpc.c **** 
+ 247:C:/StellarisWare/driverlib\lpc.c ****     //
+ 248:C:/StellarisWare/driverlib\lpc.c ****     // Extract/Calculate the register pool size.
+ 249:C:/StellarisWare/driverlib\lpc.c ****     //
+ 250:C:/StellarisWare/driverlib\lpc.c ****     if(pulPoolSize)
+ 240              		.loc 1 250 0
+ 241 002e 7B68     		ldr	r3, [r7, #4]
+ 242 0030 002B     		cmp	r3, #0
+ 243 0032 08D0     		beq	.L9
+ 251:C:/StellarisWare/driverlib\lpc.c ****     {
+ 252:C:/StellarisWare/driverlib\lpc.c ****         *pulPoolSize = (((ulStatus & LPC_STS_POOLSZ_M) >> 16) * 256);
+ 244              		.loc 1 252 0
+ 245 0034 7B69     		ldr	r3, [r7, #20]
+ 246 0036 03F4E023 		and	r3, r3, #458752
+ 247 003a 4FEA1343 		lsr	r3, r3, #16
+ 248 003e 4FEA0322 		lsl	r2, r3, #8
+ 249 0042 7B68     		ldr	r3, [r7, #4]
+ 250 0044 1A60     		str	r2, [r3, #0]
+ 251              	.L9:
+ 253:C:/StellarisWare/driverlib\lpc.c ****     }
+ 254:C:/StellarisWare/driverlib\lpc.c **** 
+ 255:C:/StellarisWare/driverlib\lpc.c ****     //
+ 256:C:/StellarisWare/driverlib\lpc.c ****     // Return the raw status.
+ 257:C:/StellarisWare/driverlib\lpc.c ****     //
+ 258:C:/StellarisWare/driverlib\lpc.c ****     return(ulStatus);
+ 252              		.loc 1 258 0
+ 253 0046 7B69     		ldr	r3, [r7, #20]
+ 259:C:/StellarisWare/driverlib\lpc.c **** }
+ 254              		.loc 1 259 0
+ 255 0048 1846     		mov	r0, r3
+ 256 004a 07F11C07 		add	r7, r7, #28
+ 257 004e BD46     		mov	sp, r7
+ 258 0050 80BC     		pop	{r7}
+ 259 0052 7047     		bx	lr
+ 260              		.cfi_endproc
+ 261              	.LFE4:
+ 263              		.section	.text.LPCSCIAssert,"ax",%progbits
+ 264              		.align	2
+ 265              		.global	LPCSCIAssert
+ 266              		.thumb
+ 267              		.thumb_func
+ 269              	LPCSCIAssert:
+ 270              	.LFB5:
+ 260:C:/StellarisWare/driverlib\lpc.c **** 
+ 261:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 262:C:/StellarisWare/driverlib\lpc.c **** //
+ 263:C:/StellarisWare/driverlib\lpc.c **** //! Generates a pulse on the SCIn signal.
+ 264:C:/StellarisWare/driverlib\lpc.c **** //!
+ 265:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 266:C:/StellarisWare/driverlib\lpc.c **** //! \param ulCount is the number used to generate the pulse width value.
+ 267:C:/StellarisWare/driverlib\lpc.c **** //!
+ 268:C:/StellarisWare/driverlib\lpc.c **** //! This function generates a pulse on the SCIn interrupt pin.  The width of
+ 269:C:/StellarisWare/driverlib\lpc.c **** //! the pulse is (2 << \e ulCount) LPC Clock Periods, where \e ulCount can take
+ 270:C:/StellarisWare/driverlib\lpc.c **** //! on the value of 0, 1, 2, or 3.  So, the pulse width is 2, 4, 8, or 16 clock
+ 271:C:/StellarisWare/driverlib\lpc.c **** //! periods.
+ 272:C:/StellarisWare/driverlib\lpc.c **** //!
+ 273:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 274:C:/StellarisWare/driverlib\lpc.c **** //
+ 275:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 276:C:/StellarisWare/driverlib\lpc.c **** void
+ 277:C:/StellarisWare/driverlib\lpc.c **** LPCSCIAssert(unsigned long ulBase, unsigned long ulCount)
+ 278:C:/StellarisWare/driverlib\lpc.c **** {
+ 271              		.loc 1 278 0
+ 272              		.cfi_startproc
+ 273              		@ args = 0, pretend = 0, frame = 8
+ 274              		@ frame_needed = 1, uses_anonymous_args = 0
+ 275              		@ link register save eliminated.
+ 276 0000 80B4     		push	{r7}
+ 277              	.LCFI15:
+ 278              		.cfi_def_cfa_offset 4
+ 279              		.cfi_offset 7, -4
+ 280 0002 83B0     		sub	sp, sp, #12
+ 281              	.LCFI16:
+ 282              		.cfi_def_cfa_offset 16
+ 283 0004 00AF     		add	r7, sp, #0
+ 284              	.LCFI17:
+ 285              		.cfi_def_cfa_register 7
+ 286 0006 7860     		str	r0, [r7, #4]
+ 287 0008 3960     		str	r1, [r7, #0]
+ 279:C:/StellarisWare/driverlib\lpc.c ****     //
+ 280:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 281:C:/StellarisWare/driverlib\lpc.c ****     //
+ 282:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 283:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulCount <= 3);
+ 284:C:/StellarisWare/driverlib\lpc.c **** 
+ 285:C:/StellarisWare/driverlib\lpc.c ****     //
+ 286:C:/StellarisWare/driverlib\lpc.c ****     // Wait for any previous pulse to be completed, by checking the SCI bit
+ 287:C:/StellarisWare/driverlib\lpc.c ****     // (which is a self-clearing bit that is used to generate the pulse).
+ 288:C:/StellarisWare/driverlib\lpc.c ****     //
+ 289:C:/StellarisWare/driverlib\lpc.c ****     while(HWREG(ulBase + LPC_O_CTL) & LPC_CTL_SCI)
+ 288              		.loc 1 289 0
+ 289 000a 00BF     		nop
+ 290              	.L11:
+ 291              		.loc 1 289 0 is_stmt 0 discriminator 1
+ 292 000c 7B68     		ldr	r3, [r7, #4]
+ 293 000e 1B68     		ldr	r3, [r3, #0]
+ 294 0010 03F40073 		and	r3, r3, #512
+ 295 0014 002B     		cmp	r3, #0
+ 296 0016 F9D1     		bne	.L11
+ 290:C:/StellarisWare/driverlib\lpc.c ****     {
+ 291:C:/StellarisWare/driverlib\lpc.c ****     }
+ 292:C:/StellarisWare/driverlib\lpc.c **** 
+ 293:C:/StellarisWare/driverlib\lpc.c ****     //
+ 294:C:/StellarisWare/driverlib\lpc.c ****     // Set the count value first, prior to enabling the pulse.
+ 295:C:/StellarisWare/driverlib\lpc.c ****     //
+ 296:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) &= ~LPC_CTL_SCICNT_M;
+ 297              		.loc 1 296 0 is_stmt 1
+ 298 0018 7B68     		ldr	r3, [r7, #4]
+ 299 001a 7A68     		ldr	r2, [r7, #4]
+ 300 001c 1268     		ldr	r2, [r2, #0]
+ 301 001e 22F44062 		bic	r2, r2, #3072
+ 302 0022 1A60     		str	r2, [r3, #0]
+ 297:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) |= (ulCount << 10);
+ 303              		.loc 1 297 0
+ 304 0024 7B68     		ldr	r3, [r7, #4]
+ 305 0026 7A68     		ldr	r2, [r7, #4]
+ 306 0028 1168     		ldr	r1, [r2, #0]
+ 307 002a 3A68     		ldr	r2, [r7, #0]
+ 308 002c 4FEA8222 		lsl	r2, r2, #10
+ 309 0030 0A43     		orrs	r2, r2, r1
+ 310 0032 1A60     		str	r2, [r3, #0]
+ 298:C:/StellarisWare/driverlib\lpc.c **** 
+ 299:C:/StellarisWare/driverlib\lpc.c ****     //
+ 300:C:/StellarisWare/driverlib\lpc.c ****     // Now, generate the pulse by setting the SCI bit.
+ 301:C:/StellarisWare/driverlib\lpc.c ****     //
+ 302:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) |= LPC_CTL_SCI;
+ 311              		.loc 1 302 0
+ 312 0034 7B68     		ldr	r3, [r7, #4]
+ 313 0036 7A68     		ldr	r2, [r7, #4]
+ 314 0038 1268     		ldr	r2, [r2, #0]
+ 315 003a 42F40072 		orr	r2, r2, #512
+ 316 003e 1A60     		str	r2, [r3, #0]
+ 303:C:/StellarisWare/driverlib\lpc.c **** }
+ 317              		.loc 1 303 0
+ 318 0040 07F10C07 		add	r7, r7, #12
+ 319 0044 BD46     		mov	sp, r7
+ 320 0046 80BC     		pop	{r7}
+ 321 0048 7047     		bx	lr
+ 322              		.cfi_endproc
+ 323              	.LFE5:
+ 325 004a 00BF     		.section	.text.LPCIRQConfig,"ax",%progbits
+ 326              		.align	2
+ 327              		.global	LPCIRQConfig
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	LPCIRQConfig:
+ 332              	.LFB6:
+ 304:C:/StellarisWare/driverlib\lpc.c **** 
+ 305:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 306:C:/StellarisWare/driverlib\lpc.c **** //
+ 307:C:/StellarisWare/driverlib\lpc.c **** //! Configure the LPC IRQ operation.
+ 308:C:/StellarisWare/driverlib\lpc.c **** //!
+ 309:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase is the base address of the LPC module.
+ 310:C:/StellarisWare/driverlib\lpc.c **** //! \param bIRQPulse is a flag to indicate the manual IRQ bits should be
+ 311:C:/StellarisWare/driverlib\lpc.c **** //! cleared after they have been sent (in an SIRQ frame).
+ 312:C:/StellarisWare/driverlib\lpc.c **** //! \param bIRQOnChange is a flag to indicate that an SIRQ frame should be
+ 313:C:/StellarisWare/driverlib\lpc.c **** //! sent whenever any IRQ bits (manual/auto) change status.
+ 314:C:/StellarisWare/driverlib\lpc.c **** //!
+ 315:C:/StellarisWare/driverlib\lpc.c **** //! This function configures the LPC IRQs.  If the \e bIRQPulse parameter is
+ 316:C:/StellarisWare/driverlib\lpc.c **** //! \b true, then manual IRQ values are cleared after they are sent.  If the
+ 317:C:/StellarisWare/driverlib\lpc.c **** //! \e bIRQOnChange parameter is true, then IRQ values (manual and/or
+ 318:C:/StellarisWare/driverlib\lpc.c **** //! automatic) are sent when a change is detected.
+ 319:C:/StellarisWare/driverlib\lpc.c **** //!
+ 320:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 321:C:/StellarisWare/driverlib\lpc.c **** //
+ 322:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 323:C:/StellarisWare/driverlib\lpc.c **** void
+ 324:C:/StellarisWare/driverlib\lpc.c **** LPCIRQConfig(unsigned long ulBase, tBoolean bIRQPulse, tBoolean bIRQOnChange)
+ 325:C:/StellarisWare/driverlib\lpc.c **** {
+ 333              		.loc 1 325 0
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 8
+ 336              		@ frame_needed = 1, uses_anonymous_args = 0
+ 337              		@ link register save eliminated.
+ 338 0000 80B4     		push	{r7}
+ 339              	.LCFI18:
+ 340              		.cfi_def_cfa_offset 4
+ 341              		.cfi_offset 7, -4
+ 342 0002 83B0     		sub	sp, sp, #12
+ 343              	.LCFI19:
+ 344              		.cfi_def_cfa_offset 16
+ 345 0004 00AF     		add	r7, sp, #0
+ 346              	.LCFI20:
+ 347              		.cfi_def_cfa_register 7
+ 348 0006 7860     		str	r0, [r7, #4]
+ 349 0008 1346     		mov	r3, r2
+ 350 000a 0A46     		mov	r2, r1
+ 351 000c FA70     		strb	r2, [r7, #3]
+ 352 000e BB70     		strb	r3, [r7, #2]
+ 326:C:/StellarisWare/driverlib\lpc.c ****     //
+ 327:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 328:C:/StellarisWare/driverlib\lpc.c ****     //
+ 329:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 330:C:/StellarisWare/driverlib\lpc.c **** 
+ 331:C:/StellarisWare/driverlib\lpc.c ****     //
+ 332:C:/StellarisWare/driverlib\lpc.c ****     // Setup IRQ pulse configuration.
+ 333:C:/StellarisWare/driverlib\lpc.c ****     //
+ 334:C:/StellarisWare/driverlib\lpc.c ****     if(bIRQPulse)
+ 353              		.loc 1 334 0
+ 354 0010 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 355 0012 002B     		cmp	r3, #0
+ 356 0014 0AD0     		beq	.L13
+ 335:C:/StellarisWare/driverlib\lpc.c ****     {
+ 336:C:/StellarisWare/driverlib\lpc.c ****         HWREG(ulBase + LPC_O_IRQCTL) |= LPC_IRQCTL_PULSE;
+ 357              		.loc 1 336 0
+ 358 0016 7B68     		ldr	r3, [r7, #4]
+ 359 0018 03F10803 		add	r3, r3, #8
+ 360 001c 7A68     		ldr	r2, [r7, #4]
+ 361 001e 02F10802 		add	r2, r2, #8
+ 362 0022 1268     		ldr	r2, [r2, #0]
+ 363 0024 42F00402 		orr	r2, r2, #4
+ 364 0028 1A60     		str	r2, [r3, #0]
+ 365 002a 09E0     		b	.L14
+ 366              	.L13:
+ 337:C:/StellarisWare/driverlib\lpc.c ****     }
+ 338:C:/StellarisWare/driverlib\lpc.c ****     else
+ 339:C:/StellarisWare/driverlib\lpc.c ****     {
+ 340:C:/StellarisWare/driverlib\lpc.c ****         HWREG(ulBase + LPC_O_IRQCTL) &= ~LPC_IRQCTL_PULSE;
+ 367              		.loc 1 340 0
+ 368 002c 7B68     		ldr	r3, [r7, #4]
+ 369 002e 03F10803 		add	r3, r3, #8
+ 370 0032 7A68     		ldr	r2, [r7, #4]
+ 371 0034 02F10802 		add	r2, r2, #8
+ 372 0038 1268     		ldr	r2, [r2, #0]
+ 373 003a 22F00402 		bic	r2, r2, #4
+ 374 003e 1A60     		str	r2, [r3, #0]
+ 375              	.L14:
+ 341:C:/StellarisWare/driverlib\lpc.c ****     }
+ 342:C:/StellarisWare/driverlib\lpc.c **** 
+ 343:C:/StellarisWare/driverlib\lpc.c ****     //
+ 344:C:/StellarisWare/driverlib\lpc.c ****     // Setup IRQ on-change configuration.
+ 345:C:/StellarisWare/driverlib\lpc.c ****     //
+ 346:C:/StellarisWare/driverlib\lpc.c ****     if(bIRQOnChange)
+ 376              		.loc 1 346 0
+ 377 0040 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 378 0042 002B     		cmp	r3, #0
+ 379 0044 0AD0     		beq	.L15
+ 347:C:/StellarisWare/driverlib\lpc.c ****     {
+ 348:C:/StellarisWare/driverlib\lpc.c ****         HWREG(ulBase + LPC_O_IRQCTL) |= LPC_IRQCTL_ONCHG;
+ 380              		.loc 1 348 0
+ 381 0046 7B68     		ldr	r3, [r7, #4]
+ 382 0048 03F10803 		add	r3, r3, #8
+ 383 004c 7A68     		ldr	r2, [r7, #4]
+ 384 004e 02F10802 		add	r2, r2, #8
+ 385 0052 1268     		ldr	r2, [r2, #0]
+ 386 0054 42F00202 		orr	r2, r2, #2
+ 387 0058 1A60     		str	r2, [r3, #0]
+ 388 005a 09E0     		b	.L12
+ 389              	.L15:
+ 349:C:/StellarisWare/driverlib\lpc.c ****     }
+ 350:C:/StellarisWare/driverlib\lpc.c ****     else
+ 351:C:/StellarisWare/driverlib\lpc.c ****     {
+ 352:C:/StellarisWare/driverlib\lpc.c ****         HWREG(ulBase + LPC_O_IRQCTL) &= ~LPC_IRQCTL_ONCHG;
+ 390              		.loc 1 352 0
+ 391 005c 7B68     		ldr	r3, [r7, #4]
+ 392 005e 03F10803 		add	r3, r3, #8
+ 393 0062 7A68     		ldr	r2, [r7, #4]
+ 394 0064 02F10802 		add	r2, r2, #8
+ 395 0068 1268     		ldr	r2, [r2, #0]
+ 396 006a 22F00202 		bic	r2, r2, #2
+ 397 006e 1A60     		str	r2, [r3, #0]
+ 398              	.L12:
+ 353:C:/StellarisWare/driverlib\lpc.c ****     }
+ 354:C:/StellarisWare/driverlib\lpc.c **** }
+ 399              		.loc 1 354 0
+ 400 0070 07F10C07 		add	r7, r7, #12
+ 401 0074 BD46     		mov	sp, r7
+ 402 0076 80BC     		pop	{r7}
+ 403 0078 7047     		bx	lr
+ 404              		.cfi_endproc
+ 405              	.LFE6:
+ 407 007a 00BF     		.section	.text.LPCIRQSet,"ax",%progbits
+ 408              		.align	2
+ 409              		.global	LPCIRQSet
+ 410              		.thumb
+ 411              		.thumb_func
+ 413              	LPCIRQSet:
+ 414              	.LFB7:
+ 355:C:/StellarisWare/driverlib\lpc.c **** 
+ 356:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 357:C:/StellarisWare/driverlib\lpc.c **** //
+ 358:C:/StellarisWare/driverlib\lpc.c **** //! Set the manual LPC IRQ bits.
+ 359:C:/StellarisWare/driverlib\lpc.c **** //!
+ 360:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 361:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIRQ specifies the IRQ bits that should be set.
+ 362:C:/StellarisWare/driverlib\lpc.c **** //!
+ 363:C:/StellarisWare/driverlib\lpc.c **** //! This function sets the IRQ bits that are sent in the SERIRQ frame.  The
+ 364:C:/StellarisWare/driverlib\lpc.c **** //! value in the \e ulIRQ register is OR-ed into the existing manual IRQ
+ 365:C:/StellarisWare/driverlib\lpc.c **** //! setting.  The value for the \e ulIRQ parameter can be any combination of
+ 366:C:/StellarisWare/driverlib\lpc.c **** //! the following values:  \b LPC_IRQ15, \b LPC_IRQ14, \b LPC_IRQ13,
+ 367:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ12, \b LPC_IRQ11, \b LPC_IRQ10, \b LPC_IRQ9, \b LPC_IRQ8,
+ 368:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ7,  \b LPC_IRQ6, \b LPC_IRQ5, \b LPC_IRQ4, \b LPC_IRQ3,
+ 369:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ2, \b LPC_IRQ1, or \b LPC_IRQ0.
+ 370:C:/StellarisWare/driverlib\lpc.c **** //!
+ 371:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 372:C:/StellarisWare/driverlib\lpc.c **** //
+ 373:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 374:C:/StellarisWare/driverlib\lpc.c **** void
+ 375:C:/StellarisWare/driverlib\lpc.c **** LPCIRQSet(unsigned long ulBase, unsigned long ulIRQ)
+ 376:C:/StellarisWare/driverlib\lpc.c **** {
+ 415              		.loc 1 376 0
+ 416              		.cfi_startproc
+ 417              		@ args = 0, pretend = 0, frame = 16
+ 418              		@ frame_needed = 1, uses_anonymous_args = 0
+ 419              		@ link register save eliminated.
+ 420 0000 80B4     		push	{r7}
+ 421              	.LCFI21:
+ 422              		.cfi_def_cfa_offset 4
+ 423              		.cfi_offset 7, -4
+ 424 0002 85B0     		sub	sp, sp, #20
+ 425              	.LCFI22:
+ 426              		.cfi_def_cfa_offset 24
+ 427 0004 00AF     		add	r7, sp, #0
+ 428              	.LCFI23:
+ 429              		.cfi_def_cfa_register 7
+ 430 0006 7860     		str	r0, [r7, #4]
+ 431 0008 3960     		str	r1, [r7, #0]
+ 377:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+ 378:C:/StellarisWare/driverlib\lpc.c **** 
+ 379:C:/StellarisWare/driverlib\lpc.c ****     //
+ 380:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 381:C:/StellarisWare/driverlib\lpc.c ****     //
+ 382:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 383:C:/StellarisWare/driverlib\lpc.c **** 
+ 384:C:/StellarisWare/driverlib\lpc.c ****     //
+ 385:C:/StellarisWare/driverlib\lpc.c ****     // Get the current IRQ configuration, mask off the bits that we are to
+ 386:C:/StellarisWare/driverlib\lpc.c ****     // be operating on, set/clear them as appropriate, then rewrite the
+ 387:C:/StellarisWare/driverlib\lpc.c ****     // register.
+ 388:C:/StellarisWare/driverlib\lpc.c ****     //
+ 389:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_IRQCTL);
+ 432              		.loc 1 389 0
+ 433 000a 7B68     		ldr	r3, [r7, #4]
+ 434 000c 03F10803 		add	r3, r3, #8
+ 435 0010 1B68     		ldr	r3, [r3, #0]
+ 436 0012 FB60     		str	r3, [r7, #12]
+ 390:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= (ulIRQ & 0xFFFF0000);
+ 437              		.loc 1 390 0
+ 438 0014 3B68     		ldr	r3, [r7, #0]
+ 439 0016 4FEA1343 		lsr	r3, r3, #16
+ 440 001a 4FEA0343 		lsl	r3, r3, #16
+ 441 001e FA68     		ldr	r2, [r7, #12]
+ 442 0020 1343     		orrs	r3, r3, r2
+ 443 0022 FB60     		str	r3, [r7, #12]
+ 391:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IRQCTL) = ulTemp;
+ 444              		.loc 1 391 0
+ 445 0024 7B68     		ldr	r3, [r7, #4]
+ 446 0026 03F10803 		add	r3, r3, #8
+ 447 002a FA68     		ldr	r2, [r7, #12]
+ 448 002c 1A60     		str	r2, [r3, #0]
+ 392:C:/StellarisWare/driverlib\lpc.c **** }
+ 449              		.loc 1 392 0
+ 450 002e 07F11407 		add	r7, r7, #20
+ 451 0032 BD46     		mov	sp, r7
+ 452 0034 80BC     		pop	{r7}
+ 453 0036 7047     		bx	lr
+ 454              		.cfi_endproc
+ 455              	.LFE7:
+ 457              		.section	.text.LPCIRQClear,"ax",%progbits
+ 458              		.align	2
+ 459              		.global	LPCIRQClear
+ 460              		.thumb
+ 461              		.thumb_func
+ 463              	LPCIRQClear:
+ 464              	.LFB8:
+ 393:C:/StellarisWare/driverlib\lpc.c **** 
+ 394:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 395:C:/StellarisWare/driverlib\lpc.c **** //
+ 396:C:/StellarisWare/driverlib\lpc.c **** //! Clear the manual LPC IRQ bits.
+ 397:C:/StellarisWare/driverlib\lpc.c **** //!
+ 398:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 399:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIRQ specifies the IRQ bits that should be cleared.
+ 400:C:/StellarisWare/driverlib\lpc.c **** //!
+ 401:C:/StellarisWare/driverlib\lpc.c **** //! This function clears the IRQ bits that are sent in the SERIRQ frame.  The
+ 402:C:/StellarisWare/driverlib\lpc.c **** //! value in the \e ulIRQ register is OR-ed into the existing manual IRQ
+ 403:C:/StellarisWare/driverlib\lpc.c **** //! setting.  The value for the \e ulIRQ parameter can be any combination of
+ 404:C:/StellarisWare/driverlib\lpc.c **** //! the following values:  \b LPC_IRQ15, \b LPC_IRQ14, \b LPC_IRQ13,
+ 405:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ12, \b LPC_IRQ11, \b LPC_IRQ10, \b LPC_IRQ9, \b LPC_IRQ8,
+ 406:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ7, \b LPC_IRQ6, \b LPC_IRQ5, \b LPC_IRQ4, \b LPC_IRQ3,
+ 407:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ2, \b LPC_IRQ1, or \b LPC_IRQ0.
+ 408:C:/StellarisWare/driverlib\lpc.c **** //!
+ 409:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 410:C:/StellarisWare/driverlib\lpc.c **** //
+ 411:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 412:C:/StellarisWare/driverlib\lpc.c **** void
+ 413:C:/StellarisWare/driverlib\lpc.c **** LPCIRQClear(unsigned long ulBase, unsigned long ulIRQ)
+ 414:C:/StellarisWare/driverlib\lpc.c **** {
+ 465              		.loc 1 414 0
+ 466              		.cfi_startproc
+ 467              		@ args = 0, pretend = 0, frame = 16
+ 468              		@ frame_needed = 1, uses_anonymous_args = 0
+ 469              		@ link register save eliminated.
+ 470 0000 80B4     		push	{r7}
+ 471              	.LCFI24:
+ 472              		.cfi_def_cfa_offset 4
+ 473              		.cfi_offset 7, -4
+ 474 0002 85B0     		sub	sp, sp, #20
+ 475              	.LCFI25:
+ 476              		.cfi_def_cfa_offset 24
+ 477 0004 00AF     		add	r7, sp, #0
+ 478              	.LCFI26:
+ 479              		.cfi_def_cfa_register 7
+ 480 0006 7860     		str	r0, [r7, #4]
+ 481 0008 3960     		str	r1, [r7, #0]
+ 415:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+ 416:C:/StellarisWare/driverlib\lpc.c **** 
+ 417:C:/StellarisWare/driverlib\lpc.c ****     //
+ 418:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 419:C:/StellarisWare/driverlib\lpc.c ****     //
+ 420:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 421:C:/StellarisWare/driverlib\lpc.c **** 
+ 422:C:/StellarisWare/driverlib\lpc.c ****     //
+ 423:C:/StellarisWare/driverlib\lpc.c ****     // Get the current IRQ configuration, mask off the bits that we are to
+ 424:C:/StellarisWare/driverlib\lpc.c ****     // be operating on, set/clear them as appropriate, then rewrite the
+ 425:C:/StellarisWare/driverlib\lpc.c ****     // register.
+ 426:C:/StellarisWare/driverlib\lpc.c ****     //
+ 427:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_IRQCTL);
+ 482              		.loc 1 427 0
+ 483 000a 7B68     		ldr	r3, [r7, #4]
+ 484 000c 03F10803 		add	r3, r3, #8
+ 485 0010 1B68     		ldr	r3, [r3, #0]
+ 486 0012 FB60     		str	r3, [r7, #12]
+ 428:C:/StellarisWare/driverlib\lpc.c ****     ulTemp &= ~(ulIRQ & 0xFFFF0000);
+ 487              		.loc 1 428 0
+ 488 0014 3B68     		ldr	r3, [r7, #0]
+ 489 0016 4FEA1343 		lsr	r3, r3, #16
+ 490 001a 4FEA0343 		lsl	r3, r3, #16
+ 491 001e 6FEA0303 		mvn	r3, r3
+ 492 0022 FA68     		ldr	r2, [r7, #12]
+ 493 0024 1340     		ands	r3, r3, r2
+ 494 0026 FB60     		str	r3, [r7, #12]
+ 429:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IRQCTL) = ulTemp;
+ 495              		.loc 1 429 0
+ 496 0028 7B68     		ldr	r3, [r7, #4]
+ 497 002a 03F10803 		add	r3, r3, #8
+ 498 002e FA68     		ldr	r2, [r7, #12]
+ 499 0030 1A60     		str	r2, [r3, #0]
+ 430:C:/StellarisWare/driverlib\lpc.c **** }
+ 500              		.loc 1 430 0
+ 501 0032 07F11407 		add	r7, r7, #20
+ 502 0036 BD46     		mov	sp, r7
+ 503 0038 80BC     		pop	{r7}
+ 504 003a 7047     		bx	lr
+ 505              		.cfi_endproc
+ 506              	.LFE8:
+ 508              		.section	.text.LPCIRQGet,"ax",%progbits
+ 509              		.align	2
+ 510              		.global	LPCIRQGet
+ 511              		.thumb
+ 512              		.thumb_func
+ 514              	LPCIRQGet:
+ 515              	.LFB9:
+ 431:C:/StellarisWare/driverlib\lpc.c **** 
+ 432:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 433:C:/StellarisWare/driverlib\lpc.c **** //
+ 434:C:/StellarisWare/driverlib\lpc.c **** //! Get the configuration and status of the IRQ signals
+ 435:C:/StellarisWare/driverlib\lpc.c **** //!
+ 436:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 437:C:/StellarisWare/driverlib\lpc.c **** //!
+ 438:C:/StellarisWare/driverlib\lpc.c **** //! This function returns the LPC module's SERIRQ status.  The value returned
+ 439:C:/StellarisWare/driverlib\lpc.c **** //! is a combination of the following values: \b LPC_IRQ15, \b LPC_IRQ14,
+ 440:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ13, \b LPC_IRQ12, \b LPC_IRQ11, \b LPC_IRQ10, \b LPC_IRQ9,
+ 441:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ8, \b LPC_IRQ7, \b LPC_IRQ6, \b LPC_IRQ5, \b LPC_IRQ4,
+ 442:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ3, \b LPC_IRQ2, \b LPC_IRQ1, \b LPC_IRQ0, \b LPC_IRQ_BUSY, or
+ 443:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_IRQ_CONT.
+ 444:C:/StellarisWare/driverlib\lpc.c **** //!
+ 445:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 446:C:/StellarisWare/driverlib\lpc.c **** //
+ 447:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 448:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+ 449:C:/StellarisWare/driverlib\lpc.c **** LPCIRQGet(unsigned long ulBase)
+ 450:C:/StellarisWare/driverlib\lpc.c **** {
+ 516              		.loc 1 450 0
+ 517              		.cfi_startproc
+ 518              		@ args = 0, pretend = 0, frame = 8
+ 519              		@ frame_needed = 1, uses_anonymous_args = 0
+ 520              		@ link register save eliminated.
+ 521 0000 80B4     		push	{r7}
+ 522              	.LCFI27:
+ 523              		.cfi_def_cfa_offset 4
+ 524              		.cfi_offset 7, -4
+ 525 0002 83B0     		sub	sp, sp, #12
+ 526              	.LCFI28:
+ 527              		.cfi_def_cfa_offset 16
+ 528 0004 00AF     		add	r7, sp, #0
+ 529              	.LCFI29:
+ 530              		.cfi_def_cfa_register 7
+ 531 0006 7860     		str	r0, [r7, #4]
+ 451:C:/StellarisWare/driverlib\lpc.c ****     //
+ 452:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 453:C:/StellarisWare/driverlib\lpc.c ****     //
+ 454:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 455:C:/StellarisWare/driverlib\lpc.c **** 
+ 456:C:/StellarisWare/driverlib\lpc.c ****     //
+ 457:C:/StellarisWare/driverlib\lpc.c ****     // Simply read the registers and return the values.
+ 458:C:/StellarisWare/driverlib\lpc.c ****     //
+ 459:C:/StellarisWare/driverlib\lpc.c ****     return(HWREG(ulBase + LPC_O_IRQST));
+ 532              		.loc 1 459 0
+ 533 0008 7B68     		ldr	r3, [r7, #4]
+ 534 000a 03F10C03 		add	r3, r3, #12
+ 535 000e 1B68     		ldr	r3, [r3, #0]
+ 460:C:/StellarisWare/driverlib\lpc.c **** }
+ 536              		.loc 1 460 0
+ 537 0010 1846     		mov	r0, r3
+ 538 0012 07F10C07 		add	r7, r7, #12
+ 539 0016 BD46     		mov	sp, r7
+ 540 0018 80BC     		pop	{r7}
+ 541 001a 7047     		bx	lr
+ 542              		.cfi_endproc
+ 543              	.LFE9:
+ 545              		.section	.text.LPCIRQSend,"ax",%progbits
+ 546              		.align	2
+ 547              		.global	LPCIRQSend
+ 548              		.thumb
+ 549              		.thumb_func
+ 551              	LPCIRQSend:
+ 552              	.LFB10:
+ 461:C:/StellarisWare/driverlib\lpc.c **** 
+ 462:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 463:C:/StellarisWare/driverlib\lpc.c **** //
+ 464:C:/StellarisWare/driverlib\lpc.c **** //! Trigger a manual SIRQ frame.
+ 465:C:/StellarisWare/driverlib\lpc.c **** //!
+ 466:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 467:C:/StellarisWare/driverlib\lpc.c **** //!
+ 468:C:/StellarisWare/driverlib\lpc.c **** //! This function forces the sending of an SIRQ frame using whatever values are
+ 469:C:/StellarisWare/driverlib\lpc.c **** //! currently set (auto and/or manual).
+ 470:C:/StellarisWare/driverlib\lpc.c **** //!
+ 471:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 472:C:/StellarisWare/driverlib\lpc.c **** //
+ 473:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 474:C:/StellarisWare/driverlib\lpc.c **** void
+ 475:C:/StellarisWare/driverlib\lpc.c **** LPCIRQSend(unsigned long ulBase)
+ 476:C:/StellarisWare/driverlib\lpc.c **** {
+ 553              		.loc 1 476 0
+ 554              		.cfi_startproc
+ 555              		@ args = 0, pretend = 0, frame = 8
+ 556              		@ frame_needed = 1, uses_anonymous_args = 0
+ 557              		@ link register save eliminated.
+ 558 0000 80B4     		push	{r7}
+ 559              	.LCFI30:
+ 560              		.cfi_def_cfa_offset 4
+ 561              		.cfi_offset 7, -4
+ 562 0002 83B0     		sub	sp, sp, #12
+ 563              	.LCFI31:
+ 564              		.cfi_def_cfa_offset 16
+ 565 0004 00AF     		add	r7, sp, #0
+ 566              	.LCFI32:
+ 567              		.cfi_def_cfa_register 7
+ 568 0006 7860     		str	r0, [r7, #4]
+ 477:C:/StellarisWare/driverlib\lpc.c ****     //
+ 478:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 479:C:/StellarisWare/driverlib\lpc.c ****     //
+ 480:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 481:C:/StellarisWare/driverlib\lpc.c **** 
+ 482:C:/StellarisWare/driverlib\lpc.c ****     //
+ 483:C:/StellarisWare/driverlib\lpc.c ****     // Set the bit to force the sending of an SIRQ frame.
+ 484:C:/StellarisWare/driverlib\lpc.c ****     //
+ 485:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IRQCTL) |= LPC_IRQCTL_SND;
+ 569              		.loc 1 485 0
+ 570 0008 7B68     		ldr	r3, [r7, #4]
+ 571 000a 03F10803 		add	r3, r3, #8
+ 572 000e 7A68     		ldr	r2, [r7, #4]
+ 573 0010 02F10802 		add	r2, r2, #8
+ 574 0014 1268     		ldr	r2, [r2, #0]
+ 575 0016 42F00102 		orr	r2, r2, #1
+ 576 001a 1A60     		str	r2, [r3, #0]
+ 486:C:/StellarisWare/driverlib\lpc.c **** }
+ 577              		.loc 1 486 0
+ 578 001c 07F10C07 		add	r7, r7, #12
+ 579 0020 BD46     		mov	sp, r7
+ 580 0022 80BC     		pop	{r7}
+ 581 0024 7047     		bx	lr
+ 582              		.cfi_endproc
+ 583              	.LFE10:
+ 585 0026 00BF     		.section	.text.LPCIntRegister,"ax",%progbits
+ 586              		.align	2
+ 587              		.global	LPCIntRegister
+ 588              		.thumb
+ 589              		.thumb_func
+ 591              	LPCIntRegister:
+ 592              	.LFB11:
+ 487:C:/StellarisWare/driverlib\lpc.c **** 
+ 488:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 489:C:/StellarisWare/driverlib\lpc.c **** //
+ 490:C:/StellarisWare/driverlib\lpc.c **** //! Registers an interrupt handler for the LPC module.
+ 491:C:/StellarisWare/driverlib\lpc.c **** //!
+ 492:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 493:C:/StellarisWare/driverlib\lpc.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 494:C:/StellarisWare/driverlib\lpc.c **** //! LPC interrupt occurs.
+ 495:C:/StellarisWare/driverlib\lpc.c **** //!
+ 496:C:/StellarisWare/driverlib\lpc.c **** //! This function registers the handler to be called when an LPC interrupt
+ 497:C:/StellarisWare/driverlib\lpc.c **** //! occurs. This function enables the global interrupt in the interrupt
+ 498:C:/StellarisWare/driverlib\lpc.c **** //! controller; specific LPC interrupts must be enabled via LPCIntEnable().
+ 499:C:/StellarisWare/driverlib\lpc.c **** //! If necessary, it is the interrupt handler's responsibility to clear the
+ 500:C:/StellarisWare/driverlib\lpc.c **** //! interrupt source via LPCIntClear().
+ 501:C:/StellarisWare/driverlib\lpc.c **** //!
+ 502:C:/StellarisWare/driverlib\lpc.c **** //! \sa IntRegister() for important information about registering interrupt
+ 503:C:/StellarisWare/driverlib\lpc.c **** //! handlers.
+ 504:C:/StellarisWare/driverlib\lpc.c **** //!
+ 505:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 506:C:/StellarisWare/driverlib\lpc.c **** //
+ 507:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 508:C:/StellarisWare/driverlib\lpc.c **** void
+ 509:C:/StellarisWare/driverlib\lpc.c **** LPCIntRegister(unsigned long ulBase, void (*pfnHandler)(void))
+ 510:C:/StellarisWare/driverlib\lpc.c **** {
+ 593              		.loc 1 510 0
+ 594              		.cfi_startproc
+ 595              		@ args = 0, pretend = 0, frame = 8
+ 596              		@ frame_needed = 1, uses_anonymous_args = 0
+ 597 0000 80B5     		push	{r7, lr}
+ 598              	.LCFI33:
+ 599              		.cfi_def_cfa_offset 8
+ 600              		.cfi_offset 14, -4
+ 601              		.cfi_offset 7, -8
+ 602 0002 82B0     		sub	sp, sp, #8
+ 603              	.LCFI34:
+ 604              		.cfi_def_cfa_offset 16
+ 605 0004 00AF     		add	r7, sp, #0
+ 606              	.LCFI35:
+ 607              		.cfi_def_cfa_register 7
+ 608 0006 7860     		str	r0, [r7, #4]
+ 609 0008 3960     		str	r1, [r7, #0]
+ 511:C:/StellarisWare/driverlib\lpc.c ****     //
+ 512:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 513:C:/StellarisWare/driverlib\lpc.c ****     //
+ 514:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 515:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(pfnHandler != 0);
+ 516:C:/StellarisWare/driverlib\lpc.c **** 
+ 517:C:/StellarisWare/driverlib\lpc.c ****     //
+ 518:C:/StellarisWare/driverlib\lpc.c ****     // Register the interrupt handler.
+ 519:C:/StellarisWare/driverlib\lpc.c ****     //
+ 520:C:/StellarisWare/driverlib\lpc.c ****     IntRegister(INT_LPC0, pfnHandler);
+ 610              		.loc 1 520 0
+ 611 000a 4FF07C00 		mov	r0, #124
+ 612 000e 3968     		ldr	r1, [r7, #0]
+ 613 0010 FFF7FEFF 		bl	IntRegister
+ 521:C:/StellarisWare/driverlib\lpc.c **** 
+ 522:C:/StellarisWare/driverlib\lpc.c ****     //
+ 523:C:/StellarisWare/driverlib\lpc.c ****     // Enable the LPC interrupt.
+ 524:C:/StellarisWare/driverlib\lpc.c ****     //
+ 525:C:/StellarisWare/driverlib\lpc.c ****     IntEnable(INT_LPC0);
+ 614              		.loc 1 525 0
+ 615 0014 4FF07C00 		mov	r0, #124
+ 616 0018 FFF7FEFF 		bl	IntEnable
+ 526:C:/StellarisWare/driverlib\lpc.c **** }
+ 617              		.loc 1 526 0
+ 618 001c 07F10807 		add	r7, r7, #8
+ 619 0020 BD46     		mov	sp, r7
+ 620 0022 80BD     		pop	{r7, pc}
+ 621              		.cfi_endproc
+ 622              	.LFE11:
+ 624              		.section	.text.LPCIntUnregister,"ax",%progbits
+ 625              		.align	2
+ 626              		.global	LPCIntUnregister
+ 627              		.thumb
+ 628              		.thumb_func
+ 630              	LPCIntUnregister:
+ 631              	.LFB12:
+ 527:C:/StellarisWare/driverlib\lpc.c **** 
+ 528:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 529:C:/StellarisWare/driverlib\lpc.c **** //
+ 530:C:/StellarisWare/driverlib\lpc.c **** //! Unregisters an interrupt handler for the LPC module.
+ 531:C:/StellarisWare/driverlib\lpc.c **** //!
+ 532:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 533:C:/StellarisWare/driverlib\lpc.c **** //!
+ 534:C:/StellarisWare/driverlib\lpc.c **** //! This function unregisters the handler to be called when an LPC interrupt
+ 535:C:/StellarisWare/driverlib\lpc.c **** //! occurs.  This fucntion also masks off the interrupt in the interrupt
+ 536:C:/StellarisWare/driverlib\lpc.c **** //! controller so that the interrupt handler is no longer called.
+ 537:C:/StellarisWare/driverlib\lpc.c **** //!
+ 538:C:/StellarisWare/driverlib\lpc.c **** //! \sa IntRegister() for important information about registering interrupt
+ 539:C:/StellarisWare/driverlib\lpc.c **** //! handlers.
+ 540:C:/StellarisWare/driverlib\lpc.c **** //!
+ 541:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 542:C:/StellarisWare/driverlib\lpc.c **** //
+ 543:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 544:C:/StellarisWare/driverlib\lpc.c **** void
+ 545:C:/StellarisWare/driverlib\lpc.c **** LPCIntUnregister(unsigned long ulBase)
+ 546:C:/StellarisWare/driverlib\lpc.c **** {
+ 632              		.loc 1 546 0
+ 633              		.cfi_startproc
+ 634              		@ args = 0, pretend = 0, frame = 8
+ 635              		@ frame_needed = 1, uses_anonymous_args = 0
+ 636 0000 80B5     		push	{r7, lr}
+ 637              	.LCFI36:
+ 638              		.cfi_def_cfa_offset 8
+ 639              		.cfi_offset 14, -4
+ 640              		.cfi_offset 7, -8
+ 641 0002 82B0     		sub	sp, sp, #8
+ 642              	.LCFI37:
+ 643              		.cfi_def_cfa_offset 16
+ 644 0004 00AF     		add	r7, sp, #0
+ 645              	.LCFI38:
+ 646              		.cfi_def_cfa_register 7
+ 647 0006 7860     		str	r0, [r7, #4]
+ 547:C:/StellarisWare/driverlib\lpc.c ****     //
+ 548:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 549:C:/StellarisWare/driverlib\lpc.c ****     //
+ 550:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 551:C:/StellarisWare/driverlib\lpc.c **** 
+ 552:C:/StellarisWare/driverlib\lpc.c ****     //
+ 553:C:/StellarisWare/driverlib\lpc.c ****     // Disable the LPC interrupt.
+ 554:C:/StellarisWare/driverlib\lpc.c ****     //
+ 555:C:/StellarisWare/driverlib\lpc.c ****     IntDisable(INT_LPC0);
+ 648              		.loc 1 555 0
+ 649 0008 4FF07C00 		mov	r0, #124
+ 650 000c FFF7FEFF 		bl	IntDisable
+ 556:C:/StellarisWare/driverlib\lpc.c **** 
+ 557:C:/StellarisWare/driverlib\lpc.c ****     //
+ 558:C:/StellarisWare/driverlib\lpc.c ****     // Unregister the interrupt handler.
+ 559:C:/StellarisWare/driverlib\lpc.c ****     //
+ 560:C:/StellarisWare/driverlib\lpc.c ****     IntUnregister(INT_LPC0);
+ 651              		.loc 1 560 0
+ 652 0010 4FF07C00 		mov	r0, #124
+ 653 0014 FFF7FEFF 		bl	IntUnregister
+ 561:C:/StellarisWare/driverlib\lpc.c **** }
+ 654              		.loc 1 561 0
+ 655 0018 07F10807 		add	r7, r7, #8
+ 656 001c BD46     		mov	sp, r7
+ 657 001e 80BD     		pop	{r7, pc}
+ 658              		.cfi_endproc
+ 659              	.LFE12:
+ 661              		.section	.text.LPCIntEnable,"ax",%progbits
+ 662              		.align	2
+ 663              		.global	LPCIntEnable
+ 664              		.thumb
+ 665              		.thumb_func
+ 667              	LPCIntEnable:
+ 668              	.LFB13:
+ 562:C:/StellarisWare/driverlib\lpc.c **** 
+ 563:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 564:C:/StellarisWare/driverlib\lpc.c **** //
+ 565:C:/StellarisWare/driverlib\lpc.c **** //! Enables individual LPC interrupt sources.
+ 566:C:/StellarisWare/driverlib\lpc.c **** //!
+ 567:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 568:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 569:C:/StellarisWare/driverlib\lpc.c **** //!
+ 570:C:/StellarisWare/driverlib\lpc.c **** //! This function enables the indicated LPC interrupt sources.  Only the
+ 571:C:/StellarisWare/driverlib\lpc.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 572:C:/StellarisWare/driverlib\lpc.c **** //! disabled sources have no effect on the processor.
+ 573:C:/StellarisWare/driverlib\lpc.c **** //!
+ 574:C:/StellarisWare/driverlib\lpc.c **** //! The \e ulIntFlags parameter can be any of the following values:
+ 575:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_INT_RST, \b LPC_INT_SLEEP, \b LPC_INT_COMx, \b LPC_INT_SIRQ,
+ 576:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_INT_CHx_EP_TO_HOST, \b LPC_INT_CHx_EP_FROM_DATA,
+ 577:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_INT_CHx_EP_FROM_CMD, \b LPC_INT_CHx_MB_HOST_WON,
+ 578:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_INT_CHx_MB_HOST_WRITE, \b LPC_INT_CHx_MB_HOST_READ, or
+ 579:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_INT_CHx_MB_MCU_LOST, where \b CHx can be \b CH6, \b CH5, \b CH4,
+ 580:C:/StellarisWare/driverlib\lpc.c **** //! \b CH3, \b CH2, \b CH1, or \b CH0.
+ 581:C:/StellarisWare/driverlib\lpc.c **** //!
+ 582:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 583:C:/StellarisWare/driverlib\lpc.c **** //
+ 584:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 585:C:/StellarisWare/driverlib\lpc.c **** void
+ 586:C:/StellarisWare/driverlib\lpc.c **** LPCIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+ 587:C:/StellarisWare/driverlib\lpc.c **** {
+ 669              		.loc 1 587 0
+ 670              		.cfi_startproc
+ 671              		@ args = 0, pretend = 0, frame = 8
+ 672              		@ frame_needed = 1, uses_anonymous_args = 0
+ 673              		@ link register save eliminated.
+ 674 0000 80B4     		push	{r7}
+ 675              	.LCFI39:
+ 676              		.cfi_def_cfa_offset 4
+ 677              		.cfi_offset 7, -4
+ 678 0002 83B0     		sub	sp, sp, #12
+ 679              	.LCFI40:
+ 680              		.cfi_def_cfa_offset 16
+ 681 0004 00AF     		add	r7, sp, #0
+ 682              	.LCFI41:
+ 683              		.cfi_def_cfa_register 7
+ 684 0006 7860     		str	r0, [r7, #4]
+ 685 0008 3960     		str	r1, [r7, #0]
+ 588:C:/StellarisWare/driverlib\lpc.c ****     //
+ 589:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 590:C:/StellarisWare/driverlib\lpc.c ****     //
+ 591:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 592:C:/StellarisWare/driverlib\lpc.c **** 
+ 593:C:/StellarisWare/driverlib\lpc.c ****     //
+ 594:C:/StellarisWare/driverlib\lpc.c ****     // Get the current mask value.
+ 595:C:/StellarisWare/driverlib\lpc.c ****     //
+ 596:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IM) |= ulIntFlags;
+ 686              		.loc 1 596 0
+ 687 000a 7B68     		ldr	r3, [r7, #4]
+ 688 000c 03F58073 		add	r3, r3, #256
+ 689 0010 7A68     		ldr	r2, [r7, #4]
+ 690 0012 02F58072 		add	r2, r2, #256
+ 691 0016 1168     		ldr	r1, [r2, #0]
+ 692 0018 3A68     		ldr	r2, [r7, #0]
+ 693 001a 0A43     		orrs	r2, r2, r1
+ 694 001c 1A60     		str	r2, [r3, #0]
+ 597:C:/StellarisWare/driverlib\lpc.c **** }
+ 695              		.loc 1 597 0
+ 696 001e 07F10C07 		add	r7, r7, #12
+ 697 0022 BD46     		mov	sp, r7
+ 698 0024 80BC     		pop	{r7}
+ 699 0026 7047     		bx	lr
+ 700              		.cfi_endproc
+ 701              	.LFE13:
+ 703              		.section	.text.LPCIntDisable,"ax",%progbits
+ 704              		.align	2
+ 705              		.global	LPCIntDisable
+ 706              		.thumb
+ 707              		.thumb_func
+ 709              	LPCIntDisable:
+ 710              	.LFB14:
+ 598:C:/StellarisWare/driverlib\lpc.c **** 
+ 599:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 600:C:/StellarisWare/driverlib\lpc.c **** //
+ 601:C:/StellarisWare/driverlib\lpc.c **** //! Disables individual LPC interrupt sources.
+ 602:C:/StellarisWare/driverlib\lpc.c **** //!
+ 603:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 604:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 605:C:/StellarisWare/driverlib\lpc.c **** //!
+ 606:C:/StellarisWare/driverlib\lpc.c **** //! This funciton disables the indicated LPC interrupt sources.  Only the
+ 607:C:/StellarisWare/driverlib\lpc.c **** //! sources that are enabled can be reflected to the processor interrupt;
+ 608:C:/StellarisWare/driverlib\lpc.c **** //! disabled sources have no effect on the processor.
+ 609:C:/StellarisWare/driverlib\lpc.c **** //!
+ 610:C:/StellarisWare/driverlib\lpc.c **** //! \sa The description of the LPCIntEnable() function provides detailed
+ 611:C:/StellarisWare/driverlib\lpc.c **** //! information for the bit-mapped values in \e ulIntFlags.
+ 612:C:/StellarisWare/driverlib\lpc.c **** //!
+ 613:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 614:C:/StellarisWare/driverlib\lpc.c **** //
+ 615:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 616:C:/StellarisWare/driverlib\lpc.c **** void
+ 617:C:/StellarisWare/driverlib\lpc.c **** LPCIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+ 618:C:/StellarisWare/driverlib\lpc.c **** {
+ 711              		.loc 1 618 0
+ 712              		.cfi_startproc
+ 713              		@ args = 0, pretend = 0, frame = 8
+ 714              		@ frame_needed = 1, uses_anonymous_args = 0
+ 715              		@ link register save eliminated.
+ 716 0000 80B4     		push	{r7}
+ 717              	.LCFI42:
+ 718              		.cfi_def_cfa_offset 4
+ 719              		.cfi_offset 7, -4
+ 720 0002 83B0     		sub	sp, sp, #12
+ 721              	.LCFI43:
+ 722              		.cfi_def_cfa_offset 16
+ 723 0004 00AF     		add	r7, sp, #0
+ 724              	.LCFI44:
+ 725              		.cfi_def_cfa_register 7
+ 726 0006 7860     		str	r0, [r7, #4]
+ 727 0008 3960     		str	r1, [r7, #0]
+ 619:C:/StellarisWare/driverlib\lpc.c ****     //
+ 620:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 621:C:/StellarisWare/driverlib\lpc.c ****     //
+ 622:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 623:C:/StellarisWare/driverlib\lpc.c **** 
+ 624:C:/StellarisWare/driverlib\lpc.c ****     //
+ 625:C:/StellarisWare/driverlib\lpc.c ****     // Disable the specified interrupts.
+ 626:C:/StellarisWare/driverlib\lpc.c ****     //
+ 627:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IM) &= ~ulIntFlags;
+ 728              		.loc 1 627 0
+ 729 000a 7B68     		ldr	r3, [r7, #4]
+ 730 000c 03F58073 		add	r3, r3, #256
+ 731 0010 7A68     		ldr	r2, [r7, #4]
+ 732 0012 02F58072 		add	r2, r2, #256
+ 733 0016 1168     		ldr	r1, [r2, #0]
+ 734 0018 3A68     		ldr	r2, [r7, #0]
+ 735 001a 6FEA0202 		mvn	r2, r2
+ 736 001e 0A40     		ands	r2, r2, r1
+ 737 0020 1A60     		str	r2, [r3, #0]
+ 628:C:/StellarisWare/driverlib\lpc.c **** }
+ 738              		.loc 1 628 0
+ 739 0022 07F10C07 		add	r7, r7, #12
+ 740 0026 BD46     		mov	sp, r7
+ 741 0028 80BC     		pop	{r7}
+ 742 002a 7047     		bx	lr
+ 743              		.cfi_endproc
+ 744              	.LFE14:
+ 746              		.section	.text.LPCIntStatus,"ax",%progbits
+ 747              		.align	2
+ 748              		.global	LPCIntStatus
+ 749              		.thumb
+ 750              		.thumb_func
+ 752              	LPCIntStatus:
+ 753              	.LFB15:
+ 629:C:/StellarisWare/driverlib\lpc.c **** 
+ 630:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 631:C:/StellarisWare/driverlib\lpc.c **** //
+ 632:C:/StellarisWare/driverlib\lpc.c **** //! Gets the current interrupt status.
+ 633:C:/StellarisWare/driverlib\lpc.c **** //!
+ 634:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 635:C:/StellarisWare/driverlib\lpc.c **** //! \param bMasked is \b false if the raw interrupt status is required or
+ 636:C:/StellarisWare/driverlib\lpc.c **** //! \b true if the masked interrupt status is required.
+ 637:C:/StellarisWare/driverlib\lpc.c **** //!
+ 638:C:/StellarisWare/driverlib\lpc.c **** //! This function returns the interrupt status for the LPC module.  Either the
+ 639:C:/StellarisWare/driverlib\lpc.c **** //! raw interrupt status or the status of interrupts that are allowed to
+ 640:C:/StellarisWare/driverlib\lpc.c **** //! reflect to the processor can be returned.
+ 641:C:/StellarisWare/driverlib\lpc.c **** //!
+ 642:C:/StellarisWare/driverlib\lpc.c **** //! The interpretation of the LPC_INT_CHx fields varies based on the type
+ 643:C:/StellarisWare/driverlib\lpc.c **** //! value programed for the specific Channel.
+ 644:C:/StellarisWare/driverlib\lpc.c **** //!
+ 645:C:/StellarisWare/driverlib\lpc.c **** //! \sa The description of the LPCIntEnable() function provides detailed
+ 646:C:/StellarisWare/driverlib\lpc.c **** //! information for the bit-mapped values returned by this function.
+ 647:C:/StellarisWare/driverlib\lpc.c **** //!
+ 648:C:/StellarisWare/driverlib\lpc.c **** //! \return The current interrupt status.
+ 649:C:/StellarisWare/driverlib\lpc.c **** //
+ 650:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 651:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+ 652:C:/StellarisWare/driverlib\lpc.c **** LPCIntStatus(unsigned long ulBase, tBoolean bMasked)
+ 653:C:/StellarisWare/driverlib\lpc.c **** {
+ 754              		.loc 1 653 0
+ 755              		.cfi_startproc
+ 756              		@ args = 0, pretend = 0, frame = 8
+ 757              		@ frame_needed = 1, uses_anonymous_args = 0
+ 758              		@ link register save eliminated.
+ 759 0000 80B4     		push	{r7}
+ 760              	.LCFI45:
+ 761              		.cfi_def_cfa_offset 4
+ 762              		.cfi_offset 7, -4
+ 763 0002 83B0     		sub	sp, sp, #12
+ 764              	.LCFI46:
+ 765              		.cfi_def_cfa_offset 16
+ 766 0004 00AF     		add	r7, sp, #0
+ 767              	.LCFI47:
+ 768              		.cfi_def_cfa_register 7
+ 769 0006 7860     		str	r0, [r7, #4]
+ 770 0008 0B46     		mov	r3, r1
+ 771 000a FB70     		strb	r3, [r7, #3]
+ 654:C:/StellarisWare/driverlib\lpc.c ****     //
+ 655:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 656:C:/StellarisWare/driverlib\lpc.c ****     //
+ 657:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 658:C:/StellarisWare/driverlib\lpc.c **** 
+ 659:C:/StellarisWare/driverlib\lpc.c ****     //
+ 660:C:/StellarisWare/driverlib\lpc.c ****     // Return either the interrupt status or the raw interrupt status as
+ 661:C:/StellarisWare/driverlib\lpc.c ****     // requested.
+ 662:C:/StellarisWare/driverlib\lpc.c ****     //
+ 663:C:/StellarisWare/driverlib\lpc.c ****     if(bMasked)
+ 772              		.loc 1 663 0
+ 773 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 774 000e 002B     		cmp	r3, #0
+ 775 0010 04D0     		beq	.L26
+ 664:C:/StellarisWare/driverlib\lpc.c ****     {
+ 665:C:/StellarisWare/driverlib\lpc.c ****         return(HWREG(ulBase + LPC_O_MIS));
+ 776              		.loc 1 665 0
+ 777 0012 7B68     		ldr	r3, [r7, #4]
+ 778 0014 03F58473 		add	r3, r3, #264
+ 779 0018 1B68     		ldr	r3, [r3, #0]
+ 780 001a 03E0     		b	.L27
+ 781              	.L26:
+ 666:C:/StellarisWare/driverlib\lpc.c ****     }
+ 667:C:/StellarisWare/driverlib\lpc.c ****     else
+ 668:C:/StellarisWare/driverlib\lpc.c ****     {
+ 669:C:/StellarisWare/driverlib\lpc.c ****         return(HWREG(ulBase + LPC_O_RIS));
+ 782              		.loc 1 669 0
+ 783 001c 7B68     		ldr	r3, [r7, #4]
+ 784 001e 03F58273 		add	r3, r3, #260
+ 785 0022 1B68     		ldr	r3, [r3, #0]
+ 786              	.L27:
+ 670:C:/StellarisWare/driverlib\lpc.c ****     }
+ 671:C:/StellarisWare/driverlib\lpc.c **** }
+ 787              		.loc 1 671 0
+ 788 0024 1846     		mov	r0, r3
+ 789 0026 07F10C07 		add	r7, r7, #12
+ 790 002a BD46     		mov	sp, r7
+ 791 002c 80BC     		pop	{r7}
+ 792 002e 7047     		bx	lr
+ 793              		.cfi_endproc
+ 794              	.LFE15:
+ 796              		.section	.text.LPCIntClear,"ax",%progbits
+ 797              		.align	2
+ 798              		.global	LPCIntClear
+ 799              		.thumb
+ 800              		.thumb_func
+ 802              	LPCIntClear:
+ 803              	.LFB16:
+ 672:C:/StellarisWare/driverlib\lpc.c **** 
+ 673:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 674:C:/StellarisWare/driverlib\lpc.c **** //
+ 675:C:/StellarisWare/driverlib\lpc.c **** //! Clears LPC interrupt sources.
+ 676:C:/StellarisWare/driverlib\lpc.c **** //!
+ 677:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 678:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+ 679:C:/StellarisWare/driverlib\lpc.c **** //!
+ 680:C:/StellarisWare/driverlib\lpc.c **** //! The specified LPC interrupt sources are cleared so that they no longer
+ 681:C:/StellarisWare/driverlib\lpc.c **** //! assert.  This function must be called in the interrupt handler to keep the
+ 682:C:/StellarisWare/driverlib\lpc.c **** //! interrupts from being recognized again immediately upon exit.
+ 683:C:/StellarisWare/driverlib\lpc.c **** //!
+ 684:C:/StellarisWare/driverlib\lpc.c **** //! \sa The description of the LPCIntEnable() function provides detailed
+ 685:C:/StellarisWare/driverlib\lpc.c **** //! information for the bit-mapped values in \e ulIntFlags.
+ 686:C:/StellarisWare/driverlib\lpc.c **** //!
+ 687:C:/StellarisWare/driverlib\lpc.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 688:C:/StellarisWare/driverlib\lpc.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 689:C:/StellarisWare/driverlib\lpc.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 690:C:/StellarisWare/driverlib\lpc.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 691:C:/StellarisWare/driverlib\lpc.c **** //! returning from the interrupt handler before the interrupt source is
+ 692:C:/StellarisWare/driverlib\lpc.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 693:C:/StellarisWare/driverlib\lpc.c **** //! being immediately reentered (because the interrupt controller still sees
+ 694:C:/StellarisWare/driverlib\lpc.c **** //! the interrupt source asserted).
+ 695:C:/StellarisWare/driverlib\lpc.c **** //!
+ 696:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 697:C:/StellarisWare/driverlib\lpc.c **** //
+ 698:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 699:C:/StellarisWare/driverlib\lpc.c **** void
+ 700:C:/StellarisWare/driverlib\lpc.c **** LPCIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+ 701:C:/StellarisWare/driverlib\lpc.c **** {
+ 804              		.loc 1 701 0
+ 805              		.cfi_startproc
+ 806              		@ args = 0, pretend = 0, frame = 8
+ 807              		@ frame_needed = 1, uses_anonymous_args = 0
+ 808              		@ link register save eliminated.
+ 809 0000 80B4     		push	{r7}
+ 810              	.LCFI48:
+ 811              		.cfi_def_cfa_offset 4
+ 812              		.cfi_offset 7, -4
+ 813 0002 83B0     		sub	sp, sp, #12
+ 814              	.LCFI49:
+ 815              		.cfi_def_cfa_offset 16
+ 816 0004 00AF     		add	r7, sp, #0
+ 817              	.LCFI50:
+ 818              		.cfi_def_cfa_register 7
+ 819 0006 7860     		str	r0, [r7, #4]
+ 820 0008 3960     		str	r1, [r7, #0]
+ 702:C:/StellarisWare/driverlib\lpc.c ****     //
+ 703:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 704:C:/StellarisWare/driverlib\lpc.c ****     //
+ 705:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 706:C:/StellarisWare/driverlib\lpc.c **** 
+ 707:C:/StellarisWare/driverlib\lpc.c ****     //
+ 708:C:/StellarisWare/driverlib\lpc.c ****     // Clear the requested interrupt sources.
+ 709:C:/StellarisWare/driverlib\lpc.c ****     //
+ 710:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_IC) = ulIntFlags;
+ 821              		.loc 1 710 0
+ 822 000a 7B68     		ldr	r3, [r7, #4]
+ 823 000c 03F58673 		add	r3, r3, #268
+ 824 0010 3A68     		ldr	r2, [r7, #0]
+ 825 0012 1A60     		str	r2, [r3, #0]
+ 711:C:/StellarisWare/driverlib\lpc.c **** }
+ 826              		.loc 1 711 0
+ 827 0014 07F10C07 		add	r7, r7, #12
+ 828 0018 BD46     		mov	sp, r7
+ 829 001a 80BC     		pop	{r7}
+ 830 001c 7047     		bx	lr
+ 831              		.cfi_endproc
+ 832              	.LFE16:
+ 834 001e 00BF     		.section	.text.LPCChannelEnable,"ax",%progbits
+ 835              		.align	2
+ 836              		.global	LPCChannelEnable
+ 837              		.thumb
+ 838              		.thumb_func
+ 840              	LPCChannelEnable:
+ 841              	.LFB17:
+ 712:C:/StellarisWare/driverlib\lpc.c **** 
+ 713:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 714:C:/StellarisWare/driverlib\lpc.c **** //
+ 715:C:/StellarisWare/driverlib\lpc.c **** //! Enables an LPC Channel.
+ 716:C:/StellarisWare/driverlib\lpc.c **** //!
+ 717:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 718:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to enable.
+ 719:C:/StellarisWare/driverlib\lpc.c **** //!
+ 720:C:/StellarisWare/driverlib\lpc.c **** //! The specified LPC Channel is enabled.
+ 721:C:/StellarisWare/driverlib\lpc.c **** //!
+ 722:C:/StellarisWare/driverlib\lpc.c **** //! The value for the \e ulChannel parameter can be any one of the following
+ 723:C:/StellarisWare/driverlib\lpc.c **** //! values:  \b LPC_CHAN_CH0, \b LPC_CHAN_CH1, \b LPC_CHAN_CH2,
+ 724:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_CHAN_CH3, \b LPC_CHAN_CH4, \b LPC_CHAN_CH5, \b LPC_CHAN_CH6 or
+ 725:C:/StellarisWare/driverlib\lpc.c **** //! \b LPC_CHAN_CH7.
+ 726:C:/StellarisWare/driverlib\lpc.c **** //!
+ 727:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 728:C:/StellarisWare/driverlib\lpc.c **** //
+ 729:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 730:C:/StellarisWare/driverlib\lpc.c **** void
+ 731:C:/StellarisWare/driverlib\lpc.c **** LPCChannelEnable(unsigned long ulBase, unsigned long ulChannel)
+ 732:C:/StellarisWare/driverlib\lpc.c **** {
+ 842              		.loc 1 732 0
+ 843              		.cfi_startproc
+ 844              		@ args = 0, pretend = 0, frame = 8
+ 845              		@ frame_needed = 1, uses_anonymous_args = 0
+ 846              		@ link register save eliminated.
+ 847 0000 80B4     		push	{r7}
+ 848              	.LCFI51:
+ 849              		.cfi_def_cfa_offset 4
+ 850              		.cfi_offset 7, -4
+ 851 0002 83B0     		sub	sp, sp, #12
+ 852              	.LCFI52:
+ 853              		.cfi_def_cfa_offset 16
+ 854 0004 00AF     		add	r7, sp, #0
+ 855              	.LCFI53:
+ 856              		.cfi_def_cfa_register 7
+ 857 0006 7860     		str	r0, [r7, #4]
+ 858 0008 3960     		str	r1, [r7, #0]
+ 733:C:/StellarisWare/driverlib\lpc.c ****     //
+ 734:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 735:C:/StellarisWare/driverlib\lpc.c ****     //
+ 736:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 737:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 738:C:/StellarisWare/driverlib\lpc.c **** 
+ 739:C:/StellarisWare/driverlib\lpc.c ****     //
+ 740:C:/StellarisWare/driverlib\lpc.c ****     // Enable the specified channel.
+ 741:C:/StellarisWare/driverlib\lpc.c ****     //
+ 742:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) |= (1 << ulChannel);
+ 859              		.loc 1 742 0
+ 860 000a 7B68     		ldr	r3, [r7, #4]
+ 861 000c 7A68     		ldr	r2, [r7, #4]
+ 862 000e 1168     		ldr	r1, [r2, #0]
+ 863 0010 3A68     		ldr	r2, [r7, #0]
+ 864 0012 4FF00100 		mov	r0, #1
+ 865 0016 00FA02F2 		lsl	r2, r0, r2
+ 866 001a 0A43     		orrs	r2, r2, r1
+ 867 001c 1A60     		str	r2, [r3, #0]
+ 743:C:/StellarisWare/driverlib\lpc.c **** }
+ 868              		.loc 1 743 0
+ 869 001e 07F10C07 		add	r7, r7, #12
+ 870 0022 BD46     		mov	sp, r7
+ 871 0024 80BC     		pop	{r7}
+ 872 0026 7047     		bx	lr
+ 873              		.cfi_endproc
+ 874              	.LFE17:
+ 876              		.section	.text.LPCChannelDisable,"ax",%progbits
+ 877              		.align	2
+ 878              		.global	LPCChannelDisable
+ 879              		.thumb
+ 880              		.thumb_func
+ 882              	LPCChannelDisable:
+ 883              	.LFB18:
+ 744:C:/StellarisWare/driverlib\lpc.c **** 
+ 745:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 746:C:/StellarisWare/driverlib\lpc.c **** //
+ 747:C:/StellarisWare/driverlib\lpc.c **** //! Disables an LPC Channel.
+ 748:C:/StellarisWare/driverlib\lpc.c **** //!
+ 749:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 750:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to disable.
+ 751:C:/StellarisWare/driverlib\lpc.c **** //!
+ 752:C:/StellarisWare/driverlib\lpc.c **** //! This function disables the specified LPC Channel.
+ 753:C:/StellarisWare/driverlib\lpc.c **** //!
+ 754:C:/StellarisWare/driverlib\lpc.c **** //! \sa The description of the LPCChannelEnable() function provides detailed
+ 755:C:/StellarisWare/driverlib\lpc.c **** //! information for the values that can be usd for the \e ulChannel parameter.
+ 756:C:/StellarisWare/driverlib\lpc.c **** //!
+ 757:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 758:C:/StellarisWare/driverlib\lpc.c **** //
+ 759:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 760:C:/StellarisWare/driverlib\lpc.c **** void
+ 761:C:/StellarisWare/driverlib\lpc.c **** LPCChannelDisable(unsigned long ulBase, unsigned long ulChannel)
+ 762:C:/StellarisWare/driverlib\lpc.c **** {
+ 884              		.loc 1 762 0
+ 885              		.cfi_startproc
+ 886              		@ args = 0, pretend = 0, frame = 8
+ 887              		@ frame_needed = 1, uses_anonymous_args = 0
+ 888              		@ link register save eliminated.
+ 889 0000 80B4     		push	{r7}
+ 890              	.LCFI54:
+ 891              		.cfi_def_cfa_offset 4
+ 892              		.cfi_offset 7, -4
+ 893 0002 83B0     		sub	sp, sp, #12
+ 894              	.LCFI55:
+ 895              		.cfi_def_cfa_offset 16
+ 896 0004 00AF     		add	r7, sp, #0
+ 897              	.LCFI56:
+ 898              		.cfi_def_cfa_register 7
+ 899 0006 7860     		str	r0, [r7, #4]
+ 900 0008 3960     		str	r1, [r7, #0]
+ 763:C:/StellarisWare/driverlib\lpc.c ****     //
+ 764:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 765:C:/StellarisWare/driverlib\lpc.c ****     //
+ 766:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 767:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 768:C:/StellarisWare/driverlib\lpc.c **** 
+ 769:C:/StellarisWare/driverlib\lpc.c ****     //
+ 770:C:/StellarisWare/driverlib\lpc.c ****     // Disable the specified channel.
+ 771:C:/StellarisWare/driverlib\lpc.c ****     //
+ 772:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CTL) &= ~(1 << ulChannel);
+ 901              		.loc 1 772 0
+ 902 000a 7B68     		ldr	r3, [r7, #4]
+ 903 000c 7A68     		ldr	r2, [r7, #4]
+ 904 000e 1168     		ldr	r1, [r2, #0]
+ 905 0010 3A68     		ldr	r2, [r7, #0]
+ 906 0012 4FF00100 		mov	r0, #1
+ 907 0016 00FA02F2 		lsl	r2, r0, r2
+ 908 001a 6FEA0202 		mvn	r2, r2
+ 909 001e 0A40     		ands	r2, r2, r1
+ 910 0020 1A60     		str	r2, [r3, #0]
+ 773:C:/StellarisWare/driverlib\lpc.c **** }
+ 911              		.loc 1 773 0
+ 912 0022 07F10C07 		add	r7, r7, #12
+ 913 0026 BD46     		mov	sp, r7
+ 914 0028 80BC     		pop	{r7}
+ 915 002a 7047     		bx	lr
+ 916              		.cfi_endproc
+ 917              	.LFE18:
+ 919              		.section	.text.LPCChannelConfigEPSet,"ax",%progbits
+ 920              		.align	2
+ 921              		.global	LPCChannelConfigEPSet
+ 922              		.thumb
+ 923              		.thumb_func
+ 925              	LPCChannelConfigEPSet:
+ 926              	.LFB19:
+ 774:C:/StellarisWare/driverlib\lpc.c **** 
+ 775:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 776:C:/StellarisWare/driverlib\lpc.c **** //
+ 777:C:/StellarisWare/driverlib\lpc.c **** //! Sets the configuration of an LPC Channel as an endpoint.
+ 778:C:/StellarisWare/driverlib\lpc.c **** //!
+ 779:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 780:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to configure.
+ 781:C:/StellarisWare/driverlib\lpc.c **** //! \param ulConfig specifies configuration options required for the endpoint.
+ 782:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the buffer pool
+ 783:C:/StellarisWare/driverlib\lpc.c **** //! for this endpoint's data.
+ 784:C:/StellarisWare/driverlib\lpc.c **** //! \param ulAddress specifies the LPC bus address (IO and/or MEM) for this
+ 785:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+ 786:C:/StellarisWare/driverlib\lpc.c **** //!
+ 787:C:/StellarisWare/driverlib\lpc.c **** //! This function enables the specified LPC Channel as an endpoint.
+ 788:C:/StellarisWare/driverlib\lpc.c **** //!
+ 789:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 790:C:/StellarisWare/driverlib\lpc.c **** //
+ 791:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 792:C:/StellarisWare/driverlib\lpc.c **** void
+ 793:C:/StellarisWare/driverlib\lpc.c **** LPCChannelConfigEPSet(unsigned long ulBase, unsigned long ulChannel,
+ 794:C:/StellarisWare/driverlib\lpc.c ****                       unsigned long ulConfig, unsigned long ulAddress,
+ 795:C:/StellarisWare/driverlib\lpc.c ****                       unsigned long ulOffset)
+ 796:C:/StellarisWare/driverlib\lpc.c **** {
+ 927              		.loc 1 796 0
+ 928              		.cfi_startproc
+ 929              		@ args = 4, pretend = 0, frame = 16
+ 930              		@ frame_needed = 1, uses_anonymous_args = 0
+ 931              		@ link register save eliminated.
+ 932 0000 80B4     		push	{r7}
+ 933              	.LCFI57:
+ 934              		.cfi_def_cfa_offset 4
+ 935              		.cfi_offset 7, -4
+ 936 0002 85B0     		sub	sp, sp, #20
+ 937              	.LCFI58:
+ 938              		.cfi_def_cfa_offset 24
+ 939 0004 00AF     		add	r7, sp, #0
+ 940              	.LCFI59:
+ 941              		.cfi_def_cfa_register 7
+ 942 0006 F860     		str	r0, [r7, #12]
+ 943 0008 B960     		str	r1, [r7, #8]
+ 944 000a 7A60     		str	r2, [r7, #4]
+ 945 000c 3B60     		str	r3, [r7, #0]
+ 797:C:/StellarisWare/driverlib\lpc.c ****     //
+ 798:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 799:C:/StellarisWare/driverlib\lpc.c ****     //
+ 800:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 801:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 802:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & ~(LPC_CH0CTL_IRQSEL1_M | LPC_CH0CTL_IRQSEL0_M |
+ 803:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH0CTL_IRQEN1 | LPC_CH0CTL_IRQEN0_M)) == 0);
+ 804:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 3) == 0);
+ 805:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < ((((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+ 806:C:/StellarisWare/driverlib\lpc.c ****               16) * 256) - 4));
+ 807:C:/StellarisWare/driverlib\lpc.c **** 
+ 808:C:/StellarisWare/driverlib\lpc.c ****     //
+ 809:C:/StellarisWare/driverlib\lpc.c ****     // Convert the byte offset address into a half-word
+ 810:C:/StellarisWare/driverlib\lpc.c ****     // offset address and add into the control word.
+ 811:C:/StellarisWare/driverlib\lpc.c ****     //
+ 812:C:/StellarisWare/driverlib\lpc.c ****     ulConfig |= (((ulOffset >> 1) << LPC_CH0CTL_OFFSET_S) &
+ 946              		.loc 1 812 0
+ 947 000e BB69     		ldr	r3, [r7, #24]
+ 948 0010 4FEA5303 		lsr	r3, r3, #1
+ 949 0014 4FEA4312 		lsl	r2, r3, #5
+ 950 0018 43F6E073 		movw	r3, #16352
+ 951 001c 1340     		ands	r3, r3, r2
+ 952 001e 7A68     		ldr	r2, [r7, #4]
+ 953 0020 1343     		orrs	r3, r3, r2
+ 954 0022 7B60     		str	r3, [r7, #4]
+ 813:C:/StellarisWare/driverlib\lpc.c ****                  LPC_CH0CTL_OFFSET_M);
+ 814:C:/StellarisWare/driverlib\lpc.c **** 
+ 815:C:/StellarisWare/driverlib\lpc.c ****     //
+ 816:C:/StellarisWare/driverlib\lpc.c ****     // Write the final control value into the control word for
+ 817:C:/StellarisWare/driverlib\lpc.c ****     // the channel.
+ 818:C:/StellarisWare/driverlib\lpc.c ****     //
+ 819:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0CTL + (ulChannel * 0x10)) = ulConfig;
+ 955              		.loc 1 819 0
+ 956 0024 BB68     		ldr	r3, [r7, #8]
+ 957 0026 4FEA0312 		lsl	r2, r3, #4
+ 958 002a FB68     		ldr	r3, [r7, #12]
+ 959 002c D318     		adds	r3, r2, r3
+ 960 002e 03F11003 		add	r3, r3, #16
+ 961 0032 7A68     		ldr	r2, [r7, #4]
+ 962 0034 1A60     		str	r2, [r3, #0]
+ 820:C:/StellarisWare/driverlib\lpc.c **** 
+ 821:C:/StellarisWare/driverlib\lpc.c ****     //
+ 822:C:/StellarisWare/driverlib\lpc.c ****     // Setup the IO and/or MEM address to match for this channel.
+ 823:C:/StellarisWare/driverlib\lpc.c ****     //
+ 824:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0ADR + (ulChannel * 0x10)) = ulAddress;
+ 963              		.loc 1 824 0
+ 964 0036 BB68     		ldr	r3, [r7, #8]
+ 965 0038 4FEA0312 		lsl	r2, r3, #4
+ 966 003c FB68     		ldr	r3, [r7, #12]
+ 967 003e D318     		adds	r3, r2, r3
+ 968 0040 03F11803 		add	r3, r3, #24
+ 969 0044 3A68     		ldr	r2, [r7, #0]
+ 970 0046 1A60     		str	r2, [r3, #0]
+ 825:C:/StellarisWare/driverlib\lpc.c **** }
+ 971              		.loc 1 825 0
+ 972 0048 07F11407 		add	r7, r7, #20
+ 973 004c BD46     		mov	sp, r7
+ 974 004e 80BC     		pop	{r7}
+ 975 0050 7047     		bx	lr
+ 976              		.cfi_endproc
+ 977              	.LFE19:
+ 979 0052 00BF     		.section	.text.LPCChannelConfigMBSet,"ax",%progbits
+ 980              		.align	2
+ 981              		.global	LPCChannelConfigMBSet
+ 982              		.thumb
+ 983              		.thumb_func
+ 985              	LPCChannelConfigMBSet:
+ 986              	.LFB20:
+ 826:C:/StellarisWare/driverlib\lpc.c **** 
+ 827:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 828:C:/StellarisWare/driverlib\lpc.c **** //
+ 829:C:/StellarisWare/driverlib\lpc.c **** //! Sets the configuration of an LPC Channel as a mailbox.
+ 830:C:/StellarisWare/driverlib\lpc.c **** //!
+ 831:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 832:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to configure.
+ 833:C:/StellarisWare/driverlib\lpc.c **** //! \param ulConfig specifies configuration options required for the endpoint.
+ 834:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the buffer pool
+ 835:C:/StellarisWare/driverlib\lpc.c **** //! for this endpoint's data.
+ 836:C:/StellarisWare/driverlib\lpc.c **** //! \param ulAddress specifies the LPC bus address (IO and/or MEM) for this
+ 837:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+ 838:C:/StellarisWare/driverlib\lpc.c **** //!
+ 839:C:/StellarisWare/driverlib\lpc.c **** //! This function enables the specified LPC Channel as a mailbox.
+ 840:C:/StellarisWare/driverlib\lpc.c **** //!
+ 841:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 842:C:/StellarisWare/driverlib\lpc.c **** //
+ 843:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 844:C:/StellarisWare/driverlib\lpc.c **** void
+ 845:C:/StellarisWare/driverlib\lpc.c **** LPCChannelConfigMBSet(unsigned long ulBase, unsigned long ulChannel,
+ 846:C:/StellarisWare/driverlib\lpc.c ****                       unsigned long ulConfig, unsigned long ulAddress,
+ 847:C:/StellarisWare/driverlib\lpc.c ****                       unsigned long ulOffset)
+ 848:C:/StellarisWare/driverlib\lpc.c **** {
+ 987              		.loc 1 848 0
+ 988              		.cfi_startproc
+ 989              		@ args = 4, pretend = 0, frame = 16
+ 990              		@ frame_needed = 1, uses_anonymous_args = 0
+ 991              		@ link register save eliminated.
+ 992 0000 80B4     		push	{r7}
+ 993              	.LCFI60:
+ 994              		.cfi_def_cfa_offset 4
+ 995              		.cfi_offset 7, -4
+ 996 0002 85B0     		sub	sp, sp, #20
+ 997              	.LCFI61:
+ 998              		.cfi_def_cfa_offset 24
+ 999 0004 00AF     		add	r7, sp, #0
+ 1000              	.LCFI62:
+ 1001              		.cfi_def_cfa_register 7
+ 1002 0006 F860     		str	r0, [r7, #12]
+ 1003 0008 B960     		str	r1, [r7, #8]
+ 1004 000a 7A60     		str	r2, [r7, #4]
+ 1005 000c 3B60     		str	r3, [r7, #0]
+ 849:C:/StellarisWare/driverlib\lpc.c ****     //
+ 850:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 851:C:/StellarisWare/driverlib\lpc.c ****     //
+ 852:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 853:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 854:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & ~(LPC_CH0CTL_IRQSEL1_M | LPC_CH0CTL_IRQSEL1_M |
+ 855:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH0CTL_IRQSEL0_M |
+ 856:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH0CTL_IRQEN2 | LPC_CH0CTL_IRQEN1 |
+ 857:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH0CTL_IRQEN0_M |
+ 858:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH0CTL_ARBDIS | LPC_CH0CTL_AMASK_M)) == 0);
+ 859:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 3) == 0);
+ 860:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < ((((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+ 861:C:/StellarisWare/driverlib\lpc.c ****               16) * 256) - 4));
+ 862:C:/StellarisWare/driverlib\lpc.c **** 
+ 863:C:/StellarisWare/driverlib\lpc.c ****     //
+ 864:C:/StellarisWare/driverlib\lpc.c ****     // Convert the byte offset address into a half-word
+ 865:C:/StellarisWare/driverlib\lpc.c ****     // offset address and add into the control word.
+ 866:C:/StellarisWare/driverlib\lpc.c ****     //
+ 867:C:/StellarisWare/driverlib\lpc.c ****     ulConfig |= (((ulOffset >> 1) << LPC_CH0CTL_OFFSET_S) &
+ 1006              		.loc 1 867 0
+ 1007 000e BB69     		ldr	r3, [r7, #24]
+ 1008 0010 4FEA5303 		lsr	r3, r3, #1
+ 1009 0014 4FEA4312 		lsl	r2, r3, #5
+ 1010 0018 43F6E073 		movw	r3, #16352
+ 1011 001c 1340     		ands	r3, r3, r2
+ 1012 001e 7A68     		ldr	r2, [r7, #4]
+ 1013 0020 1343     		orrs	r3, r3, r2
+ 1014 0022 7B60     		str	r3, [r7, #4]
+ 868:C:/StellarisWare/driverlib\lpc.c ****                  LPC_CH0CTL_OFFSET_M);
+ 869:C:/StellarisWare/driverlib\lpc.c **** 
+ 870:C:/StellarisWare/driverlib\lpc.c ****     //
+ 871:C:/StellarisWare/driverlib\lpc.c ****     // Set the configuration bit that enables Mailbox mode.
+ 872:C:/StellarisWare/driverlib\lpc.c ****     //
+ 873:C:/StellarisWare/driverlib\lpc.c ****     ulConfig |= LPC_CH0CTL_TYPE;
+ 1015              		.loc 1 873 0
+ 1016 0024 7B68     		ldr	r3, [r7, #4]
+ 1017 0026 43F00103 		orr	r3, r3, #1
+ 1018 002a 7B60     		str	r3, [r7, #4]
+ 874:C:/StellarisWare/driverlib\lpc.c **** 
+ 875:C:/StellarisWare/driverlib\lpc.c ****     //
+ 876:C:/StellarisWare/driverlib\lpc.c ****     // Write the final control value into the control word for
+ 877:C:/StellarisWare/driverlib\lpc.c ****     // the channel.
+ 878:C:/StellarisWare/driverlib\lpc.c ****     //
+ 879:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0CTL + (ulChannel * 0x10)) = ulConfig;
+ 1019              		.loc 1 879 0
+ 1020 002c BB68     		ldr	r3, [r7, #8]
+ 1021 002e 4FEA0312 		lsl	r2, r3, #4
+ 1022 0032 FB68     		ldr	r3, [r7, #12]
+ 1023 0034 D318     		adds	r3, r2, r3
+ 1024 0036 03F11003 		add	r3, r3, #16
+ 1025 003a 7A68     		ldr	r2, [r7, #4]
+ 1026 003c 1A60     		str	r2, [r3, #0]
+ 880:C:/StellarisWare/driverlib\lpc.c **** 
+ 881:C:/StellarisWare/driverlib\lpc.c ****     //
+ 882:C:/StellarisWare/driverlib\lpc.c ****     // Setup the IO and/or MEM address to match for this channel.
+ 883:C:/StellarisWare/driverlib\lpc.c ****     //
+ 884:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0ADR + (ulChannel * 0x10)) = ulAddress;
+ 1027              		.loc 1 884 0
+ 1028 003e BB68     		ldr	r3, [r7, #8]
+ 1029 0040 4FEA0312 		lsl	r2, r3, #4
+ 1030 0044 FB68     		ldr	r3, [r7, #12]
+ 1031 0046 D318     		adds	r3, r2, r3
+ 1032 0048 03F11803 		add	r3, r3, #24
+ 1033 004c 3A68     		ldr	r2, [r7, #0]
+ 1034 004e 1A60     		str	r2, [r3, #0]
+ 885:C:/StellarisWare/driverlib\lpc.c **** }
+ 1035              		.loc 1 885 0
+ 1036 0050 07F11407 		add	r7, r7, #20
+ 1037 0054 BD46     		mov	sp, r7
+ 1038 0056 80BC     		pop	{r7}
+ 1039 0058 7047     		bx	lr
+ 1040              		.cfi_endproc
+ 1041              	.LFE20:
+ 1043 005a 00BF     		.section	.text.LPCChannelConfigCOMxSet,"ax",%progbits
+ 1044              		.align	2
+ 1045              		.global	LPCChannelConfigCOMxSet
+ 1046              		.thumb
+ 1047              		.thumb_func
+ 1049              	LPCChannelConfigCOMxSet:
+ 1050              	.LFB21:
+ 886:C:/StellarisWare/driverlib\lpc.c **** 
+ 887:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 888:C:/StellarisWare/driverlib\lpc.c **** //
+ 889:C:/StellarisWare/driverlib\lpc.c **** //! Sets the configuration of an LPC Channel as a COMx.
+ 890:C:/StellarisWare/driverlib\lpc.c **** //!
+ 891:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 892:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to configure.
+ 893:C:/StellarisWare/driverlib\lpc.c **** //! \param ulConfig specifies configuration options required for the endpoint.
+ 894:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the buffer pool
+ 895:C:/StellarisWare/driverlib\lpc.c **** //! for this endpoint's data.
+ 896:C:/StellarisWare/driverlib\lpc.c **** //! \param ulAddress specifies the LPC bus address (IO and/or MEM) for this
+ 897:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+ 898:C:/StellarisWare/driverlib\lpc.c **** //! \param ulCOMxMode specifies the COMx mode to be used.
+ 899:C:/StellarisWare/driverlib\lpc.c **** //!
+ 900:C:/StellarisWare/driverlib\lpc.c **** //! The specified LPC Channel is enabled as a COMx.
+ 901:C:/StellarisWare/driverlib\lpc.c **** //!
+ 902:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+ 903:C:/StellarisWare/driverlib\lpc.c **** //
+ 904:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 905:C:/StellarisWare/driverlib\lpc.c **** void
+ 906:C:/StellarisWare/driverlib\lpc.c **** LPCChannelConfigCOMxSet(unsigned long ulBase, unsigned long ulChannel,
+ 907:C:/StellarisWare/driverlib\lpc.c ****                         unsigned long ulConfig, unsigned long ulAddress,
+ 908:C:/StellarisWare/driverlib\lpc.c ****                         unsigned long ulOffset, unsigned long ulCOMxMode)
+ 909:C:/StellarisWare/driverlib\lpc.c **** {
+ 1051              		.loc 1 909 0
+ 1052              		.cfi_startproc
+ 1053              		@ args = 8, pretend = 0, frame = 24
+ 1054              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1055              		@ link register save eliminated.
+ 1056 0000 80B4     		push	{r7}
+ 1057              	.LCFI63:
+ 1058              		.cfi_def_cfa_offset 4
+ 1059              		.cfi_offset 7, -4
+ 1060 0002 87B0     		sub	sp, sp, #28
+ 1061              	.LCFI64:
+ 1062              		.cfi_def_cfa_offset 32
+ 1063 0004 00AF     		add	r7, sp, #0
+ 1064              	.LCFI65:
+ 1065              		.cfi_def_cfa_register 7
+ 1066 0006 F860     		str	r0, [r7, #12]
+ 1067 0008 B960     		str	r1, [r7, #8]
+ 1068 000a 7A60     		str	r2, [r7, #4]
+ 1069 000c 3B60     		str	r3, [r7, #0]
+ 910:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+ 911:C:/StellarisWare/driverlib\lpc.c **** 
+ 912:C:/StellarisWare/driverlib\lpc.c ****     //
+ 913:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 914:C:/StellarisWare/driverlib\lpc.c ****     //
+ 915:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 916:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 917:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulChannel == LPC_CHAN_COMx);
+ 918:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & ~(LPC_CH7CTL_IRQSEL1_M | LPC_CH7CTL_IRQSEL0_M |
+ 919:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH7CTL_CX | LPC_CH7CTL_IRQEN1 |
+ 920:C:/StellarisWare/driverlib\lpc.c ****                          LPC_CH7CTL_IRQEN0_M)) == 0);
+ 921:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 3) == 0);
+ 922:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < ((((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+ 923:C:/StellarisWare/driverlib\lpc.c ****               16) * 256) - 4));
+ 924:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulCOMxMode & ~LPC_DMACX_CXACT_M) == 0);
+ 925:C:/StellarisWare/driverlib\lpc.c **** 
+ 926:C:/StellarisWare/driverlib\lpc.c ****     //
+ 927:C:/StellarisWare/driverlib\lpc.c ****     // Convert the byte offset address into a half-word
+ 928:C:/StellarisWare/driverlib\lpc.c ****     // offset address and add into the control word.
+ 929:C:/StellarisWare/driverlib\lpc.c ****     //
+ 930:C:/StellarisWare/driverlib\lpc.c ****     ulConfig |= (((ulOffset >> 1) << LPC_CH0CTL_OFFSET_S) &
+ 1070              		.loc 1 930 0
+ 1071 000e 3B6A     		ldr	r3, [r7, #32]
+ 1072 0010 4FEA5303 		lsr	r3, r3, #1
+ 1073 0014 4FEA4312 		lsl	r2, r3, #5
+ 1074 0018 43F6E073 		movw	r3, #16352
+ 1075 001c 1340     		ands	r3, r3, r2
+ 1076 001e 7A68     		ldr	r2, [r7, #4]
+ 1077 0020 1343     		orrs	r3, r3, r2
+ 1078 0022 7B60     		str	r3, [r7, #4]
+ 931:C:/StellarisWare/driverlib\lpc.c ****                  LPC_CH0CTL_OFFSET_M);
+ 932:C:/StellarisWare/driverlib\lpc.c **** 
+ 933:C:/StellarisWare/driverlib\lpc.c ****     //
+ 934:C:/StellarisWare/driverlib\lpc.c ****     // Write the final control value into the control word for
+ 935:C:/StellarisWare/driverlib\lpc.c ****     // the channel.
+ 936:C:/StellarisWare/driverlib\lpc.c ****     //
+ 937:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0CTL + (ulChannel * 0x10)) = ulConfig;
+ 1079              		.loc 1 937 0
+ 1080 0024 BB68     		ldr	r3, [r7, #8]
+ 1081 0026 4FEA0312 		lsl	r2, r3, #4
+ 1082 002a FB68     		ldr	r3, [r7, #12]
+ 1083 002c D318     		adds	r3, r2, r3
+ 1084 002e 03F11003 		add	r3, r3, #16
+ 1085 0032 7A68     		ldr	r2, [r7, #4]
+ 1086 0034 1A60     		str	r2, [r3, #0]
+ 938:C:/StellarisWare/driverlib\lpc.c **** 
+ 939:C:/StellarisWare/driverlib\lpc.c ****     //
+ 940:C:/StellarisWare/driverlib\lpc.c ****     // Setup the IO and/or MEM address to match for this channel.
+ 941:C:/StellarisWare/driverlib\lpc.c ****     //
+ 942:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0ADR + (ulChannel * 0x10)) = ulAddress;
+ 1087              		.loc 1 942 0
+ 1088 0036 BB68     		ldr	r3, [r7, #8]
+ 1089 0038 4FEA0312 		lsl	r2, r3, #4
+ 1090 003c FB68     		ldr	r3, [r7, #12]
+ 1091 003e D318     		adds	r3, r2, r3
+ 1092 0040 03F11803 		add	r3, r3, #24
+ 1093 0044 3A68     		ldr	r2, [r7, #0]
+ 1094 0046 1A60     		str	r2, [r3, #0]
+ 943:C:/StellarisWare/driverlib\lpc.c **** 
+ 944:C:/StellarisWare/driverlib\lpc.c ****     //
+ 945:C:/StellarisWare/driverlib\lpc.c ****     // Configure the COMx Mode for this channel.
+ 946:C:/StellarisWare/driverlib\lpc.c ****     //
+ 947:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_DMACX);
+ 1095              		.loc 1 947 0
+ 1096 0048 FB68     		ldr	r3, [r7, #12]
+ 1097 004a 03F59073 		add	r3, r3, #288
+ 1098 004e 1B68     		ldr	r3, [r3, #0]
+ 1099 0050 7B61     		str	r3, [r7, #20]
+ 948:C:/StellarisWare/driverlib\lpc.c ****     ulTemp &= ~LPC_DMACX_CXACT_M;
+ 1100              		.loc 1 948 0
+ 1101 0052 7B69     		ldr	r3, [r7, #20]
+ 1102 0054 23F4C023 		bic	r3, r3, #393216
+ 1103 0058 7B61     		str	r3, [r7, #20]
+ 949:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= ulCOMxMode;
+ 1104              		.loc 1 949 0
+ 1105 005a 7A69     		ldr	r2, [r7, #20]
+ 1106 005c 7B6A     		ldr	r3, [r7, #36]
+ 1107 005e 1343     		orrs	r3, r3, r2
+ 1108 0060 7B61     		str	r3, [r7, #20]
+ 950:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= LPC_DMACX_COMX;
+ 1109              		.loc 1 950 0
+ 1110 0062 7B69     		ldr	r3, [r7, #20]
+ 1111 0064 43F48033 		orr	r3, r3, #65536
+ 1112 0068 7B61     		str	r3, [r7, #20]
+ 951:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_DMACX) = ulTemp;
+ 1113              		.loc 1 951 0
+ 1114 006a FB68     		ldr	r3, [r7, #12]
+ 1115 006c 03F59073 		add	r3, r3, #288
+ 1116 0070 7A69     		ldr	r2, [r7, #20]
+ 1117 0072 1A60     		str	r2, [r3, #0]
+ 952:C:/StellarisWare/driverlib\lpc.c **** }
+ 1118              		.loc 1 952 0
+ 1119 0074 07F11C07 		add	r7, r7, #28
+ 1120 0078 BD46     		mov	sp, r7
+ 1121 007a 80BC     		pop	{r7}
+ 1122 007c 7047     		bx	lr
+ 1123              		.cfi_endproc
+ 1124              	.LFE21:
+ 1126 007e 00BF     		.section	.text.LPCChannelConfigGet,"ax",%progbits
+ 1127              		.align	2
+ 1128              		.global	LPCChannelConfigGet
+ 1129              		.thumb
+ 1130              		.thumb_func
+ 1132              	LPCChannelConfigGet:
+ 1133              	.LFB22:
+ 953:C:/StellarisWare/driverlib\lpc.c **** 
+ 954:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 955:C:/StellarisWare/driverlib\lpc.c **** //
+ 956:C:/StellarisWare/driverlib\lpc.c **** //! Gets the configuration of an LPC Channel.
+ 957:C:/StellarisWare/driverlib\lpc.c **** //!
+ 958:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+ 959:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to configure.
+ 960:C:/StellarisWare/driverlib\lpc.c **** //! \param pulOffset is a pointer to storage for the channel pool offset.
+ 961:C:/StellarisWare/driverlib\lpc.c **** //! \param pulAddress is a pointer to storage for the channel bus address.
+ 962:C:/StellarisWare/driverlib\lpc.c **** //! \param pulCOMxMode is a pointer to storage for the channel COMx mode.
+ 963:C:/StellarisWare/driverlib\lpc.c **** //!
+ 964:C:/StellarisWare/driverlib\lpc.c **** //! This function determines and returns the configuration for the specified
+ 965:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+ 966:C:/StellarisWare/driverlib\lpc.c **** //!
+ 967:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the bit-mapped channel control register value.
+ 968:C:/StellarisWare/driverlib\lpc.c **** //
+ 969:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+ 970:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+ 971:C:/StellarisWare/driverlib\lpc.c **** LPCChannelConfigGet(unsigned long ulBase, unsigned long ulChannel,
+ 972:C:/StellarisWare/driverlib\lpc.c ****                     unsigned long *pulAddress, unsigned long *pulOffset,
+ 973:C:/StellarisWare/driverlib\lpc.c ****                     unsigned long *pulCOMxMode)
+ 974:C:/StellarisWare/driverlib\lpc.c **** {
+ 1134              		.loc 1 974 0
+ 1135              		.cfi_startproc
+ 1136              		@ args = 4, pretend = 0, frame = 24
+ 1137              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1138              		@ link register save eliminated.
+ 1139 0000 80B4     		push	{r7}
+ 1140              	.LCFI66:
+ 1141              		.cfi_def_cfa_offset 4
+ 1142              		.cfi_offset 7, -4
+ 1143 0002 87B0     		sub	sp, sp, #28
+ 1144              	.LCFI67:
+ 1145              		.cfi_def_cfa_offset 32
+ 1146 0004 00AF     		add	r7, sp, #0
+ 1147              	.LCFI68:
+ 1148              		.cfi_def_cfa_register 7
+ 1149 0006 F860     		str	r0, [r7, #12]
+ 1150 0008 B960     		str	r1, [r7, #8]
+ 1151 000a 7A60     		str	r2, [r7, #4]
+ 1152 000c 3B60     		str	r3, [r7, #0]
+ 975:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulConfig;
+ 976:C:/StellarisWare/driverlib\lpc.c **** 
+ 977:C:/StellarisWare/driverlib\lpc.c ****     //
+ 978:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+ 979:C:/StellarisWare/driverlib\lpc.c ****     //
+ 980:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+ 981:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+ 982:C:/StellarisWare/driverlib\lpc.c **** 
+ 983:C:/StellarisWare/driverlib\lpc.c ****     //
+ 984:C:/StellarisWare/driverlib\lpc.c ****     // Read the channel control register.
+ 985:C:/StellarisWare/driverlib\lpc.c ****     //
+ 986:C:/StellarisWare/driverlib\lpc.c ****     ulConfig = HWREG(ulBase + LPC_O_CH0CTL + (ulChannel * 0x10));
+ 1153              		.loc 1 986 0
+ 1154 000e BB68     		ldr	r3, [r7, #8]
+ 1155 0010 4FEA0312 		lsl	r2, r3, #4
+ 1156 0014 FB68     		ldr	r3, [r7, #12]
+ 1157 0016 D318     		adds	r3, r2, r3
+ 1158 0018 03F11003 		add	r3, r3, #16
+ 1159 001c 1B68     		ldr	r3, [r3, #0]
+ 1160 001e 7B61     		str	r3, [r7, #20]
+ 987:C:/StellarisWare/driverlib\lpc.c **** 
+ 988:C:/StellarisWare/driverlib\lpc.c ****     //
+ 989:C:/StellarisWare/driverlib\lpc.c ****     // Get the buffer pool offset value.
+ 990:C:/StellarisWare/driverlib\lpc.c ****     //
+ 991:C:/StellarisWare/driverlib\lpc.c ****     if(pulOffset)
+ 1161              		.loc 1 991 0
+ 1162 0020 3B68     		ldr	r3, [r7, #0]
+ 1163 0022 002B     		cmp	r3, #0
+ 1164 0024 07D0     		beq	.L35
+ 992:C:/StellarisWare/driverlib\lpc.c ****     {
+ 993:C:/StellarisWare/driverlib\lpc.c ****         *pulOffset = ((ulConfig & LPC_CH0CTL_OFFSET_M) >>
+ 1165              		.loc 1 993 0
+ 1166 0026 7A69     		ldr	r2, [r7, #20]
+ 1167 0028 43F6E073 		movw	r3, #16352
+ 1168 002c 1340     		ands	r3, r3, r2
+ 1169 002e 4FEA1312 		lsr	r2, r3, #4
+ 1170 0032 3B68     		ldr	r3, [r7, #0]
+ 1171 0034 1A60     		str	r2, [r3, #0]
+ 1172              	.L35:
+ 994:C:/StellarisWare/driverlib\lpc.c ****                       (LPC_CH0CTL_OFFSET_S - 1));
+ 995:C:/StellarisWare/driverlib\lpc.c ****     }
+ 996:C:/StellarisWare/driverlib\lpc.c **** 
+ 997:C:/StellarisWare/driverlib\lpc.c ****     //
+ 998:C:/StellarisWare/driverlib\lpc.c ****     // Get the IO/Memory address that this endpoint responds to.
+ 999:C:/StellarisWare/driverlib\lpc.c ****     //
+1000:C:/StellarisWare/driverlib\lpc.c ****     if(pulAddress)
+ 1173              		.loc 1 1000 0
+ 1174 0036 7B68     		ldr	r3, [r7, #4]
+ 1175 0038 002B     		cmp	r3, #0
+ 1176 003a 09D0     		beq	.L36
+1001:C:/StellarisWare/driverlib\lpc.c ****     {
+1002:C:/StellarisWare/driverlib\lpc.c ****         *pulAddress = HWREG(ulBase + LPC_O_CH0ADR + (ulChannel * 0x10));
+ 1177              		.loc 1 1002 0
+ 1178 003c BB68     		ldr	r3, [r7, #8]
+ 1179 003e 4FEA0312 		lsl	r2, r3, #4
+ 1180 0042 FB68     		ldr	r3, [r7, #12]
+ 1181 0044 D318     		adds	r3, r2, r3
+ 1182 0046 03F11803 		add	r3, r3, #24
+ 1183 004a 1A68     		ldr	r2, [r3, #0]
+ 1184 004c 7B68     		ldr	r3, [r7, #4]
+ 1185 004e 1A60     		str	r2, [r3, #0]
+ 1186              	.L36:
+1003:C:/StellarisWare/driverlib\lpc.c ****     }
+1004:C:/StellarisWare/driverlib\lpc.c **** 
+1005:C:/StellarisWare/driverlib\lpc.c ****     //
+1006:C:/StellarisWare/driverlib\lpc.c ****     // Configure the COMx Mode for this channel.
+1007:C:/StellarisWare/driverlib\lpc.c ****     //
+1008:C:/StellarisWare/driverlib\lpc.c ****     if(pulCOMxMode && (ulChannel == LPC_CHAN_COMx))
+ 1187              		.loc 1 1008 0
+ 1188 0050 3B6A     		ldr	r3, [r7, #32]
+ 1189 0052 002B     		cmp	r3, #0
+ 1190 0054 0AD0     		beq	.L37
+ 1191              		.loc 1 1008 0 is_stmt 0 discriminator 1
+ 1192 0056 BB68     		ldr	r3, [r7, #8]
+ 1193 0058 072B     		cmp	r3, #7
+ 1194 005a 07D1     		bne	.L37
+1009:C:/StellarisWare/driverlib\lpc.c ****     {
+1010:C:/StellarisWare/driverlib\lpc.c ****         *pulCOMxMode = (HWREG(ulBase + LPC_O_DMACX) & 0x00070000);
+ 1195              		.loc 1 1010 0 is_stmt 1
+ 1196 005c FB68     		ldr	r3, [r7, #12]
+ 1197 005e 03F59073 		add	r3, r3, #288
+ 1198 0062 1B68     		ldr	r3, [r3, #0]
+ 1199 0064 03F4E022 		and	r2, r3, #458752
+ 1200 0068 3B6A     		ldr	r3, [r7, #32]
+ 1201 006a 1A60     		str	r2, [r3, #0]
+ 1202              	.L37:
+1011:C:/StellarisWare/driverlib\lpc.c ****     }
+1012:C:/StellarisWare/driverlib\lpc.c **** 
+1013:C:/StellarisWare/driverlib\lpc.c ****     //
+1014:C:/StellarisWare/driverlib\lpc.c ****     // Return the raw config value.
+1015:C:/StellarisWare/driverlib\lpc.c ****     //
+1016:C:/StellarisWare/driverlib\lpc.c ****     return(ulConfig);
+ 1203              		.loc 1 1016 0
+ 1204 006c 7B69     		ldr	r3, [r7, #20]
+1017:C:/StellarisWare/driverlib\lpc.c **** }
+ 1205              		.loc 1 1017 0
+ 1206 006e 1846     		mov	r0, r3
+ 1207 0070 07F11C07 		add	r7, r7, #28
+ 1208 0074 BD46     		mov	sp, r7
+ 1209 0076 80BC     		pop	{r7}
+ 1210 0078 7047     		bx	lr
+ 1211              		.cfi_endproc
+ 1212              	.LFE22:
+ 1214 007a 00BF     		.section	.text.LPCChannelPoolAddressGet,"ax",%progbits
+ 1215              		.align	2
+ 1216              		.global	LPCChannelPoolAddressGet
+ 1217              		.thumb
+ 1218              		.thumb_func
+ 1220              	LPCChannelPoolAddressGet:
+ 1221              	.LFB23:
+1018:C:/StellarisWare/driverlib\lpc.c **** 
+1019:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1020:C:/StellarisWare/driverlib\lpc.c **** //
+1021:C:/StellarisWare/driverlib\lpc.c **** //! Gets the absolute base address of the channel pool.
+1022:C:/StellarisWare/driverlib\lpc.c **** //!
+1023:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1024:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC channel to configure.
+1025:C:/StellarisWare/driverlib\lpc.c **** //!
+1026:C:/StellarisWare/driverlib\lpc.c **** //! Thos function calculates the absolute address of the channel pool from the
+1027:C:/StellarisWare/driverlib\lpc.c **** //! channel configuration setting and returns it.
+1028:C:/StellarisWare/driverlib\lpc.c **** //!
+1029:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the absolute base address of the channel pool.
+1030:C:/StellarisWare/driverlib\lpc.c **** //
+1031:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1032:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+1033:C:/StellarisWare/driverlib\lpc.c **** LPCChannelPoolAddressGet(unsigned long ulBase, unsigned long ulChannel)
+1034:C:/StellarisWare/driverlib\lpc.c **** {
+ 1222              		.loc 1 1034 0
+ 1223              		.cfi_startproc
+ 1224              		@ args = 0, pretend = 0, frame = 16
+ 1225              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1226              		@ link register save eliminated.
+ 1227 0000 80B4     		push	{r7}
+ 1228              	.LCFI69:
+ 1229              		.cfi_def_cfa_offset 4
+ 1230              		.cfi_offset 7, -4
+ 1231 0002 85B0     		sub	sp, sp, #20
+ 1232              	.LCFI70:
+ 1233              		.cfi_def_cfa_offset 24
+ 1234 0004 00AF     		add	r7, sp, #0
+ 1235              	.LCFI71:
+ 1236              		.cfi_def_cfa_register 7
+ 1237 0006 7860     		str	r0, [r7, #4]
+ 1238 0008 3960     		str	r1, [r7, #0]
+1035:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulAddress;
+1036:C:/StellarisWare/driverlib\lpc.c **** 
+1037:C:/StellarisWare/driverlib\lpc.c ****     //
+1038:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1039:C:/StellarisWare/driverlib\lpc.c ****     //
+1040:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1041:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+1042:C:/StellarisWare/driverlib\lpc.c **** 
+1043:C:/StellarisWare/driverlib\lpc.c ****     //
+1044:C:/StellarisWare/driverlib\lpc.c ****     // Read the channel control register.
+1045:C:/StellarisWare/driverlib\lpc.c ****     //
+1046:C:/StellarisWare/driverlib\lpc.c ****     ulAddress = HWREG(ulBase + LPC_O_CH0CTL + (ulChannel * 0x10));
+ 1239              		.loc 1 1046 0
+ 1240 000a 3B68     		ldr	r3, [r7, #0]
+ 1241 000c 4FEA0312 		lsl	r2, r3, #4
+ 1242 0010 7B68     		ldr	r3, [r7, #4]
+ 1243 0012 D318     		adds	r3, r2, r3
+ 1244 0014 03F11003 		add	r3, r3, #16
+ 1245 0018 1B68     		ldr	r3, [r3, #0]
+ 1246 001a FB60     		str	r3, [r7, #12]
+1047:C:/StellarisWare/driverlib\lpc.c **** 
+1048:C:/StellarisWare/driverlib\lpc.c ****     //
+1049:C:/StellarisWare/driverlib\lpc.c ****     // Mask off the channel offset portion and shift it into a byte
+1050:C:/StellarisWare/driverlib\lpc.c ****     // offset (stored as half-word offset).
+1051:C:/StellarisWare/driverlib\lpc.c ****     //
+1052:C:/StellarisWare/driverlib\lpc.c ****     ulAddress = ((ulAddress & LPC_CH0CTL_OFFSET_M) >>
+ 1247              		.loc 1 1052 0
+ 1248 001c FA68     		ldr	r2, [r7, #12]
+ 1249 001e 43F6E073 		movw	r3, #16352
+ 1250 0022 1340     		ands	r3, r3, r2
+ 1251 0024 4FEA1313 		lsr	r3, r3, #4
+ 1252 0028 FB60     		str	r3, [r7, #12]
+1053:C:/StellarisWare/driverlib\lpc.c ****                  (LPC_CH0CTL_OFFSET_S - 1));
+1054:C:/StellarisWare/driverlib\lpc.c **** 
+1055:C:/StellarisWare/driverlib\lpc.c ****     //
+1056:C:/StellarisWare/driverlib\lpc.c ****     // Add the LPC and Buffer Pool base address to get the final
+1057:C:/StellarisWare/driverlib\lpc.c ****     // address to return.
+1058:C:/StellarisWare/driverlib\lpc.c ****     //
+1059:C:/StellarisWare/driverlib\lpc.c ****     ulAddress += (ulBase + LPC_O_POOL);
+ 1253              		.loc 1 1059 0
+ 1254 002a 7A68     		ldr	r2, [r7, #4]
+ 1255 002c FB68     		ldr	r3, [r7, #12]
+ 1256 002e D318     		adds	r3, r2, r3
+ 1257 0030 03F58063 		add	r3, r3, #1024
+ 1258 0034 FB60     		str	r3, [r7, #12]
+1060:C:/StellarisWare/driverlib\lpc.c **** 
+1061:C:/StellarisWare/driverlib\lpc.c ****     //
+1062:C:/StellarisWare/driverlib\lpc.c ****     // Return the address to the calling routine.
+1063:C:/StellarisWare/driverlib\lpc.c ****     //
+1064:C:/StellarisWare/driverlib\lpc.c ****     return(ulAddress);
+ 1259              		.loc 1 1064 0
+ 1260 0036 FB68     		ldr	r3, [r7, #12]
+1065:C:/StellarisWare/driverlib\lpc.c **** }
+ 1261              		.loc 1 1065 0
+ 1262 0038 1846     		mov	r0, r3
+ 1263 003a 07F11407 		add	r7, r7, #20
+ 1264 003e BD46     		mov	sp, r7
+ 1265 0040 80BC     		pop	{r7}
+ 1266 0042 7047     		bx	lr
+ 1267              		.cfi_endproc
+ 1268              	.LFE23:
+ 1270              		.section	.text.LPCChannelStatusGet,"ax",%progbits
+ 1271              		.align	2
+ 1272              		.global	LPCChannelStatusGet
+ 1273              		.thumb
+ 1274              		.thumb_func
+ 1276              	LPCChannelStatusGet:
+ 1277              	.LFB24:
+1066:C:/StellarisWare/driverlib\lpc.c **** 
+1067:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1068:C:/StellarisWare/driverlib\lpc.c **** //
+1069:C:/StellarisWare/driverlib\lpc.c **** //! Reads the status word from an LPC Channel.
+1070:C:/StellarisWare/driverlib\lpc.c **** //!
+1071:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1072:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC Channel.
+1073:C:/StellarisWare/driverlib\lpc.c **** //!
+1074:C:/StellarisWare/driverlib\lpc.c **** //! This function reads the status word from an LPC channel and returns it to
+1075:C:/StellarisWare/driverlib\lpc.c **** //! the caller.
+1076:C:/StellarisWare/driverlib\lpc.c **** //!
+1077:C:/StellarisWare/driverlib\lpc.c **** //! \return content of the channel status register.
+1078:C:/StellarisWare/driverlib\lpc.c **** //
+1079:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1080:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+1081:C:/StellarisWare/driverlib\lpc.c **** LPCChannelStatusGet(unsigned long ulBase, unsigned long ulChannel)
+1082:C:/StellarisWare/driverlib\lpc.c **** {
+ 1278              		.loc 1 1082 0
+ 1279              		.cfi_startproc
+ 1280              		@ args = 0, pretend = 0, frame = 8
+ 1281              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1282              		@ link register save eliminated.
+ 1283 0000 80B4     		push	{r7}
+ 1284              	.LCFI72:
+ 1285              		.cfi_def_cfa_offset 4
+ 1286              		.cfi_offset 7, -4
+ 1287 0002 83B0     		sub	sp, sp, #12
+ 1288              	.LCFI73:
+ 1289              		.cfi_def_cfa_offset 16
+ 1290 0004 00AF     		add	r7, sp, #0
+ 1291              	.LCFI74:
+ 1292              		.cfi_def_cfa_register 7
+ 1293 0006 7860     		str	r0, [r7, #4]
+ 1294 0008 3960     		str	r1, [r7, #0]
+1083:C:/StellarisWare/driverlib\lpc.c ****     //
+1084:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1085:C:/StellarisWare/driverlib\lpc.c ****     //
+1086:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1087:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+1088:C:/StellarisWare/driverlib\lpc.c **** 
+1089:C:/StellarisWare/driverlib\lpc.c ****     //
+1090:C:/StellarisWare/driverlib\lpc.c ****     // Read the half-word status from the LPC Channel
+1091:C:/StellarisWare/driverlib\lpc.c ****     //
+1092:C:/StellarisWare/driverlib\lpc.c ****     return (HWREG(ulBase + LPC_O_CH0ST + (ulChannel * 0x10)));
+ 1295              		.loc 1 1092 0
+ 1296 000a 3B68     		ldr	r3, [r7, #0]
+ 1297 000c 4FEA0312 		lsl	r2, r3, #4
+ 1298 0010 7B68     		ldr	r3, [r7, #4]
+ 1299 0012 D318     		adds	r3, r2, r3
+ 1300 0014 03F11403 		add	r3, r3, #20
+ 1301 0018 1B68     		ldr	r3, [r3, #0]
+1093:C:/StellarisWare/driverlib\lpc.c **** }
+ 1302              		.loc 1 1093 0
+ 1303 001a 1846     		mov	r0, r3
+ 1304 001c 07F10C07 		add	r7, r7, #12
+ 1305 0020 BD46     		mov	sp, r7
+ 1306 0022 80BC     		pop	{r7}
+ 1307 0024 7047     		bx	lr
+ 1308              		.cfi_endproc
+ 1309              	.LFE24:
+ 1311 0026 00BF     		.section	.text.LPCChannelStatusSet,"ax",%progbits
+ 1312              		.align	2
+ 1313              		.global	LPCChannelStatusSet
+ 1314              		.thumb
+ 1315              		.thumb_func
+ 1317              	LPCChannelStatusSet:
+ 1318              	.LFB25:
+1094:C:/StellarisWare/driverlib\lpc.c **** 
+1095:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1096:C:/StellarisWare/driverlib\lpc.c **** //
+1097:C:/StellarisWare/driverlib\lpc.c **** //! Sets the user bits in the status word (16-bits) of an LPC Channel.
+1098:C:/StellarisWare/driverlib\lpc.c **** //!
+1099:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1100:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC Channel.
+1101:C:/StellarisWare/driverlib\lpc.c **** //! \param ulStatus is the user bit values to set.
+1102:C:/StellarisWare/driverlib\lpc.c **** //!
+1103:C:/StellarisWare/driverlib\lpc.c **** //! This function sets the selected user bits of the status word for an LPC
+1104:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+1105:C:/StellarisWare/driverlib\lpc.c **** //!
+1106:C:/StellarisWare/driverlib\lpc.c **** //! \return None
+1107:C:/StellarisWare/driverlib\lpc.c **** //
+1108:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1109:C:/StellarisWare/driverlib\lpc.c **** void
+1110:C:/StellarisWare/driverlib\lpc.c **** LPCChannelStatusSet(unsigned long ulBase, unsigned long ulChannel,
+1111:C:/StellarisWare/driverlib\lpc.c ****                     unsigned long ulStatus)
+1112:C:/StellarisWare/driverlib\lpc.c **** {
+ 1319              		.loc 1 1112 0
+ 1320              		.cfi_startproc
+ 1321              		@ args = 0, pretend = 0, frame = 24
+ 1322              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1323              		@ link register save eliminated.
+ 1324 0000 80B4     		push	{r7}
+ 1325              	.LCFI75:
+ 1326              		.cfi_def_cfa_offset 4
+ 1327              		.cfi_offset 7, -4
+ 1328 0002 87B0     		sub	sp, sp, #28
+ 1329              	.LCFI76:
+ 1330              		.cfi_def_cfa_offset 32
+ 1331 0004 00AF     		add	r7, sp, #0
+ 1332              	.LCFI77:
+ 1333              		.cfi_def_cfa_register 7
+ 1334 0006 F860     		str	r0, [r7, #12]
+ 1335 0008 B960     		str	r1, [r7, #8]
+ 1336 000a 7A60     		str	r2, [r7, #4]
+1113:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+1114:C:/StellarisWare/driverlib\lpc.c **** 
+1115:C:/StellarisWare/driverlib\lpc.c ****     //
+1116:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1117:C:/StellarisWare/driverlib\lpc.c ****     //
+1118:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1119:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+1120:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulStatus & (~LPC_CH0ST_USER_M)) == 0);
+1121:C:/StellarisWare/driverlib\lpc.c **** 
+1122:C:/StellarisWare/driverlib\lpc.c ****     //
+1123:C:/StellarisWare/driverlib\lpc.c ****     // Read the status from the LPC Channel, and set new values for
+1124:C:/StellarisWare/driverlib\lpc.c ****     // the user bits.
+1125:C:/StellarisWare/driverlib\lpc.c ****     //
+1126:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_CH0ST + (ulChannel * 0x10));
+ 1337              		.loc 1 1126 0
+ 1338 000c BB68     		ldr	r3, [r7, #8]
+ 1339 000e 4FEA0312 		lsl	r2, r3, #4
+ 1340 0012 FB68     		ldr	r3, [r7, #12]
+ 1341 0014 D318     		adds	r3, r2, r3
+ 1342 0016 03F11403 		add	r3, r3, #20
+ 1343 001a 1B68     		ldr	r3, [r3, #0]
+ 1344 001c 7B61     		str	r3, [r7, #20]
+1127:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= ulStatus;
+ 1345              		.loc 1 1127 0
+ 1346 001e 7A69     		ldr	r2, [r7, #20]
+ 1347 0020 7B68     		ldr	r3, [r7, #4]
+ 1348 0022 1343     		orrs	r3, r3, r2
+ 1349 0024 7B61     		str	r3, [r7, #20]
+1128:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0ST + (ulChannel * 0x10)) = ulTemp;
+ 1350              		.loc 1 1128 0
+ 1351 0026 BB68     		ldr	r3, [r7, #8]
+ 1352 0028 4FEA0312 		lsl	r2, r3, #4
+ 1353 002c FB68     		ldr	r3, [r7, #12]
+ 1354 002e D318     		adds	r3, r2, r3
+ 1355 0030 03F11403 		add	r3, r3, #20
+ 1356 0034 7A69     		ldr	r2, [r7, #20]
+ 1357 0036 1A60     		str	r2, [r3, #0]
+1129:C:/StellarisWare/driverlib\lpc.c **** }
+ 1358              		.loc 1 1129 0
+ 1359 0038 07F11C07 		add	r7, r7, #28
+ 1360 003c BD46     		mov	sp, r7
+ 1361 003e 80BC     		pop	{r7}
+ 1362 0040 7047     		bx	lr
+ 1363              		.cfi_endproc
+ 1364              	.LFE25:
+ 1366 0042 00BF     		.section	.text.LPCChannelStatusClear,"ax",%progbits
+ 1367              		.align	2
+ 1368              		.global	LPCChannelStatusClear
+ 1369              		.thumb
+ 1370              		.thumb_func
+ 1372              	LPCChannelStatusClear:
+ 1373              	.LFB26:
+1130:C:/StellarisWare/driverlib\lpc.c **** 
+1131:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1132:C:/StellarisWare/driverlib\lpc.c **** //
+1133:C:/StellarisWare/driverlib\lpc.c **** //! Clears the user bits in the status word (16-bits) of an LPC Channel.
+1134:C:/StellarisWare/driverlib\lpc.c **** //!
+1135:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1136:C:/StellarisWare/driverlib\lpc.c **** //! \param ulChannel specifies the LPC Channel.
+1137:C:/StellarisWare/driverlib\lpc.c **** //! \param ulStatus is the user bit values to clear.
+1138:C:/StellarisWare/driverlib\lpc.c **** //!
+1139:C:/StellarisWare/driverlib\lpc.c **** //! This function sets the selected user bits of the status word for an LPC
+1140:C:/StellarisWare/driverlib\lpc.c **** //! channel.
+1141:C:/StellarisWare/driverlib\lpc.c **** //!
+1142:C:/StellarisWare/driverlib\lpc.c **** //! \return None
+1143:C:/StellarisWare/driverlib\lpc.c **** //
+1144:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1145:C:/StellarisWare/driverlib\lpc.c **** void
+1146:C:/StellarisWare/driverlib\lpc.c **** LPCChannelStatusClear(unsigned long ulBase, unsigned long ulChannel,
+1147:C:/StellarisWare/driverlib\lpc.c ****                       unsigned long ulStatus)
+1148:C:/StellarisWare/driverlib\lpc.c **** {
+ 1374              		.loc 1 1148 0
+ 1375              		.cfi_startproc
+ 1376              		@ args = 0, pretend = 0, frame = 24
+ 1377              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1378              		@ link register save eliminated.
+ 1379 0000 80B4     		push	{r7}
+ 1380              	.LCFI78:
+ 1381              		.cfi_def_cfa_offset 4
+ 1382              		.cfi_offset 7, -4
+ 1383 0002 87B0     		sub	sp, sp, #28
+ 1384              	.LCFI79:
+ 1385              		.cfi_def_cfa_offset 32
+ 1386 0004 00AF     		add	r7, sp, #0
+ 1387              	.LCFI80:
+ 1388              		.cfi_def_cfa_register 7
+ 1389 0006 F860     		str	r0, [r7, #12]
+ 1390 0008 B960     		str	r1, [r7, #8]
+ 1391 000a 7A60     		str	r2, [r7, #4]
+1149:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+1150:C:/StellarisWare/driverlib\lpc.c **** 
+1151:C:/StellarisWare/driverlib\lpc.c ****     //
+1152:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1153:C:/StellarisWare/driverlib\lpc.c ****     //
+1154:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1155:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(LPCChannelValid(ulChannel));
+1156:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulStatus & (~LPC_CH0ST_USER_M)) == 0);
+1157:C:/StellarisWare/driverlib\lpc.c **** 
+1158:C:/StellarisWare/driverlib\lpc.c ****     //
+1159:C:/StellarisWare/driverlib\lpc.c ****     // Read the status from the LPC Channel, and set new values for
+1160:C:/StellarisWare/driverlib\lpc.c ****     // the user bits.
+1161:C:/StellarisWare/driverlib\lpc.c ****     //
+1162:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_CH0ST + (ulChannel * 0x10));
+ 1392              		.loc 1 1162 0
+ 1393 000c BB68     		ldr	r3, [r7, #8]
+ 1394 000e 4FEA0312 		lsl	r2, r3, #4
+ 1395 0012 FB68     		ldr	r3, [r7, #12]
+ 1396 0014 D318     		adds	r3, r2, r3
+ 1397 0016 03F11403 		add	r3, r3, #20
+ 1398 001a 1B68     		ldr	r3, [r3, #0]
+ 1399 001c 7B61     		str	r3, [r7, #20]
+1163:C:/StellarisWare/driverlib\lpc.c ****     ulTemp &= ~ulStatus;
+ 1400              		.loc 1 1163 0
+ 1401 001e 7B68     		ldr	r3, [r7, #4]
+ 1402 0020 6FEA0303 		mvn	r3, r3
+ 1403 0024 7A69     		ldr	r2, [r7, #20]
+ 1404 0026 1340     		ands	r3, r3, r2
+ 1405 0028 7B61     		str	r3, [r7, #20]
+1164:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_CH0ST + (ulChannel * 0x10)) = ulTemp;
+ 1406              		.loc 1 1164 0
+ 1407 002a BB68     		ldr	r3, [r7, #8]
+ 1408 002c 4FEA0312 		lsl	r2, r3, #4
+ 1409 0030 FB68     		ldr	r3, [r7, #12]
+ 1410 0032 D318     		adds	r3, r2, r3
+ 1411 0034 03F11403 		add	r3, r3, #20
+ 1412 0038 7A69     		ldr	r2, [r7, #20]
+ 1413 003a 1A60     		str	r2, [r3, #0]
+1165:C:/StellarisWare/driverlib\lpc.c **** }
+ 1414              		.loc 1 1165 0
+ 1415 003c 07F11C07 		add	r7, r7, #28
+ 1416 0040 BD46     		mov	sp, r7
+ 1417 0042 80BC     		pop	{r7}
+ 1418 0044 7047     		bx	lr
+ 1419              		.cfi_endproc
+ 1420              	.LFE26:
+ 1422 0046 00BF     		.section	.text.LPCChannelDMAConfigSet,"ax",%progbits
+ 1423              		.align	2
+ 1424              		.global	LPCChannelDMAConfigSet
+ 1425              		.thumb
+ 1426              		.thumb_func
+ 1428              	LPCChannelDMAConfigSet:
+ 1429              	.LFB27:
+1166:C:/StellarisWare/driverlib\lpc.c **** 
+1167:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1168:C:/StellarisWare/driverlib\lpc.c **** //
+1169:C:/StellarisWare/driverlib\lpc.c **** //! Sets the configuration of DMA for LPC channels.
+1170:C:/StellarisWare/driverlib\lpc.c **** //!
+1171:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1172:C:/StellarisWare/driverlib\lpc.c **** //! \param ulConfig specifies the DMA channel configuration.
+1173:C:/StellarisWare/driverlib\lpc.c **** //! \param ulMask specifies the configuration mask to be used.
+1174:C:/StellarisWare/driverlib\lpc.c **** //!
+1175:C:/StellarisWare/driverlib\lpc.c **** //! This function sets the specified DMA channel operation based on the
+1176:C:/StellarisWare/driverlib\lpc.c **** //! \e ulConfig parameter.
+1177:C:/StellarisWare/driverlib\lpc.c **** //!
+1178:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+1179:C:/StellarisWare/driverlib\lpc.c **** //
+1180:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1181:C:/StellarisWare/driverlib\lpc.c **** void
+1182:C:/StellarisWare/driverlib\lpc.c **** LPCChannelDMAConfigSet(unsigned long ulBase, unsigned long ulConfig,
+1183:C:/StellarisWare/driverlib\lpc.c ****                        unsigned long ulMask)
+1184:C:/StellarisWare/driverlib\lpc.c **** {
+ 1430              		.loc 1 1184 0
+ 1431              		.cfi_startproc
+ 1432              		@ args = 0, pretend = 0, frame = 24
+ 1433              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1434              		@ link register save eliminated.
+ 1435 0000 80B4     		push	{r7}
+ 1436              	.LCFI81:
+ 1437              		.cfi_def_cfa_offset 4
+ 1438              		.cfi_offset 7, -4
+ 1439 0002 87B0     		sub	sp, sp, #28
+ 1440              	.LCFI82:
+ 1441              		.cfi_def_cfa_offset 32
+ 1442 0004 00AF     		add	r7, sp, #0
+ 1443              	.LCFI83:
+ 1444              		.cfi_def_cfa_register 7
+ 1445 0006 F860     		str	r0, [r7, #12]
+ 1446 0008 B960     		str	r1, [r7, #8]
+ 1447 000a 7A60     		str	r2, [r7, #4]
+1185:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulTemp;
+1186:C:/StellarisWare/driverlib\lpc.c **** 
+1187:C:/StellarisWare/driverlib\lpc.c ****     //
+1188:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1189:C:/StellarisWare/driverlib\lpc.c ****     //
+1190:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1191:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & ~0x000000FF) == 0);
+1192:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & 0x00000003) != 0x00000003);
+1193:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & 0x0000000C) != 0x0000000C);
+1194:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & 0x00000030) != 0x00000030);
+1195:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulConfig & 0x000000C0) != 0x000000C0);
+1196:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulMask & ~0x000000FF) == 0);
+1197:C:/StellarisWare/driverlib\lpc.c **** 
+1198:C:/StellarisWare/driverlib\lpc.c ****     //
+1199:C:/StellarisWare/driverlib\lpc.c ****     // Get the current mask value.
+1200:C:/StellarisWare/driverlib\lpc.c ****     //
+1201:C:/StellarisWare/driverlib\lpc.c ****     ulTemp = HWREG(ulBase + LPC_O_DMACX);
+ 1448              		.loc 1 1201 0
+ 1449 000c FB68     		ldr	r3, [r7, #12]
+ 1450 000e 03F59073 		add	r3, r3, #288
+ 1451 0012 1B68     		ldr	r3, [r3, #0]
+ 1452 0014 7B61     		str	r3, [r7, #20]
+1202:C:/StellarisWare/driverlib\lpc.c ****     ulTemp &= ~ulMask;
+ 1453              		.loc 1 1202 0
+ 1454 0016 7B68     		ldr	r3, [r7, #4]
+ 1455 0018 6FEA0303 		mvn	r3, r3
+ 1456 001c 7A69     		ldr	r2, [r7, #20]
+ 1457 001e 1340     		ands	r3, r3, r2
+ 1458 0020 7B61     		str	r3, [r7, #20]
+1203:C:/StellarisWare/driverlib\lpc.c ****     ulTemp |= (ulConfig & ulMask);
+ 1459              		.loc 1 1203 0
+ 1460 0022 BA68     		ldr	r2, [r7, #8]
+ 1461 0024 7B68     		ldr	r3, [r7, #4]
+ 1462 0026 1340     		ands	r3, r3, r2
+ 1463 0028 7A69     		ldr	r2, [r7, #20]
+ 1464 002a 1343     		orrs	r3, r3, r2
+ 1465 002c 7B61     		str	r3, [r7, #20]
+1204:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_DMACX) = ulTemp;
+ 1466              		.loc 1 1204 0
+ 1467 002e FB68     		ldr	r3, [r7, #12]
+ 1468 0030 03F59073 		add	r3, r3, #288
+ 1469 0034 7A69     		ldr	r2, [r7, #20]
+ 1470 0036 1A60     		str	r2, [r3, #0]
+1205:C:/StellarisWare/driverlib\lpc.c **** }
+ 1471              		.loc 1 1205 0
+ 1472 0038 07F11C07 		add	r7, r7, #28
+ 1473 003c BD46     		mov	sp, r7
+ 1474 003e 80BC     		pop	{r7}
+ 1475 0040 7047     		bx	lr
+ 1476              		.cfi_endproc
+ 1477              	.LFE27:
+ 1479 0042 00BF     		.section	.text.LPCChannelDMAConfigGet,"ax",%progbits
+ 1480              		.align	2
+ 1481              		.global	LPCChannelDMAConfigGet
+ 1482              		.thumb
+ 1483              		.thumb_func
+ 1485              	LPCChannelDMAConfigGet:
+ 1486              	.LFB28:
+1206:C:/StellarisWare/driverlib\lpc.c **** 
+1207:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1208:C:/StellarisWare/driverlib\lpc.c **** //
+1209:C:/StellarisWare/driverlib\lpc.c **** //! Gets the configuration of DMA for LPC channels.
+1210:C:/StellarisWare/driverlib\lpc.c **** //!
+1211:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1212:C:/StellarisWare/driverlib\lpc.c **** //!
+1213:C:/StellarisWare/driverlib\lpc.c **** //! This function returns the configuration of the LPC DMA channels.
+1214:C:/StellarisWare/driverlib\lpc.c **** //!
+1215:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the bit-mapped DMA channel configuration.
+1216:C:/StellarisWare/driverlib\lpc.c **** //
+1217:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1218:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+1219:C:/StellarisWare/driverlib\lpc.c **** LPCChannelDMAConfigGet(unsigned long ulBase)
+1220:C:/StellarisWare/driverlib\lpc.c **** {
+ 1487              		.loc 1 1220 0
+ 1488              		.cfi_startproc
+ 1489              		@ args = 0, pretend = 0, frame = 8
+ 1490              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1491              		@ link register save eliminated.
+ 1492 0000 80B4     		push	{r7}
+ 1493              	.LCFI84:
+ 1494              		.cfi_def_cfa_offset 4
+ 1495              		.cfi_offset 7, -4
+ 1496 0002 83B0     		sub	sp, sp, #12
+ 1497              	.LCFI85:
+ 1498              		.cfi_def_cfa_offset 16
+ 1499 0004 00AF     		add	r7, sp, #0
+ 1500              	.LCFI86:
+ 1501              		.cfi_def_cfa_register 7
+ 1502 0006 7860     		str	r0, [r7, #4]
+1221:C:/StellarisWare/driverlib\lpc.c ****     //
+1222:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1223:C:/StellarisWare/driverlib\lpc.c ****     //
+1224:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1225:C:/StellarisWare/driverlib\lpc.c **** 
+1226:C:/StellarisWare/driverlib\lpc.c ****     //
+1227:C:/StellarisWare/driverlib\lpc.c ****     // Get the current mask value.
+1228:C:/StellarisWare/driverlib\lpc.c ****     //
+1229:C:/StellarisWare/driverlib\lpc.c ****     return(HWREG(ulBase + LPC_O_DMACX) & 0x000000FF);
+ 1503              		.loc 1 1229 0
+ 1504 0008 7B68     		ldr	r3, [r7, #4]
+ 1505 000a 03F59073 		add	r3, r3, #288
+ 1506 000e 1B68     		ldr	r3, [r3, #0]
+ 1507 0010 DBB2     		uxtb	r3, r3
+1230:C:/StellarisWare/driverlib\lpc.c **** }
+ 1508              		.loc 1 1230 0
+ 1509 0012 1846     		mov	r0, r3
+ 1510 0014 07F10C07 		add	r7, r7, #12
+ 1511 0018 BD46     		mov	sp, r7
+ 1512 001a 80BC     		pop	{r7}
+ 1513 001c 7047     		bx	lr
+ 1514              		.cfi_endproc
+ 1515              	.LFE28:
+ 1517 001e 00BF     		.section	.text.LPCByteRead,"ax",%progbits
+ 1518              		.align	2
+ 1519              		.global	LPCByteRead
+ 1520              		.thumb
+ 1521              		.thumb_func
+ 1523              	LPCByteRead:
+ 1524              	.LFB29:
+1231:C:/StellarisWare/driverlib\lpc.c **** 
+1232:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1233:C:/StellarisWare/driverlib\lpc.c **** //
+1234:C:/StellarisWare/driverlib\lpc.c **** //! Reads a byte from the LPC channel pool.
+1235:C:/StellarisWare/driverlib\lpc.c **** //!
+1236:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1237:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1238:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1239:C:/StellarisWare/driverlib\lpc.c **** //!
+1240:C:/StellarisWare/driverlib\lpc.c **** //! This function reads a byte from the channel pool.
+1241:C:/StellarisWare/driverlib\lpc.c **** //!
+1242:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the byte read from the pool memory.
+1243:C:/StellarisWare/driverlib\lpc.c **** //
+1244:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1245:C:/StellarisWare/driverlib\lpc.c **** unsigned char
+1246:C:/StellarisWare/driverlib\lpc.c **** LPCByteRead(unsigned long ulBase, unsigned long ulOffset)
+1247:C:/StellarisWare/driverlib\lpc.c **** {
+ 1525              		.loc 1 1247 0
+ 1526              		.cfi_startproc
+ 1527              		@ args = 0, pretend = 0, frame = 8
+ 1528              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1529              		@ link register save eliminated.
+ 1530 0000 80B4     		push	{r7}
+ 1531              	.LCFI87:
+ 1532              		.cfi_def_cfa_offset 4
+ 1533              		.cfi_offset 7, -4
+ 1534 0002 83B0     		sub	sp, sp, #12
+ 1535              	.LCFI88:
+ 1536              		.cfi_def_cfa_offset 16
+ 1537 0004 00AF     		add	r7, sp, #0
+ 1538              	.LCFI89:
+ 1539              		.cfi_def_cfa_register 7
+ 1540 0006 7860     		str	r0, [r7, #4]
+ 1541 0008 3960     		str	r1, [r7, #0]
+1248:C:/StellarisWare/driverlib\lpc.c ****     //
+1249:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1250:C:/StellarisWare/driverlib\lpc.c ****     //
+1251:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1252:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1253:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1254:C:/StellarisWare/driverlib\lpc.c **** 
+1255:C:/StellarisWare/driverlib\lpc.c ****     //
+1256:C:/StellarisWare/driverlib\lpc.c ****     // Return the byte from the LPC Buffer Pool.
+1257:C:/StellarisWare/driverlib\lpc.c ****     //
+1258:C:/StellarisWare/driverlib\lpc.c ****     return(HWREGB(ulBase + LPC_O_POOL + ulOffset));
+ 1542              		.loc 1 1258 0
+ 1543 000a 7A68     		ldr	r2, [r7, #4]
+ 1544 000c 3B68     		ldr	r3, [r7, #0]
+ 1545 000e D318     		adds	r3, r2, r3
+ 1546 0010 03F58063 		add	r3, r3, #1024
+ 1547 0014 1B78     		ldrb	r3, [r3, #0]
+ 1548 0016 DBB2     		uxtb	r3, r3
+1259:C:/StellarisWare/driverlib\lpc.c **** }
+ 1549              		.loc 1 1259 0
+ 1550 0018 1846     		mov	r0, r3
+ 1551 001a 07F10C07 		add	r7, r7, #12
+ 1552 001e BD46     		mov	sp, r7
+ 1553 0020 80BC     		pop	{r7}
+ 1554 0022 7047     		bx	lr
+ 1555              		.cfi_endproc
+ 1556              	.LFE29:
+ 1558              		.section	.text.LPCByteWrite,"ax",%progbits
+ 1559              		.align	2
+ 1560              		.global	LPCByteWrite
+ 1561              		.thumb
+ 1562              		.thumb_func
+ 1564              	LPCByteWrite:
+ 1565              	.LFB30:
+1260:C:/StellarisWare/driverlib\lpc.c **** 
+1261:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1262:C:/StellarisWare/driverlib\lpc.c **** //
+1263:C:/StellarisWare/driverlib\lpc.c **** //! Writes a byte to the LPC channel pool.
+1264:C:/StellarisWare/driverlib\lpc.c **** //!
+1265:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1266:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1267:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1268:C:/StellarisWare/driverlib\lpc.c **** //! \param ucData specifies the byte to write.
+1269:C:/StellarisWare/driverlib\lpc.c **** //!
+1270:C:/StellarisWare/driverlib\lpc.c **** //! This function writes a byte to the channel pool.
+1271:C:/StellarisWare/driverlib\lpc.c **** //!
+1272:C:/StellarisWare/driverlib\lpc.c **** //! \return None
+1273:C:/StellarisWare/driverlib\lpc.c **** //
+1274:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1275:C:/StellarisWare/driverlib\lpc.c **** void
+1276:C:/StellarisWare/driverlib\lpc.c **** LPCByteWrite(unsigned long ulBase, unsigned long ulOffset,
+1277:C:/StellarisWare/driverlib\lpc.c ****              unsigned char ucData)
+1278:C:/StellarisWare/driverlib\lpc.c **** {
+ 1566              		.loc 1 1278 0
+ 1567              		.cfi_startproc
+ 1568              		@ args = 0, pretend = 0, frame = 16
+ 1569              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1570              		@ link register save eliminated.
+ 1571 0000 80B4     		push	{r7}
+ 1572              	.LCFI90:
+ 1573              		.cfi_def_cfa_offset 4
+ 1574              		.cfi_offset 7, -4
+ 1575 0002 85B0     		sub	sp, sp, #20
+ 1576              	.LCFI91:
+ 1577              		.cfi_def_cfa_offset 24
+ 1578 0004 00AF     		add	r7, sp, #0
+ 1579              	.LCFI92:
+ 1580              		.cfi_def_cfa_register 7
+ 1581 0006 F860     		str	r0, [r7, #12]
+ 1582 0008 B960     		str	r1, [r7, #8]
+ 1583 000a 1346     		mov	r3, r2
+ 1584 000c FB71     		strb	r3, [r7, #7]
+1279:C:/StellarisWare/driverlib\lpc.c ****     //
+1280:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1281:C:/StellarisWare/driverlib\lpc.c ****     //
+1282:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1283:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1284:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1285:C:/StellarisWare/driverlib\lpc.c **** 
+1286:C:/StellarisWare/driverlib\lpc.c ****     //
+1287:C:/StellarisWare/driverlib\lpc.c ****     // Write the byte to the LPC Buffer Pool.
+1288:C:/StellarisWare/driverlib\lpc.c ****     //
+1289:C:/StellarisWare/driverlib\lpc.c ****     HWREGB(ulBase + LPC_O_POOL + ulOffset) = ucData;
+ 1585              		.loc 1 1289 0
+ 1586 000e FA68     		ldr	r2, [r7, #12]
+ 1587 0010 BB68     		ldr	r3, [r7, #8]
+ 1588 0012 D318     		adds	r3, r2, r3
+ 1589 0014 03F58063 		add	r3, r3, #1024
+ 1590 0018 FA79     		ldrb	r2, [r7, #7]
+ 1591 001a 1A70     		strb	r2, [r3, #0]
+1290:C:/StellarisWare/driverlib\lpc.c **** }
+ 1592              		.loc 1 1290 0
+ 1593 001c 07F11407 		add	r7, r7, #20
+ 1594 0020 BD46     		mov	sp, r7
+ 1595 0022 80BC     		pop	{r7}
+ 1596 0024 7047     		bx	lr
+ 1597              		.cfi_endproc
+ 1598              	.LFE30:
+ 1600 0026 00BF     		.section	.text.LPCHalfWordRead,"ax",%progbits
+ 1601              		.align	2
+ 1602              		.global	LPCHalfWordRead
+ 1603              		.thumb
+ 1604              		.thumb_func
+ 1606              	LPCHalfWordRead:
+ 1607              	.LFB31:
+1291:C:/StellarisWare/driverlib\lpc.c **** 
+1292:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1293:C:/StellarisWare/driverlib\lpc.c **** //
+1294:C:/StellarisWare/driverlib\lpc.c **** //! Reads a half-word from the LPC channel pool.
+1295:C:/StellarisWare/driverlib\lpc.c **** //!
+1296:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1297:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1298:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1299:C:/StellarisWare/driverlib\lpc.c **** //!
+1300:C:/StellarisWare/driverlib\lpc.c **** //! This function reads a half-word from the channel pool.  The \e ulOffset
+1301:C:/StellarisWare/driverlib\lpc.c **** //! specified must be half-word aligned.
+1302:C:/StellarisWare/driverlib\lpc.c **** //!
+1303:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the half-word read from the pool memory.
+1304:C:/StellarisWare/driverlib\lpc.c **** //
+1305:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1306:C:/StellarisWare/driverlib\lpc.c **** unsigned short
+1307:C:/StellarisWare/driverlib\lpc.c **** LPCHalfWordRead(unsigned long ulBase, unsigned long ulOffset)
+1308:C:/StellarisWare/driverlib\lpc.c **** {
+ 1608              		.loc 1 1308 0
+ 1609              		.cfi_startproc
+ 1610              		@ args = 0, pretend = 0, frame = 8
+ 1611              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1612              		@ link register save eliminated.
+ 1613 0000 80B4     		push	{r7}
+ 1614              	.LCFI93:
+ 1615              		.cfi_def_cfa_offset 4
+ 1616              		.cfi_offset 7, -4
+ 1617 0002 83B0     		sub	sp, sp, #12
+ 1618              	.LCFI94:
+ 1619              		.cfi_def_cfa_offset 16
+ 1620 0004 00AF     		add	r7, sp, #0
+ 1621              	.LCFI95:
+ 1622              		.cfi_def_cfa_register 7
+ 1623 0006 7860     		str	r0, [r7, #4]
+ 1624 0008 3960     		str	r1, [r7, #0]
+1309:C:/StellarisWare/driverlib\lpc.c ****     //
+1310:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1311:C:/StellarisWare/driverlib\lpc.c ****     //
+1312:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1313:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 1) == 0);
+1314:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1315:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1316:C:/StellarisWare/driverlib\lpc.c **** 
+1317:C:/StellarisWare/driverlib\lpc.c ****     //
+1318:C:/StellarisWare/driverlib\lpc.c ****     // Return the half-word from the LPC Buffer Pool.
+1319:C:/StellarisWare/driverlib\lpc.c ****     //
+1320:C:/StellarisWare/driverlib\lpc.c ****     return(HWREGH(ulBase + LPC_O_POOL + ulOffset));
+ 1625              		.loc 1 1320 0
+ 1626 000a 7A68     		ldr	r2, [r7, #4]
+ 1627 000c 3B68     		ldr	r3, [r7, #0]
+ 1628 000e D318     		adds	r3, r2, r3
+ 1629 0010 03F58063 		add	r3, r3, #1024
+ 1630 0014 1B88     		ldrh	r3, [r3, #0]	@ movhi
+ 1631 0016 9BB2     		uxth	r3, r3
+1321:C:/StellarisWare/driverlib\lpc.c **** }
+ 1632              		.loc 1 1321 0
+ 1633 0018 1846     		mov	r0, r3
+ 1634 001a 07F10C07 		add	r7, r7, #12
+ 1635 001e BD46     		mov	sp, r7
+ 1636 0020 80BC     		pop	{r7}
+ 1637 0022 7047     		bx	lr
+ 1638              		.cfi_endproc
+ 1639              	.LFE31:
+ 1641              		.section	.text.LPCHalfWordWrite,"ax",%progbits
+ 1642              		.align	2
+ 1643              		.global	LPCHalfWordWrite
+ 1644              		.thumb
+ 1645              		.thumb_func
+ 1647              	LPCHalfWordWrite:
+ 1648              	.LFB32:
+1322:C:/StellarisWare/driverlib\lpc.c **** 
+1323:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1324:C:/StellarisWare/driverlib\lpc.c **** //
+1325:C:/StellarisWare/driverlib\lpc.c **** //! Writes a half-word to the LPC channel pool.
+1326:C:/StellarisWare/driverlib\lpc.c **** //!
+1327:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1328:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1329:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1330:C:/StellarisWare/driverlib\lpc.c **** //! \param usData specifies the byte to write.
+1331:C:/StellarisWare/driverlib\lpc.c **** //!
+1332:C:/StellarisWare/driverlib\lpc.c **** //! This function writes a half-word to the channel pool.  The \e ulOffset
+1333:C:/StellarisWare/driverlib\lpc.c **** //! specified must be half-word aligned.
+1334:C:/StellarisWare/driverlib\lpc.c **** //!
+1335:C:/StellarisWare/driverlib\lpc.c **** //! \return None
+1336:C:/StellarisWare/driverlib\lpc.c **** //
+1337:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1338:C:/StellarisWare/driverlib\lpc.c **** void
+1339:C:/StellarisWare/driverlib\lpc.c **** LPCHalfWordWrite(unsigned long ulBase, unsigned long ulOffset,
+1340:C:/StellarisWare/driverlib\lpc.c ****                  unsigned short usData)
+1341:C:/StellarisWare/driverlib\lpc.c **** {
+ 1649              		.loc 1 1341 0
+ 1650              		.cfi_startproc
+ 1651              		@ args = 0, pretend = 0, frame = 16
+ 1652              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1653              		@ link register save eliminated.
+ 1654 0000 80B4     		push	{r7}
+ 1655              	.LCFI96:
+ 1656              		.cfi_def_cfa_offset 4
+ 1657              		.cfi_offset 7, -4
+ 1658 0002 85B0     		sub	sp, sp, #20
+ 1659              	.LCFI97:
+ 1660              		.cfi_def_cfa_offset 24
+ 1661 0004 00AF     		add	r7, sp, #0
+ 1662              	.LCFI98:
+ 1663              		.cfi_def_cfa_register 7
+ 1664 0006 F860     		str	r0, [r7, #12]
+ 1665 0008 B960     		str	r1, [r7, #8]
+ 1666 000a 1346     		mov	r3, r2
+ 1667 000c FB80     		strh	r3, [r7, #6]	@ movhi
+1342:C:/StellarisWare/driverlib\lpc.c ****     //
+1343:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1344:C:/StellarisWare/driverlib\lpc.c ****     //
+1345:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1346:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 1) == 0);
+1347:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1348:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1349:C:/StellarisWare/driverlib\lpc.c **** 
+1350:C:/StellarisWare/driverlib\lpc.c ****     //
+1351:C:/StellarisWare/driverlib\lpc.c ****     // Write the half-word to the LPC Buffer Pool.
+1352:C:/StellarisWare/driverlib\lpc.c ****     //
+1353:C:/StellarisWare/driverlib\lpc.c ****     HWREGH(ulBase + LPC_O_POOL + ulOffset) = usData;
+ 1668              		.loc 1 1353 0
+ 1669 000e FA68     		ldr	r2, [r7, #12]
+ 1670 0010 BB68     		ldr	r3, [r7, #8]
+ 1671 0012 D318     		adds	r3, r2, r3
+ 1672 0014 03F58063 		add	r3, r3, #1024
+ 1673 0018 FA88     		ldrh	r2, [r7, #6]	@ movhi
+ 1674 001a 1A80     		strh	r2, [r3, #0]	@ movhi
+1354:C:/StellarisWare/driverlib\lpc.c **** }
+ 1675              		.loc 1 1354 0
+ 1676 001c 07F11407 		add	r7, r7, #20
+ 1677 0020 BD46     		mov	sp, r7
+ 1678 0022 80BC     		pop	{r7}
+ 1679 0024 7047     		bx	lr
+ 1680              		.cfi_endproc
+ 1681              	.LFE32:
+ 1683 0026 00BF     		.section	.text.LPCWordRead,"ax",%progbits
+ 1684              		.align	2
+ 1685              		.global	LPCWordRead
+ 1686              		.thumb
+ 1687              		.thumb_func
+ 1689              	LPCWordRead:
+ 1690              	.LFB33:
+1355:C:/StellarisWare/driverlib\lpc.c **** 
+1356:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1357:C:/StellarisWare/driverlib\lpc.c **** //
+1358:C:/StellarisWare/driverlib\lpc.c **** //! Reads a word from the LPC channel pool.
+1359:C:/StellarisWare/driverlib\lpc.c **** //!
+1360:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1361:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1362:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1363:C:/StellarisWare/driverlib\lpc.c **** //!
+1364:C:/StellarisWare/driverlib\lpc.c **** //! This function reads a word from the channel pool.  The \e ulOffset
+1365:C:/StellarisWare/driverlib\lpc.c **** //! specified must be word aligned.
+1366:C:/StellarisWare/driverlib\lpc.c **** //!
+1367:C:/StellarisWare/driverlib\lpc.c **** //! \return Returns the word read from the pool memory.
+1368:C:/StellarisWare/driverlib\lpc.c **** //
+1369:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1370:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+1371:C:/StellarisWare/driverlib\lpc.c **** LPCWordRead(unsigned long ulBase, unsigned long ulOffset)
+1372:C:/StellarisWare/driverlib\lpc.c **** {
+ 1691              		.loc 1 1372 0
+ 1692              		.cfi_startproc
+ 1693              		@ args = 0, pretend = 0, frame = 8
+ 1694              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1695              		@ link register save eliminated.
+ 1696 0000 80B4     		push	{r7}
+ 1697              	.LCFI99:
+ 1698              		.cfi_def_cfa_offset 4
+ 1699              		.cfi_offset 7, -4
+ 1700 0002 83B0     		sub	sp, sp, #12
+ 1701              	.LCFI100:
+ 1702              		.cfi_def_cfa_offset 16
+ 1703 0004 00AF     		add	r7, sp, #0
+ 1704              	.LCFI101:
+ 1705              		.cfi_def_cfa_register 7
+ 1706 0006 7860     		str	r0, [r7, #4]
+ 1707 0008 3960     		str	r1, [r7, #0]
+1373:C:/StellarisWare/driverlib\lpc.c ****     //
+1374:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1375:C:/StellarisWare/driverlib\lpc.c ****     //
+1376:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1377:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 3) == 0);
+1378:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1379:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1380:C:/StellarisWare/driverlib\lpc.c **** 
+1381:C:/StellarisWare/driverlib\lpc.c ****     //
+1382:C:/StellarisWare/driverlib\lpc.c ****     // Return the word from the LPC Buffer Pool.
+1383:C:/StellarisWare/driverlib\lpc.c ****     //
+1384:C:/StellarisWare/driverlib\lpc.c ****     return(HWREG(ulBase + LPC_O_POOL + ulOffset));
+ 1708              		.loc 1 1384 0
+ 1709 000a 7A68     		ldr	r2, [r7, #4]
+ 1710 000c 3B68     		ldr	r3, [r7, #0]
+ 1711 000e D318     		adds	r3, r2, r3
+ 1712 0010 03F58063 		add	r3, r3, #1024
+ 1713 0014 1B68     		ldr	r3, [r3, #0]
+1385:C:/StellarisWare/driverlib\lpc.c **** }
+ 1714              		.loc 1 1385 0
+ 1715 0016 1846     		mov	r0, r3
+ 1716 0018 07F10C07 		add	r7, r7, #12
+ 1717 001c BD46     		mov	sp, r7
+ 1718 001e 80BC     		pop	{r7}
+ 1719 0020 7047     		bx	lr
+ 1720              		.cfi_endproc
+ 1721              	.LFE33:
+ 1723 0022 00BF     		.section	.text.LPCWordWrite,"ax",%progbits
+ 1724              		.align	2
+ 1725              		.global	LPCWordWrite
+ 1726              		.thumb
+ 1727              		.thumb_func
+ 1729              	LPCWordWrite:
+ 1730              	.LFB34:
+1386:C:/StellarisWare/driverlib\lpc.c **** 
+1387:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1388:C:/StellarisWare/driverlib\lpc.c **** //
+1389:C:/StellarisWare/driverlib\lpc.c **** //! Writes a word to the LPC channel pool.
+1390:C:/StellarisWare/driverlib\lpc.c **** //!
+1391:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1392:C:/StellarisWare/driverlib\lpc.c **** //! \param ulOffset specifies the offset from the beginning of the LPC channel
+1393:C:/StellarisWare/driverlib\lpc.c **** //! pool.
+1394:C:/StellarisWare/driverlib\lpc.c **** //! \param ulData specifies the word to write.
+1395:C:/StellarisWare/driverlib\lpc.c **** //!
+1396:C:/StellarisWare/driverlib\lpc.c **** //! This function writes a word to the channel pool.  The \e ulOffset
+1397:C:/StellarisWare/driverlib\lpc.c **** //! specified must be word aligned.
+1398:C:/StellarisWare/driverlib\lpc.c **** //!
+1399:C:/StellarisWare/driverlib\lpc.c **** //! \return None
+1400:C:/StellarisWare/driverlib\lpc.c **** //
+1401:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1402:C:/StellarisWare/driverlib\lpc.c **** void
+1403:C:/StellarisWare/driverlib\lpc.c **** LPCWordWrite(unsigned long ulBase, unsigned long ulOffset,
+1404:C:/StellarisWare/driverlib\lpc.c ****              unsigned long ulData)
+1405:C:/StellarisWare/driverlib\lpc.c **** {
+ 1731              		.loc 1 1405 0
+ 1732              		.cfi_startproc
+ 1733              		@ args = 0, pretend = 0, frame = 16
+ 1734              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1735              		@ link register save eliminated.
+ 1736 0000 80B4     		push	{r7}
+ 1737              	.LCFI102:
+ 1738              		.cfi_def_cfa_offset 4
+ 1739              		.cfi_offset 7, -4
+ 1740 0002 85B0     		sub	sp, sp, #20
+ 1741              	.LCFI103:
+ 1742              		.cfi_def_cfa_offset 24
+ 1743 0004 00AF     		add	r7, sp, #0
+ 1744              	.LCFI104:
+ 1745              		.cfi_def_cfa_register 7
+ 1746 0006 F860     		str	r0, [r7, #12]
+ 1747 0008 B960     		str	r1, [r7, #8]
+ 1748 000a 7A60     		str	r2, [r7, #4]
+1406:C:/StellarisWare/driverlib\lpc.c ****     //
+1407:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1408:C:/StellarisWare/driverlib\lpc.c ****     //
+1409:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1410:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulOffset & 1) == 0);
+1411:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulOffset < (((HWREG(ulBase + LPC_O_STS) & LPC_STS_POOLSZ_M) >>
+1412:C:/StellarisWare/driverlib\lpc.c ****                         16) * 256));
+1413:C:/StellarisWare/driverlib\lpc.c **** 
+1414:C:/StellarisWare/driverlib\lpc.c ****     //
+1415:C:/StellarisWare/driverlib\lpc.c ****     // Write the word to the LPC Buffer Pool.
+1416:C:/StellarisWare/driverlib\lpc.c ****     //
+1417:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_POOL + ulOffset) = ulData;
+ 1749              		.loc 1 1417 0
+ 1750 000c FA68     		ldr	r2, [r7, #12]
+ 1751 000e BB68     		ldr	r3, [r7, #8]
+ 1752 0010 D318     		adds	r3, r2, r3
+ 1753 0012 03F58063 		add	r3, r3, #1024
+ 1754 0016 7A68     		ldr	r2, [r7, #4]
+ 1755 0018 1A60     		str	r2, [r3, #0]
+1418:C:/StellarisWare/driverlib\lpc.c **** }
+ 1756              		.loc 1 1418 0
+ 1757 001a 07F11407 		add	r7, r7, #20
+ 1758 001e BD46     		mov	sp, r7
+ 1759 0020 80BC     		pop	{r7}
+ 1760 0022 7047     		bx	lr
+ 1761              		.cfi_endproc
+ 1762              	.LFE34:
+ 1764              		.section	.text.LPCCOMxIntEnable,"ax",%progbits
+ 1765              		.align	2
+ 1766              		.global	LPCCOMxIntEnable
+ 1767              		.thumb
+ 1768              		.thumb_func
+ 1770              	LPCCOMxIntEnable:
+ 1771              	.LFB35:
+1419:C:/StellarisWare/driverlib\lpc.c **** 
+1420:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1421:C:/StellarisWare/driverlib\lpc.c **** //
+1422:C:/StellarisWare/driverlib\lpc.c **** //! Enables individual COMx interrupt sources.
+1423:C:/StellarisWare/driverlib\lpc.c **** //!
+1424:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1425:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+1426:C:/StellarisWare/driverlib\lpc.c **** //!
+1427:C:/StellarisWare/driverlib\lpc.c **** //! This function enables the indicated COMx interrupt sources to trigger the
+1428:C:/StellarisWare/driverlib\lpc.c **** //! COMx interrupt in the primary LPC interrupt registers.
+1429:C:/StellarisWare/driverlib\lpc.c **** //!
+1430:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+1431:C:/StellarisWare/driverlib\lpc.c **** //
+1432:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1433:C:/StellarisWare/driverlib\lpc.c **** void
+1434:C:/StellarisWare/driverlib\lpc.c **** LPCCOMxIntEnable(unsigned long ulBase, unsigned long ulIntFlags)
+1435:C:/StellarisWare/driverlib\lpc.c **** {
+ 1772              		.loc 1 1435 0
+ 1773              		.cfi_startproc
+ 1774              		@ args = 0, pretend = 0, frame = 8
+ 1775              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1776              		@ link register save eliminated.
+ 1777 0000 80B4     		push	{r7}
+ 1778              	.LCFI105:
+ 1779              		.cfi_def_cfa_offset 4
+ 1780              		.cfi_offset 7, -4
+ 1781 0002 83B0     		sub	sp, sp, #12
+ 1782              	.LCFI106:
+ 1783              		.cfi_def_cfa_offset 16
+ 1784 0004 00AF     		add	r7, sp, #0
+ 1785              	.LCFI107:
+ 1786              		.cfi_def_cfa_register 7
+ 1787 0006 7860     		str	r0, [r7, #4]
+ 1788 0008 3960     		str	r1, [r7, #0]
+1436:C:/StellarisWare/driverlib\lpc.c ****     //
+1437:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1438:C:/StellarisWare/driverlib\lpc.c ****     //
+1439:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1440:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulIntFlags & ~(LPC_DMACX_CXEM | LPC_DMACX_CXTXEM |
+1441:C:/StellarisWare/driverlib\lpc.c ****                            LPC_DMACX_CXRXEM)) == 0);
+1442:C:/StellarisWare/driverlib\lpc.c **** 
+1443:C:/StellarisWare/driverlib\lpc.c ****     //
+1444:C:/StellarisWare/driverlib\lpc.c ****     // Get the current mask value.
+1445:C:/StellarisWare/driverlib\lpc.c ****     //
+1446:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_DMACX) |= ulIntFlags;
+ 1789              		.loc 1 1446 0
+ 1790 000a 7B68     		ldr	r3, [r7, #4]
+ 1791 000c 03F59073 		add	r3, r3, #288
+ 1792 0010 7A68     		ldr	r2, [r7, #4]
+ 1793 0012 02F59072 		add	r2, r2, #288
+ 1794 0016 1168     		ldr	r1, [r2, #0]
+ 1795 0018 3A68     		ldr	r2, [r7, #0]
+ 1796 001a 0A43     		orrs	r2, r2, r1
+ 1797 001c 1A60     		str	r2, [r3, #0]
+1447:C:/StellarisWare/driverlib\lpc.c **** }
+ 1798              		.loc 1 1447 0
+ 1799 001e 07F10C07 		add	r7, r7, #12
+ 1800 0022 BD46     		mov	sp, r7
+ 1801 0024 80BC     		pop	{r7}
+ 1802 0026 7047     		bx	lr
+ 1803              		.cfi_endproc
+ 1804              	.LFE35:
+ 1806              		.section	.text.LPCCOMxIntDisable,"ax",%progbits
+ 1807              		.align	2
+ 1808              		.global	LPCCOMxIntDisable
+ 1809              		.thumb
+ 1810              		.thumb_func
+ 1812              	LPCCOMxIntDisable:
+ 1813              	.LFB36:
+1448:C:/StellarisWare/driverlib\lpc.c **** 
+1449:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1450:C:/StellarisWare/driverlib\lpc.c **** //
+1451:C:/StellarisWare/driverlib\lpc.c **** //! Disables individual COMx interrupt sources.
+1452:C:/StellarisWare/driverlib\lpc.c **** //!
+1453:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1454:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+1455:C:/StellarisWare/driverlib\lpc.c **** //!
+1456:C:/StellarisWare/driverlib\lpc.c **** //! This function disables the indicated COMx interrupt sources from triggering
+1457:C:/StellarisWare/driverlib\lpc.c **** //! the COMx interrupt in the primary LPC interrupt registers.
+1458:C:/StellarisWare/driverlib\lpc.c **** //!
+1459:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+1460:C:/StellarisWare/driverlib\lpc.c **** //
+1461:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1462:C:/StellarisWare/driverlib\lpc.c **** void
+1463:C:/StellarisWare/driverlib\lpc.c **** LPCCOMxIntDisable(unsigned long ulBase, unsigned long ulIntFlags)
+1464:C:/StellarisWare/driverlib\lpc.c **** {
+ 1814              		.loc 1 1464 0
+ 1815              		.cfi_startproc
+ 1816              		@ args = 0, pretend = 0, frame = 8
+ 1817              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1818              		@ link register save eliminated.
+ 1819 0000 80B4     		push	{r7}
+ 1820              	.LCFI108:
+ 1821              		.cfi_def_cfa_offset 4
+ 1822              		.cfi_offset 7, -4
+ 1823 0002 83B0     		sub	sp, sp, #12
+ 1824              	.LCFI109:
+ 1825              		.cfi_def_cfa_offset 16
+ 1826 0004 00AF     		add	r7, sp, #0
+ 1827              	.LCFI110:
+ 1828              		.cfi_def_cfa_register 7
+ 1829 0006 7860     		str	r0, [r7, #4]
+ 1830 0008 3960     		str	r1, [r7, #0]
+1465:C:/StellarisWare/driverlib\lpc.c ****     //
+1466:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1467:C:/StellarisWare/driverlib\lpc.c ****     //
+1468:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1469:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulIntFlags & ~(LPC_DMACX_CXEM | LPC_DMACX_CXTXEM |
+1470:C:/StellarisWare/driverlib\lpc.c ****                            LPC_DMACX_CXRXEM)) == 0);
+1471:C:/StellarisWare/driverlib\lpc.c **** 
+1472:C:/StellarisWare/driverlib\lpc.c ****     //
+1473:C:/StellarisWare/driverlib\lpc.c ****     // Disable the specified interrupts.
+1474:C:/StellarisWare/driverlib\lpc.c ****     //
+1475:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_DMACX) &= ~ulIntFlags;
+ 1831              		.loc 1 1475 0
+ 1832 000a 7B68     		ldr	r3, [r7, #4]
+ 1833 000c 03F59073 		add	r3, r3, #288
+ 1834 0010 7A68     		ldr	r2, [r7, #4]
+ 1835 0012 02F59072 		add	r2, r2, #288
+ 1836 0016 1168     		ldr	r1, [r2, #0]
+ 1837 0018 3A68     		ldr	r2, [r7, #0]
+ 1838 001a 6FEA0202 		mvn	r2, r2
+ 1839 001e 0A40     		ands	r2, r2, r1
+ 1840 0020 1A60     		str	r2, [r3, #0]
+1476:C:/StellarisWare/driverlib\lpc.c **** }
+ 1841              		.loc 1 1476 0
+ 1842 0022 07F10C07 		add	r7, r7, #12
+ 1843 0026 BD46     		mov	sp, r7
+ 1844 0028 80BC     		pop	{r7}
+ 1845 002a 7047     		bx	lr
+ 1846              		.cfi_endproc
+ 1847              	.LFE36:
+ 1849              		.section	.text.LPCCOMxIntStatus,"ax",%progbits
+ 1850              		.align	2
+ 1851              		.global	LPCCOMxIntStatus
+ 1852              		.thumb
+ 1853              		.thumb_func
+ 1855              	LPCCOMxIntStatus:
+ 1856              	.LFB37:
+1477:C:/StellarisWare/driverlib\lpc.c **** 
+1478:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1479:C:/StellarisWare/driverlib\lpc.c **** //
+1480:C:/StellarisWare/driverlib\lpc.c **** //! Gets the current COMx interrupt status.
+1481:C:/StellarisWare/driverlib\lpc.c **** //!
+1482:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1483:C:/StellarisWare/driverlib\lpc.c **** //! \param bMasked is \b false if the raw interrupt status is required or
+1484:C:/StellarisWare/driverlib\lpc.c **** //! \b true if the masked interrupt status is required.
+1485:C:/StellarisWare/driverlib\lpc.c **** //!
+1486:C:/StellarisWare/driverlib\lpc.c **** //! This function returns the interrupt status for the COMx module.
+1487:C:/StellarisWare/driverlib\lpc.c **** //!
+1488:C:/StellarisWare/driverlib\lpc.c **** //! \return The current interrupt status.
+1489:C:/StellarisWare/driverlib\lpc.c **** //
+1490:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1491:C:/StellarisWare/driverlib\lpc.c **** unsigned long
+1492:C:/StellarisWare/driverlib\lpc.c **** LPCCOMxIntStatus(unsigned long ulBase, tBoolean bMasked)
+1493:C:/StellarisWare/driverlib\lpc.c **** {
+ 1857              		.loc 1 1493 0
+ 1858              		.cfi_startproc
+ 1859              		@ args = 0, pretend = 0, frame = 16
+ 1860              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1861              		@ link register save eliminated.
+ 1862 0000 80B4     		push	{r7}
+ 1863              	.LCFI111:
+ 1864              		.cfi_def_cfa_offset 4
+ 1865              		.cfi_offset 7, -4
+ 1866 0002 85B0     		sub	sp, sp, #20
+ 1867              	.LCFI112:
+ 1868              		.cfi_def_cfa_offset 24
+ 1869 0004 00AF     		add	r7, sp, #0
+ 1870              	.LCFI113:
+ 1871              		.cfi_def_cfa_register 7
+ 1872 0006 7860     		str	r0, [r7, #4]
+ 1873 0008 0B46     		mov	r3, r1
+ 1874 000a FB70     		strb	r3, [r7, #3]
+1494:C:/StellarisWare/driverlib\lpc.c ****     unsigned long ulStatus;
+1495:C:/StellarisWare/driverlib\lpc.c **** 
+1496:C:/StellarisWare/driverlib\lpc.c ****     //
+1497:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1498:C:/StellarisWare/driverlib\lpc.c ****     //
+1499:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1500:C:/StellarisWare/driverlib\lpc.c **** 
+1501:C:/StellarisWare/driverlib\lpc.c ****     //
+1502:C:/StellarisWare/driverlib\lpc.c ****     // Return either the interrupt status or the raw interrupt status as
+1503:C:/StellarisWare/driverlib\lpc.c ****     // requested.
+1504:C:/StellarisWare/driverlib\lpc.c ****     //
+1505:C:/StellarisWare/driverlib\lpc.c ****     ulStatus = HWREG(ulBase + LPC_O_DMACX);
+ 1875              		.loc 1 1505 0
+ 1876 000c 7B68     		ldr	r3, [r7, #4]
+ 1877 000e 03F59073 		add	r3, r3, #288
+ 1878 0012 1B68     		ldr	r3, [r3, #0]
+ 1879 0014 FB60     		str	r3, [r7, #12]
+1506:C:/StellarisWare/driverlib\lpc.c ****     if(bMasked)
+ 1880              		.loc 1 1506 0
+ 1881 0016 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1882 0018 002B     		cmp	r3, #0
+ 1883 001a 05D0     		beq	.L53
+1507:C:/StellarisWare/driverlib\lpc.c ****     {
+1508:C:/StellarisWare/driverlib\lpc.c ****         ulStatus = ulStatus & (ulStatus << 4);
+ 1884              		.loc 1 1508 0
+ 1885 001c FB68     		ldr	r3, [r7, #12]
+ 1886 001e 4FEA0313 		lsl	r3, r3, #4
+ 1887 0022 FA68     		ldr	r2, [r7, #12]
+ 1888 0024 1340     		ands	r3, r3, r2
+ 1889 0026 FB60     		str	r3, [r7, #12]
+ 1890              	.L53:
+1509:C:/StellarisWare/driverlib\lpc.c ****     }
+1510:C:/StellarisWare/driverlib\lpc.c ****     return(ulStatus & (LPC_DMACX_CXRES | LPC_DMACX_CXTXRES |
+ 1891              		.loc 1 1510 0
+ 1892 0028 FB68     		ldr	r3, [r7, #12]
+ 1893 002a 03F06073 		and	r3, r3, #58720256
+1511:C:/StellarisWare/driverlib\lpc.c ****                            LPC_DMACX_CXRXRES));
+1512:C:/StellarisWare/driverlib\lpc.c **** }
+ 1894              		.loc 1 1512 0
+ 1895 002e 1846     		mov	r0, r3
+ 1896 0030 07F11407 		add	r7, r7, #20
+ 1897 0034 BD46     		mov	sp, r7
+ 1898 0036 80BC     		pop	{r7}
+ 1899 0038 7047     		bx	lr
+ 1900              		.cfi_endproc
+ 1901              	.LFE37:
+ 1903 003a 00BF     		.section	.text.LPCCOMxIntClear,"ax",%progbits
+ 1904              		.align	2
+ 1905              		.global	LPCCOMxIntClear
+ 1906              		.thumb
+ 1907              		.thumb_func
+ 1909              	LPCCOMxIntClear:
+ 1910              	.LFB38:
+1513:C:/StellarisWare/driverlib\lpc.c **** 
+1514:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1515:C:/StellarisWare/driverlib\lpc.c **** //
+1516:C:/StellarisWare/driverlib\lpc.c **** //! Clears COMx interrupt sources.
+1517:C:/StellarisWare/driverlib\lpc.c **** //!
+1518:C:/StellarisWare/driverlib\lpc.c **** //! \param ulBase specifies the LPC module base address.
+1519:C:/StellarisWare/driverlib\lpc.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be cleared.
+1520:C:/StellarisWare/driverlib\lpc.c **** //!
+1521:C:/StellarisWare/driverlib\lpc.c **** //! This function clears the specified COMx interrupt sources so that they no
+1522:C:/StellarisWare/driverlib\lpc.c **** //! longer assert.
+1523:C:/StellarisWare/driverlib\lpc.c **** //!
+1524:C:/StellarisWare/driverlib\lpc.c **** //! \return None.
+1525:C:/StellarisWare/driverlib\lpc.c **** //
+1526:C:/StellarisWare/driverlib\lpc.c **** //*****************************************************************************
+1527:C:/StellarisWare/driverlib\lpc.c **** void
+1528:C:/StellarisWare/driverlib\lpc.c **** LPCCOMxIntClear(unsigned long ulBase, unsigned long ulIntFlags)
+1529:C:/StellarisWare/driverlib\lpc.c **** {
+ 1911              		.loc 1 1529 0
+ 1912              		.cfi_startproc
+ 1913              		@ args = 0, pretend = 0, frame = 8
+ 1914              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1915              		@ link register save eliminated.
+ 1916 0000 80B4     		push	{r7}
+ 1917              	.LCFI114:
+ 1918              		.cfi_def_cfa_offset 4
+ 1919              		.cfi_offset 7, -4
+ 1920 0002 83B0     		sub	sp, sp, #12
+ 1921              	.LCFI115:
+ 1922              		.cfi_def_cfa_offset 16
+ 1923 0004 00AF     		add	r7, sp, #0
+ 1924              	.LCFI116:
+ 1925              		.cfi_def_cfa_register 7
+ 1926 0006 7860     		str	r0, [r7, #4]
+ 1927 0008 3960     		str	r1, [r7, #0]
+1530:C:/StellarisWare/driverlib\lpc.c ****     //
+1531:C:/StellarisWare/driverlib\lpc.c ****     // Check the arguments.
+1532:C:/StellarisWare/driverlib\lpc.c ****     //
+1533:C:/StellarisWare/driverlib\lpc.c ****     ASSERT(ulBase == LPC0_BASE);
+1534:C:/StellarisWare/driverlib\lpc.c ****     ASSERT((ulIntFlags & ~(LPC_DMACX_CXRES | LPC_DMACX_CXTXRES |
+1535:C:/StellarisWare/driverlib\lpc.c ****                            LPC_DMACX_CXRXRES)) == 0);
+1536:C:/StellarisWare/driverlib\lpc.c **** 
+1537:C:/StellarisWare/driverlib\lpc.c ****     //
+1538:C:/StellarisWare/driverlib\lpc.c ****     // Clear the requested interrupt sources.
+1539:C:/StellarisWare/driverlib\lpc.c ****     //
+1540:C:/StellarisWare/driverlib\lpc.c ****     HWREG(ulBase + LPC_O_DMACX) |= ulIntFlags;
+ 1928              		.loc 1 1540 0
+ 1929 000a 7B68     		ldr	r3, [r7, #4]
+ 1930 000c 03F59073 		add	r3, r3, #288
+ 1931 0010 7A68     		ldr	r2, [r7, #4]
+ 1932 0012 02F59072 		add	r2, r2, #288
+ 1933 0016 1168     		ldr	r1, [r2, #0]
+ 1934 0018 3A68     		ldr	r2, [r7, #0]
+ 1935 001a 0A43     		orrs	r2, r2, r1
+ 1936 001c 1A60     		str	r2, [r3, #0]
+1541:C:/StellarisWare/driverlib\lpc.c **** }
+ 1937              		.loc 1 1541 0
+ 1938 001e 07F10C07 		add	r7, r7, #12
+ 1939 0022 BD46     		mov	sp, r7
+ 1940 0024 80BC     		pop	{r7}
+ 1941 0026 7047     		bx	lr
+ 1942              		.cfi_endproc
+ 1943              	.LFE38:
+ 1945              		.text
+ 1946              	.Letext0:
+ 1947              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 lpc.c
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:19     .text.LPCConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:24     .text.LPCConfigSet:00000000 LPCConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:71     .text.LPCConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:76     .text.LPCConfigGet:00000000 LPCConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:108    .text.LPCStatusBlockAddressSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:113    .text.LPCStatusBlockAddressSet:00000000 LPCStatusBlockAddressSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:161    .text.LPCStatusBlockAddressGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:166    .text.LPCStatusBlockAddressGet:00000000 LPCStatusBlockAddressGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:198    .text.LPCStatusGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:203    .text.LPCStatusGet:00000000 LPCStatusGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:264    .text.LPCSCIAssert:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:269    .text.LPCSCIAssert:00000000 LPCSCIAssert
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:326    .text.LPCIRQConfig:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:331    .text.LPCIRQConfig:00000000 LPCIRQConfig
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:408    .text.LPCIRQSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:413    .text.LPCIRQSet:00000000 LPCIRQSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:458    .text.LPCIRQClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:463    .text.LPCIRQClear:00000000 LPCIRQClear
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:509    .text.LPCIRQGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:514    .text.LPCIRQGet:00000000 LPCIRQGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:546    .text.LPCIRQSend:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:551    .text.LPCIRQSend:00000000 LPCIRQSend
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:586    .text.LPCIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:591    .text.LPCIntRegister:00000000 LPCIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:625    .text.LPCIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:630    .text.LPCIntUnregister:00000000 LPCIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:662    .text.LPCIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:667    .text.LPCIntEnable:00000000 LPCIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:704    .text.LPCIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:709    .text.LPCIntDisable:00000000 LPCIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:747    .text.LPCIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:752    .text.LPCIntStatus:00000000 LPCIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:797    .text.LPCIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:802    .text.LPCIntClear:00000000 LPCIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:835    .text.LPCChannelEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:840    .text.LPCChannelEnable:00000000 LPCChannelEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:877    .text.LPCChannelDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:882    .text.LPCChannelDisable:00000000 LPCChannelDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:920    .text.LPCChannelConfigEPSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:925    .text.LPCChannelConfigEPSet:00000000 LPCChannelConfigEPSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:980    .text.LPCChannelConfigMBSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:985    .text.LPCChannelConfigMBSet:00000000 LPCChannelConfigMBSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1044   .text.LPCChannelConfigCOMxSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1049   .text.LPCChannelConfigCOMxSet:00000000 LPCChannelConfigCOMxSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1127   .text.LPCChannelConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1132   .text.LPCChannelConfigGet:00000000 LPCChannelConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1215   .text.LPCChannelPoolAddressGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1220   .text.LPCChannelPoolAddressGet:00000000 LPCChannelPoolAddressGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1271   .text.LPCChannelStatusGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1276   .text.LPCChannelStatusGet:00000000 LPCChannelStatusGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1312   .text.LPCChannelStatusSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1317   .text.LPCChannelStatusSet:00000000 LPCChannelStatusSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1367   .text.LPCChannelStatusClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1372   .text.LPCChannelStatusClear:00000000 LPCChannelStatusClear
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1423   .text.LPCChannelDMAConfigSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1428   .text.LPCChannelDMAConfigSet:00000000 LPCChannelDMAConfigSet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1480   .text.LPCChannelDMAConfigGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1485   .text.LPCChannelDMAConfigGet:00000000 LPCChannelDMAConfigGet
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1518   .text.LPCByteRead:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1523   .text.LPCByteRead:00000000 LPCByteRead
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1559   .text.LPCByteWrite:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1564   .text.LPCByteWrite:00000000 LPCByteWrite
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1601   .text.LPCHalfWordRead:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1606   .text.LPCHalfWordRead:00000000 LPCHalfWordRead
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1642   .text.LPCHalfWordWrite:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1647   .text.LPCHalfWordWrite:00000000 LPCHalfWordWrite
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1684   .text.LPCWordRead:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1689   .text.LPCWordRead:00000000 LPCWordRead
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1724   .text.LPCWordWrite:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1729   .text.LPCWordWrite:00000000 LPCWordWrite
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1765   .text.LPCCOMxIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1770   .text.LPCCOMxIntEnable:00000000 LPCCOMxIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1807   .text.LPCCOMxIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1812   .text.LPCCOMxIntDisable:00000000 LPCCOMxIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1850   .text.LPCCOMxIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1855   .text.LPCCOMxIntStatus:00000000 LPCCOMxIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1904   .text.LPCCOMxIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccgNZ1ek.s:1909   .text.LPCCOMxIntClear:00000000 LPCCOMxIntClear
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

@@ -1,0 +1,2489 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"eeprom.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.EEPROMSetSectorMask,"ax",%progbits
+  19              		.align	2
+  20              		.thumb
+  21              		.thumb_func
+  23              	EEPROMSetSectorMask:
+  24              	.LFB0:
+  25              		.file 1 "C:/StellarisWare/driverlib/eeprom.c"
+   1:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\eeprom.c **** //
+   3:C:/StellarisWare/driverlib\eeprom.c **** // eeprom.c - Driver for programming the on-chip EEPROM.
+   4:C:/StellarisWare/driverlib\eeprom.c **** //
+   5:C:/StellarisWare/driverlib\eeprom.c **** // Copyright (c) 2010-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\eeprom.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\eeprom.c **** // 
+   8:C:/StellarisWare/driverlib\eeprom.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\eeprom.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\eeprom.c **** //   are met:
+  11:C:/StellarisWare/driverlib\eeprom.c **** // 
+  12:C:/StellarisWare/driverlib\eeprom.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\eeprom.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\eeprom.c **** // 
+  15:C:/StellarisWare/driverlib\eeprom.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\eeprom.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\eeprom.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\eeprom.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\eeprom.c **** // 
+  20:C:/StellarisWare/driverlib\eeprom.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\eeprom.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\eeprom.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\eeprom.c **** // 
+  24:C:/StellarisWare/driverlib\eeprom.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\eeprom.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\eeprom.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\eeprom.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\eeprom.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\eeprom.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\eeprom.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\eeprom.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\eeprom.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\eeprom.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\eeprom.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\eeprom.c **** // 
+  36:C:/StellarisWare/driverlib\eeprom.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\eeprom.c **** //
+  38:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\eeprom.c **** 
+  40:C:/StellarisWare/driverlib\eeprom.c **** #include "inc/hw_eeprom.h"
+  41:C:/StellarisWare/driverlib\eeprom.c **** #include "inc/hw_flash.h"
+  42:C:/StellarisWare/driverlib\eeprom.c **** #include "inc/hw_ints.h"
+  43:C:/StellarisWare/driverlib\eeprom.c **** #include "inc/hw_sysctl.h"
+  44:C:/StellarisWare/driverlib\eeprom.c **** #include "inc/hw_types.h"
+  45:C:/StellarisWare/driverlib\eeprom.c **** #include "driverlib/debug.h"
+  46:C:/StellarisWare/driverlib\eeprom.c **** #include "driverlib/flash.h"
+  47:C:/StellarisWare/driverlib\eeprom.c **** #include "driverlib/interrupt.h"
+  48:C:/StellarisWare/driverlib\eeprom.c **** #include "driverlib/sysctl.h"
+  49:C:/StellarisWare/driverlib\eeprom.c **** #include "driverlib/eeprom.h"
+  50:C:/StellarisWare/driverlib\eeprom.c **** 
+  51:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  52:C:/StellarisWare/driverlib\eeprom.c **** //
+  53:C:/StellarisWare/driverlib\eeprom.c **** //! \addtogroup eeprom_api
+  54:C:/StellarisWare/driverlib\eeprom.c **** //! @{
+  55:C:/StellarisWare/driverlib\eeprom.c **** //
+  56:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  57:C:/StellarisWare/driverlib\eeprom.c **** 
+  58:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  59:C:/StellarisWare/driverlib\eeprom.c **** //
+  60:C:/StellarisWare/driverlib\eeprom.c **** // Useful macros to extract the number of EEPROM blocks available on the target
+  61:C:/StellarisWare/driverlib\eeprom.c **** // device and the total EEPROM storage in bytes from the EESIZE register.
+  62:C:/StellarisWare/driverlib\eeprom.c **** //
+  63:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  64:C:/StellarisWare/driverlib\eeprom.c **** #define BLOCKS_FROM_EESIZE(x) (((x) & EEPROM_EESIZE_BLKCNT_M) >>               \
+  65:C:/StellarisWare/driverlib\eeprom.c ****                               EEPROM_EESIZE_BLKCNT_S)
+  66:C:/StellarisWare/driverlib\eeprom.c **** #define SIZE_FROM_EESIZE(x)   ((((x) & EEPROM_EESIZE_WORDCNT_M) >>             \
+  67:C:/StellarisWare/driverlib\eeprom.c ****                               EEPROM_EESIZE_WORDCNT_S) * 4)
+  68:C:/StellarisWare/driverlib\eeprom.c **** 
+  69:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  70:C:/StellarisWare/driverlib\eeprom.c **** //
+  71:C:/StellarisWare/driverlib\eeprom.c **** // Useful macro to extract the offset from a linear address.
+  72:C:/StellarisWare/driverlib\eeprom.c **** //
+  73:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  74:C:/StellarisWare/driverlib\eeprom.c **** #define OFFSET_FROM_ADDR(x) (((x) >> 2) & 0x0F)
+  75:C:/StellarisWare/driverlib\eeprom.c **** 
+  76:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  77:C:/StellarisWare/driverlib\eeprom.c **** //
+  78:C:/StellarisWare/driverlib\eeprom.c **** // The key value required to initiate a mass erase.
+  79:C:/StellarisWare/driverlib\eeprom.c **** //
+  80:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  81:C:/StellarisWare/driverlib\eeprom.c **** #define EEPROM_MASS_ERASE_KEY ((unsigned long)0xE37B << EEPROM_EEDBGME_KEY_S)
+  82:C:/StellarisWare/driverlib\eeprom.c **** 
+  83:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  84:C:/StellarisWare/driverlib\eeprom.c **** //
+  85:C:/StellarisWare/driverlib\eeprom.c **** // This function implements a workaround for a bug in Blizzard rev A silicon.
+  86:C:/StellarisWare/driverlib\eeprom.c **** // It ensures that only the 1KB flash sector containing a given EEPROM address
+  87:C:/StellarisWare/driverlib\eeprom.c **** // is erased if an erase/copy operation is required as a result of a following
+  88:C:/StellarisWare/driverlib\eeprom.c **** // EEPROM write.
+  89:C:/StellarisWare/driverlib\eeprom.c **** //
+  90:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+  91:C:/StellarisWare/driverlib\eeprom.c **** static void
+  92:C:/StellarisWare/driverlib\eeprom.c **** EEPROMSetSectorMask(unsigned long ulAddress)
+  93:C:/StellarisWare/driverlib\eeprom.c **** {
+  26              		.loc 1 93 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 16
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 14, -4
+  34              		.cfi_offset 7, -8
+  35 0002 84B0     		sub	sp, sp, #16
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 24
+  38 0004 00AF     		add	r7, sp, #0
+  39              	.LCFI2:
+  40              		.cfi_def_cfa_register 7
+  41 0006 7860     		str	r0, [r7, #4]
+  94:C:/StellarisWare/driverlib\eeprom.c ****     unsigned long ulMask;
+  95:C:/StellarisWare/driverlib\eeprom.c **** 
+  96:C:/StellarisWare/driverlib\eeprom.c ****     //
+  97:C:/StellarisWare/driverlib\eeprom.c ****     // Determine which page contains the passed EEPROM address.  The 2KB EEPROM
+  98:C:/StellarisWare/driverlib\eeprom.c ****     // is implemented in 16KB of flash with each 1KB sector of flash holding
+  99:C:/StellarisWare/driverlib\eeprom.c ****     // values for 32 consecutive EEPROM words (or 128 bytes).
+ 100:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 101:C:/StellarisWare/driverlib\eeprom.c ****     ulMask = ~(1 << (ulAddress >> 7));
+  42              		.loc 1 101 0
+  43 0008 7B68     		ldr	r3, [r7, #4]
+  44 000a 4FEAD313 		lsr	r3, r3, #7
+  45 000e 4FF00102 		mov	r2, #1
+  46 0012 02FA03F3 		lsl	r3, r2, r3
+  47 0016 6FEA0303 		mvn	r3, r3
+  48 001a FB60     		str	r3, [r7, #12]
+ 102:C:/StellarisWare/driverlib\eeprom.c **** 
+ 103:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+  49              		.loc 1 103 0
+  50 001c 4FF00A00 		mov	r0, #10
+  51 0020 FFF7FEFF 		bl	SysCtlDelay
+ 104:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400FD0FC) = 3;
+  52              		.loc 1 104 0
+  53 0024 4DF2FC03 		movw	r3, #53500
+  54 0028 C4F20F03 		movt	r3, 16399
+  55 002c 4FF00302 		mov	r2, #3
+  56 0030 1A60     		str	r2, [r3, #0]
+ 105:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+  57              		.loc 1 105 0
+  58 0032 4FF00A00 		mov	r0, #10
+  59 0036 FFF7FEFF 		bl	SysCtlDelay
+ 106:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400AE2C0) = ulMask;
+  60              		.loc 1 106 0
+  61 003a 4EF2C023 		movw	r3, #58048
+  62 003e C4F20A03 		movt	r3, 16394
+  63 0042 FA68     		ldr	r2, [r7, #12]
+  64 0044 1A60     		str	r2, [r3, #0]
+ 107:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+  65              		.loc 1 107 0
+  66 0046 4FF00A00 		mov	r0, #10
+  67 004a FFF7FEFF 		bl	SysCtlDelay
+ 108:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400FD0FC) = 0;
+  68              		.loc 1 108 0
+  69 004e 4DF2FC03 		movw	r3, #53500
+  70 0052 C4F20F03 		movt	r3, 16399
+  71 0056 4FF00002 		mov	r2, #0
+  72 005a 1A60     		str	r2, [r3, #0]
+ 109:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+  73              		.loc 1 109 0
+  74 005c 4FF00A00 		mov	r0, #10
+  75 0060 FFF7FEFF 		bl	SysCtlDelay
+ 110:C:/StellarisWare/driverlib\eeprom.c **** }
+  76              		.loc 1 110 0
+  77 0064 07F11007 		add	r7, r7, #16
+  78 0068 BD46     		mov	sp, r7
+  79 006a 80BD     		pop	{r7, pc}
+  80              		.cfi_endproc
+  81              	.LFE0:
+  83              		.section	.text.EEPROMClearSectorMask,"ax",%progbits
+  84              		.align	2
+  85              		.thumb
+  86              		.thumb_func
+  88              	EEPROMClearSectorMask:
+  89              	.LFB1:
+ 111:C:/StellarisWare/driverlib\eeprom.c **** 
+ 112:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 113:C:/StellarisWare/driverlib\eeprom.c **** //
+ 114:C:/StellarisWare/driverlib\eeprom.c **** // Clear the FSM sector erase mask to ensure that any following main array flash
+ 115:C:/StellarisWare/driverlib\eeprom.c **** // erase operations operate as expected.
+ 116:C:/StellarisWare/driverlib\eeprom.c **** //
+ 117:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 118:C:/StellarisWare/driverlib\eeprom.c **** static void
+ 119:C:/StellarisWare/driverlib\eeprom.c **** EEPROMClearSectorMask(void)
+ 120:C:/StellarisWare/driverlib\eeprom.c **** {
+  90              		.loc 1 120 0
+  91              		.cfi_startproc
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 1, uses_anonymous_args = 0
+  94 0000 80B5     		push	{r7, lr}
+  95              	.LCFI3:
+  96              		.cfi_def_cfa_offset 8
+  97              		.cfi_offset 14, -4
+  98              		.cfi_offset 7, -8
+  99 0002 00AF     		add	r7, sp, #0
+ 100              	.LCFI4:
+ 101              		.cfi_def_cfa_register 7
+ 121:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+ 102              		.loc 1 121 0
+ 103 0004 4FF00A00 		mov	r0, #10
+ 104 0008 FFF7FEFF 		bl	SysCtlDelay
+ 122:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400FD0FC) = 3;
+ 105              		.loc 1 122 0
+ 106 000c 4DF2FC03 		movw	r3, #53500
+ 107 0010 C4F20F03 		movt	r3, 16399
+ 108 0014 4FF00302 		mov	r2, #3
+ 109 0018 1A60     		str	r2, [r3, #0]
+ 123:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+ 110              		.loc 1 123 0
+ 111 001a 4FF00A00 		mov	r0, #10
+ 112 001e FFF7FEFF 		bl	SysCtlDelay
+ 124:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400AE2C0) = 0;
+ 113              		.loc 1 124 0
+ 114 0022 4EF2C023 		movw	r3, #58048
+ 115 0026 C4F20A03 		movt	r3, 16394
+ 116 002a 4FF00002 		mov	r2, #0
+ 117 002e 1A60     		str	r2, [r3, #0]
+ 125:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+ 118              		.loc 1 125 0
+ 119 0030 4FF00A00 		mov	r0, #10
+ 120 0034 FFF7FEFF 		bl	SysCtlDelay
+ 126:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(0x400FD0FC) = 0;
+ 121              		.loc 1 126 0
+ 122 0038 4DF2FC03 		movw	r3, #53500
+ 123 003c C4F20F03 		movt	r3, 16399
+ 124 0040 4FF00002 		mov	r2, #0
+ 125 0044 1A60     		str	r2, [r3, #0]
+ 127:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(10);
+ 126              		.loc 1 127 0
+ 127 0046 4FF00A00 		mov	r0, #10
+ 128 004a FFF7FEFF 		bl	SysCtlDelay
+ 128:C:/StellarisWare/driverlib\eeprom.c **** }
+ 129              		.loc 1 128 0
+ 130 004e 80BD     		pop	{r7, pc}
+ 131              		.cfi_endproc
+ 132              	.LFE1:
+ 134              		.section	.text.EEPROMWaitForDone,"ax",%progbits
+ 135              		.align	2
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	EEPROMWaitForDone:
+ 140              	.LFB2:
+ 129:C:/StellarisWare/driverlib\eeprom.c **** 
+ 130:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 131:C:/StellarisWare/driverlib\eeprom.c **** //
+ 132:C:/StellarisWare/driverlib\eeprom.c **** // Block until the EEPROM peripheral is not busy.
+ 133:C:/StellarisWare/driverlib\eeprom.c **** //
+ 134:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 135:C:/StellarisWare/driverlib\eeprom.c **** static void
+ 136:C:/StellarisWare/driverlib\eeprom.c **** EEPROMWaitForDone(void)
+ 137:C:/StellarisWare/driverlib\eeprom.c **** {
+ 141              		.loc 1 137 0
+ 142              		.cfi_startproc
+ 143              		@ args = 0, pretend = 0, frame = 0
+ 144              		@ frame_needed = 1, uses_anonymous_args = 0
+ 145              		@ link register save eliminated.
+ 146 0000 80B4     		push	{r7}
+ 147              	.LCFI5:
+ 148              		.cfi_def_cfa_offset 4
+ 149              		.cfi_offset 7, -4
+ 150 0002 00AF     		add	r7, sp, #0
+ 151              	.LCFI6:
+ 152              		.cfi_def_cfa_register 7
+ 138:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 139:C:/StellarisWare/driverlib\eeprom.c ****     // Is the EEPROM still busy?
+ 140:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 141:C:/StellarisWare/driverlib\eeprom.c ****     while(HWREG(EEPROM_EEDONE) & EEPROM_EEDONE_WORKING)
+ 153              		.loc 1 141 0
+ 154 0004 00BF     		nop
+ 155              	.L4:
+ 156              		.loc 1 141 0 is_stmt 0 discriminator 1
+ 157 0006 4FF21803 		movw	r3, #61464
+ 158 000a C4F20A03 		movt	r3, 16394
+ 159 000e 1B68     		ldr	r3, [r3, #0]
+ 160 0010 03F00103 		and	r3, r3, #1
+ 161 0014 DBB2     		uxtb	r3, r3
+ 162 0016 002B     		cmp	r3, #0
+ 163 0018 F5D1     		bne	.L4
+ 142:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 143:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 144:C:/StellarisWare/driverlib\eeprom.c ****         // Spin while EEPROM is busy.
+ 145:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 146:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 147:C:/StellarisWare/driverlib\eeprom.c **** }
+ 164              		.loc 1 147 0 is_stmt 1
+ 165 001a BD46     		mov	sp, r7
+ 166 001c 80BC     		pop	{r7}
+ 167 001e 7047     		bx	lr
+ 168              		.cfi_endproc
+ 169              	.LFE2:
+ 171              		.section	.text.EEPROMInit,"ax",%progbits
+ 172              		.align	2
+ 173              		.global	EEPROMInit
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	EEPROMInit:
+ 178              	.LFB3:
+ 148:C:/StellarisWare/driverlib\eeprom.c **** 
+ 149:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 150:C:/StellarisWare/driverlib\eeprom.c **** //
+ 151:C:/StellarisWare/driverlib\eeprom.c **** //! Performs any necessary recovery in case of power failures during write.
+ 152:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 153:C:/StellarisWare/driverlib\eeprom.c **** //! This function must be called after SysCtlPeripheralEnable() and before
+ 154:C:/StellarisWare/driverlib\eeprom.c **** //! the EEPROM is accessed to check for errors resulting from power failure
+ 155:C:/StellarisWare/driverlib\eeprom.c **** //! during a previous write operation.  The function detects these errors
+ 156:C:/StellarisWare/driverlib\eeprom.c **** //! and performs as much recovery as possible before returning information to
+ 157:C:/StellarisWare/driverlib\eeprom.c **** //! the caller on whether or not a previous data write was lost and must
+ 158:C:/StellarisWare/driverlib\eeprom.c **** //! be retried.
+ 159:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 160:C:/StellarisWare/driverlib\eeprom.c **** //! In cases where \b EEPROM_INIT_RETRY is returned, the application is
+ 161:C:/StellarisWare/driverlib\eeprom.c **** //! responsible for determining which data write may have been lost and
+ 162:C:/StellarisWare/driverlib\eeprom.c **** //! rewriting this data.  If \b EEPROM_INIT_ERROR is returned, the EEPROM was
+ 163:C:/StellarisWare/driverlib\eeprom.c **** //! unable to recover its state.  This condition may or may not be resolved on
+ 164:C:/StellarisWare/driverlib\eeprom.c **** //! future resets depending upon the cause of the fault. For example, if the
+ 165:C:/StellarisWare/driverlib\eeprom.c **** //! supply voltage is unstable, retrying the operation once the voltage is
+ 166:C:/StellarisWare/driverlib\eeprom.c **** //! stabilized may clear the error.
+ 167:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 168:C:/StellarisWare/driverlib\eeprom.c **** //! Failure to call this function after a reset may lead to permanent data loss
+ 169:C:/StellarisWare/driverlib\eeprom.c **** //! if the EEPROM is later written!
+ 170:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 171:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns \b EEPROM_INIT_OK if no errors were detected,
+ 172:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_INIT_RETRY if a previous write operation may have been
+ 173:C:/StellarisWare/driverlib\eeprom.c **** //! interrupted by a power or reset event or \b EEPROM_INIT_ERROR if the EEPROM
+ 174:C:/StellarisWare/driverlib\eeprom.c **** //! peripheral cannot currently recover from an interrupted write or erase
+ 175:C:/StellarisWare/driverlib\eeprom.c **** //! operation.
+ 176:C:/StellarisWare/driverlib\eeprom.c **** //
+ 177:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 178:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 179:C:/StellarisWare/driverlib\eeprom.c **** EEPROMInit(void)
+ 180:C:/StellarisWare/driverlib\eeprom.c **** {
+ 179              		.loc 1 180 0
+ 180              		.cfi_startproc
+ 181              		@ args = 0, pretend = 0, frame = 8
+ 182              		@ frame_needed = 1, uses_anonymous_args = 0
+ 183 0000 80B5     		push	{r7, lr}
+ 184              	.LCFI7:
+ 185              		.cfi_def_cfa_offset 8
+ 186              		.cfi_offset 14, -4
+ 187              		.cfi_offset 7, -8
+ 188 0002 82B0     		sub	sp, sp, #8
+ 189              	.LCFI8:
+ 190              		.cfi_def_cfa_offset 16
+ 191 0004 00AF     		add	r7, sp, #0
+ 192              	.LCFI9:
+ 193              		.cfi_def_cfa_register 7
+ 181:C:/StellarisWare/driverlib\eeprom.c ****     unsigned long ulStatus;
+ 182:C:/StellarisWare/driverlib\eeprom.c **** 
+ 183:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 184:C:/StellarisWare/driverlib\eeprom.c ****     // Insert a small delay (6 cycles + call overhead) to guard against the
+ 185:C:/StellarisWare/driverlib\eeprom.c ****     // possibility that this function is called immediately after the EEPROM
+ 186:C:/StellarisWare/driverlib\eeprom.c ****     // peripheral is enabled.  Without this delay, there is a slight chance
+ 187:C:/StellarisWare/driverlib\eeprom.c ****     // that the first EEPROM register read will fault if you are using a
+ 188:C:/StellarisWare/driverlib\eeprom.c ****     // compiler with a ridiculously good optimizer!
+ 189:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 190:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(2);
+ 194              		.loc 1 190 0
+ 195 0006 4FF00200 		mov	r0, #2
+ 196 000a FFF7FEFF 		bl	SysCtlDelay
+ 191:C:/StellarisWare/driverlib\eeprom.c **** 
+ 192:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 193:C:/StellarisWare/driverlib\eeprom.c ****     // Make sure the EEPROM has finished its reset processing.
+ 194:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 195:C:/StellarisWare/driverlib\eeprom.c ****     EEPROMWaitForDone();
+ 197              		.loc 1 195 0
+ 198 000e FFF7FEFF 		bl	EEPROMWaitForDone
+ 196:C:/StellarisWare/driverlib\eeprom.c **** 
+ 197:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 198:C:/StellarisWare/driverlib\eeprom.c ****     // Read the EESUPP register to see if any errors have been reported.
+ 199:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 200:C:/StellarisWare/driverlib\eeprom.c ****     ulStatus = HWREG(EEPROM_EESUPP);
+ 199              		.loc 1 200 0
+ 200 0012 4FF21C03 		movw	r3, #61468
+ 201 0016 C4F20A03 		movt	r3, 16394
+ 202 001a 1B68     		ldr	r3, [r3, #0]
+ 203 001c 7B60     		str	r3, [r7, #4]
+ 201:C:/StellarisWare/driverlib\eeprom.c **** 
+ 202:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 203:C:/StellarisWare/driverlib\eeprom.c ****     // Did an error of some sort occur during a previous attempt to write to
+ 204:C:/StellarisWare/driverlib\eeprom.c ****     // the EEPROM?
+ 205:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 206:C:/StellarisWare/driverlib\eeprom.c ****     if(ulStatus & (EEPROM_EESUPP_PRETRY | EEPROM_EESUPP_ERETRY))
+ 204              		.loc 1 206 0
+ 205 001e 7B68     		ldr	r3, [r7, #4]
+ 206 0020 03F00C03 		and	r3, r3, #12
+ 207 0024 002B     		cmp	r3, #0
+ 208 0026 1CD0     		beq	.L6
+ 207:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 208:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 209:C:/StellarisWare/driverlib\eeprom.c ****         // Perform a second reset to allow the EEPROM a chance to correct
+ 210:C:/StellarisWare/driverlib\eeprom.c ****         // the errors.
+ 211:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 212:C:/StellarisWare/driverlib\eeprom.c ****         SysCtlPeripheralReset(SYSCTL_PERIPH_EEPROM0);
+ 209              		.loc 1 212 0
+ 210 0028 4FF4B040 		mov	r0, #22528
+ 211 002c CFF20000 		movt	r0, 61440
+ 212 0030 FFF7FEFF 		bl	SysCtlPeripheralReset
+ 213:C:/StellarisWare/driverlib\eeprom.c **** 
+ 214:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 215:C:/StellarisWare/driverlib\eeprom.c ****         // Wait for the EEPROM to complete it's reset processing once again.
+ 216:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 217:C:/StellarisWare/driverlib\eeprom.c ****         SysCtlDelay(2);
+ 213              		.loc 1 217 0
+ 214 0034 4FF00200 		mov	r0, #2
+ 215 0038 FFF7FEFF 		bl	SysCtlDelay
+ 218:C:/StellarisWare/driverlib\eeprom.c ****         EEPROMWaitForDone();
+ 216              		.loc 1 218 0
+ 217 003c FFF7FEFF 		bl	EEPROMWaitForDone
+ 219:C:/StellarisWare/driverlib\eeprom.c **** 
+ 220:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 221:C:/StellarisWare/driverlib\eeprom.c ****         // Read EESUPP once again to determine if the error conditions are
+ 222:C:/StellarisWare/driverlib\eeprom.c ****         // cleared.
+ 223:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 224:C:/StellarisWare/driverlib\eeprom.c ****         ulStatus = HWREG(EEPROM_EESUPP);
+ 218              		.loc 1 224 0
+ 219 0040 4FF21C03 		movw	r3, #61468
+ 220 0044 C4F20A03 		movt	r3, 16394
+ 221 0048 1B68     		ldr	r3, [r3, #0]
+ 222 004a 7B60     		str	r3, [r7, #4]
+ 225:C:/StellarisWare/driverlib\eeprom.c ****         if(ulStatus & (EEPROM_EESUPP_PRETRY | EEPROM_EESUPP_ERETRY))
+ 223              		.loc 1 225 0
+ 224 004c 7B68     		ldr	r3, [r7, #4]
+ 225 004e 03F00C03 		and	r3, r3, #12
+ 226 0052 002B     		cmp	r3, #0
+ 227 0054 02D0     		beq	.L7
+ 226:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 227:C:/StellarisWare/driverlib\eeprom.c ****             return(EEPROM_INIT_ERROR);
+ 228              		.loc 1 227 0
+ 229 0056 4FF00203 		mov	r3, #2
+ 230 005a 04E0     		b	.L8
+ 231              	.L7:
+ 228:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 229:C:/StellarisWare/driverlib\eeprom.c ****         else
+ 230:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 231:C:/StellarisWare/driverlib\eeprom.c ****             return(EEPROM_INIT_RETRY);
+ 232              		.loc 1 231 0
+ 233 005c 4FF00103 		mov	r3, #1
+ 234 0060 01E0     		b	.L8
+ 235              	.L6:
+ 232:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 233:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 234:C:/StellarisWare/driverlib\eeprom.c **** 
+ 235:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 236:C:/StellarisWare/driverlib\eeprom.c ****     // The EEPROM does not indicate that any error occurred.
+ 237:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 238:C:/StellarisWare/driverlib\eeprom.c ****     return(EEPROM_INIT_OK);
+ 236              		.loc 1 238 0
+ 237 0062 4FF00003 		mov	r3, #0
+ 238              	.L8:
+ 239:C:/StellarisWare/driverlib\eeprom.c **** }
+ 239              		.loc 1 239 0
+ 240 0066 1846     		mov	r0, r3
+ 241 0068 07F10807 		add	r7, r7, #8
+ 242 006c BD46     		mov	sp, r7
+ 243 006e 80BD     		pop	{r7, pc}
+ 244              		.cfi_endproc
+ 245              	.LFE3:
+ 247              		.section	.text.EEPROMSizeGet,"ax",%progbits
+ 248              		.align	2
+ 249              		.global	EEPROMSizeGet
+ 250              		.thumb
+ 251              		.thumb_func
+ 253              	EEPROMSizeGet:
+ 254              	.LFB4:
+ 240:C:/StellarisWare/driverlib\eeprom.c **** 
+ 241:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 242:C:/StellarisWare/driverlib\eeprom.c **** //
+ 243:C:/StellarisWare/driverlib\eeprom.c **** //! Determines the size of the EEPROM.
+ 244:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 245:C:/StellarisWare/driverlib\eeprom.c **** //! This function returns the size of the EEPROM in bytes.
+ 246:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 247:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns the total number of bytes in the EEPROM.
+ 248:C:/StellarisWare/driverlib\eeprom.c **** //
+ 249:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 250:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 251:C:/StellarisWare/driverlib\eeprom.c **** EEPROMSizeGet(void)
+ 252:C:/StellarisWare/driverlib\eeprom.c **** {
+ 255              		.loc 1 252 0
+ 256              		.cfi_startproc
+ 257              		@ args = 0, pretend = 0, frame = 0
+ 258              		@ frame_needed = 1, uses_anonymous_args = 0
+ 259              		@ link register save eliminated.
+ 260 0000 80B4     		push	{r7}
+ 261              	.LCFI10:
+ 262              		.cfi_def_cfa_offset 4
+ 263              		.cfi_offset 7, -4
+ 264 0002 00AF     		add	r7, sp, #0
+ 265              	.LCFI11:
+ 266              		.cfi_def_cfa_register 7
+ 253:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 254:C:/StellarisWare/driverlib\eeprom.c ****     // Return the size of the EEPROM in bytes.
+ 255:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 256:C:/StellarisWare/driverlib\eeprom.c ****     return(SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 267              		.loc 1 256 0
+ 268 0004 4FF47043 		mov	r3, #61440
+ 269 0008 C4F20A03 		movt	r3, 16394
+ 270 000c 1B68     		ldr	r3, [r3, #0]
+ 271 000e 4FEA0343 		lsl	r3, r3, #16
+ 272 0012 4FEA1343 		lsr	r3, r3, #16
+ 273 0016 4FEA8303 		lsl	r3, r3, #2
+ 257:C:/StellarisWare/driverlib\eeprom.c **** }
+ 274              		.loc 1 257 0
+ 275 001a 1846     		mov	r0, r3
+ 276 001c BD46     		mov	sp, r7
+ 277 001e 80BC     		pop	{r7}
+ 278 0020 7047     		bx	lr
+ 279              		.cfi_endproc
+ 280              	.LFE4:
+ 282 0022 00BF     		.section	.text.EEPROMBlockCountGet,"ax",%progbits
+ 283              		.align	2
+ 284              		.global	EEPROMBlockCountGet
+ 285              		.thumb
+ 286              		.thumb_func
+ 288              	EEPROMBlockCountGet:
+ 289              	.LFB5:
+ 258:C:/StellarisWare/driverlib\eeprom.c **** 
+ 259:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 260:C:/StellarisWare/driverlib\eeprom.c **** //
+ 261:C:/StellarisWare/driverlib\eeprom.c **** //! Determines the number of blocks in the EEPROM.
+ 262:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 263:C:/StellarisWare/driverlib\eeprom.c **** //! This function may be called to determine the number of blocks in the
+ 264:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROM.  Each block is the same size and the number of bytes of storage
+ 265:C:/StellarisWare/driverlib\eeprom.c **** //! contained in a block may be determined by dividing the size of the device,
+ 266:C:/StellarisWare/driverlib\eeprom.c **** //! obtained via a call to the EEPROMSizeGet() function, by the number of
+ 267:C:/StellarisWare/driverlib\eeprom.c **** //! blocks returned by this function.
+ 268:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 269:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns the total number of bytes in the device EEPROM.
+ 270:C:/StellarisWare/driverlib\eeprom.c **** //
+ 271:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 272:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 273:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockCountGet(void)
+ 274:C:/StellarisWare/driverlib\eeprom.c **** {
+ 290              		.loc 1 274 0
+ 291              		.cfi_startproc
+ 292              		@ args = 0, pretend = 0, frame = 0
+ 293              		@ frame_needed = 1, uses_anonymous_args = 0
+ 294              		@ link register save eliminated.
+ 295 0000 80B4     		push	{r7}
+ 296              	.LCFI12:
+ 297              		.cfi_def_cfa_offset 4
+ 298              		.cfi_offset 7, -4
+ 299 0002 00AF     		add	r7, sp, #0
+ 300              	.LCFI13:
+ 301              		.cfi_def_cfa_register 7
+ 275:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 276:C:/StellarisWare/driverlib\eeprom.c ****     // Extract the number of blocks and return it to the caller.
+ 277:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 278:C:/StellarisWare/driverlib\eeprom.c ****     return(BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 302              		.loc 1 278 0
+ 303 0004 4FF47043 		mov	r3, #61440
+ 304 0008 C4F20A03 		movt	r3, 16394
+ 305 000c 1A68     		ldr	r2, [r3, #0]
+ 306 000e 4FF00003 		mov	r3, #0
+ 307 0012 C0F2FF73 		movt	r3, 2047
+ 308 0016 1340     		ands	r3, r3, r2
+ 309 0018 4FEA1343 		lsr	r3, r3, #16
+ 279:C:/StellarisWare/driverlib\eeprom.c **** }
+ 310              		.loc 1 279 0
+ 311 001c 1846     		mov	r0, r3
+ 312 001e BD46     		mov	sp, r7
+ 313 0020 80BC     		pop	{r7}
+ 314 0022 7047     		bx	lr
+ 315              		.cfi_endproc
+ 316              	.LFE5:
+ 318              		.section	.text.EEPROMRead,"ax",%progbits
+ 319              		.align	2
+ 320              		.global	EEPROMRead
+ 321              		.thumb
+ 322              		.thumb_func
+ 324              	EEPROMRead:
+ 325              	.LFB6:
+ 280:C:/StellarisWare/driverlib\eeprom.c **** 
+ 281:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 282:C:/StellarisWare/driverlib\eeprom.c **** //
+ 283:C:/StellarisWare/driverlib\eeprom.c **** //! Reads data from the EEPROM.
+ 284:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 285:C:/StellarisWare/driverlib\eeprom.c **** //! \param pulData is a pointer to storage for the data read from the EEPROM.
+ 286:C:/StellarisWare/driverlib\eeprom.c **** //! This pointer must point to at least \e ulCount bytes of available memory.
+ 287:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulAddress is the byte address within the EEPROM from which data is
+ 288:C:/StellarisWare/driverlib\eeprom.c **** //! to be read.  This value must be a multiple of 4.
+ 289:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulCount is the number of bytes of data to read from the EEPROM.
+ 290:C:/StellarisWare/driverlib\eeprom.c **** //! This value must be a multiple of 4.
+ 291:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 292:C:/StellarisWare/driverlib\eeprom.c **** //! This function may be called to read a number of words of data from a
+ 293:C:/StellarisWare/driverlib\eeprom.c **** //! word-aligned address within the EEPROM.  Data read is copied into the
+ 294:C:/StellarisWare/driverlib\eeprom.c **** //! buffer pointed to by the \e pulData parameter.
+ 295:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 296:C:/StellarisWare/driverlib\eeprom.c **** //! \return None.
+ 297:C:/StellarisWare/driverlib\eeprom.c **** //
+ 298:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 299:C:/StellarisWare/driverlib\eeprom.c **** void
+ 300:C:/StellarisWare/driverlib\eeprom.c **** EEPROMRead(unsigned long *pulData, unsigned long ulAddress,
+ 301:C:/StellarisWare/driverlib\eeprom.c ****            unsigned long ulCount)
+ 302:C:/StellarisWare/driverlib\eeprom.c **** {
+ 326              		.loc 1 302 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 16
+ 329              		@ frame_needed = 1, uses_anonymous_args = 0
+ 330              		@ link register save eliminated.
+ 331 0000 80B4     		push	{r7}
+ 332              	.LCFI14:
+ 333              		.cfi_def_cfa_offset 4
+ 334              		.cfi_offset 7, -4
+ 335 0002 85B0     		sub	sp, sp, #20
+ 336              	.LCFI15:
+ 337              		.cfi_def_cfa_offset 24
+ 338 0004 00AF     		add	r7, sp, #0
+ 339              	.LCFI16:
+ 340              		.cfi_def_cfa_register 7
+ 341 0006 F860     		str	r0, [r7, #12]
+ 342 0008 B960     		str	r1, [r7, #8]
+ 343 000a 7A60     		str	r2, [r7, #4]
+ 303:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 304:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 305:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 306:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(pulData);
+ 307:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulAddress < SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 308:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulAddress + ulCount) <= SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 309:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulAddress & 3) == 0);
+ 310:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulCount & 3) == 0);
+ 311:C:/StellarisWare/driverlib\eeprom.c **** 
+ 312:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 313:C:/StellarisWare/driverlib\eeprom.c ****     // Set the block and offset appropriately to read the first word.
+ 314:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 315:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = EEPROMBlockFromAddr(ulAddress);
+ 344              		.loc 1 315 0
+ 345 000c 4FF20403 		movw	r3, #61444
+ 346 0010 C4F20A03 		movt	r3, 16394
+ 347 0014 BA68     		ldr	r2, [r7, #8]
+ 348 0016 4FEA9212 		lsr	r2, r2, #6
+ 349 001a 1A60     		str	r2, [r3, #0]
+ 316:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEOFFSET) = OFFSET_FROM_ADDR(ulAddress);
+ 350              		.loc 1 316 0
+ 351 001c 4FF20803 		movw	r3, #61448
+ 352 0020 C4F20A03 		movt	r3, 16394
+ 353 0024 BA68     		ldr	r2, [r7, #8]
+ 354 0026 4FEA9202 		lsr	r2, r2, #2
+ 355 002a 02F00F02 		and	r2, r2, #15
+ 356 002e 1A60     		str	r2, [r3, #0]
+ 317:C:/StellarisWare/driverlib\eeprom.c **** 
+ 318:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 319:C:/StellarisWare/driverlib\eeprom.c ****     // Convert the byte count to a word count.
+ 320:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 321:C:/StellarisWare/driverlib\eeprom.c ****     ulCount /= 4;
+ 357              		.loc 1 321 0
+ 358 0030 7B68     		ldr	r3, [r7, #4]
+ 359 0032 4FEA9303 		lsr	r3, r3, #2
+ 360 0036 7B60     		str	r3, [r7, #4]
+ 322:C:/StellarisWare/driverlib\eeprom.c **** 
+ 323:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 324:C:/StellarisWare/driverlib\eeprom.c ****     // Read each word in turn.
+ 325:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 326:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 361              		.loc 1 326 0
+ 362 0038 21E0     		b	.L12
+ 363              	.L13:
+ 327:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 328:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 329:C:/StellarisWare/driverlib\eeprom.c ****         // Read the next word through the autoincrementing register.
+ 330:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 331:C:/StellarisWare/driverlib\eeprom.c ****         *pulData = HWREG(EEPROM_EERDWRINC);
+ 364              		.loc 1 331 0
+ 365 003a 4FF21403 		movw	r3, #61460
+ 366 003e C4F20A03 		movt	r3, 16394
+ 367 0042 1A68     		ldr	r2, [r3, #0]
+ 368 0044 FB68     		ldr	r3, [r7, #12]
+ 369 0046 1A60     		str	r2, [r3, #0]
+ 332:C:/StellarisWare/driverlib\eeprom.c **** 
+ 333:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 334:C:/StellarisWare/driverlib\eeprom.c ****         // Move on to the next word.
+ 335:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 336:C:/StellarisWare/driverlib\eeprom.c ****         pulData++;
+ 370              		.loc 1 336 0
+ 371 0048 FB68     		ldr	r3, [r7, #12]
+ 372 004a 03F10403 		add	r3, r3, #4
+ 373 004e FB60     		str	r3, [r7, #12]
+ 337:C:/StellarisWare/driverlib\eeprom.c ****         ulCount--;
+ 374              		.loc 1 337 0
+ 375 0050 7B68     		ldr	r3, [r7, #4]
+ 376 0052 03F1FF33 		add	r3, r3, #-1
+ 377 0056 7B60     		str	r3, [r7, #4]
+ 338:C:/StellarisWare/driverlib\eeprom.c **** 
+ 339:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 340:C:/StellarisWare/driverlib\eeprom.c ****         // Do we need to move to the next block?  This is the case if the
+ 341:C:/StellarisWare/driverlib\eeprom.c ****         // offset register has just wrapped back to 0.
+ 342:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 343:C:/StellarisWare/driverlib\eeprom.c ****         if(HWREG(EEPROM_EEOFFSET) == 0)
+ 378              		.loc 1 343 0
+ 379 0058 4FF20803 		movw	r3, #61448
+ 380 005c C4F20A03 		movt	r3, 16394
+ 381 0060 1B68     		ldr	r3, [r3, #0]
+ 382 0062 002B     		cmp	r3, #0
+ 383 0064 0BD1     		bne	.L12
+ 344:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 345:C:/StellarisWare/driverlib\eeprom.c ****             HWREG(EEPROM_EEBLOCK) += 1;
+ 384              		.loc 1 345 0
+ 385 0066 4FF20403 		movw	r3, #61444
+ 386 006a C4F20A03 		movt	r3, 16394
+ 387 006e 4FF20402 		movw	r2, #61444
+ 388 0072 C4F20A02 		movt	r2, 16394
+ 389 0076 1268     		ldr	r2, [r2, #0]
+ 390 0078 02F10102 		add	r2, r2, #1
+ 391 007c 1A60     		str	r2, [r3, #0]
+ 392              	.L12:
+ 326:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 393              		.loc 1 326 0 discriminator 1
+ 394 007e 7B68     		ldr	r3, [r7, #4]
+ 395 0080 002B     		cmp	r3, #0
+ 396 0082 DAD1     		bne	.L13
+ 346:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 347:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 348:C:/StellarisWare/driverlib\eeprom.c **** }
+ 397              		.loc 1 348 0
+ 398 0084 07F11407 		add	r7, r7, #20
+ 399 0088 BD46     		mov	sp, r7
+ 400 008a 80BC     		pop	{r7}
+ 401 008c 7047     		bx	lr
+ 402              		.cfi_endproc
+ 403              	.LFE6:
+ 405 008e 00BF     		.section	.text.EEPROMProgram,"ax",%progbits
+ 406              		.align	2
+ 407              		.global	EEPROMProgram
+ 408              		.thumb
+ 409              		.thumb_func
+ 411              	EEPROMProgram:
+ 412              	.LFB7:
+ 349:C:/StellarisWare/driverlib\eeprom.c **** 
+ 350:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 351:C:/StellarisWare/driverlib\eeprom.c **** //
+ 352:C:/StellarisWare/driverlib\eeprom.c **** //! Writes data to the EEPROM.
+ 353:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 354:C:/StellarisWare/driverlib\eeprom.c **** //! \param pulData points to the first word of data to write to the EEPROM.
+ 355:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulAddress defines the byte address within the EEPROM that the data
+ 356:C:/StellarisWare/driverlib\eeprom.c **** //! is to be written to.  This value must be a multiple of 4.
+ 357:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulCount defines the number of bytes of data that is to be written.
+ 358:C:/StellarisWare/driverlib\eeprom.c **** //! This value must be a multiple of 4.
+ 359:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 360:C:/StellarisWare/driverlib\eeprom.c **** //! This function may be called to write data into the EEPROM at a given
+ 361:C:/StellarisWare/driverlib\eeprom.c **** //! word-aligned address.  The call is synchronous and returns only after
+ 362:C:/StellarisWare/driverlib\eeprom.c **** //! all data has been written or an error occurs.
+ 363:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 364:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns 0 on success or non-zero values on failure.  Failure codes
+ 365:C:/StellarisWare/driverlib\eeprom.c **** //! are logical OR combinations of \b EEPROM_RC_INVPL, \b EEPROM_RC_WRBUSY,
+ 366:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY, \b EEPROM_RC_WKERASE, and
+ 367:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WORKING.
+ 368:C:/StellarisWare/driverlib\eeprom.c **** //
+ 369:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 370:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 371:C:/StellarisWare/driverlib\eeprom.c **** EEPROMProgram(unsigned long *pulData, unsigned long ulAddress,
+ 372:C:/StellarisWare/driverlib\eeprom.c ****               unsigned long ulCount)
+ 373:C:/StellarisWare/driverlib\eeprom.c **** {
+ 413              		.loc 1 373 0
+ 414              		.cfi_startproc
+ 415              		@ args = 0, pretend = 0, frame = 24
+ 416              		@ frame_needed = 1, uses_anonymous_args = 0
+ 417 0000 80B5     		push	{r7, lr}
+ 418              	.LCFI17:
+ 419              		.cfi_def_cfa_offset 8
+ 420              		.cfi_offset 14, -4
+ 421              		.cfi_offset 7, -8
+ 422 0002 86B0     		sub	sp, sp, #24
+ 423              	.LCFI18:
+ 424              		.cfi_def_cfa_offset 32
+ 425 0004 00AF     		add	r7, sp, #0
+ 426              	.LCFI19:
+ 427              		.cfi_def_cfa_register 7
+ 428 0006 F860     		str	r0, [r7, #12]
+ 429 0008 B960     		str	r1, [r7, #8]
+ 430 000a 7A60     		str	r2, [r7, #4]
+ 431              	.L15:
+ 374:C:/StellarisWare/driverlib\eeprom.c ****     unsigned long ulStatus;
+ 375:C:/StellarisWare/driverlib\eeprom.c **** 
+ 376:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 377:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 378:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 379:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(pulData);
+ 380:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulAddress < SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 381:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulAddress + ulCount) <= SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 382:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulAddress & 3) == 0);
+ 383:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulCount & 3) == 0);
+ 384:C:/StellarisWare/driverlib\eeprom.c **** 
+ 385:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 386:C:/StellarisWare/driverlib\eeprom.c ****     // Make sure the EEPROM is idle before we start.
+ 387:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 388:C:/StellarisWare/driverlib\eeprom.c ****     do
+ 389:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 390:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 391:C:/StellarisWare/driverlib\eeprom.c ****         // Read the status.
+ 392:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 393:C:/StellarisWare/driverlib\eeprom.c ****         ulStatus = HWREG(EEPROM_EEDONE);
+ 432              		.loc 1 393 0 discriminator 1
+ 433 000c 4FF21803 		movw	r3, #61464
+ 434 0010 C4F20A03 		movt	r3, 16394
+ 435 0014 1B68     		ldr	r3, [r3, #0]
+ 436 0016 7B61     		str	r3, [r7, #20]
+ 394:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 395:C:/StellarisWare/driverlib\eeprom.c ****     while(ulStatus & EEPROM_EEDONE_WORKING);
+ 437              		.loc 1 395 0 discriminator 1
+ 438 0018 7B69     		ldr	r3, [r7, #20]
+ 439 001a 03F00103 		and	r3, r3, #1
+ 440 001e DBB2     		uxtb	r3, r3
+ 441 0020 002B     		cmp	r3, #0
+ 442 0022 F3D1     		bne	.L15
+ 396:C:/StellarisWare/driverlib\eeprom.c **** 
+ 397:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 398:C:/StellarisWare/driverlib\eeprom.c ****     // Set the block and offset appropriately to program the first word.
+ 399:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 400:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = EEPROMBlockFromAddr(ulAddress);
+ 443              		.loc 1 400 0
+ 444 0024 4FF20403 		movw	r3, #61444
+ 445 0028 C4F20A03 		movt	r3, 16394
+ 446 002c BA68     		ldr	r2, [r7, #8]
+ 447 002e 4FEA9212 		lsr	r2, r2, #6
+ 448 0032 1A60     		str	r2, [r3, #0]
+ 401:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEOFFSET) = OFFSET_FROM_ADDR(ulAddress);
+ 449              		.loc 1 401 0
+ 450 0034 4FF20803 		movw	r3, #61448
+ 451 0038 C4F20A03 		movt	r3, 16394
+ 452 003c BA68     		ldr	r2, [r7, #8]
+ 453 003e 4FEA9202 		lsr	r2, r2, #2
+ 454 0042 02F00F02 		and	r2, r2, #15
+ 455 0046 1A60     		str	r2, [r3, #0]
+ 402:C:/StellarisWare/driverlib\eeprom.c **** 
+ 403:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 404:C:/StellarisWare/driverlib\eeprom.c ****     // Convert the byte count to a word count.
+ 405:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 406:C:/StellarisWare/driverlib\eeprom.c ****     ulCount /= 4;
+ 456              		.loc 1 406 0
+ 457 0048 7B68     		ldr	r3, [r7, #4]
+ 458 004a 4FEA9303 		lsr	r3, r3, #2
+ 459 004e 7B60     		str	r3, [r7, #4]
+ 407:C:/StellarisWare/driverlib\eeprom.c **** 
+ 408:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 409:C:/StellarisWare/driverlib\eeprom.c ****     // Write each word in turn.
+ 410:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 411:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 460              		.loc 1 411 0
+ 461 0050 73E0     		b	.L16
+ 462              	.L22:
+ 412:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 413:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 414:C:/StellarisWare/driverlib\eeprom.c ****         // This is a workaround for a silicon problem on Blizzard rev A.  We
+ 415:C:/StellarisWare/driverlib\eeprom.c ****         // need to do this before every word write to ensure that we don't
+ 416:C:/StellarisWare/driverlib\eeprom.c ****         // have problems in multi-word writes that span multiple flash sectors.
+ 417:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 418:C:/StellarisWare/driverlib\eeprom.c ****         if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 463              		.loc 1 418 0
+ 464 0052 4FF46043 		mov	r3, #57344
+ 465 0056 C4F20F03 		movt	r3, 16399
+ 466 005a 1A68     		ldr	r2, [r3, #0]
+ 467 005c 4FF00003 		mov	r3, #0
+ 468 0060 C7F2FF03 		movt	r3, 28927
+ 469 0064 1340     		ands	r3, r3, r2
+ 470 0066 4FF00002 		mov	r2, #0
+ 471 006a C1F20502 		movt	r2, 4101
+ 472 006e 9342     		cmp	r3, r2
+ 473 0070 11D1     		bne	.L17
+ 474              		.loc 1 418 0 is_stmt 0 discriminator 1
+ 475 0072 4FF46043 		mov	r3, #57344
+ 476 0076 C4F20F03 		movt	r3, 16399
+ 477 007a 1B68     		ldr	r3, [r3, #0]
+ 478 007c 4FEA0343 		lsl	r3, r3, #16
+ 479 0080 4FEA1343 		lsr	r3, r3, #16
+ 480 0084 002B     		cmp	r3, #0
+ 481 0086 06D1     		bne	.L17
+ 419:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 420:C:/StellarisWare/driverlib\eeprom.c ****             EEPROMSetSectorMask(ulAddress);
+ 482              		.loc 1 420 0 is_stmt 1
+ 483 0088 B868     		ldr	r0, [r7, #8]
+ 484 008a FFF7FEFF 		bl	EEPROMSetSectorMask
+ 421:C:/StellarisWare/driverlib\eeprom.c ****             ulAddress += 4;
+ 485              		.loc 1 421 0
+ 486 008e BB68     		ldr	r3, [r7, #8]
+ 487 0090 03F10403 		add	r3, r3, #4
+ 488 0094 BB60     		str	r3, [r7, #8]
+ 489              	.L17:
+ 422:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 423:C:/StellarisWare/driverlib\eeprom.c **** 
+ 424:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 425:C:/StellarisWare/driverlib\eeprom.c ****         // Write the next word through the autoincrementing register.
+ 426:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 427:C:/StellarisWare/driverlib\eeprom.c ****         HWREG(EEPROM_EERDWRINC) = *pulData;
+ 490              		.loc 1 427 0
+ 491 0096 4FF21403 		movw	r3, #61460
+ 492 009a C4F20A03 		movt	r3, 16394
+ 493 009e FA68     		ldr	r2, [r7, #12]
+ 494 00a0 1268     		ldr	r2, [r2, #0]
+ 495 00a2 1A60     		str	r2, [r3, #0]
+ 496              	.L18:
+ 428:C:/StellarisWare/driverlib\eeprom.c **** 
+ 429:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 430:C:/StellarisWare/driverlib\eeprom.c ****         // Wait for the write to complete.
+ 431:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 432:C:/StellarisWare/driverlib\eeprom.c ****         do
+ 433:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 434:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 435:C:/StellarisWare/driverlib\eeprom.c ****             // Read the status.
+ 436:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 437:C:/StellarisWare/driverlib\eeprom.c ****             ulStatus = HWREG(EEPROM_EEDONE);
+ 497              		.loc 1 437 0 discriminator 1
+ 498 00a4 4FF21803 		movw	r3, #61464
+ 499 00a8 C4F20A03 		movt	r3, 16394
+ 500 00ac 1B68     		ldr	r3, [r3, #0]
+ 501 00ae 7B61     		str	r3, [r7, #20]
+ 438:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 439:C:/StellarisWare/driverlib\eeprom.c ****         while(ulStatus & EEPROM_EEDONE_WORKING);
+ 502              		.loc 1 439 0 discriminator 1
+ 503 00b0 7B69     		ldr	r3, [r7, #20]
+ 504 00b2 03F00103 		and	r3, r3, #1
+ 505 00b6 DBB2     		uxtb	r3, r3
+ 506 00b8 002B     		cmp	r3, #0
+ 507 00ba F3D1     		bne	.L18
+ 440:C:/StellarisWare/driverlib\eeprom.c **** 
+ 441:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 442:C:/StellarisWare/driverlib\eeprom.c ****         // Make sure we completed the write without errors.  Note that we
+ 443:C:/StellarisWare/driverlib\eeprom.c ****         // must check this per-word because write permission can be set per
+ 444:C:/StellarisWare/driverlib\eeprom.c ****         // block resulting in only a section of the write not being performed.
+ 445:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 446:C:/StellarisWare/driverlib\eeprom.c ****         if(ulStatus & (EEPROM_EEDONE_NOPERM | EEPROM_EEDONE_INVPL))
+ 508              		.loc 1 446 0
+ 509 00bc 7B69     		ldr	r3, [r7, #20]
+ 510 00be 03F48873 		and	r3, r3, #272
+ 511 00c2 002B     		cmp	r3, #0
+ 512 00c4 1ED0     		beq	.L19
+ 447:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 448:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 449:C:/StellarisWare/driverlib\eeprom.c ****             // An error was reported that would prevent the values from
+ 450:C:/StellarisWare/driverlib\eeprom.c ****             // being written correctly.
+ 451:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 452:C:/StellarisWare/driverlib\eeprom.c ****             if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 513              		.loc 1 452 0
+ 514 00c6 4FF46043 		mov	r3, #57344
+ 515 00ca C4F20F03 		movt	r3, 16399
+ 516 00ce 1A68     		ldr	r2, [r3, #0]
+ 517 00d0 4FF00003 		mov	r3, #0
+ 518 00d4 C7F2FF03 		movt	r3, 28927
+ 519 00d8 1340     		ands	r3, r3, r2
+ 520 00da 4FF00002 		mov	r2, #0
+ 521 00de C1F20502 		movt	r2, 4101
+ 522 00e2 9342     		cmp	r3, r2
+ 523 00e4 0CD1     		bne	.L20
+ 524              		.loc 1 452 0 is_stmt 0 discriminator 1
+ 525 00e6 4FF46043 		mov	r3, #57344
+ 526 00ea C4F20F03 		movt	r3, 16399
+ 527 00ee 1B68     		ldr	r3, [r3, #0]
+ 528 00f0 4FEA0343 		lsl	r3, r3, #16
+ 529 00f4 4FEA1343 		lsr	r3, r3, #16
+ 530 00f8 002B     		cmp	r3, #0
+ 531 00fa 01D1     		bne	.L20
+ 453:C:/StellarisWare/driverlib\eeprom.c ****             {
+ 454:C:/StellarisWare/driverlib\eeprom.c ****                 EEPROMClearSectorMask();
+ 532              		.loc 1 454 0 is_stmt 1
+ 533 00fc FFF7FEFF 		bl	EEPROMClearSectorMask
+ 534              	.L20:
+ 455:C:/StellarisWare/driverlib\eeprom.c ****             }
+ 456:C:/StellarisWare/driverlib\eeprom.c ****             return(ulStatus);
+ 535              		.loc 1 456 0
+ 536 0100 7B69     		ldr	r3, [r7, #20]
+ 537 0102 3FE0     		b	.L21
+ 538              	.L19:
+ 457:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 458:C:/StellarisWare/driverlib\eeprom.c **** 
+ 459:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 460:C:/StellarisWare/driverlib\eeprom.c ****         // Move on to the next word.
+ 461:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 462:C:/StellarisWare/driverlib\eeprom.c ****         pulData++;
+ 539              		.loc 1 462 0
+ 540 0104 FB68     		ldr	r3, [r7, #12]
+ 541 0106 03F10403 		add	r3, r3, #4
+ 542 010a FB60     		str	r3, [r7, #12]
+ 463:C:/StellarisWare/driverlib\eeprom.c ****         ulCount--;
+ 543              		.loc 1 463 0
+ 544 010c 7B68     		ldr	r3, [r7, #4]
+ 545 010e 03F1FF33 		add	r3, r3, #-1
+ 546 0112 7B60     		str	r3, [r7, #4]
+ 464:C:/StellarisWare/driverlib\eeprom.c **** 
+ 465:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 466:C:/StellarisWare/driverlib\eeprom.c ****         // Do we need to move to the next block?  This is the case if the
+ 467:C:/StellarisWare/driverlib\eeprom.c ****         // offset register has just wrapped back to 0.
+ 468:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 469:C:/StellarisWare/driverlib\eeprom.c ****         if(HWREG(EEPROM_EEOFFSET) == 0)
+ 547              		.loc 1 469 0
+ 548 0114 4FF20803 		movw	r3, #61448
+ 549 0118 C4F20A03 		movt	r3, 16394
+ 550 011c 1B68     		ldr	r3, [r3, #0]
+ 551 011e 002B     		cmp	r3, #0
+ 552 0120 0BD1     		bne	.L16
+ 470:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 471:C:/StellarisWare/driverlib\eeprom.c ****             HWREG(EEPROM_EEBLOCK) += 1;
+ 553              		.loc 1 471 0
+ 554 0122 4FF20403 		movw	r3, #61444
+ 555 0126 C4F20A03 		movt	r3, 16394
+ 556 012a 4FF20402 		movw	r2, #61444
+ 557 012e C4F20A02 		movt	r2, 16394
+ 558 0132 1268     		ldr	r2, [r2, #0]
+ 559 0134 02F10102 		add	r2, r2, #1
+ 560 0138 1A60     		str	r2, [r3, #0]
+ 561              	.L16:
+ 411:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 562              		.loc 1 411 0 discriminator 1
+ 563 013a 7B68     		ldr	r3, [r7, #4]
+ 564 013c 002B     		cmp	r3, #0
+ 565 013e 88D1     		bne	.L22
+ 472:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 473:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 474:C:/StellarisWare/driverlib\eeprom.c **** 
+ 475:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 476:C:/StellarisWare/driverlib\eeprom.c ****     // Clear the sector protection bits to prevent possible problems when
+ 477:C:/StellarisWare/driverlib\eeprom.c ****     // programming the main flash array later.
+ 478:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 479:C:/StellarisWare/driverlib\eeprom.c ****     if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 566              		.loc 1 479 0
+ 567 0140 4FF46043 		mov	r3, #57344
+ 568 0144 C4F20F03 		movt	r3, 16399
+ 569 0148 1A68     		ldr	r2, [r3, #0]
+ 570 014a 4FF00003 		mov	r3, #0
+ 571 014e C7F2FF03 		movt	r3, 28927
+ 572 0152 1340     		ands	r3, r3, r2
+ 573 0154 4FF00002 		mov	r2, #0
+ 574 0158 C1F20502 		movt	r2, 4101
+ 575 015c 9342     		cmp	r3, r2
+ 576 015e 0CD1     		bne	.L23
+ 577              		.loc 1 479 0 is_stmt 0 discriminator 1
+ 578 0160 4FF46043 		mov	r3, #57344
+ 579 0164 C4F20F03 		movt	r3, 16399
+ 580 0168 1B68     		ldr	r3, [r3, #0]
+ 581 016a 4FEA0343 		lsl	r3, r3, #16
+ 582 016e 4FEA1343 		lsr	r3, r3, #16
+ 583 0172 002B     		cmp	r3, #0
+ 584 0174 01D1     		bne	.L23
+ 480:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 481:C:/StellarisWare/driverlib\eeprom.c ****         EEPROMClearSectorMask();
+ 585              		.loc 1 481 0 is_stmt 1
+ 586 0176 FFF7FEFF 		bl	EEPROMClearSectorMask
+ 587              	.L23:
+ 482:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 483:C:/StellarisWare/driverlib\eeprom.c **** 
+ 484:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 485:C:/StellarisWare/driverlib\eeprom.c ****     // Return the current status to the caller.
+ 486:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 487:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 588              		.loc 1 487 0
+ 589 017a 4FF21803 		movw	r3, #61464
+ 590 017e C4F20A03 		movt	r3, 16394
+ 591 0182 1B68     		ldr	r3, [r3, #0]
+ 592              	.L21:
+ 488:C:/StellarisWare/driverlib\eeprom.c **** }
+ 593              		.loc 1 488 0
+ 594 0184 1846     		mov	r0, r3
+ 595 0186 07F11807 		add	r7, r7, #24
+ 596 018a BD46     		mov	sp, r7
+ 597 018c 80BD     		pop	{r7, pc}
+ 598              		.cfi_endproc
+ 599              	.LFE7:
+ 601 018e 00BF     		.section	.text.EEPROMProgramNonBlocking,"ax",%progbits
+ 602              		.align	2
+ 603              		.global	EEPROMProgramNonBlocking
+ 604              		.thumb
+ 605              		.thumb_func
+ 607              	EEPROMProgramNonBlocking:
+ 608              	.LFB8:
+ 489:C:/StellarisWare/driverlib\eeprom.c **** 
+ 490:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 491:C:/StellarisWare/driverlib\eeprom.c **** //
+ 492:C:/StellarisWare/driverlib\eeprom.c **** //! Writes a word to the EEPROM.
+ 493:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 494:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulData is the word to write to the EEPROM.
+ 495:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulAddress defines the byte address within the EEPROM to which the
+ 496:C:/StellarisWare/driverlib\eeprom.c **** //! data is to be written.  This value must be a multiple of 4.
+ 497:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 498:C:/StellarisWare/driverlib\eeprom.c **** //! This function is intended to allow EEPROM programming under interrupt
+ 499:C:/StellarisWare/driverlib\eeprom.c **** //! control. It may be called to start the process of writing a single word of
+ 500:C:/StellarisWare/driverlib\eeprom.c **** //! data into the EEPROM at a given word-aligned address.  The call is
+ 501:C:/StellarisWare/driverlib\eeprom.c **** //! asynchronous and returna immediately without waiting for the write to
+ 502:C:/StellarisWare/driverlib\eeprom.c **** //! complete.  Completion of the operation is signaled by means of an
+ 503:C:/StellarisWare/driverlib\eeprom.c **** //! interrupt from the EEPROM module.  The EEPROM peripheral shares a single
+ 504:C:/StellarisWare/driverlib\eeprom.c **** //! interrupt vector with the flash memory subsystem, \e INT_FLASH.
+ 505:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 506:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns status and error information in the form of a logical OR
+ 507:C:/StellarisWare/driverlib\eeprom.c **** //! combinations of \b EEPROM_RC_INVPL, \b EEPROM_RC_WRBUSY,
+ 508:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY, \b EEPROM_RC_WKERASE and
+ 509:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WORKING.  Flags \b EEPROM_RC_WKCOPY, \b EEPROM_RC_WKERASE, and
+ 510:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WORKING are expected in normal operation and do not indicate
+ 511:C:/StellarisWare/driverlib\eeprom.c **** //! an error.
+ 512:C:/StellarisWare/driverlib\eeprom.c **** //
+ 513:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 514:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 515:C:/StellarisWare/driverlib\eeprom.c **** EEPROMProgramNonBlocking(unsigned long ulData, unsigned long ulAddress)
+ 516:C:/StellarisWare/driverlib\eeprom.c **** {
+ 609              		.loc 1 516 0
+ 610              		.cfi_startproc
+ 611              		@ args = 0, pretend = 0, frame = 8
+ 612              		@ frame_needed = 1, uses_anonymous_args = 0
+ 613 0000 80B5     		push	{r7, lr}
+ 614              	.LCFI20:
+ 615              		.cfi_def_cfa_offset 8
+ 616              		.cfi_offset 14, -4
+ 617              		.cfi_offset 7, -8
+ 618 0002 82B0     		sub	sp, sp, #8
+ 619              	.LCFI21:
+ 620              		.cfi_def_cfa_offset 16
+ 621 0004 00AF     		add	r7, sp, #0
+ 622              	.LCFI22:
+ 623              		.cfi_def_cfa_register 7
+ 624 0006 7860     		str	r0, [r7, #4]
+ 625 0008 3960     		str	r1, [r7, #0]
+ 517:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 518:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 519:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 520:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulAddress < SIZE_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 521:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT((ulAddress & 3) == 0);
+ 522:C:/StellarisWare/driverlib\eeprom.c **** 
+ 523:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 524:C:/StellarisWare/driverlib\eeprom.c ****     // This is a workaround for a silicon problem on Blizzard rev A.
+ 525:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 526:C:/StellarisWare/driverlib\eeprom.c ****     if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 626              		.loc 1 526 0
+ 627 000a 4FF46043 		mov	r3, #57344
+ 628 000e C4F20F03 		movt	r3, 16399
+ 629 0012 1A68     		ldr	r2, [r3, #0]
+ 630 0014 4FF00003 		mov	r3, #0
+ 631 0018 C7F2FF03 		movt	r3, 28927
+ 632 001c 1340     		ands	r3, r3, r2
+ 633 001e 4FF00002 		mov	r2, #0
+ 634 0022 C1F20502 		movt	r2, 4101
+ 635 0026 9342     		cmp	r3, r2
+ 636 0028 0DD1     		bne	.L25
+ 637              		.loc 1 526 0 is_stmt 0 discriminator 1
+ 638 002a 4FF46043 		mov	r3, #57344
+ 639 002e C4F20F03 		movt	r3, 16399
+ 640 0032 1B68     		ldr	r3, [r3, #0]
+ 641 0034 4FEA0343 		lsl	r3, r3, #16
+ 642 0038 4FEA1343 		lsr	r3, r3, #16
+ 643 003c 002B     		cmp	r3, #0
+ 644 003e 02D1     		bne	.L25
+ 527:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 528:C:/StellarisWare/driverlib\eeprom.c ****         EEPROMSetSectorMask(ulAddress);
+ 645              		.loc 1 528 0 is_stmt 1
+ 646 0040 3868     		ldr	r0, [r7, #0]
+ 647 0042 FFF7FEFF 		bl	EEPROMSetSectorMask
+ 648              	.L25:
+ 529:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 530:C:/StellarisWare/driverlib\eeprom.c **** 
+ 531:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 532:C:/StellarisWare/driverlib\eeprom.c ****     // Set the block and offset appropriately to program the desired word.
+ 533:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 534:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = EEPROMBlockFromAddr(ulAddress);
+ 649              		.loc 1 534 0
+ 650 0046 4FF20403 		movw	r3, #61444
+ 651 004a C4F20A03 		movt	r3, 16394
+ 652 004e 3A68     		ldr	r2, [r7, #0]
+ 653 0050 4FEA9212 		lsr	r2, r2, #6
+ 654 0054 1A60     		str	r2, [r3, #0]
+ 535:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEOFFSET) = OFFSET_FROM_ADDR(ulAddress);
+ 655              		.loc 1 535 0
+ 656 0056 4FF20803 		movw	r3, #61448
+ 657 005a C4F20A03 		movt	r3, 16394
+ 658 005e 3A68     		ldr	r2, [r7, #0]
+ 659 0060 4FEA9202 		lsr	r2, r2, #2
+ 660 0064 02F00F02 		and	r2, r2, #15
+ 661 0068 1A60     		str	r2, [r3, #0]
+ 536:C:/StellarisWare/driverlib\eeprom.c **** 
+ 537:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 538:C:/StellarisWare/driverlib\eeprom.c ****     // Write the new word using the auto-incrementing register just in case
+ 539:C:/StellarisWare/driverlib\eeprom.c ****     // the caller wants to write follow-on words using direct register access
+ 540:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 541:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EERDWRINC) = ulData;
+ 662              		.loc 1 541 0
+ 663 006a 4FF21403 		movw	r3, #61460
+ 664 006e C4F20A03 		movt	r3, 16394
+ 665 0072 7A68     		ldr	r2, [r7, #4]
+ 666 0074 1A60     		str	r2, [r3, #0]
+ 542:C:/StellarisWare/driverlib\eeprom.c **** 
+ 543:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 544:C:/StellarisWare/driverlib\eeprom.c ****     // Return the current status to the caller.
+ 545:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 546:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 667              		.loc 1 546 0
+ 668 0076 4FF21803 		movw	r3, #61464
+ 669 007a C4F20A03 		movt	r3, 16394
+ 670 007e 1B68     		ldr	r3, [r3, #0]
+ 547:C:/StellarisWare/driverlib\eeprom.c **** }
+ 671              		.loc 1 547 0
+ 672 0080 1846     		mov	r0, r3
+ 673 0082 07F10807 		add	r7, r7, #8
+ 674 0086 BD46     		mov	sp, r7
+ 675 0088 80BD     		pop	{r7, pc}
+ 676              		.cfi_endproc
+ 677              	.LFE8:
+ 679 008a 00BF     		.section	.text.EEPROMMassErase,"ax",%progbits
+ 680              		.align	2
+ 681              		.global	EEPROMMassErase
+ 682              		.thumb
+ 683              		.thumb_func
+ 685              	EEPROMMassErase:
+ 686              	.LFB9:
+ 548:C:/StellarisWare/driverlib\eeprom.c **** 
+ 549:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 550:C:/StellarisWare/driverlib\eeprom.c **** //
+ 551:C:/StellarisWare/driverlib\eeprom.c **** //! Erases the EEPROM and returns it to the factory default condition.
+ 552:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 553:C:/StellarisWare/driverlib\eeprom.c **** //! This function completely erases the EEPROM and removes any and
+ 554:C:/StellarisWare/driverlib\eeprom.c **** //! all access protection on its blocks, leaving the device in the factory
+ 555:C:/StellarisWare/driverlib\eeprom.c **** //! default condition.  After this operation, all EEPROM words contain the
+ 556:C:/StellarisWare/driverlib\eeprom.c **** //! value 0xFFFFFFFF and all blocks are accessible for both read and write
+ 557:C:/StellarisWare/driverlib\eeprom.c **** //! operations in all CPU modes.  No passwords are active.
+ 558:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 559:C:/StellarisWare/driverlib\eeprom.c **** //! The function is synchronous and does not return until the erase operation
+ 560:C:/StellarisWare/driverlib\eeprom.c **** //! has completed.
+ 561:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 562:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns 0 on success or non-zero values on failure.  Failure codes
+ 563:C:/StellarisWare/driverlib\eeprom.c **** //! are logical OR combinations of \b EEPROM_RC_INVPL, \b EEPROM_RC_WRBUSY,
+ 564:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY, \b EEPROM_RC_WKERASE, and
+ 565:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WORKING.
+ 566:C:/StellarisWare/driverlib\eeprom.c **** //
+ 567:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 568:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 569:C:/StellarisWare/driverlib\eeprom.c **** EEPROMMassErase(void)
+ 570:C:/StellarisWare/driverlib\eeprom.c **** {
+ 687              		.loc 1 570 0
+ 688              		.cfi_startproc
+ 689              		@ args = 0, pretend = 0, frame = 0
+ 690              		@ frame_needed = 1, uses_anonymous_args = 0
+ 691 0000 80B5     		push	{r7, lr}
+ 692              	.LCFI23:
+ 693              		.cfi_def_cfa_offset 8
+ 694              		.cfi_offset 14, -4
+ 695              		.cfi_offset 7, -8
+ 696 0002 00AF     		add	r7, sp, #0
+ 697              	.LCFI24:
+ 698              		.cfi_def_cfa_register 7
+ 571:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 572:C:/StellarisWare/driverlib\eeprom.c ****     // This is a workaround for a silicon problem on Blizzard rev A.
+ 573:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 574:C:/StellarisWare/driverlib\eeprom.c ****     if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 699              		.loc 1 574 0
+ 700 0004 4FF46043 		mov	r3, #57344
+ 701 0008 C4F20F03 		movt	r3, 16399
+ 702 000c 1A68     		ldr	r2, [r3, #0]
+ 703 000e 4FF00003 		mov	r3, #0
+ 704 0012 C7F2FF03 		movt	r3, 28927
+ 705 0016 1340     		ands	r3, r3, r2
+ 706 0018 4FF00002 		mov	r2, #0
+ 707 001c C1F20502 		movt	r2, 4101
+ 708 0020 9342     		cmp	r3, r2
+ 709 0022 0CD1     		bne	.L27
+ 710              		.loc 1 574 0 is_stmt 0 discriminator 1
+ 711 0024 4FF46043 		mov	r3, #57344
+ 712 0028 C4F20F03 		movt	r3, 16399
+ 713 002c 1B68     		ldr	r3, [r3, #0]
+ 714 002e 4FEA0343 		lsl	r3, r3, #16
+ 715 0032 4FEA1343 		lsr	r3, r3, #16
+ 716 0036 002B     		cmp	r3, #0
+ 717 0038 01D1     		bne	.L27
+ 575:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 576:C:/StellarisWare/driverlib\eeprom.c ****         EEPROMClearSectorMask();
+ 718              		.loc 1 576 0 is_stmt 1
+ 719 003a FFF7FEFF 		bl	EEPROMClearSectorMask
+ 720              	.L27:
+ 577:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 578:C:/StellarisWare/driverlib\eeprom.c **** 
+ 579:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 580:C:/StellarisWare/driverlib\eeprom.c ****     // Start the mass erase processing
+ 581:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 582:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEDBGME) = EEPROM_MASS_ERASE_KEY | EEPROM_EEDBGME_ME;
+ 721              		.loc 1 582 0
+ 722 003e 4FF28003 		movw	r3, #61568
+ 723 0042 C4F20A03 		movt	r3, 16394
+ 724 0046 4FF00102 		mov	r2, #1
+ 725 004a CEF27B32 		movt	r2, 58235
+ 726 004e 1A60     		str	r2, [r3, #0]
+ 583:C:/StellarisWare/driverlib\eeprom.c **** 
+ 584:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 585:C:/StellarisWare/driverlib\eeprom.c ****     // Wait for completion.
+ 586:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 587:C:/StellarisWare/driverlib\eeprom.c ****     EEPROMWaitForDone();
+ 727              		.loc 1 587 0
+ 728 0050 FFF7FEFF 		bl	EEPROMWaitForDone
+ 588:C:/StellarisWare/driverlib\eeprom.c **** 
+ 589:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 590:C:/StellarisWare/driverlib\eeprom.c ****     // Reset the peripheral.  This is required so that all protection
+ 591:C:/StellarisWare/driverlib\eeprom.c ****     // mechanisms and passwords are reset now that the EEPROM data has been
+ 592:C:/StellarisWare/driverlib\eeprom.c ****     // scrubbed.
+ 593:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 594:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlPeripheralReset(SYSCTL_PERIPH_EEPROM0);
+ 729              		.loc 1 594 0
+ 730 0054 4FF4B040 		mov	r0, #22528
+ 731 0058 CFF20000 		movt	r0, 61440
+ 732 005c FFF7FEFF 		bl	SysCtlPeripheralReset
+ 595:C:/StellarisWare/driverlib\eeprom.c **** 
+ 596:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 597:C:/StellarisWare/driverlib\eeprom.c ****     // Wait for completion again.
+ 598:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 599:C:/StellarisWare/driverlib\eeprom.c ****     SysCtlDelay(2);
+ 733              		.loc 1 599 0
+ 734 0060 4FF00200 		mov	r0, #2
+ 735 0064 FFF7FEFF 		bl	SysCtlDelay
+ 600:C:/StellarisWare/driverlib\eeprom.c ****     EEPROMWaitForDone();
+ 736              		.loc 1 600 0
+ 737 0068 FFF7FEFF 		bl	EEPROMWaitForDone
+ 601:C:/StellarisWare/driverlib\eeprom.c **** 
+ 602:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 603:C:/StellarisWare/driverlib\eeprom.c ****     // Pass any error codes back to the caller.
+ 604:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 605:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 738              		.loc 1 605 0
+ 739 006c 4FF21803 		movw	r3, #61464
+ 740 0070 C4F20A03 		movt	r3, 16394
+ 741 0074 1B68     		ldr	r3, [r3, #0]
+ 606:C:/StellarisWare/driverlib\eeprom.c **** }
+ 742              		.loc 1 606 0
+ 743 0076 1846     		mov	r0, r3
+ 744 0078 80BD     		pop	{r7, pc}
+ 745              		.cfi_endproc
+ 746              	.LFE9:
+ 748 007a 00BF     		.section	.text.EEPROMBlockProtectGet,"ax",%progbits
+ 749              		.align	2
+ 750              		.global	EEPROMBlockProtectGet
+ 751              		.thumb
+ 752              		.thumb_func
+ 754              	EEPROMBlockProtectGet:
+ 755              	.LFB10:
+ 607:C:/StellarisWare/driverlib\eeprom.c **** 
+ 608:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 609:C:/StellarisWare/driverlib\eeprom.c **** //
+ 610:C:/StellarisWare/driverlib\eeprom.c **** //! Returns the current protection level for an EEPROM block.
+ 611:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 612:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the block number for which the protection level is to be
+ 613:C:/StellarisWare/driverlib\eeprom.c **** //! queried.
+ 614:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 615:C:/StellarisWare/driverlib\eeprom.c **** //! This function returns the current protection settings for a given
+ 616:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROM block.  If block 0 is currently locked, it must be unlocked prior
+ 617:C:/StellarisWare/driverlib\eeprom.c **** //! to calling this function to query the protection setting for other blocks.
+ 618:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 619:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns one of \b EEPROM_PROT_RW_LRO_URW, \b EEPROM_PROT_NA_LNA_URW
+ 620:C:/StellarisWare/driverlib\eeprom.c **** //! or \b EEPROM_PROT_RO_LNA_URO optionally OR-ed with
+ 621:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_SUPERVISOR_ONLY.
+ 622:C:/StellarisWare/driverlib\eeprom.c **** //
+ 623:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 624:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 625:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockProtectGet(unsigned long ulBlock)
+ 626:C:/StellarisWare/driverlib\eeprom.c **** {
+ 756              		.loc 1 626 0
+ 757              		.cfi_startproc
+ 758              		@ args = 0, pretend = 0, frame = 8
+ 759              		@ frame_needed = 1, uses_anonymous_args = 0
+ 760              		@ link register save eliminated.
+ 761 0000 80B4     		push	{r7}
+ 762              	.LCFI25:
+ 763              		.cfi_def_cfa_offset 4
+ 764              		.cfi_offset 7, -4
+ 765 0002 83B0     		sub	sp, sp, #12
+ 766              	.LCFI26:
+ 767              		.cfi_def_cfa_offset 16
+ 768 0004 00AF     		add	r7, sp, #0
+ 769              	.LCFI27:
+ 770              		.cfi_def_cfa_register 7
+ 771 0006 7860     		str	r0, [r7, #4]
+ 627:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 628:C:/StellarisWare/driverlib\eeprom.c ****     // Parameter validity check.
+ 629:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 630:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 631:C:/StellarisWare/driverlib\eeprom.c **** 
+ 632:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 633:C:/StellarisWare/driverlib\eeprom.c ****     // Set the current block.
+ 634:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 635:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = ulBlock;
+ 772              		.loc 1 635 0
+ 773 0008 4FF20403 		movw	r3, #61444
+ 774 000c C4F20A03 		movt	r3, 16394
+ 775 0010 7A68     		ldr	r2, [r7, #4]
+ 776 0012 1A60     		str	r2, [r3, #0]
+ 636:C:/StellarisWare/driverlib\eeprom.c **** 
+ 637:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 638:C:/StellarisWare/driverlib\eeprom.c ****     // Return the protection flags for this block.
+ 639:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 640:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEPROT));
+ 777              		.loc 1 640 0
+ 778 0014 4FF23003 		movw	r3, #61488
+ 779 0018 C4F20A03 		movt	r3, 16394
+ 780 001c 1B68     		ldr	r3, [r3, #0]
+ 641:C:/StellarisWare/driverlib\eeprom.c **** }
+ 781              		.loc 1 641 0
+ 782 001e 1846     		mov	r0, r3
+ 783 0020 07F10C07 		add	r7, r7, #12
+ 784 0024 BD46     		mov	sp, r7
+ 785 0026 80BC     		pop	{r7}
+ 786 0028 7047     		bx	lr
+ 787              		.cfi_endproc
+ 788              	.LFE10:
+ 790 002a 00BF     		.section	.text.EEPROMBlockProtectSet,"ax",%progbits
+ 791              		.align	2
+ 792              		.global	EEPROMBlockProtectSet
+ 793              		.thumb
+ 794              		.thumb_func
+ 796              	EEPROMBlockProtectSet:
+ 797              	.LFB11:
+ 642:C:/StellarisWare/driverlib\eeprom.c **** 
+ 643:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 644:C:/StellarisWare/driverlib\eeprom.c **** //
+ 645:C:/StellarisWare/driverlib\eeprom.c **** //! Set the current protection options for an EEPROM block.
+ 646:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 647:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the block number for which the protection options are to
+ 648:C:/StellarisWare/driverlib\eeprom.c **** //! be set.
+ 649:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulProtect consists of one of the values \b EEPROM_PROT_RW_LRO_URW,
+ 650:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_NA_LNA_URW or \b EEPROM_PROT_RO_LNA_URO optionally ORed with
+ 651:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_SUPERVISOR_ONLY.
+ 652:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 653:C:/StellarisWare/driverlib\eeprom.c **** //! This function sets the protection settings for a given EEPROM block
+ 654:C:/StellarisWare/driverlib\eeprom.c **** //! assuming no protection settings have previously been written.  Note that
+ 655:C:/StellarisWare/driverlib\eeprom.c **** //! protection settings applied to block 0 have special meaning and control
+ 656:C:/StellarisWare/driverlib\eeprom.c **** //! access to the EEPROM peripheral as a whole.  Protection settings applied to
+ 657:C:/StellarisWare/driverlib\eeprom.c **** //! blocks numbered 1 and above are layered above any protection set on block 0
+ 658:C:/StellarisWare/driverlib\eeprom.c **** //! such that the effective protection on each block is the logical OR of the
+ 659:C:/StellarisWare/driverlib\eeprom.c **** //! protection flags set for block 0 and for the target block.  This protocol
+ 660:C:/StellarisWare/driverlib\eeprom.c **** //! allows global protection options to be set for the whole device via block
+ 661:C:/StellarisWare/driverlib\eeprom.c **** //! 0 and more restrictive protection settings to be set on a block-by-block
+ 662:C:/StellarisWare/driverlib\eeprom.c **** //! basis.
+ 663:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 664:C:/StellarisWare/driverlib\eeprom.c **** //! The protection flags indicate access permissions as follow:
+ 665:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 666:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_SUPERVISOR_ONLY restricts access to the block to threads
+ 667:C:/StellarisWare/driverlib\eeprom.c **** //! running in supervisor mode.  If clear, both user and supervisor threads
+ 668:C:/StellarisWare/driverlib\eeprom.c **** //! can access the block.
+ 669:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 670:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_RW_LRO_URW provides read/write access to the block if no
+ 671:C:/StellarisWare/driverlib\eeprom.c **** //! password is set or if a password is set and the block is unlocked.  If the
+ 672:C:/StellarisWare/driverlib\eeprom.c **** //! block is locked, only read access is permitted.
+ 673:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 674:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_NA_LNA_URW provides neither read nor write access unless
+ 675:C:/StellarisWare/driverlib\eeprom.c **** //! a password is set and the block is unlocked.  If the block is unlocked,
+ 676:C:/StellarisWare/driverlib\eeprom.c **** //! both read and write access are permitted.
+ 677:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 678:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_PROT_RO_LNA_URO provides read access to the block if no password
+ 679:C:/StellarisWare/driverlib\eeprom.c **** //! is set or if a password is set and the block is unlocked.  If the block is
+ 680:C:/StellarisWare/driverlib\eeprom.c **** //! password protected and locked, neither read nor write access is permitted.
+ 681:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 682:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns a logical OR combination of \b EEPROM_RC_INVPL,
+ 683:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WRBUSY, \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY,
+ 684:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WKERASE, and \b EEPROM_RC_WORKING to indicate status and error
+ 685:C:/StellarisWare/driverlib\eeprom.c **** //! conditions.
+ 686:C:/StellarisWare/driverlib\eeprom.c **** //
+ 687:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 688:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 689:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockProtectSet(unsigned long ulBlock, unsigned long ulProtect)
+ 690:C:/StellarisWare/driverlib\eeprom.c **** {
+ 798              		.loc 1 690 0
+ 799              		.cfi_startproc
+ 800              		@ args = 0, pretend = 0, frame = 8
+ 801              		@ frame_needed = 1, uses_anonymous_args = 0
+ 802              		@ link register save eliminated.
+ 803 0000 80B4     		push	{r7}
+ 804              	.LCFI28:
+ 805              		.cfi_def_cfa_offset 4
+ 806              		.cfi_offset 7, -4
+ 807 0002 83B0     		sub	sp, sp, #12
+ 808              	.LCFI29:
+ 809              		.cfi_def_cfa_offset 16
+ 810 0004 00AF     		add	r7, sp, #0
+ 811              	.LCFI30:
+ 812              		.cfi_def_cfa_register 7
+ 813 0006 7860     		str	r0, [r7, #4]
+ 814 0008 3960     		str	r1, [r7, #0]
+ 691:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 692:C:/StellarisWare/driverlib\eeprom.c ****     // Parameter validity check.
+ 693:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 694:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 695:C:/StellarisWare/driverlib\eeprom.c **** 
+ 696:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 697:C:/StellarisWare/driverlib\eeprom.c ****     // Set the current block.
+ 698:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 699:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = ulBlock;
+ 815              		.loc 1 699 0
+ 816 000a 4FF20403 		movw	r3, #61444
+ 817 000e C4F20A03 		movt	r3, 16394
+ 818 0012 7A68     		ldr	r2, [r7, #4]
+ 819 0014 1A60     		str	r2, [r3, #0]
+ 700:C:/StellarisWare/driverlib\eeprom.c **** 
+ 701:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 702:C:/StellarisWare/driverlib\eeprom.c ****     // Set the protection options for this block.
+ 703:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 704:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEPROT) = ulProtect;
+ 820              		.loc 1 704 0
+ 821 0016 4FF23003 		movw	r3, #61488
+ 822 001a C4F20A03 		movt	r3, 16394
+ 823 001e 3A68     		ldr	r2, [r7, #0]
+ 824 0020 1A60     		str	r2, [r3, #0]
+ 705:C:/StellarisWare/driverlib\eeprom.c **** 
+ 706:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 707:C:/StellarisWare/driverlib\eeprom.c ****     // Wait for the write to complete.
+ 708:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 709:C:/StellarisWare/driverlib\eeprom.c ****     while(HWREG(EEPROM_EEDONE) & EEPROM_EEDONE_WORKING)
+ 825              		.loc 1 709 0
+ 826 0022 00BF     		nop
+ 827              	.L30:
+ 828              		.loc 1 709 0 is_stmt 0 discriminator 1
+ 829 0024 4FF21803 		movw	r3, #61464
+ 830 0028 C4F20A03 		movt	r3, 16394
+ 831 002c 1B68     		ldr	r3, [r3, #0]
+ 832 002e 03F00103 		and	r3, r3, #1
+ 833 0032 DBB2     		uxtb	r3, r3
+ 834 0034 002B     		cmp	r3, #0
+ 835 0036 F5D1     		bne	.L30
+ 710:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 711:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 712:C:/StellarisWare/driverlib\eeprom.c ****         // Still working.
+ 713:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 714:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 715:C:/StellarisWare/driverlib\eeprom.c **** 
+ 716:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 717:C:/StellarisWare/driverlib\eeprom.c ****     // Pass any error codes back to the caller.
+ 718:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 719:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 836              		.loc 1 719 0 is_stmt 1
+ 837 0038 4FF21803 		movw	r3, #61464
+ 838 003c C4F20A03 		movt	r3, 16394
+ 839 0040 1B68     		ldr	r3, [r3, #0]
+ 720:C:/StellarisWare/driverlib\eeprom.c **** }
+ 840              		.loc 1 720 0
+ 841 0042 1846     		mov	r0, r3
+ 842 0044 07F10C07 		add	r7, r7, #12
+ 843 0048 BD46     		mov	sp, r7
+ 844 004a 80BC     		pop	{r7}
+ 845 004c 7047     		bx	lr
+ 846              		.cfi_endproc
+ 847              	.LFE11:
+ 849 004e 00BF     		.section	.text.EEPROMBlockPasswordSet,"ax",%progbits
+ 850              		.align	2
+ 851              		.global	EEPROMBlockPasswordSet
+ 852              		.thumb
+ 853              		.thumb_func
+ 855              	EEPROMBlockPasswordSet:
+ 856              	.LFB12:
+ 721:C:/StellarisWare/driverlib\eeprom.c **** 
+ 722:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 723:C:/StellarisWare/driverlib\eeprom.c **** //
+ 724:C:/StellarisWare/driverlib\eeprom.c **** //! Sets the password used to protect an EEPROM block.
+ 725:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 726:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the EEPROM block number for which the password is to be
+ 727:C:/StellarisWare/driverlib\eeprom.c **** //! set.
+ 728:C:/StellarisWare/driverlib\eeprom.c **** //! \param pulPassword points to an array of unsigned long values comprising
+ 729:C:/StellarisWare/driverlib\eeprom.c **** //! the password to set.  Each element may be any 32-bit value other than
+ 730:C:/StellarisWare/driverlib\eeprom.c **** //! 0xFFFFFFFF. This array must contain the number of elements given by the
+ 731:C:/StellarisWare/driverlib\eeprom.c **** //! \b ulCount parameter.
+ 732:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulCount provides the number of unsigned longs in the \b ulPassword.
+ 733:C:/StellarisWare/driverlib\eeprom.c **** //! Valid values are 1, 2 and 3.
+ 734:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 735:C:/StellarisWare/driverlib\eeprom.c **** //! This function allows the password used to unlock an EEPROM block to be
+ 736:C:/StellarisWare/driverlib\eeprom.c **** //! set.  Valid passwords may be either 32, 64 or 96 bits comprising words
+ 737:C:/StellarisWare/driverlib\eeprom.c **** //! with any value other than 0xFFFFFFFF. The password may only be set once.
+ 738:C:/StellarisWare/driverlib\eeprom.c **** //! Any further attempts to set the password result in an error.  Once the
+ 739:C:/StellarisWare/driverlib\eeprom.c **** //! password is set, the block remains unlocked until EEPROMBlockLock() is
+ 740:C:/StellarisWare/driverlib\eeprom.c **** //! called for that block or block 0, or a reset occurs.
+ 741:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 742:C:/StellarisWare/driverlib\eeprom.c **** //! If a password is set on block 0, this affects locking of the peripheral as
+ 743:C:/StellarisWare/driverlib\eeprom.c **** //! a whole. When block 0 is locked, all other EEPROM blocks are inaccessible
+ 744:C:/StellarisWare/driverlib\eeprom.c **** //! until block 0 is unlocked.  Once block 0 is unlocked, other blocks
+ 745:C:/StellarisWare/driverlib\eeprom.c **** //! become accessible according to any passwords set on those blocks and the
+ 746:C:/StellarisWare/driverlib\eeprom.c **** //! protection set for that block via a call to EEPROMBlockProtectSet().
+ 747:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 748:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns a logical OR combination of \b EEPROM_RC_INVPL,
+ 749:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WRBUSY, \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY,
+ 750:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WKERASE, and \b EEPROM_RC_WORKING to indicate status and error
+ 751:C:/StellarisWare/driverlib\eeprom.c **** //! conditions.
+ 752:C:/StellarisWare/driverlib\eeprom.c **** //
+ 753:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 754:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 755:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockPasswordSet(unsigned long ulBlock, unsigned long *pulPassword,
+ 756:C:/StellarisWare/driverlib\eeprom.c ****                        unsigned long ulCount)
+ 757:C:/StellarisWare/driverlib\eeprom.c **** {
+ 857              		.loc 1 757 0
+ 858              		.cfi_startproc
+ 859              		@ args = 0, pretend = 0, frame = 24
+ 860              		@ frame_needed = 1, uses_anonymous_args = 0
+ 861              		@ link register save eliminated.
+ 862 0000 80B4     		push	{r7}
+ 863              	.LCFI31:
+ 864              		.cfi_def_cfa_offset 4
+ 865              		.cfi_offset 7, -4
+ 866 0002 87B0     		sub	sp, sp, #28
+ 867              	.LCFI32:
+ 868              		.cfi_def_cfa_offset 32
+ 869 0004 00AF     		add	r7, sp, #0
+ 870              	.LCFI33:
+ 871              		.cfi_def_cfa_register 7
+ 872 0006 F860     		str	r0, [r7, #12]
+ 873 0008 B960     		str	r1, [r7, #8]
+ 874 000a 7A60     		str	r2, [r7, #4]
+ 758:C:/StellarisWare/driverlib\eeprom.c ****     unsigned long ulReg;
+ 759:C:/StellarisWare/driverlib\eeprom.c **** 
+ 760:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 761:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 762:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 763:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(pulPassword);
+ 764:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 765:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulCount <= 3);
+ 766:C:/StellarisWare/driverlib\eeprom.c **** 
+ 767:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 768:C:/StellarisWare/driverlib\eeprom.c ****     // Set the block number whose password we are about to write.
+ 769:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 770:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = ulBlock;
+ 875              		.loc 1 770 0
+ 876 000c 4FF20403 		movw	r3, #61444
+ 877 0010 C4F20A03 		movt	r3, 16394
+ 878 0014 FA68     		ldr	r2, [r7, #12]
+ 879 0016 1A60     		str	r2, [r3, #0]
+ 771:C:/StellarisWare/driverlib\eeprom.c **** 
+ 772:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 773:C:/StellarisWare/driverlib\eeprom.c ****     // Start with the first password word.
+ 774:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 775:C:/StellarisWare/driverlib\eeprom.c ****     ulReg = EEPROM_EEPASS0;
+ 880              		.loc 1 775 0
+ 881 0018 4FF23403 		movw	r3, #61492
+ 882 001c C4F20A03 		movt	r3, 16394
+ 883 0020 7B61     		str	r3, [r7, #20]
+ 776:C:/StellarisWare/driverlib\eeprom.c **** 
+ 777:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 778:C:/StellarisWare/driverlib\eeprom.c ****     // Write the password.
+ 779:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 780:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 884              		.loc 1 780 0
+ 885 0022 1AE0     		b	.L32
+ 886              	.L34:
+ 781:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 782:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 783:C:/StellarisWare/driverlib\eeprom.c ****         // Start the process of writing the password.
+ 784:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 785:C:/StellarisWare/driverlib\eeprom.c ****         HWREG(ulReg) = *pulPassword;
+ 887              		.loc 1 785 0
+ 888 0024 7B69     		ldr	r3, [r7, #20]
+ 889 0026 BA68     		ldr	r2, [r7, #8]
+ 890 0028 1268     		ldr	r2, [r2, #0]
+ 891 002a 1A60     		str	r2, [r3, #0]
+ 786:C:/StellarisWare/driverlib\eeprom.c **** 
+ 787:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 788:C:/StellarisWare/driverlib\eeprom.c ****         // Update values in preparation for writing the next word.
+ 789:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 790:C:/StellarisWare/driverlib\eeprom.c ****         pulPassword++;
+ 892              		.loc 1 790 0
+ 893 002c BB68     		ldr	r3, [r7, #8]
+ 894 002e 03F10403 		add	r3, r3, #4
+ 895 0032 BB60     		str	r3, [r7, #8]
+ 791:C:/StellarisWare/driverlib\eeprom.c ****         ulReg += 4;
+ 896              		.loc 1 791 0
+ 897 0034 7B69     		ldr	r3, [r7, #20]
+ 898 0036 03F10403 		add	r3, r3, #4
+ 899 003a 7B61     		str	r3, [r7, #20]
+ 792:C:/StellarisWare/driverlib\eeprom.c ****         ulCount--;
+ 900              		.loc 1 792 0
+ 901 003c 7B68     		ldr	r3, [r7, #4]
+ 902 003e 03F1FF33 		add	r3, r3, #-1
+ 903 0042 7B60     		str	r3, [r7, #4]
+ 793:C:/StellarisWare/driverlib\eeprom.c **** 
+ 794:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 795:C:/StellarisWare/driverlib\eeprom.c ****         // Wait for the last word write to complete or an error to be reported.
+ 796:C:/StellarisWare/driverlib\eeprom.c ****         //
+ 797:C:/StellarisWare/driverlib\eeprom.c ****         while(HWREG(EEPROM_EEDONE) & EEPROM_EEDONE_WORKING)
+ 904              		.loc 1 797 0
+ 905 0044 00BF     		nop
+ 906              	.L33:
+ 907              		.loc 1 797 0 is_stmt 0 discriminator 1
+ 908 0046 4FF21803 		movw	r3, #61464
+ 909 004a C4F20A03 		movt	r3, 16394
+ 910 004e 1B68     		ldr	r3, [r3, #0]
+ 911 0050 03F00103 		and	r3, r3, #1
+ 912 0054 DBB2     		uxtb	r3, r3
+ 913 0056 002B     		cmp	r3, #0
+ 914 0058 F5D1     		bne	.L33
+ 915              	.L32:
+ 780:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 916              		.loc 1 780 0 is_stmt 1 discriminator 1
+ 917 005a 7B68     		ldr	r3, [r7, #4]
+ 918 005c 002B     		cmp	r3, #0
+ 919 005e E1D1     		bne	.L34
+ 798:C:/StellarisWare/driverlib\eeprom.c ****         {
+ 799:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 800:C:/StellarisWare/driverlib\eeprom.c ****             // Still working.
+ 801:C:/StellarisWare/driverlib\eeprom.c ****             //
+ 802:C:/StellarisWare/driverlib\eeprom.c ****         }
+ 803:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 804:C:/StellarisWare/driverlib\eeprom.c **** 
+ 805:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 806:C:/StellarisWare/driverlib\eeprom.c ****     // Return the final write status.
+ 807:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 808:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 920              		.loc 1 808 0
+ 921 0060 4FF21803 		movw	r3, #61464
+ 922 0064 C4F20A03 		movt	r3, 16394
+ 923 0068 1B68     		ldr	r3, [r3, #0]
+ 809:C:/StellarisWare/driverlib\eeprom.c **** }
+ 924              		.loc 1 809 0
+ 925 006a 1846     		mov	r0, r3
+ 926 006c 07F11C07 		add	r7, r7, #28
+ 927 0070 BD46     		mov	sp, r7
+ 928 0072 80BC     		pop	{r7}
+ 929 0074 7047     		bx	lr
+ 930              		.cfi_endproc
+ 931              	.LFE12:
+ 933 0076 00BF     		.section	.text.EEPROMBlockLock,"ax",%progbits
+ 934              		.align	2
+ 935              		.global	EEPROMBlockLock
+ 936              		.thumb
+ 937              		.thumb_func
+ 939              	EEPROMBlockLock:
+ 940              	.LFB13:
+ 810:C:/StellarisWare/driverlib\eeprom.c **** 
+ 811:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 812:C:/StellarisWare/driverlib\eeprom.c **** //
+ 813:C:/StellarisWare/driverlib\eeprom.c **** //! Locks a password-protected EEPROM block.
+ 814:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 815:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the EEPROM block number which is to be locked.
+ 816:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 817:C:/StellarisWare/driverlib\eeprom.c **** //! This function locks an EEPROM block that has previously been protected by
+ 818:C:/StellarisWare/driverlib\eeprom.c **** //! writing a password.  Access to the block once it is locked is determined
+ 819:C:/StellarisWare/driverlib\eeprom.c **** //! by the protection settings applied via a previous call to the
+ 820:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROMBlockProtectSet() function.  If no password has previously been set
+ 821:C:/StellarisWare/driverlib\eeprom.c **** //! for the block, this function has no effect.
+ 822:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 823:C:/StellarisWare/driverlib\eeprom.c **** //! Locking block 0 has the effect of making all other blocks in the EEPROM
+ 824:C:/StellarisWare/driverlib\eeprom.c **** //! inaccessible.
+ 825:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 826:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns the lock state for the block on exit, 1 if unlocked (as
+ 827:C:/StellarisWare/driverlib\eeprom.c **** //! would be the case if no password was set) or 0 if locked.
+ 828:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 829:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 830:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 831:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockLock(unsigned long ulBlock)
+ 832:C:/StellarisWare/driverlib\eeprom.c **** {
+ 941              		.loc 1 832 0
+ 942              		.cfi_startproc
+ 943              		@ args = 0, pretend = 0, frame = 8
+ 944              		@ frame_needed = 1, uses_anonymous_args = 0
+ 945              		@ link register save eliminated.
+ 946 0000 80B4     		push	{r7}
+ 947              	.LCFI34:
+ 948              		.cfi_def_cfa_offset 4
+ 949              		.cfi_offset 7, -4
+ 950 0002 83B0     		sub	sp, sp, #12
+ 951              	.LCFI35:
+ 952              		.cfi_def_cfa_offset 16
+ 953 0004 00AF     		add	r7, sp, #0
+ 954              	.LCFI36:
+ 955              		.cfi_def_cfa_register 7
+ 956 0006 7860     		str	r0, [r7, #4]
+ 833:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 834:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 835:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 836:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 837:C:/StellarisWare/driverlib\eeprom.c **** 
+ 838:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 839:C:/StellarisWare/driverlib\eeprom.c ****     // Select the block we are going to lock.
+ 840:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 841:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = ulBlock;
+ 957              		.loc 1 841 0
+ 958 0008 4FF20403 		movw	r3, #61444
+ 959 000c C4F20A03 		movt	r3, 16394
+ 960 0010 7A68     		ldr	r2, [r7, #4]
+ 961 0012 1A60     		str	r2, [r3, #0]
+ 842:C:/StellarisWare/driverlib\eeprom.c **** 
+ 843:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 844:C:/StellarisWare/driverlib\eeprom.c ****     // Lock the block.
+ 845:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 846:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEUNLOCK) = 0xFFFFFFFF;
+ 962              		.loc 1 846 0
+ 963 0014 4FF22003 		movw	r3, #61472
+ 964 0018 C4F20A03 		movt	r3, 16394
+ 965 001c 4FF0FF32 		mov	r2, #-1
+ 966 0020 1A60     		str	r2, [r3, #0]
+ 847:C:/StellarisWare/driverlib\eeprom.c **** 
+ 848:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 849:C:/StellarisWare/driverlib\eeprom.c ****     // Return the current lock state.
+ 850:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 851:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEUNLOCK));
+ 967              		.loc 1 851 0
+ 968 0022 4FF22003 		movw	r3, #61472
+ 969 0026 C4F20A03 		movt	r3, 16394
+ 970 002a 1B68     		ldr	r3, [r3, #0]
+ 852:C:/StellarisWare/driverlib\eeprom.c **** }
+ 971              		.loc 1 852 0
+ 972 002c 1846     		mov	r0, r3
+ 973 002e 07F10C07 		add	r7, r7, #12
+ 974 0032 BD46     		mov	sp, r7
+ 975 0034 80BC     		pop	{r7}
+ 976 0036 7047     		bx	lr
+ 977              		.cfi_endproc
+ 978              	.LFE13:
+ 980              		.section	.text.EEPROMBlockUnlock,"ax",%progbits
+ 981              		.align	2
+ 982              		.global	EEPROMBlockUnlock
+ 983              		.thumb
+ 984              		.thumb_func
+ 986              	EEPROMBlockUnlock:
+ 987              	.LFB14:
+ 853:C:/StellarisWare/driverlib\eeprom.c **** 
+ 854:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 855:C:/StellarisWare/driverlib\eeprom.c **** //
+ 856:C:/StellarisWare/driverlib\eeprom.c **** //! Unlocks a password-protected EEPROM block.
+ 857:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 858:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the EEPROM block number which is to be unlocked.
+ 859:C:/StellarisWare/driverlib\eeprom.c **** //! \param pulPassword points to an array of unsigned long values containing
+ 860:C:/StellarisWare/driverlib\eeprom.c **** //! the password for the blockt.  Each element must match the password
+ 861:C:/StellarisWare/driverlib\eeprom.c **** //! originally set via a call to EEPROMBlockPasswordSet().
+ 862:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulCount provides the number of unsigned longs in the \b pulPassword
+ 863:C:/StellarisWare/driverlib\eeprom.c **** //! array and must match the value originally passed to
+ 864:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROMBlockPasswordSet().  Valid values are 1, 2 and 3.
+ 865:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 866:C:/StellarisWare/driverlib\eeprom.c **** //! This function unlocks an EEPROM block that has previously been protected by
+ 867:C:/StellarisWare/driverlib\eeprom.c **** //! writing a password.  Access to the block once it is unlocked is determined
+ 868:C:/StellarisWare/driverlib\eeprom.c **** //! by the protection settings applied via a previous call to the
+ 869:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROMBlockProtectSet() function.
+ 870:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 871:C:/StellarisWare/driverlib\eeprom.c **** //! To successfully unlock an EEPROM block, the password provided must match
+ 872:C:/StellarisWare/driverlib\eeprom.c **** //! the password provided on the original call to EEPROMBlockPasswordSet().  If
+ 873:C:/StellarisWare/driverlib\eeprom.c **** //! an incorrect password is provided, the block remains locked.
+ 874:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 875:C:/StellarisWare/driverlib\eeprom.c **** //! Unlocking block 0 has the effect of making all other blocks in the device
+ 876:C:/StellarisWare/driverlib\eeprom.c **** //! accessible according to their own access protection settings.  When block
+ 877:C:/StellarisWare/driverlib\eeprom.c **** //! 0 is locked, all other EEPROM blocks are inaccessible.
+ 878:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 879:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns the lock state for the block on exit, 1 if unlocked or 0 if
+ 880:C:/StellarisWare/driverlib\eeprom.c **** //! locked.
+ 881:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 882:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 883:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+ 884:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockUnlock(unsigned long ulBlock, unsigned long *pulPassword,
+ 885:C:/StellarisWare/driverlib\eeprom.c ****                   unsigned long ulCount)
+ 886:C:/StellarisWare/driverlib\eeprom.c **** {
+ 988              		.loc 1 886 0
+ 989              		.cfi_startproc
+ 990              		@ args = 0, pretend = 0, frame = 16
+ 991              		@ frame_needed = 1, uses_anonymous_args = 0
+ 992              		@ link register save eliminated.
+ 993 0000 80B4     		push	{r7}
+ 994              	.LCFI37:
+ 995              		.cfi_def_cfa_offset 4
+ 996              		.cfi_offset 7, -4
+ 997 0002 85B0     		sub	sp, sp, #20
+ 998              	.LCFI38:
+ 999              		.cfi_def_cfa_offset 24
+ 1000 0004 00AF     		add	r7, sp, #0
+ 1001              	.LCFI39:
+ 1002              		.cfi_def_cfa_register 7
+ 1003 0006 F860     		str	r0, [r7, #12]
+ 1004 0008 B960     		str	r1, [r7, #8]
+ 1005 000a 7A60     		str	r2, [r7, #4]
+ 887:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 888:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 889:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 890:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(pulPassword);
+ 891:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 892:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulCount <= 3);
+ 893:C:/StellarisWare/driverlib\eeprom.c **** 
+ 894:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 895:C:/StellarisWare/driverlib\eeprom.c ****     // Set the block that we are trying to unlock.
+ 896:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 897:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEBLOCK) = ulBlock;
+ 1006              		.loc 1 897 0
+ 1007 000c 4FF20403 		movw	r3, #61444
+ 1008 0010 C4F20A03 		movt	r3, 16394
+ 1009 0014 FA68     		ldr	r2, [r7, #12]
+ 1010 0016 1A60     		str	r2, [r3, #0]
+ 898:C:/StellarisWare/driverlib\eeprom.c **** 
+ 899:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 900:C:/StellarisWare/driverlib\eeprom.c ****     // Write the unlock register with 0xFFFFFFFF to reset the unlock
+ 901:C:/StellarisWare/driverlib\eeprom.c ****     // sequence just in case a short password was previously used to try to
+ 902:C:/StellarisWare/driverlib\eeprom.c ****     // unlock the block.
+ 903:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 904:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEUNLOCK) = 0xFFFFFFFF;
+ 1011              		.loc 1 904 0
+ 1012 0018 4FF22003 		movw	r3, #61472
+ 1013 001c C4F20A03 		movt	r3, 16394
+ 1014 0020 4FF0FF32 		mov	r2, #-1
+ 1015 0024 1A60     		str	r2, [r3, #0]
+ 905:C:/StellarisWare/driverlib\eeprom.c **** 
+ 906:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 907:C:/StellarisWare/driverlib\eeprom.c ****     // We need to write the password words in the opposite order when unlocking
+ 908:C:/StellarisWare/driverlib\eeprom.c ****     // compared to locking so start at the end of the array.
+ 909:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 910:C:/StellarisWare/driverlib\eeprom.c ****     pulPassword += (ulCount - 1);
+ 1016              		.loc 1 910 0
+ 1017 0026 7B68     		ldr	r3, [r7, #4]
+ 1018 0028 03F1FF33 		add	r3, r3, #-1
+ 1019 002c 4FEA8303 		lsl	r3, r3, #2
+ 1020 0030 BA68     		ldr	r2, [r7, #8]
+ 1021 0032 D318     		adds	r3, r2, r3
+ 1022 0034 BB60     		str	r3, [r7, #8]
+ 911:C:/StellarisWare/driverlib\eeprom.c **** 
+ 912:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 913:C:/StellarisWare/driverlib\eeprom.c ****     // Write the supplied password to unlock the block.
+ 914:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 915:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 1023              		.loc 1 915 0
+ 1024 0036 0EE0     		b	.L37
+ 1025              	.L38:
+ 916:C:/StellarisWare/driverlib\eeprom.c ****     {
+ 917:C:/StellarisWare/driverlib\eeprom.c ****         HWREG(EEPROM_EEUNLOCK) = *pulPassword--;
+ 1026              		.loc 1 917 0
+ 1027 0038 4FF22003 		movw	r3, #61472
+ 1028 003c C4F20A03 		movt	r3, 16394
+ 1029 0040 BA68     		ldr	r2, [r7, #8]
+ 1030 0042 1268     		ldr	r2, [r2, #0]
+ 1031 0044 1A60     		str	r2, [r3, #0]
+ 1032 0046 BB68     		ldr	r3, [r7, #8]
+ 1033 0048 A3F10403 		sub	r3, r3, #4
+ 1034 004c BB60     		str	r3, [r7, #8]
+ 918:C:/StellarisWare/driverlib\eeprom.c ****         ulCount--;
+ 1035              		.loc 1 918 0
+ 1036 004e 7B68     		ldr	r3, [r7, #4]
+ 1037 0050 03F1FF33 		add	r3, r3, #-1
+ 1038 0054 7B60     		str	r3, [r7, #4]
+ 1039              	.L37:
+ 915:C:/StellarisWare/driverlib\eeprom.c ****     while(ulCount)
+ 1040              		.loc 1 915 0 discriminator 1
+ 1041 0056 7B68     		ldr	r3, [r7, #4]
+ 1042 0058 002B     		cmp	r3, #0
+ 1043 005a EDD1     		bne	.L38
+ 919:C:/StellarisWare/driverlib\eeprom.c ****     }
+ 920:C:/StellarisWare/driverlib\eeprom.c **** 
+ 921:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 922:C:/StellarisWare/driverlib\eeprom.c ****     // Let the caller know if their password worked.
+ 923:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 924:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEUNLOCK));
+ 1044              		.loc 1 924 0
+ 1045 005c 4FF22003 		movw	r3, #61472
+ 1046 0060 C4F20A03 		movt	r3, 16394
+ 1047 0064 1B68     		ldr	r3, [r3, #0]
+ 925:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1048              		.loc 1 925 0
+ 1049 0066 1846     		mov	r0, r3
+ 1050 0068 07F11407 		add	r7, r7, #20
+ 1051 006c BD46     		mov	sp, r7
+ 1052 006e 80BC     		pop	{r7}
+ 1053 0070 7047     		bx	lr
+ 1054              		.cfi_endproc
+ 1055              	.LFE14:
+ 1057 0072 00BF     		.section	.text.EEPROMBlockHide,"ax",%progbits
+ 1058              		.align	2
+ 1059              		.global	EEPROMBlockHide
+ 1060              		.thumb
+ 1061              		.thumb_func
+ 1063              	EEPROMBlockHide:
+ 1064              	.LFB15:
+ 926:C:/StellarisWare/driverlib\eeprom.c **** 
+ 927:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 928:C:/StellarisWare/driverlib\eeprom.c **** //
+ 929:C:/StellarisWare/driverlib\eeprom.c **** //! Hides an EEPROM block until the next reset.
+ 930:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 931:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulBlock is the EEPROM block number which is to be hidden.
+ 932:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 933:C:/StellarisWare/driverlib\eeprom.c **** //! This function hides an EEPROM block other than block 0.  Once hidden, a
+ 934:C:/StellarisWare/driverlib\eeprom.c **** //! block is completely inaccessible until the next reset.  This mechanism
+ 935:C:/StellarisWare/driverlib\eeprom.c **** //! allows initialization code to have access to data which is to be hidden
+ 936:C:/StellarisWare/driverlib\eeprom.c **** //! from the rest of the application.  Unlike applications using passwords, an
+ 937:C:/StellarisWare/driverlib\eeprom.c **** //! application making using of block hiding need not contain any embedded
+ 938:C:/StellarisWare/driverlib\eeprom.c **** //! passwords which could be found through disassembly.
+ 939:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 940:C:/StellarisWare/driverlib\eeprom.c **** //! \return None.
+ 941:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 942:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 943:C:/StellarisWare/driverlib\eeprom.c **** void
+ 944:C:/StellarisWare/driverlib\eeprom.c **** EEPROMBlockHide(unsigned long ulBlock)
+ 945:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1065              		.loc 1 945 0
+ 1066              		.cfi_startproc
+ 1067              		@ args = 0, pretend = 0, frame = 8
+ 1068              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1069              		@ link register save eliminated.
+ 1070 0000 80B4     		push	{r7}
+ 1071              	.LCFI40:
+ 1072              		.cfi_def_cfa_offset 4
+ 1073              		.cfi_offset 7, -4
+ 1074 0002 83B0     		sub	sp, sp, #12
+ 1075              	.LCFI41:
+ 1076              		.cfi_def_cfa_offset 16
+ 1077 0004 00AF     		add	r7, sp, #0
+ 1078              	.LCFI42:
+ 1079              		.cfi_def_cfa_register 7
+ 1080 0006 7860     		str	r0, [r7, #4]
+ 946:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 947:C:/StellarisWare/driverlib\eeprom.c ****     // Check parameters in a debug build.
+ 948:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 949:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(!ulBlock);
+ 950:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulBlock < BLOCKS_FROM_EESIZE(HWREG(EEPROM_EESIZE)));
+ 951:C:/StellarisWare/driverlib\eeprom.c **** 
+ 952:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 953:C:/StellarisWare/driverlib\eeprom.c ****     // Hide the requested block.
+ 954:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 955:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEHIDE) = (1 << ulBlock);
+ 1081              		.loc 1 955 0
+ 1082 0008 4FF25003 		movw	r3, #61520
+ 1083 000c C4F20A03 		movt	r3, 16394
+ 1084 0010 7A68     		ldr	r2, [r7, #4]
+ 1085 0012 4FF00101 		mov	r1, #1
+ 1086 0016 01FA02F2 		lsl	r2, r1, r2
+ 1087 001a 1A60     		str	r2, [r3, #0]
+ 956:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1088              		.loc 1 956 0
+ 1089 001c 07F10C07 		add	r7, r7, #12
+ 1090 0020 BD46     		mov	sp, r7
+ 1091 0022 80BC     		pop	{r7}
+ 1092 0024 7047     		bx	lr
+ 1093              		.cfi_endproc
+ 1094              	.LFE15:
+ 1096 0026 00BF     		.section	.text.EEPROMIntEnable,"ax",%progbits
+ 1097              		.align	2
+ 1098              		.global	EEPROMIntEnable
+ 1099              		.thumb
+ 1100              		.thumb_func
+ 1102              	EEPROMIntEnable:
+ 1103              	.LFB16:
+ 957:C:/StellarisWare/driverlib\eeprom.c **** 
+ 958:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 959:C:/StellarisWare/driverlib\eeprom.c **** //
+ 960:C:/StellarisWare/driverlib\eeprom.c **** //! Enables the EEPROM interrupt.
+ 961:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 962:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulIntFlags indicates which EEPROM interrupt source to enable.  This
+ 963:C:/StellarisWare/driverlib\eeprom.c **** //! must be \b EEPROM_INT_PROGRAM currently.
+ 964:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 965:C:/StellarisWare/driverlib\eeprom.c **** //! This function enables the EEPROM interrupt.  When enabled, an interrupt
+ 966:C:/StellarisWare/driverlib\eeprom.c **** //! is generated when any EEPROM write or erase operation completes.  The
+ 967:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROM peripheral shares a single interrupt vector with the flash memory
+ 968:C:/StellarisWare/driverlib\eeprom.c **** //! subsystem, \b INT_FLASH.  This function is provided as a convenience but
+ 969:C:/StellarisWare/driverlib\eeprom.c **** //! the EEPROM interrupt can also be enabled using a call to FlashIntEnable()
+ 970:C:/StellarisWare/driverlib\eeprom.c **** //! passing FLASH_INT_EEPROM in the \b ulIntFlags parameter.
+ 971:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 972:C:/StellarisWare/driverlib\eeprom.c **** //! \return None.
+ 973:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 974:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 975:C:/StellarisWare/driverlib\eeprom.c **** void
+ 976:C:/StellarisWare/driverlib\eeprom.c **** EEPROMIntEnable(unsigned long ulIntFlags)
+ 977:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1104              		.loc 1 977 0
+ 1105              		.cfi_startproc
+ 1106              		@ args = 0, pretend = 0, frame = 8
+ 1107              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1108              		@ link register save eliminated.
+ 1109 0000 80B4     		push	{r7}
+ 1110              	.LCFI43:
+ 1111              		.cfi_def_cfa_offset 4
+ 1112              		.cfi_offset 7, -4
+ 1113 0002 83B0     		sub	sp, sp, #12
+ 1114              	.LCFI44:
+ 1115              		.cfi_def_cfa_offset 16
+ 1116 0004 00AF     		add	r7, sp, #0
+ 1117              	.LCFI45:
+ 1118              		.cfi_def_cfa_register 7
+ 1119 0006 7860     		str	r0, [r7, #4]
+ 978:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 979:C:/StellarisWare/driverlib\eeprom.c ****     // Look for valid interrupt sources.
+ 980:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 981:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulIntFlags == EEPROM_INT_PROGRAM);
+ 982:C:/StellarisWare/driverlib\eeprom.c **** 
+ 983:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 984:C:/StellarisWare/driverlib\eeprom.c ****     // Enable interrupts from the EEPROM module.
+ 985:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 986:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEINT) |= EEPROM_EEINT_INT;
+ 1120              		.loc 1 986 0
+ 1121 0008 4FF24003 		movw	r3, #61504
+ 1122 000c C4F20A03 		movt	r3, 16394
+ 1123 0010 4FF24002 		movw	r2, #61504
+ 1124 0014 C4F20A02 		movt	r2, 16394
+ 1125 0018 1268     		ldr	r2, [r2, #0]
+ 1126 001a 42F00102 		orr	r2, r2, #1
+ 1127 001e 1A60     		str	r2, [r3, #0]
+ 987:C:/StellarisWare/driverlib\eeprom.c **** 
+ 988:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 989:C:/StellarisWare/driverlib\eeprom.c ****     // Enable the EEPROM interrupt in the flash controller module.
+ 990:C:/StellarisWare/driverlib\eeprom.c ****     //
+ 991:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(FLASH_FCIM) |= FLASH_FCRIS_ERIS;
+ 1128              		.loc 1 991 0
+ 1129 0020 4DF21003 		movw	r3, #53264
+ 1130 0024 C4F20F03 		movt	r3, 16399
+ 1131 0028 4DF21002 		movw	r2, #53264
+ 1132 002c C4F20F02 		movt	r2, 16399
+ 1133 0030 1268     		ldr	r2, [r2, #0]
+ 1134 0032 42F00402 		orr	r2, r2, #4
+ 1135 0036 1A60     		str	r2, [r3, #0]
+ 992:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1136              		.loc 1 992 0
+ 1137 0038 07F10C07 		add	r7, r7, #12
+ 1138 003c BD46     		mov	sp, r7
+ 1139 003e 80BC     		pop	{r7}
+ 1140 0040 7047     		bx	lr
+ 1141              		.cfi_endproc
+ 1142              	.LFE16:
+ 1144 0042 00BF     		.section	.text.EEPROMIntDisable,"ax",%progbits
+ 1145              		.align	2
+ 1146              		.global	EEPROMIntDisable
+ 1147              		.thumb
+ 1148              		.thumb_func
+ 1150              	EEPROMIntDisable:
+ 1151              	.LFB17:
+ 993:C:/StellarisWare/driverlib\eeprom.c **** 
+ 994:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+ 995:C:/StellarisWare/driverlib\eeprom.c **** //
+ 996:C:/StellarisWare/driverlib\eeprom.c **** //! Disables the EEPROM interrupt.
+ 997:C:/StellarisWare/driverlib\eeprom.c **** //!
+ 998:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulIntFlags indicates which EEPROM interrupt source to disable.  This
+ 999:C:/StellarisWare/driverlib\eeprom.c **** //! must be \b EEPROM_INT_PROGRAM currently.
+1000:C:/StellarisWare/driverlib\eeprom.c **** //!
+1001:C:/StellarisWare/driverlib\eeprom.c **** //! This function disables the EEPROM interrupt and prevents calls to the
+1002:C:/StellarisWare/driverlib\eeprom.c **** //! interrupt vector when any EEPROM write or erase operation completes.  The
+1003:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROM peripheral shares a single interrupt vector with the flash memory
+1004:C:/StellarisWare/driverlib\eeprom.c **** //! subsystem, \e INT_FLASH.    This function is provided as a convenience but
+1005:C:/StellarisWare/driverlib\eeprom.c **** //! the EEPROM interrupt can also be disabled using a call to FlashIntDisable()
+1006:C:/StellarisWare/driverlib\eeprom.c **** //! passing FLASH_INT_EEPROM in the \b ulIntFlags parameter.
+1007:C:/StellarisWare/driverlib\eeprom.c **** //!
+1008:C:/StellarisWare/driverlib\eeprom.c **** //! \return None.
+1009:C:/StellarisWare/driverlib\eeprom.c **** //!
+1010:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1011:C:/StellarisWare/driverlib\eeprom.c **** void
+1012:C:/StellarisWare/driverlib\eeprom.c **** EEPROMIntDisable(unsigned long ulIntFlags)
+1013:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1152              		.loc 1 1013 0
+ 1153              		.cfi_startproc
+ 1154              		@ args = 0, pretend = 0, frame = 8
+ 1155              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1156              		@ link register save eliminated.
+ 1157 0000 80B4     		push	{r7}
+ 1158              	.LCFI46:
+ 1159              		.cfi_def_cfa_offset 4
+ 1160              		.cfi_offset 7, -4
+ 1161 0002 83B0     		sub	sp, sp, #12
+ 1162              	.LCFI47:
+ 1163              		.cfi_def_cfa_offset 16
+ 1164 0004 00AF     		add	r7, sp, #0
+ 1165              	.LCFI48:
+ 1166              		.cfi_def_cfa_register 7
+ 1167 0006 7860     		str	r0, [r7, #4]
+1014:C:/StellarisWare/driverlib\eeprom.c ****     //
+1015:C:/StellarisWare/driverlib\eeprom.c ****     // Look for valid interrupt sources.
+1016:C:/StellarisWare/driverlib\eeprom.c ****     //
+1017:C:/StellarisWare/driverlib\eeprom.c ****     ASSERT(ulIntFlags == EEPROM_INT_PROGRAM);
+1018:C:/StellarisWare/driverlib\eeprom.c **** 
+1019:C:/StellarisWare/driverlib\eeprom.c ****     //
+1020:C:/StellarisWare/driverlib\eeprom.c ****     // Disable the EEPROM interrupt in the flash controller module.
+1021:C:/StellarisWare/driverlib\eeprom.c ****     //
+1022:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(FLASH_FCIM) &= ~FLASH_FCIM_EMASK;
+ 1168              		.loc 1 1022 0
+ 1169 0008 4DF21003 		movw	r3, #53264
+ 1170 000c C4F20F03 		movt	r3, 16399
+ 1171 0010 4DF21002 		movw	r2, #53264
+ 1172 0014 C4F20F02 		movt	r2, 16399
+ 1173 0018 1268     		ldr	r2, [r2, #0]
+ 1174 001a 22F00402 		bic	r2, r2, #4
+ 1175 001e 1A60     		str	r2, [r3, #0]
+1023:C:/StellarisWare/driverlib\eeprom.c **** 
+1024:C:/StellarisWare/driverlib\eeprom.c ****     //
+1025:C:/StellarisWare/driverlib\eeprom.c ****     // Disable interrupts from the EEPROM module.
+1026:C:/StellarisWare/driverlib\eeprom.c ****     //
+1027:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(EEPROM_EEINT) &= ~EEPROM_EEINT_INT;
+ 1176              		.loc 1 1027 0
+ 1177 0020 4FF24003 		movw	r3, #61504
+ 1178 0024 C4F20A03 		movt	r3, 16394
+ 1179 0028 4FF24002 		movw	r2, #61504
+ 1180 002c C4F20A02 		movt	r2, 16394
+ 1181 0030 1268     		ldr	r2, [r2, #0]
+ 1182 0032 22F00102 		bic	r2, r2, #1
+ 1183 0036 1A60     		str	r2, [r3, #0]
+1028:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1184              		.loc 1 1028 0
+ 1185 0038 07F10C07 		add	r7, r7, #12
+ 1186 003c BD46     		mov	sp, r7
+ 1187 003e 80BC     		pop	{r7}
+ 1188 0040 7047     		bx	lr
+ 1189              		.cfi_endproc
+ 1190              	.LFE17:
+ 1192 0042 00BF     		.section	.text.EEPROMIntStatus,"ax",%progbits
+ 1193              		.align	2
+ 1194              		.global	EEPROMIntStatus
+ 1195              		.thumb
+ 1196              		.thumb_func
+ 1198              	EEPROMIntStatus:
+ 1199              	.LFB18:
+1029:C:/StellarisWare/driverlib\eeprom.c **** 
+1030:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1031:C:/StellarisWare/driverlib\eeprom.c **** //
+1032:C:/StellarisWare/driverlib\eeprom.c **** //! Reports the state of the EEPROM interrupt.
+1033:C:/StellarisWare/driverlib\eeprom.c **** //!
+1034:C:/StellarisWare/driverlib\eeprom.c **** //! \param bMasked determines whether the masked or unmasked state of the
+1035:C:/StellarisWare/driverlib\eeprom.c **** //! interrupt is to be returned. If bMasked is \e true, the masked state is
+1036:C:/StellarisWare/driverlib\eeprom.c **** //! returned, otherwise the unmasked state is returned.
+1037:C:/StellarisWare/driverlib\eeprom.c **** //!
+1038:C:/StellarisWare/driverlib\eeprom.c **** //! This function allows an application to query the state of the EEPROM
+1039:C:/StellarisWare/driverlib\eeprom.c **** //! interrupt.  If active, the interrupt may be cleared by calling
+1040:C:/StellarisWare/driverlib\eeprom.c **** //! EEPROMIntClear().
+1041:C:/StellarisWare/driverlib\eeprom.c **** //!
+1042:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns \b EEPROM_INT_PROGRAM if an interrupt is being signaled or
+1043:C:/StellarisWare/driverlib\eeprom.c **** //! 0 otherwise.
+1044:C:/StellarisWare/driverlib\eeprom.c **** //
+1045:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1046:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+1047:C:/StellarisWare/driverlib\eeprom.c **** EEPROMIntStatus(tBoolean bMasked)
+1048:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1200              		.loc 1 1048 0
+ 1201              		.cfi_startproc
+ 1202              		@ args = 0, pretend = 0, frame = 8
+ 1203              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1204              		@ link register save eliminated.
+ 1205 0000 80B4     		push	{r7}
+ 1206              	.LCFI49:
+ 1207              		.cfi_def_cfa_offset 4
+ 1208              		.cfi_offset 7, -4
+ 1209 0002 83B0     		sub	sp, sp, #12
+ 1210              	.LCFI50:
+ 1211              		.cfi_def_cfa_offset 16
+ 1212 0004 00AF     		add	r7, sp, #0
+ 1213              	.LCFI51:
+ 1214              		.cfi_def_cfa_register 7
+ 1215 0006 0346     		mov	r3, r0
+ 1216 0008 FB71     		strb	r3, [r7, #7]
+1049:C:/StellarisWare/driverlib\eeprom.c ****     if(bMasked)
+ 1217              		.loc 1 1049 0
+ 1218 000a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1219 000c 002B     		cmp	r3, #0
+ 1220 000e 07D0     		beq	.L43
+1050:C:/StellarisWare/driverlib\eeprom.c ****     {
+1051:C:/StellarisWare/driverlib\eeprom.c ****         //
+1052:C:/StellarisWare/driverlib\eeprom.c ****         // If asked for the masked interrupt status, we check to see if the
+1053:C:/StellarisWare/driverlib\eeprom.c ****         // relevant interrupt is pending in the flash controller then return
+1054:C:/StellarisWare/driverlib\eeprom.c ****         // the appropriate EEPROM flag if it is.
+1055:C:/StellarisWare/driverlib\eeprom.c ****         //
+1056:C:/StellarisWare/driverlib\eeprom.c ****         return((HWREG(FLASH_FCMISC) & FLASH_FCMISC_EMISC) ?
+ 1221              		.loc 1 1056 0
+ 1222 0010 4DF21403 		movw	r3, #53268
+ 1223 0014 C4F20F03 		movt	r3, 16399
+ 1224 0018 1B68     		ldr	r3, [r3, #0]
+ 1225 001a 03F00403 		and	r3, r3, #4
+ 1226 001e 0EE0     		b	.L44
+ 1227              	.L43:
+1057:C:/StellarisWare/driverlib\eeprom.c ****                 EEPROM_INT_PROGRAM : 0);
+1058:C:/StellarisWare/driverlib\eeprom.c ****     }
+1059:C:/StellarisWare/driverlib\eeprom.c ****     else
+1060:C:/StellarisWare/driverlib\eeprom.c ****     {
+1061:C:/StellarisWare/driverlib\eeprom.c ****         //
+1062:C:/StellarisWare/driverlib\eeprom.c ****         // If asked for the unmasked interrupt status, infer that an interrupt
+1063:C:/StellarisWare/driverlib\eeprom.c ****         // is pending if the WORKING bit of the EEDONE register is clear.  The
+1064:C:/StellarisWare/driverlib\eeprom.c ****         // actual interrupt fires on the high to low transition of this bit
+1065:C:/StellarisWare/driverlib\eeprom.c ****         // but we don't have access to an unmasked interrupt status for the
+1066:C:/StellarisWare/driverlib\eeprom.c ****         // EEPROM because it's handled via the flash controller so we have to
+1067:C:/StellarisWare/driverlib\eeprom.c ****         // make do with this instead.
+1068:C:/StellarisWare/driverlib\eeprom.c ****         //
+1069:C:/StellarisWare/driverlib\eeprom.c ****         return((HWREG(EEPROM_EEDONE) & EEPROM_EEDONE_WORKING) ?
+ 1228              		.loc 1 1069 0
+ 1229 0020 4FF21803 		movw	r3, #61464
+ 1230 0024 C4F20A03 		movt	r3, 16394
+ 1231 0028 1B68     		ldr	r3, [r3, #0]
+ 1232 002a 03F00103 		and	r3, r3, #1
+ 1233 002e DBB2     		uxtb	r3, r3
+ 1234 0030 002B     		cmp	r3, #0
+ 1235 0032 02D0     		beq	.L45
+ 1236              		.loc 1 1069 0 is_stmt 0 discriminator 1
+ 1237 0034 4FF00003 		mov	r3, #0
+ 1238 0038 01E0     		b	.L46
+ 1239              	.L45:
+ 1240              		.loc 1 1069 0 discriminator 2
+ 1241 003a 4FF00403 		mov	r3, #4
+ 1242              	.L46:
+ 1243              	.L44:
+1070:C:/StellarisWare/driverlib\eeprom.c ****                0 : EEPROM_INT_PROGRAM);
+1071:C:/StellarisWare/driverlib\eeprom.c ****     }
+1072:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1244              		.loc 1 1072 0 is_stmt 1
+ 1245 003e 1846     		mov	r0, r3
+ 1246 0040 07F10C07 		add	r7, r7, #12
+ 1247 0044 BD46     		mov	sp, r7
+ 1248 0046 80BC     		pop	{r7}
+ 1249 0048 7047     		bx	lr
+ 1250              		.cfi_endproc
+ 1251              	.LFE18:
+ 1253 004a 00BF     		.section	.text.EEPROMIntClear,"ax",%progbits
+ 1254              		.align	2
+ 1255              		.global	EEPROMIntClear
+ 1256              		.thumb
+ 1257              		.thumb_func
+ 1259              	EEPROMIntClear:
+ 1260              	.LFB19:
+1073:C:/StellarisWare/driverlib\eeprom.c **** 
+1074:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1075:C:/StellarisWare/driverlib\eeprom.c **** //
+1076:C:/StellarisWare/driverlib\eeprom.c **** //! Clears the EEPROM interrupt.
+1077:C:/StellarisWare/driverlib\eeprom.c **** //!
+1078:C:/StellarisWare/driverlib\eeprom.c **** //! \param ulIntFlags indicates which interrupt sources to clear.  Currently,
+1079:C:/StellarisWare/driverlib\eeprom.c **** //! the only valid value is \b EEPROM_INT_PROGRAM.
+1080:C:/StellarisWare/driverlib\eeprom.c **** //!
+1081:C:/StellarisWare/driverlib\eeprom.c **** //! This function allows an application to clear the EEPROM interrupt.
+1082:C:/StellarisWare/driverlib\eeprom.c **** //!
+1083:C:/StellarisWare/driverlib\eeprom.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+1084:C:/StellarisWare/driverlib\eeprom.c **** //! take several clock cycles before the interrupt source is actually cleared.
+1085:C:/StellarisWare/driverlib\eeprom.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+1086:C:/StellarisWare/driverlib\eeprom.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+1087:C:/StellarisWare/driverlib\eeprom.c **** //! returning from the interrupt handler before the interrupt source is
+1088:C:/StellarisWare/driverlib\eeprom.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+1089:C:/StellarisWare/driverlib\eeprom.c **** //! being immediately reentered (because the interrupt controller still sees
+1090:C:/StellarisWare/driverlib\eeprom.c **** //! the interrupt source asserted).
+1091:C:/StellarisWare/driverlib\eeprom.c **** //!
+1092:C:/StellarisWare/driverlib\eeprom.c **** //! \return None.
+1093:C:/StellarisWare/driverlib\eeprom.c **** //!
+1094:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1095:C:/StellarisWare/driverlib\eeprom.c **** void
+1096:C:/StellarisWare/driverlib\eeprom.c **** EEPROMIntClear(unsigned long ulIntFlags)
+1097:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1261              		.loc 1 1097 0
+ 1262              		.cfi_startproc
+ 1263              		@ args = 0, pretend = 0, frame = 8
+ 1264              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1265 0000 80B5     		push	{r7, lr}
+ 1266              	.LCFI52:
+ 1267              		.cfi_def_cfa_offset 8
+ 1268              		.cfi_offset 14, -4
+ 1269              		.cfi_offset 7, -8
+ 1270 0002 82B0     		sub	sp, sp, #8
+ 1271              	.LCFI53:
+ 1272              		.cfi_def_cfa_offset 16
+ 1273 0004 00AF     		add	r7, sp, #0
+ 1274              	.LCFI54:
+ 1275              		.cfi_def_cfa_register 7
+ 1276 0006 7860     		str	r0, [r7, #4]
+1098:C:/StellarisWare/driverlib\eeprom.c ****     //
+1099:C:/StellarisWare/driverlib\eeprom.c ****     // Clear the flash interrupt.
+1100:C:/StellarisWare/driverlib\eeprom.c ****     //
+1101:C:/StellarisWare/driverlib\eeprom.c ****     HWREG(FLASH_FCMISC) = FLASH_FCMISC_EMISC;
+ 1277              		.loc 1 1101 0
+ 1278 0008 4DF21403 		movw	r3, #53268
+ 1279 000c C4F20F03 		movt	r3, 16399
+ 1280 0010 4FF00402 		mov	r2, #4
+ 1281 0014 1A60     		str	r2, [r3, #0]
+1102:C:/StellarisWare/driverlib\eeprom.c **** 
+1103:C:/StellarisWare/driverlib\eeprom.c ****     //
+1104:C:/StellarisWare/driverlib\eeprom.c ****     // Clear the sector protection bits to prevent possible problems when
+1105:C:/StellarisWare/driverlib\eeprom.c ****     // programming the main flash array later.
+1106:C:/StellarisWare/driverlib\eeprom.c ****     //
+1107:C:/StellarisWare/driverlib\eeprom.c ****     if(CLASS_IS_BLIZZARD && REVISION_IS_A0)
+ 1282              		.loc 1 1107 0
+ 1283 0016 4FF46043 		mov	r3, #57344
+ 1284 001a C4F20F03 		movt	r3, 16399
+ 1285 001e 1A68     		ldr	r2, [r3, #0]
+ 1286 0020 4FF00003 		mov	r3, #0
+ 1287 0024 C7F2FF03 		movt	r3, 28927
+ 1288 0028 1340     		ands	r3, r3, r2
+ 1289 002a 4FF00002 		mov	r2, #0
+ 1290 002e C1F20502 		movt	r2, 4101
+ 1291 0032 9342     		cmp	r3, r2
+ 1292 0034 0CD1     		bne	.L47
+ 1293              		.loc 1 1107 0 is_stmt 0 discriminator 1
+ 1294 0036 4FF46043 		mov	r3, #57344
+ 1295 003a C4F20F03 		movt	r3, 16399
+ 1296 003e 1B68     		ldr	r3, [r3, #0]
+ 1297 0040 4FEA0343 		lsl	r3, r3, #16
+ 1298 0044 4FEA1343 		lsr	r3, r3, #16
+ 1299 0048 002B     		cmp	r3, #0
+ 1300 004a 01D1     		bne	.L47
+1108:C:/StellarisWare/driverlib\eeprom.c ****     {
+1109:C:/StellarisWare/driverlib\eeprom.c ****         EEPROMClearSectorMask();
+ 1301              		.loc 1 1109 0 is_stmt 1
+ 1302 004c FFF7FEFF 		bl	EEPROMClearSectorMask
+ 1303              	.L47:
+1110:C:/StellarisWare/driverlib\eeprom.c ****     }
+1111:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1304              		.loc 1 1111 0
+ 1305 0050 07F10807 		add	r7, r7, #8
+ 1306 0054 BD46     		mov	sp, r7
+ 1307 0056 80BD     		pop	{r7, pc}
+ 1308              		.cfi_endproc
+ 1309              	.LFE19:
+ 1311              		.section	.text.EEPROMStatusGet,"ax",%progbits
+ 1312              		.align	2
+ 1313              		.global	EEPROMStatusGet
+ 1314              		.thumb
+ 1315              		.thumb_func
+ 1317              	EEPROMStatusGet:
+ 1318              	.LFB20:
+1112:C:/StellarisWare/driverlib\eeprom.c **** 
+1113:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1114:C:/StellarisWare/driverlib\eeprom.c **** //
+1115:C:/StellarisWare/driverlib\eeprom.c **** //! Returns status on the last EEPROM program or erase operation.
+1116:C:/StellarisWare/driverlib\eeprom.c **** //!
+1117:C:/StellarisWare/driverlib\eeprom.c **** //! This function returns the current status of the last program or erase
+1118:C:/StellarisWare/driverlib\eeprom.c **** //! operation performed by the EEPROM.  It is intended to provide error
+1119:C:/StellarisWare/driverlib\eeprom.c **** //! information to applications programming or setting EEPROM protection
+1120:C:/StellarisWare/driverlib\eeprom.c **** //! options under interrupt control.
+1121:C:/StellarisWare/driverlib\eeprom.c **** //!
+1122:C:/StellarisWare/driverlib\eeprom.c **** //! \return Returns 0 if the last program or erase operation completed without
+1123:C:/StellarisWare/driverlib\eeprom.c **** //! any errors.  If an operation is ongoing or an error occurred, the return
+1124:C:/StellarisWare/driverlib\eeprom.c **** //! value is a logical OR combination of \b EEPROM_RC_INVPL,
+1125:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WRBUSY, \b EEPROM_RC_NOPERM, \b EEPROM_RC_WKCOPY,
+1126:C:/StellarisWare/driverlib\eeprom.c **** //! \b EEPROM_RC_WKERASE, and \b EEPROM_RC_WORKING.
+1127:C:/StellarisWare/driverlib\eeprom.c **** //!
+1128:C:/StellarisWare/driverlib\eeprom.c **** //*****************************************************************************
+1129:C:/StellarisWare/driverlib\eeprom.c **** unsigned long
+1130:C:/StellarisWare/driverlib\eeprom.c **** EEPROMStatusGet(void)
+1131:C:/StellarisWare/driverlib\eeprom.c **** {
+ 1319              		.loc 1 1131 0
+ 1320              		.cfi_startproc
+ 1321              		@ args = 0, pretend = 0, frame = 0
+ 1322              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1323              		@ link register save eliminated.
+ 1324 0000 80B4     		push	{r7}
+ 1325              	.LCFI55:
+ 1326              		.cfi_def_cfa_offset 4
+ 1327              		.cfi_offset 7, -4
+ 1328 0002 00AF     		add	r7, sp, #0
+ 1329              	.LCFI56:
+ 1330              		.cfi_def_cfa_register 7
+1132:C:/StellarisWare/driverlib\eeprom.c ****     return(HWREG(EEPROM_EEDONE));
+ 1331              		.loc 1 1132 0
+ 1332 0004 4FF21803 		movw	r3, #61464
+ 1333 0008 C4F20A03 		movt	r3, 16394
+ 1334 000c 1B68     		ldr	r3, [r3, #0]
+1133:C:/StellarisWare/driverlib\eeprom.c **** }
+ 1335              		.loc 1 1133 0
+ 1336 000e 1846     		mov	r0, r3
+ 1337 0010 BD46     		mov	sp, r7
+ 1338 0012 80BC     		pop	{r7}
+ 1339 0014 7047     		bx	lr
+ 1340              		.cfi_endproc
+ 1341              	.LFE20:
+ 1343 0016 00BF     		.text
+ 1344              	.Letext0:
+ 1345              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 eeprom.c
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:19     .text.EEPROMSetSectorMask:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:23     .text.EEPROMSetSectorMask:00000000 EEPROMSetSectorMask
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:84     .text.EEPROMClearSectorMask:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:88     .text.EEPROMClearSectorMask:00000000 EEPROMClearSectorMask
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:135    .text.EEPROMWaitForDone:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:139    .text.EEPROMWaitForDone:00000000 EEPROMWaitForDone
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:172    .text.EEPROMInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:177    .text.EEPROMInit:00000000 EEPROMInit
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:248    .text.EEPROMSizeGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:253    .text.EEPROMSizeGet:00000000 EEPROMSizeGet
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:283    .text.EEPROMBlockCountGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:288    .text.EEPROMBlockCountGet:00000000 EEPROMBlockCountGet
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:319    .text.EEPROMRead:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:324    .text.EEPROMRead:00000000 EEPROMRead
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:406    .text.EEPROMProgram:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:411    .text.EEPROMProgram:00000000 EEPROMProgram
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:602    .text.EEPROMProgramNonBlocking:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:607    .text.EEPROMProgramNonBlocking:00000000 EEPROMProgramNonBlocking
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:680    .text.EEPROMMassErase:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:685    .text.EEPROMMassErase:00000000 EEPROMMassErase
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:749    .text.EEPROMBlockProtectGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:754    .text.EEPROMBlockProtectGet:00000000 EEPROMBlockProtectGet
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:791    .text.EEPROMBlockProtectSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:796    .text.EEPROMBlockProtectSet:00000000 EEPROMBlockProtectSet
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:850    .text.EEPROMBlockPasswordSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:855    .text.EEPROMBlockPasswordSet:00000000 EEPROMBlockPasswordSet
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:934    .text.EEPROMBlockLock:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:939    .text.EEPROMBlockLock:00000000 EEPROMBlockLock
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:981    .text.EEPROMBlockUnlock:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:986    .text.EEPROMBlockUnlock:00000000 EEPROMBlockUnlock
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1058   .text.EEPROMBlockHide:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1063   .text.EEPROMBlockHide:00000000 EEPROMBlockHide
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1097   .text.EEPROMIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1102   .text.EEPROMIntEnable:00000000 EEPROMIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1145   .text.EEPROMIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1150   .text.EEPROMIntDisable:00000000 EEPROMIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1193   .text.EEPROMIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1198   .text.EEPROMIntStatus:00000000 EEPROMIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1254   .text.EEPROMIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1259   .text.EEPROMIntClear:00000000 EEPROMIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1312   .text.EEPROMStatusGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccormJq9.s:1317   .text.EEPROMStatusGet:00000000 EEPROMStatusGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+SysCtlDelay
+SysCtlPeripheralReset

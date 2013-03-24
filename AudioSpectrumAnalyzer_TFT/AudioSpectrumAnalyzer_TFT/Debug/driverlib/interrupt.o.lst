@@ -1,0 +1,1963 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"interrupt.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_pulPriority:
+  23 0000 00070000 		.word	1792
+  24 0004 00060000 		.word	1536
+  25 0008 00050000 		.word	1280
+  26 000c 00040000 		.word	1024
+  27 0010 00030000 		.word	768
+  28 0014 00020000 		.word	512
+  29 0018 00010000 		.word	256
+  30 001c 00000000 		.word	0
+  31              		.align	2
+  34              	g_pulRegs:
+  35 0020 00000000 		.word	0
+  36 0024 18ED00E0 		.word	-536810216
+  37 0028 1CED00E0 		.word	-536810212
+  38 002c 20ED00E0 		.word	-536810208
+  39 0030 00E400E0 		.word	-536812544
+  40 0034 04E400E0 		.word	-536812540
+  41 0038 08E400E0 		.word	-536812536
+  42 003c 0CE400E0 		.word	-536812532
+  43 0040 10E400E0 		.word	-536812528
+  44 0044 14E400E0 		.word	-536812524
+  45 0048 18E400E0 		.word	-536812520
+  46 004c 1CE400E0 		.word	-536812516
+  47 0050 20E400E0 		.word	-536812512
+  48 0054 24E400E0 		.word	-536812508
+  49 0058 28E400E0 		.word	-536812504
+  50 005c 2CE400E0 		.word	-536812500
+  51 0060 30E400E0 		.word	-536812496
+  52 0064 34E400E0 		.word	-536812492
+  53 0068 38E400E0 		.word	-536812488
+  54 006c 3CE400E0 		.word	-536812484
+  55 0070 40E400E0 		.word	-536812480
+  56 0074 44E400E0 		.word	-536812476
+  57 0078 48E400E0 		.word	-536812472
+  58 007c 4CE400E0 		.word	-536812468
+  59 0080 50E400E0 		.word	-536812464
+  60 0084 54E400E0 		.word	-536812460
+  61 0088 58E400E0 		.word	-536812456
+  62 008c 5CE400E0 		.word	-536812452
+  63 0090 60E400E0 		.word	-536812448
+  64 0094 64E400E0 		.word	-536812444
+  65 0098 68E400E0 		.word	-536812440
+  66 009c 6CE400E0 		.word	-536812436
+  67 00a0 70E400E0 		.word	-536812432
+  68 00a4 74E400E0 		.word	-536812428
+  69 00a8 78E400E0 		.word	-536812424
+  70 00ac 7CE400E0 		.word	-536812420
+  71 00b0 80E400E0 		.word	-536812416
+  72 00b4 84E400E0 		.word	-536812412
+  73 00b8 88E400E0 		.word	-536812408
+  74              		.align	2
+  77              	g_pulEnRegs:
+  78 00bc 00E100E0 		.word	-536813312
+  79 00c0 04E100E0 		.word	-536813308
+  80 00c4 08E100E0 		.word	-536813304
+  81 00c8 0CE100E0 		.word	-536813300
+  82 00cc 10E100E0 		.word	-536813296
+  83              		.align	2
+  86              	g_pulDisRegs:
+  87 00d0 80E100E0 		.word	-536813184
+  88 00d4 84E100E0 		.word	-536813180
+  89 00d8 88E100E0 		.word	-536813176
+  90 00dc 8CE100E0 		.word	-536813172
+  91 00e0 90E100E0 		.word	-536813168
+  92              		.align	2
+  95              	g_pulPendRegs:
+  96 00e4 00E200E0 		.word	-536813056
+  97 00e8 04E200E0 		.word	-536813052
+  98 00ec 08E200E0 		.word	-536813048
+  99 00f0 0CE200E0 		.word	-536813044
+ 100 00f4 10E200E0 		.word	-536813040
+ 101              		.align	2
+ 104              	g_pulUnpendRegs:
+ 105 00f8 80E200E0 		.word	-536812928
+ 106 00fc 84E200E0 		.word	-536812924
+ 107 0100 88E200E0 		.word	-536812920
+ 108 0104 8CE200E0 		.word	-536812916
+ 109 0108 90E200E0 		.word	-536812912
+ 110              		.section	.text.IntDefaultHandler,"ax",%progbits
+ 111              		.align	2
+ 112              		.thumb
+ 113              		.thumb_func
+ 115              	IntDefaultHandler:
+ 116              	.LFB0:
+ 117              		.file 1 "C:/StellarisWare/driverlib/interrupt.c"
+   1:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\interrupt.c **** //
+   3:C:/StellarisWare/driverlib\interrupt.c **** // interrupt.c - Driver for the NVIC Interrupt Controller.
+   4:C:/StellarisWare/driverlib\interrupt.c **** //
+   5:C:/StellarisWare/driverlib\interrupt.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\interrupt.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\interrupt.c **** // 
+   8:C:/StellarisWare/driverlib\interrupt.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\interrupt.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\interrupt.c **** //   are met:
+  11:C:/StellarisWare/driverlib\interrupt.c **** // 
+  12:C:/StellarisWare/driverlib\interrupt.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\interrupt.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\interrupt.c **** // 
+  15:C:/StellarisWare/driverlib\interrupt.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\interrupt.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\interrupt.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\interrupt.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\interrupt.c **** // 
+  20:C:/StellarisWare/driverlib\interrupt.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\interrupt.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\interrupt.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\interrupt.c **** // 
+  24:C:/StellarisWare/driverlib\interrupt.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\interrupt.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\interrupt.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\interrupt.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\interrupt.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\interrupt.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\interrupt.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\interrupt.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\interrupt.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\interrupt.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\interrupt.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\interrupt.c **** // 
+  36:C:/StellarisWare/driverlib\interrupt.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\interrupt.c **** //
+  38:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\interrupt.c **** 
+  40:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\interrupt.c **** //
+  42:C:/StellarisWare/driverlib\interrupt.c **** //! \addtogroup interrupt_api
+  43:C:/StellarisWare/driverlib\interrupt.c **** //! @{
+  44:C:/StellarisWare/driverlib\interrupt.c **** //
+  45:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\interrupt.c **** 
+  47:C:/StellarisWare/driverlib\interrupt.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\interrupt.c **** #include "inc/hw_nvic.h"
+  49:C:/StellarisWare/driverlib\interrupt.c **** #include "inc/hw_types.h"
+  50:C:/StellarisWare/driverlib\interrupt.c **** #include "driverlib/cpu.h"
+  51:C:/StellarisWare/driverlib\interrupt.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\interrupt.c **** #include "driverlib/interrupt.h"
+  53:C:/StellarisWare/driverlib\interrupt.c **** 
+  54:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  55:C:/StellarisWare/driverlib\interrupt.c **** //
+  56:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between priority grouping encodings and the number of
+  57:C:/StellarisWare/driverlib\interrupt.c **** // preemption priority bits.
+  58:C:/StellarisWare/driverlib\interrupt.c **** //
+  59:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  60:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulPriority[] =
+  61:C:/StellarisWare/driverlib\interrupt.c **** {
+  62:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_APINT_PRIGROUP_0_8, NVIC_APINT_PRIGROUP_1_7, NVIC_APINT_PRIGROUP_2_6,
+  63:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_APINT_PRIGROUP_3_5, NVIC_APINT_PRIGROUP_4_4, NVIC_APINT_PRIGROUP_5_3,
+  64:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_APINT_PRIGROUP_6_2, NVIC_APINT_PRIGROUP_7_1
+  65:C:/StellarisWare/driverlib\interrupt.c **** };
+  66:C:/StellarisWare/driverlib\interrupt.c **** 
+  67:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  68:C:/StellarisWare/driverlib\interrupt.c **** //
+  69:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between interrupt number and the register that contains
+  70:C:/StellarisWare/driverlib\interrupt.c **** // the priority encoding for that interrupt.
+  71:C:/StellarisWare/driverlib\interrupt.c **** //
+  72:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  73:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulRegs[] =
+  74:C:/StellarisWare/driverlib\interrupt.c **** {
+  75:C:/StellarisWare/driverlib\interrupt.c ****     0, NVIC_SYS_PRI1, NVIC_SYS_PRI2, NVIC_SYS_PRI3, NVIC_PRI0, NVIC_PRI1,
+  76:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI2, NVIC_PRI3, NVIC_PRI4, NVIC_PRI5, NVIC_PRI6, NVIC_PRI7,
+  77:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI8, NVIC_PRI9, NVIC_PRI10, NVIC_PRI11, NVIC_PRI12, NVIC_PRI13,
+  78:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI14, NVIC_PRI15, NVIC_PRI16, NVIC_PRI17, NVIC_PRI18, NVIC_PRI19,
+  79:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI20, NVIC_PRI21, NVIC_PRI22, NVIC_PRI23, NVIC_PRI24, NVIC_PRI25,
+  80:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI26, NVIC_PRI27, NVIC_PRI28, NVIC_PRI29, NVIC_PRI30, NVIC_PRI31,
+  81:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PRI32, NVIC_PRI33, NVIC_PRI34
+  82:C:/StellarisWare/driverlib\interrupt.c **** };
+  83:C:/StellarisWare/driverlib\interrupt.c **** 
+  84:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  85:C:/StellarisWare/driverlib\interrupt.c **** //
+  86:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between interrupt number (for the peripheral interrupts
+  87:C:/StellarisWare/driverlib\interrupt.c **** // only) and the register that contains the interrupt enable for that
+  88:C:/StellarisWare/driverlib\interrupt.c **** // interrupt.
+  89:C:/StellarisWare/driverlib\interrupt.c **** //
+  90:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  91:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulEnRegs[] =
+  92:C:/StellarisWare/driverlib\interrupt.c **** {
+  93:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_EN0, NVIC_EN1, NVIC_EN2, NVIC_EN3, NVIC_EN4
+  94:C:/StellarisWare/driverlib\interrupt.c **** };
+  95:C:/StellarisWare/driverlib\interrupt.c **** 
+  96:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+  97:C:/StellarisWare/driverlib\interrupt.c **** //
+  98:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between interrupt number (for the peripheral interrupts
+  99:C:/StellarisWare/driverlib\interrupt.c **** // only) and the register that contains the interrupt disable for that
+ 100:C:/StellarisWare/driverlib\interrupt.c **** // interrupt.
+ 101:C:/StellarisWare/driverlib\interrupt.c **** //
+ 102:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 103:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulDisRegs[] =
+ 104:C:/StellarisWare/driverlib\interrupt.c **** {
+ 105:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_DIS0, NVIC_DIS1, NVIC_DIS2, NVIC_DIS3, NVIC_DIS4
+ 106:C:/StellarisWare/driverlib\interrupt.c **** };
+ 107:C:/StellarisWare/driverlib\interrupt.c **** 
+ 108:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 109:C:/StellarisWare/driverlib\interrupt.c **** //
+ 110:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between interrupt number (for the peripheral interrupts
+ 111:C:/StellarisWare/driverlib\interrupt.c **** // only) and the register that contains the interrupt pend for that interrupt.
+ 112:C:/StellarisWare/driverlib\interrupt.c **** //
+ 113:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 114:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulPendRegs[] =
+ 115:C:/StellarisWare/driverlib\interrupt.c **** {
+ 116:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_PEND0, NVIC_PEND1, NVIC_PEND2, NVIC_PEND3, NVIC_PEND4
+ 117:C:/StellarisWare/driverlib\interrupt.c **** };
+ 118:C:/StellarisWare/driverlib\interrupt.c **** 
+ 119:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 120:C:/StellarisWare/driverlib\interrupt.c **** //
+ 121:C:/StellarisWare/driverlib\interrupt.c **** // This is a mapping between interrupt number (for the peripheral interrupts
+ 122:C:/StellarisWare/driverlib\interrupt.c **** // only) and the register that contains the interrupt unpend for that
+ 123:C:/StellarisWare/driverlib\interrupt.c **** // interrupt.
+ 124:C:/StellarisWare/driverlib\interrupt.c **** //
+ 125:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 126:C:/StellarisWare/driverlib\interrupt.c **** static const unsigned long g_pulUnpendRegs[] =
+ 127:C:/StellarisWare/driverlib\interrupt.c **** {
+ 128:C:/StellarisWare/driverlib\interrupt.c ****     NVIC_UNPEND0, NVIC_UNPEND1, NVIC_UNPEND2, NVIC_UNPEND3, NVIC_UNPEND4
+ 129:C:/StellarisWare/driverlib\interrupt.c **** };
+ 130:C:/StellarisWare/driverlib\interrupt.c **** 
+ 131:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 132:C:/StellarisWare/driverlib\interrupt.c **** //
+ 133:C:/StellarisWare/driverlib\interrupt.c **** //! \internal
+ 134:C:/StellarisWare/driverlib\interrupt.c **** //! The default interrupt handler.
+ 135:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 136:C:/StellarisWare/driverlib\interrupt.c **** //! This is the default interrupt handler for all interrupts.  It simply loops
+ 137:C:/StellarisWare/driverlib\interrupt.c **** //! forever so that the system state is preserved for observation by a
+ 138:C:/StellarisWare/driverlib\interrupt.c **** //! debugger.  Since interrupts should be disabled before unregistering the
+ 139:C:/StellarisWare/driverlib\interrupt.c **** //! corresponding handler, this should never be called.
+ 140:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 141:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 142:C:/StellarisWare/driverlib\interrupt.c **** //
+ 143:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 144:C:/StellarisWare/driverlib\interrupt.c **** static void
+ 145:C:/StellarisWare/driverlib\interrupt.c **** IntDefaultHandler(void)
+ 146:C:/StellarisWare/driverlib\interrupt.c **** {
+ 118              		.loc 1 146 0
+ 119              		.cfi_startproc
+ 120              		@ args = 0, pretend = 0, frame = 0
+ 121              		@ frame_needed = 1, uses_anonymous_args = 0
+ 122              		@ link register save eliminated.
+ 123 0000 80B4     		push	{r7}
+ 124              	.LCFI0:
+ 125              		.cfi_def_cfa_offset 4
+ 126              		.cfi_offset 7, -4
+ 127 0002 00AF     		add	r7, sp, #0
+ 128              	.LCFI1:
+ 129              		.cfi_def_cfa_register 7
+ 130              	.L2:
+ 147:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 148:C:/StellarisWare/driverlib\interrupt.c ****     // Go into an infinite loop.
+ 149:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 150:C:/StellarisWare/driverlib\interrupt.c ****     while(1)
+ 151:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 152:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 131              		.loc 1 152 0 discriminator 1
+ 132 0004 FEE7     		b	.L2
+ 133              		.cfi_endproc
+ 134              	.LFE0:
+ 136 0006 00BF     		.section	vtable,"aw",%progbits
+ 137              		.align	10
+ 140              	g_pfnRAMVectors:
+ 141 0000 00000000 		.space	620
+ 141      00000000 
+ 141      00000000 
+ 141      00000000 
+ 141      00000000 
+ 142 026c 00000000 		.section	.text.IntMasterEnable,"ax",%progbits
+ 142      00000000 
+ 142      00000000 
+ 142      00000000 
+ 142      00000000 
+ 143              		.align	2
+ 144              		.global	IntMasterEnable
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	IntMasterEnable:
+ 149              	.LFB1:
+ 153:C:/StellarisWare/driverlib\interrupt.c **** }
+ 154:C:/StellarisWare/driverlib\interrupt.c **** 
+ 155:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 156:C:/StellarisWare/driverlib\interrupt.c **** //
+ 157:C:/StellarisWare/driverlib\interrupt.c **** // The processor vector table.
+ 158:C:/StellarisWare/driverlib\interrupt.c **** //
+ 159:C:/StellarisWare/driverlib\interrupt.c **** // This contains a list of the handlers for the various interrupt sources in
+ 160:C:/StellarisWare/driverlib\interrupt.c **** // the system.  The layout of this list is defined by the hardware; assertion
+ 161:C:/StellarisWare/driverlib\interrupt.c **** // of an interrupt causes the processor to start executing directly at the
+ 162:C:/StellarisWare/driverlib\interrupt.c **** // address given in the corresponding location in this list.
+ 163:C:/StellarisWare/driverlib\interrupt.c **** //
+ 164:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 165:C:/StellarisWare/driverlib\interrupt.c **** #if defined(ewarm)
+ 166:C:/StellarisWare/driverlib\interrupt.c **** #pragma data_alignment=1024
+ 167:C:/StellarisWare/driverlib\interrupt.c **** static __no_init void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void) @ "VTABLE";
+ 168:C:/StellarisWare/driverlib\interrupt.c **** #elif defined(sourcerygxx)
+ 169:C:/StellarisWare/driverlib\interrupt.c **** static __attribute__((section(".cs3.region-head.ram")))
+ 170:C:/StellarisWare/driverlib\interrupt.c **** void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void) __attribute__ ((aligned(1024)));
+ 171:C:/StellarisWare/driverlib\interrupt.c **** #elif defined(ccs) || defined(DOXYGEN)
+ 172:C:/StellarisWare/driverlib\interrupt.c **** #pragma DATA_ALIGN(g_pfnRAMVectors, 1024)
+ 173:C:/StellarisWare/driverlib\interrupt.c **** #pragma DATA_SECTION(g_pfnRAMVectors, ".vtable")
+ 174:C:/StellarisWare/driverlib\interrupt.c **** void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void);
+ 175:C:/StellarisWare/driverlib\interrupt.c **** #else
+ 176:C:/StellarisWare/driverlib\interrupt.c **** static __attribute__((section("vtable")))
+ 177:C:/StellarisWare/driverlib\interrupt.c **** void (*g_pfnRAMVectors[NUM_INTERRUPTS])(void) __attribute__ ((aligned(1024)));
+ 178:C:/StellarisWare/driverlib\interrupt.c **** #endif
+ 179:C:/StellarisWare/driverlib\interrupt.c **** 
+ 180:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 181:C:/StellarisWare/driverlib\interrupt.c **** //
+ 182:C:/StellarisWare/driverlib\interrupt.c **** //! Enables the processor interrupt.
+ 183:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 184:C:/StellarisWare/driverlib\interrupt.c **** //! This function allows the processor to respond to interrupts.  This function
+ 185:C:/StellarisWare/driverlib\interrupt.c **** //! does not affect the set of interrupts enabled in the interrupt controller;
+ 186:C:/StellarisWare/driverlib\interrupt.c **** //! it just gates the single interrupt from the controller to the processor.
+ 187:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 188:C:/StellarisWare/driverlib\interrupt.c **** //! \note Previously, this function had no return value.  As such, it was
+ 189:C:/StellarisWare/driverlib\interrupt.c **** //! possible to include <tt>interrupt.h</tt> and call this function without
+ 190:C:/StellarisWare/driverlib\interrupt.c **** //! having included <tt>hw_types.h</tt>.  Now that the return is a
+ 191:C:/StellarisWare/driverlib\interrupt.c **** //! <tt>tBoolean</tt>, a compiler error occurs in this case.  The solution
+ 192:C:/StellarisWare/driverlib\interrupt.c **** //! is to include <tt>hw_types.h</tt> before including <tt>interrupt.h</tt>.
+ 193:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 194:C:/StellarisWare/driverlib\interrupt.c **** //! \return Returns \b true if interrupts were disabled when the function was
+ 195:C:/StellarisWare/driverlib\interrupt.c **** //! called or \b false if they were initially enabled.
+ 196:C:/StellarisWare/driverlib\interrupt.c **** //
+ 197:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 198:C:/StellarisWare/driverlib\interrupt.c **** tBoolean
+ 199:C:/StellarisWare/driverlib\interrupt.c **** IntMasterEnable(void)
+ 200:C:/StellarisWare/driverlib\interrupt.c **** {
+ 150              		.loc 1 200 0
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 0
+ 153              		@ frame_needed = 1, uses_anonymous_args = 0
+ 154 0000 80B5     		push	{r7, lr}
+ 155              	.LCFI2:
+ 156              		.cfi_def_cfa_offset 8
+ 157              		.cfi_offset 14, -4
+ 158              		.cfi_offset 7, -8
+ 159 0002 00AF     		add	r7, sp, #0
+ 160              	.LCFI3:
+ 161              		.cfi_def_cfa_register 7
+ 201:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 202:C:/StellarisWare/driverlib\interrupt.c ****     // Enable processor interrupts.
+ 203:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 204:C:/StellarisWare/driverlib\interrupt.c ****     return(CPUcpsie());
+ 162              		.loc 1 204 0
+ 163 0004 FFF7FEFF 		bl	CPUcpsie
+ 164 0008 0346     		mov	r3, r0
+ 165 000a DBB2     		uxtb	r3, r3
+ 205:C:/StellarisWare/driverlib\interrupt.c **** }
+ 166              		.loc 1 205 0
+ 167 000c 1846     		mov	r0, r3
+ 168 000e 80BD     		pop	{r7, pc}
+ 169              		.cfi_endproc
+ 170              	.LFE1:
+ 172              		.section	.text.IntMasterDisable,"ax",%progbits
+ 173              		.align	2
+ 174              		.global	IntMasterDisable
+ 175              		.thumb
+ 176              		.thumb_func
+ 178              	IntMasterDisable:
+ 179              	.LFB2:
+ 206:C:/StellarisWare/driverlib\interrupt.c **** 
+ 207:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 208:C:/StellarisWare/driverlib\interrupt.c **** //
+ 209:C:/StellarisWare/driverlib\interrupt.c **** //! Disables the processor interrupt.
+ 210:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 211:C:/StellarisWare/driverlib\interrupt.c **** //! This function prevents the processor from receiving interrupts.  This
+ 212:C:/StellarisWare/driverlib\interrupt.c **** //! function does not affect the set of interrupts enabled in the interrupt
+ 213:C:/StellarisWare/driverlib\interrupt.c **** //! controller; it just gates the single interrupt from the controller to the
+ 214:C:/StellarisWare/driverlib\interrupt.c **** //! processor.
+ 215:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 216:C:/StellarisWare/driverlib\interrupt.c **** //! \note Previously, this function had no return value.  As such, it was
+ 217:C:/StellarisWare/driverlib\interrupt.c **** //! possible to include <tt>interrupt.h</tt> and call this function without
+ 218:C:/StellarisWare/driverlib\interrupt.c **** //! having included <tt>hw_types.h</tt>.  Now that the return is a
+ 219:C:/StellarisWare/driverlib\interrupt.c **** //! <tt>tBoolean</tt>, a compiler error occurs in this case.  The solution
+ 220:C:/StellarisWare/driverlib\interrupt.c **** //! is to include <tt>hw_types.h</tt> before including <tt>interrupt.h</tt>.
+ 221:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 222:C:/StellarisWare/driverlib\interrupt.c **** //! \return Returns \b true if interrupts were already disabled when the
+ 223:C:/StellarisWare/driverlib\interrupt.c **** //! function was called or \b false if they were initially enabled.
+ 224:C:/StellarisWare/driverlib\interrupt.c **** //
+ 225:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 226:C:/StellarisWare/driverlib\interrupt.c **** tBoolean
+ 227:C:/StellarisWare/driverlib\interrupt.c **** IntMasterDisable(void)
+ 228:C:/StellarisWare/driverlib\interrupt.c **** {
+ 180              		.loc 1 228 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 1, uses_anonymous_args = 0
+ 184 0000 80B5     		push	{r7, lr}
+ 185              	.LCFI4:
+ 186              		.cfi_def_cfa_offset 8
+ 187              		.cfi_offset 14, -4
+ 188              		.cfi_offset 7, -8
+ 189 0002 00AF     		add	r7, sp, #0
+ 190              	.LCFI5:
+ 191              		.cfi_def_cfa_register 7
+ 229:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 230:C:/StellarisWare/driverlib\interrupt.c ****     // Disable processor interrupts.
+ 231:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 232:C:/StellarisWare/driverlib\interrupt.c ****     return(CPUcpsid());
+ 192              		.loc 1 232 0
+ 193 0004 FFF7FEFF 		bl	CPUcpsid
+ 194 0008 0346     		mov	r3, r0
+ 195 000a DBB2     		uxtb	r3, r3
+ 233:C:/StellarisWare/driverlib\interrupt.c **** }
+ 196              		.loc 1 233 0
+ 197 000c 1846     		mov	r0, r3
+ 198 000e 80BD     		pop	{r7, pc}
+ 199              		.cfi_endproc
+ 200              	.LFE2:
+ 202              		.section	.text.IntRegister,"ax",%progbits
+ 203              		.align	2
+ 204              		.global	IntRegister
+ 205              		.thumb
+ 206              		.thumb_func
+ 208              	IntRegister:
+ 209              	.LFB3:
+ 234:C:/StellarisWare/driverlib\interrupt.c **** 
+ 235:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 236:C:/StellarisWare/driverlib\interrupt.c **** //
+ 237:C:/StellarisWare/driverlib\interrupt.c **** //! Registers a function to be called when an interrupt occurs.
+ 238:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 239:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt in question.
+ 240:C:/StellarisWare/driverlib\interrupt.c **** //! \param pfnHandler is a pointer to the function to be called.
+ 241:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 242:C:/StellarisWare/driverlib\interrupt.c **** //! This function is used to specify the handler function to be called when the
+ 243:C:/StellarisWare/driverlib\interrupt.c **** //! given interrupt is asserted to the processor.  When the interrupt occurs,
+ 244:C:/StellarisWare/driverlib\interrupt.c **** //! if it is enabled (via IntEnable()), the handler function is called in
+ 245:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt context.  Because the handler function can preempt other code,
+ 246:C:/StellarisWare/driverlib\interrupt.c **** //! care must be taken to protect memory or peripherals that are accessed by
+ 247:C:/StellarisWare/driverlib\interrupt.c **** //! the handler and other non-handler code.
+ 248:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 249:C:/StellarisWare/driverlib\interrupt.c **** //! \note The use of this function (directly or indirectly via a peripheral
+ 250:C:/StellarisWare/driverlib\interrupt.c **** //! driver interrupt register function) moves the interrupt vector table from
+ 251:C:/StellarisWare/driverlib\interrupt.c **** //! flash to SRAM.  Therefore, care must be taken when linking the application
+ 252:C:/StellarisWare/driverlib\interrupt.c **** //! to ensure that the SRAM vector table is located at the beginning of SRAM;
+ 253:C:/StellarisWare/driverlib\interrupt.c **** //! otherwise the NVIC does not look in the correct portion of memory for the
+ 254:C:/StellarisWare/driverlib\interrupt.c **** //! vector table (it requires the vector table be on a 1 kB memory alignment).
+ 255:C:/StellarisWare/driverlib\interrupt.c **** //! Normally, the SRAM vector table is so placed via the use of linker scripts.
+ 256:C:/StellarisWare/driverlib\interrupt.c **** //! See the discussion of compile-time versus run-time interrupt handler
+ 257:C:/StellarisWare/driverlib\interrupt.c **** //! registration in the introduction to this chapter.
+ 258:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 259:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 260:C:/StellarisWare/driverlib\interrupt.c **** //
+ 261:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 262:C:/StellarisWare/driverlib\interrupt.c **** void
+ 263:C:/StellarisWare/driverlib\interrupt.c **** IntRegister(unsigned long ulInterrupt, void (*pfnHandler)(void))
+ 264:C:/StellarisWare/driverlib\interrupt.c **** {
+ 210              		.loc 1 264 0
+ 211              		.cfi_startproc
+ 212              		@ args = 0, pretend = 0, frame = 16
+ 213              		@ frame_needed = 1, uses_anonymous_args = 0
+ 214              		@ link register save eliminated.
+ 215 0000 80B4     		push	{r7}
+ 216              	.LCFI6:
+ 217              		.cfi_def_cfa_offset 4
+ 218              		.cfi_offset 7, -4
+ 219 0002 85B0     		sub	sp, sp, #20
+ 220              	.LCFI7:
+ 221              		.cfi_def_cfa_offset 24
+ 222 0004 00AF     		add	r7, sp, #0
+ 223              	.LCFI8:
+ 224              		.cfi_def_cfa_register 7
+ 225 0006 7860     		str	r0, [r7, #4]
+ 226 0008 3960     		str	r1, [r7, #0]
+ 265:C:/StellarisWare/driverlib\interrupt.c ****     unsigned long ulIdx, ulValue;
+ 266:C:/StellarisWare/driverlib\interrupt.c **** 
+ 267:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 268:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 269:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 270:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 271:C:/StellarisWare/driverlib\interrupt.c **** 
+ 272:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 273:C:/StellarisWare/driverlib\interrupt.c ****     // Make sure that the RAM vector table is correctly aligned.
+ 274:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 275:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(((unsigned long)g_pfnRAMVectors & 0x000003ff) == 0);
+ 276:C:/StellarisWare/driverlib\interrupt.c **** 
+ 277:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 278:C:/StellarisWare/driverlib\interrupt.c ****     // See if the RAM vector table has been initialized.
+ 279:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 280:C:/StellarisWare/driverlib\interrupt.c ****     if(HWREG(NVIC_VTABLE) != (unsigned long)g_pfnRAMVectors)
+ 227              		.loc 1 280 0
+ 228 000a 4EF60853 		movw	r3, #60680
+ 229 000e CEF20003 		movt	r3, 57344
+ 230 0012 1A68     		ldr	r2, [r3, #0]
+ 231 0014 40F20003 		movw	r3, #:lower16:g_pfnRAMVectors
+ 232 0018 C0F20003 		movt	r3, #:upper16:g_pfnRAMVectors
+ 233 001c 9A42     		cmp	r2, r3
+ 234 001e 27D0     		beq	.L6
+ 281:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 282:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 283:C:/StellarisWare/driverlib\interrupt.c ****         // Copy the vector table from the beginning of FLASH to the RAM vector
+ 284:C:/StellarisWare/driverlib\interrupt.c ****         // table.
+ 285:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 286:C:/StellarisWare/driverlib\interrupt.c ****         ulValue = HWREG(NVIC_VTABLE);
+ 235              		.loc 1 286 0
+ 236 0020 4EF60853 		movw	r3, #60680
+ 237 0024 CEF20003 		movt	r3, 57344
+ 238 0028 1B68     		ldr	r3, [r3, #0]
+ 239 002a BB60     		str	r3, [r7, #8]
+ 287:C:/StellarisWare/driverlib\interrupt.c ****         for(ulIdx = 0; ulIdx < NUM_INTERRUPTS; ulIdx++)
+ 240              		.loc 1 287 0
+ 241 002c 4FF00003 		mov	r3, #0
+ 242 0030 FB60     		str	r3, [r7, #12]
+ 243 0032 11E0     		b	.L7
+ 244              	.L8:
+ 288:C:/StellarisWare/driverlib\interrupt.c ****         {
+ 289:C:/StellarisWare/driverlib\interrupt.c ****             g_pfnRAMVectors[ulIdx] = (void (*)(void))HWREG((ulIdx * 4) +
+ 245              		.loc 1 289 0 discriminator 2
+ 246 0034 FB68     		ldr	r3, [r7, #12]
+ 247 0036 4FEA8302 		lsl	r2, r3, #2
+ 248 003a BB68     		ldr	r3, [r7, #8]
+ 249 003c D318     		adds	r3, r2, r3
+ 250 003e 1B68     		ldr	r3, [r3, #0]
+ 251 0040 1946     		mov	r1, r3
+ 252 0042 40F20003 		movw	r3, #:lower16:g_pfnRAMVectors
+ 253 0046 C0F20003 		movt	r3, #:upper16:g_pfnRAMVectors
+ 254 004a FA68     		ldr	r2, [r7, #12]
+ 255 004c 43F82210 		str	r1, [r3, r2, lsl #2]
+ 287:C:/StellarisWare/driverlib\interrupt.c ****         for(ulIdx = 0; ulIdx < NUM_INTERRUPTS; ulIdx++)
+ 256              		.loc 1 287 0 discriminator 2
+ 257 0050 FB68     		ldr	r3, [r7, #12]
+ 258 0052 03F10103 		add	r3, r3, #1
+ 259 0056 FB60     		str	r3, [r7, #12]
+ 260              	.L7:
+ 287:C:/StellarisWare/driverlib\interrupt.c ****         for(ulIdx = 0; ulIdx < NUM_INTERRUPTS; ulIdx++)
+ 261              		.loc 1 287 0 is_stmt 0 discriminator 1
+ 262 0058 FB68     		ldr	r3, [r7, #12]
+ 263 005a 9A2B     		cmp	r3, #154
+ 264 005c EAD9     		bls	.L8
+ 290:C:/StellarisWare/driverlib\interrupt.c ****                                                      ulValue);
+ 291:C:/StellarisWare/driverlib\interrupt.c ****         }
+ 292:C:/StellarisWare/driverlib\interrupt.c **** 
+ 293:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 294:C:/StellarisWare/driverlib\interrupt.c ****         // Point the NVIC at the RAM vector table.
+ 295:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 296:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_VTABLE) = (unsigned long)g_pfnRAMVectors;
+ 265              		.loc 1 296 0 is_stmt 1
+ 266 005e 4EF60853 		movw	r3, #60680
+ 267 0062 CEF20003 		movt	r3, 57344
+ 268 0066 40F20002 		movw	r2, #:lower16:g_pfnRAMVectors
+ 269 006a C0F20002 		movt	r2, #:upper16:g_pfnRAMVectors
+ 270 006e 1A60     		str	r2, [r3, #0]
+ 271              	.L6:
+ 297:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 298:C:/StellarisWare/driverlib\interrupt.c **** 
+ 299:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 300:C:/StellarisWare/driverlib\interrupt.c ****     // Save the interrupt handler.
+ 301:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 302:C:/StellarisWare/driverlib\interrupt.c ****     g_pfnRAMVectors[ulInterrupt] = pfnHandler;
+ 272              		.loc 1 302 0
+ 273 0070 40F20003 		movw	r3, #:lower16:g_pfnRAMVectors
+ 274 0074 C0F20003 		movt	r3, #:upper16:g_pfnRAMVectors
+ 275 0078 7A68     		ldr	r2, [r7, #4]
+ 276 007a 3968     		ldr	r1, [r7, #0]
+ 277 007c 43F82210 		str	r1, [r3, r2, lsl #2]
+ 303:C:/StellarisWare/driverlib\interrupt.c **** }
+ 278              		.loc 1 303 0
+ 279 0080 07F11407 		add	r7, r7, #20
+ 280 0084 BD46     		mov	sp, r7
+ 281 0086 80BC     		pop	{r7}
+ 282 0088 7047     		bx	lr
+ 283              		.cfi_endproc
+ 284              	.LFE3:
+ 286 008a 00BF     		.section	.text.IntUnregister,"ax",%progbits
+ 287              		.align	2
+ 288              		.global	IntUnregister
+ 289              		.thumb
+ 290              		.thumb_func
+ 292              	IntUnregister:
+ 293              	.LFB4:
+ 304:C:/StellarisWare/driverlib\interrupt.c **** 
+ 305:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 306:C:/StellarisWare/driverlib\interrupt.c **** //
+ 307:C:/StellarisWare/driverlib\interrupt.c **** //! Unregisters the function to be called when an interrupt occurs.
+ 308:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 309:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt in question.
+ 310:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 311:C:/StellarisWare/driverlib\interrupt.c **** //! This function is used to indicate that no handler should be called when the
+ 312:C:/StellarisWare/driverlib\interrupt.c **** //! given interrupt is asserted to the processor.  The interrupt source is
+ 313:C:/StellarisWare/driverlib\interrupt.c **** //! automatically disabled (via IntDisable()) if necessary.
+ 314:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 315:C:/StellarisWare/driverlib\interrupt.c **** //! \sa IntRegister() for important information about registering interrupt
+ 316:C:/StellarisWare/driverlib\interrupt.c **** //! handlers.
+ 317:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 318:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 319:C:/StellarisWare/driverlib\interrupt.c **** //
+ 320:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 321:C:/StellarisWare/driverlib\interrupt.c **** void
+ 322:C:/StellarisWare/driverlib\interrupt.c **** IntUnregister(unsigned long ulInterrupt)
+ 323:C:/StellarisWare/driverlib\interrupt.c **** {
+ 294              		.loc 1 323 0
+ 295              		.cfi_startproc
+ 296              		@ args = 0, pretend = 0, frame = 8
+ 297              		@ frame_needed = 1, uses_anonymous_args = 0
+ 298              		@ link register save eliminated.
+ 299 0000 80B4     		push	{r7}
+ 300              	.LCFI9:
+ 301              		.cfi_def_cfa_offset 4
+ 302              		.cfi_offset 7, -4
+ 303 0002 83B0     		sub	sp, sp, #12
+ 304              	.LCFI10:
+ 305              		.cfi_def_cfa_offset 16
+ 306 0004 00AF     		add	r7, sp, #0
+ 307              	.LCFI11:
+ 308              		.cfi_def_cfa_register 7
+ 309 0006 7860     		str	r0, [r7, #4]
+ 324:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 325:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 326:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 327:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 328:C:/StellarisWare/driverlib\interrupt.c **** 
+ 329:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 330:C:/StellarisWare/driverlib\interrupt.c ****     // Reset the interrupt handler.
+ 331:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 332:C:/StellarisWare/driverlib\interrupt.c ****     g_pfnRAMVectors[ulInterrupt] = IntDefaultHandler;
+ 310              		.loc 1 332 0
+ 311 0008 40F20003 		movw	r3, #:lower16:g_pfnRAMVectors
+ 312 000c C0F20003 		movt	r3, #:upper16:g_pfnRAMVectors
+ 313 0010 7968     		ldr	r1, [r7, #4]
+ 314 0012 40F20002 		movw	r2, #:lower16:IntDefaultHandler
+ 315 0016 C0F20002 		movt	r2, #:upper16:IntDefaultHandler
+ 316 001a 43F82120 		str	r2, [r3, r1, lsl #2]
+ 333:C:/StellarisWare/driverlib\interrupt.c **** }
+ 317              		.loc 1 333 0
+ 318 001e 07F10C07 		add	r7, r7, #12
+ 319 0022 BD46     		mov	sp, r7
+ 320 0024 80BC     		pop	{r7}
+ 321 0026 7047     		bx	lr
+ 322              		.cfi_endproc
+ 323              	.LFE4:
+ 325              		.section	.text.IntPriorityGroupingSet,"ax",%progbits
+ 326              		.align	2
+ 327              		.global	IntPriorityGroupingSet
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	IntPriorityGroupingSet:
+ 332              	.LFB5:
+ 334:C:/StellarisWare/driverlib\interrupt.c **** 
+ 335:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 336:C:/StellarisWare/driverlib\interrupt.c **** //
+ 337:C:/StellarisWare/driverlib\interrupt.c **** //! Sets the priority grouping of the interrupt controller.
+ 338:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 339:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulBits specifies the number of bits of preemptable priority.
+ 340:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 341:C:/StellarisWare/driverlib\interrupt.c **** //! This function specifies the split between preemptable priority levels and
+ 342:C:/StellarisWare/driverlib\interrupt.c **** //! subpriority levels in the interrupt priority specification.  The range of
+ 343:C:/StellarisWare/driverlib\interrupt.c **** //! the grouping values are dependent upon the hardware implementation; on
+ 344:C:/StellarisWare/driverlib\interrupt.c **** //! the Stellaris family, three bits are available for hardware interrupt
+ 345:C:/StellarisWare/driverlib\interrupt.c **** //! prioritization and therefore priority grouping values of three through
+ 346:C:/StellarisWare/driverlib\interrupt.c **** //! seven have the same effect.
+ 347:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 348:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 349:C:/StellarisWare/driverlib\interrupt.c **** //
+ 350:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 351:C:/StellarisWare/driverlib\interrupt.c **** void
+ 352:C:/StellarisWare/driverlib\interrupt.c **** IntPriorityGroupingSet(unsigned long ulBits)
+ 353:C:/StellarisWare/driverlib\interrupt.c **** {
+ 333              		.loc 1 353 0
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 8
+ 336              		@ frame_needed = 1, uses_anonymous_args = 0
+ 337              		@ link register save eliminated.
+ 338 0000 80B4     		push	{r7}
+ 339              	.LCFI12:
+ 340              		.cfi_def_cfa_offset 4
+ 341              		.cfi_offset 7, -4
+ 342 0002 83B0     		sub	sp, sp, #12
+ 343              	.LCFI13:
+ 344              		.cfi_def_cfa_offset 16
+ 345 0004 00AF     		add	r7, sp, #0
+ 346              	.LCFI14:
+ 347              		.cfi_def_cfa_register 7
+ 348 0006 7860     		str	r0, [r7, #4]
+ 354:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 355:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 356:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 357:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulBits < NUM_PRIORITY);
+ 358:C:/StellarisWare/driverlib\interrupt.c **** 
+ 359:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 360:C:/StellarisWare/driverlib\interrupt.c ****     // Set the priority grouping.
+ 361:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 362:C:/StellarisWare/driverlib\interrupt.c ****     HWREG(NVIC_APINT) = NVIC_APINT_VECTKEY | g_pulPriority[ulBits];
+ 349              		.loc 1 362 0
+ 350 0008 4EF60C53 		movw	r3, #60684
+ 351 000c CEF20003 		movt	r3, 57344
+ 352 0010 40F20002 		movw	r2, #:lower16:g_pulPriority
+ 353 0014 C0F20002 		movt	r2, #:upper16:g_pulPriority
+ 354 0018 7968     		ldr	r1, [r7, #4]
+ 355 001a 52F82120 		ldr	r2, [r2, r1, lsl #2]
+ 356 001e 42F0BE62 		orr	r2, r2, #99614720
+ 357 0022 42F42022 		orr	r2, r2, #655360
+ 358 0026 1A60     		str	r2, [r3, #0]
+ 363:C:/StellarisWare/driverlib\interrupt.c **** }
+ 359              		.loc 1 363 0
+ 360 0028 07F10C07 		add	r7, r7, #12
+ 361 002c BD46     		mov	sp, r7
+ 362 002e 80BC     		pop	{r7}
+ 363 0030 7047     		bx	lr
+ 364              		.cfi_endproc
+ 365              	.LFE5:
+ 367 0032 00BF     		.section	.text.IntPriorityGroupingGet,"ax",%progbits
+ 368              		.align	2
+ 369              		.global	IntPriorityGroupingGet
+ 370              		.thumb
+ 371              		.thumb_func
+ 373              	IntPriorityGroupingGet:
+ 374              	.LFB6:
+ 364:C:/StellarisWare/driverlib\interrupt.c **** 
+ 365:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 366:C:/StellarisWare/driverlib\interrupt.c **** //
+ 367:C:/StellarisWare/driverlib\interrupt.c **** //! Gets the priority grouping of the interrupt controller.
+ 368:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 369:C:/StellarisWare/driverlib\interrupt.c **** //! This function returns the split between preemptable priority levels and
+ 370:C:/StellarisWare/driverlib\interrupt.c **** //! subpriority levels in the interrupt priority specification.
+ 371:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 372:C:/StellarisWare/driverlib\interrupt.c **** //! \return The number of bits of preemptable priority.
+ 373:C:/StellarisWare/driverlib\interrupt.c **** //
+ 374:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 375:C:/StellarisWare/driverlib\interrupt.c **** unsigned long
+ 376:C:/StellarisWare/driverlib\interrupt.c **** IntPriorityGroupingGet(void)
+ 377:C:/StellarisWare/driverlib\interrupt.c **** {
+ 375              		.loc 1 377 0
+ 376              		.cfi_startproc
+ 377              		@ args = 0, pretend = 0, frame = 8
+ 378              		@ frame_needed = 1, uses_anonymous_args = 0
+ 379              		@ link register save eliminated.
+ 380 0000 80B4     		push	{r7}
+ 381              	.LCFI15:
+ 382              		.cfi_def_cfa_offset 4
+ 383              		.cfi_offset 7, -4
+ 384 0002 83B0     		sub	sp, sp, #12
+ 385              	.LCFI16:
+ 386              		.cfi_def_cfa_offset 16
+ 387 0004 00AF     		add	r7, sp, #0
+ 388              	.LCFI17:
+ 389              		.cfi_def_cfa_register 7
+ 378:C:/StellarisWare/driverlib\interrupt.c ****     unsigned long ulLoop, ulValue;
+ 379:C:/StellarisWare/driverlib\interrupt.c **** 
+ 380:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 381:C:/StellarisWare/driverlib\interrupt.c ****     // Read the priority grouping.
+ 382:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 383:C:/StellarisWare/driverlib\interrupt.c ****     ulValue = HWREG(NVIC_APINT) & NVIC_APINT_PRIGROUP_M;
+ 390              		.loc 1 383 0
+ 391 0006 4EF60C53 		movw	r3, #60684
+ 392 000a CEF20003 		movt	r3, 57344
+ 393 000e 1B68     		ldr	r3, [r3, #0]
+ 394 0010 03F4E063 		and	r3, r3, #1792
+ 395 0014 3B60     		str	r3, [r7, #0]
+ 384:C:/StellarisWare/driverlib\interrupt.c **** 
+ 385:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 386:C:/StellarisWare/driverlib\interrupt.c ****     // Loop through the priority grouping values.
+ 387:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 388:C:/StellarisWare/driverlib\interrupt.c ****     for(ulLoop = 0; ulLoop < NUM_PRIORITY; ulLoop++)
+ 396              		.loc 1 388 0
+ 397 0016 4FF00003 		mov	r3, #0
+ 398 001a 7B60     		str	r3, [r7, #4]
+ 399 001c 0DE0     		b	.L12
+ 400              	.L15:
+ 389:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 390:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 391:C:/StellarisWare/driverlib\interrupt.c ****         // Stop looping if this value matches.
+ 392:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 393:C:/StellarisWare/driverlib\interrupt.c ****         if(ulValue == g_pulPriority[ulLoop])
+ 401              		.loc 1 393 0
+ 402 001e 40F20003 		movw	r3, #:lower16:g_pulPriority
+ 403 0022 C0F20003 		movt	r3, #:upper16:g_pulPriority
+ 404 0026 7A68     		ldr	r2, [r7, #4]
+ 405 0028 53F82220 		ldr	r2, [r3, r2, lsl #2]
+ 406 002c 3B68     		ldr	r3, [r7, #0]
+ 407 002e 9A42     		cmp	r2, r3
+ 408 0030 07D0     		beq	.L16
+ 409              	.L13:
+ 388:C:/StellarisWare/driverlib\interrupt.c ****     for(ulLoop = 0; ulLoop < NUM_PRIORITY; ulLoop++)
+ 410              		.loc 1 388 0
+ 411 0032 7B68     		ldr	r3, [r7, #4]
+ 412 0034 03F10103 		add	r3, r3, #1
+ 413 0038 7B60     		str	r3, [r7, #4]
+ 414              	.L12:
+ 388:C:/StellarisWare/driverlib\interrupt.c ****     for(ulLoop = 0; ulLoop < NUM_PRIORITY; ulLoop++)
+ 415              		.loc 1 388 0 is_stmt 0 discriminator 1
+ 416 003a 7B68     		ldr	r3, [r7, #4]
+ 417 003c 072B     		cmp	r3, #7
+ 418 003e EED9     		bls	.L15
+ 419 0040 00E0     		b	.L14
+ 420              	.L16:
+ 394:C:/StellarisWare/driverlib\interrupt.c ****         {
+ 395:C:/StellarisWare/driverlib\interrupt.c ****             break;
+ 421              		.loc 1 395 0 is_stmt 1
+ 422 0042 00BF     		nop
+ 423              	.L14:
+ 396:C:/StellarisWare/driverlib\interrupt.c ****         }
+ 397:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 398:C:/StellarisWare/driverlib\interrupt.c **** 
+ 399:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 400:C:/StellarisWare/driverlib\interrupt.c ****     // Return the number of priority bits.
+ 401:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 402:C:/StellarisWare/driverlib\interrupt.c ****     return(ulLoop);
+ 424              		.loc 1 402 0
+ 425 0044 7B68     		ldr	r3, [r7, #4]
+ 403:C:/StellarisWare/driverlib\interrupt.c **** }
+ 426              		.loc 1 403 0
+ 427 0046 1846     		mov	r0, r3
+ 428 0048 07F10C07 		add	r7, r7, #12
+ 429 004c BD46     		mov	sp, r7
+ 430 004e 80BC     		pop	{r7}
+ 431 0050 7047     		bx	lr
+ 432              		.cfi_endproc
+ 433              	.LFE6:
+ 435 0052 00BF     		.section	.text.IntPrioritySet,"ax",%progbits
+ 436              		.align	2
+ 437              		.global	IntPrioritySet
+ 438              		.thumb
+ 439              		.thumb_func
+ 441              	IntPrioritySet:
+ 442              	.LFB7:
+ 404:C:/StellarisWare/driverlib\interrupt.c **** 
+ 405:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 406:C:/StellarisWare/driverlib\interrupt.c **** //
+ 407:C:/StellarisWare/driverlib\interrupt.c **** //! Sets the priority of an interrupt.
+ 408:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 409:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt in question.
+ 410:C:/StellarisWare/driverlib\interrupt.c **** //! \param ucPriority specifies the priority of the interrupt.
+ 411:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 412:C:/StellarisWare/driverlib\interrupt.c **** //! This function is used to set the priority of an interrupt.  When multiple
+ 413:C:/StellarisWare/driverlib\interrupt.c **** //! interrupts are asserted simultaneously, the ones with the highest priority
+ 414:C:/StellarisWare/driverlib\interrupt.c **** //! are processed before the lower priority interrupts.  Smaller numbers
+ 415:C:/StellarisWare/driverlib\interrupt.c **** //! correspond to higher interrupt priorities; priority 0 is the highest
+ 416:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt priority.
+ 417:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 418:C:/StellarisWare/driverlib\interrupt.c **** //! The hardware priority mechanism only looks at the upper N bits of the
+ 419:C:/StellarisWare/driverlib\interrupt.c **** //! priority level (where N is 3 for the Stellaris family), so any
+ 420:C:/StellarisWare/driverlib\interrupt.c **** //! prioritization must be performed in those bits.  The remaining bits can be
+ 421:C:/StellarisWare/driverlib\interrupt.c **** //! used to sub-prioritize the interrupt sources, and may be used by the
+ 422:C:/StellarisWare/driverlib\interrupt.c **** //! hardware priority mechanism on a future part.  This arrangement allows
+ 423:C:/StellarisWare/driverlib\interrupt.c **** //! priorities to migrate to different NVIC implementations without changing
+ 424:C:/StellarisWare/driverlib\interrupt.c **** //! the gross prioritization of the interrupts.
+ 425:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 426:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 427:C:/StellarisWare/driverlib\interrupt.c **** //
+ 428:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 429:C:/StellarisWare/driverlib\interrupt.c **** void
+ 430:C:/StellarisWare/driverlib\interrupt.c **** IntPrioritySet(unsigned long ulInterrupt, unsigned char ucPriority)
+ 431:C:/StellarisWare/driverlib\interrupt.c **** {
+ 443              		.loc 1 431 0
+ 444              		.cfi_startproc
+ 445              		@ args = 0, pretend = 0, frame = 16
+ 446              		@ frame_needed = 1, uses_anonymous_args = 0
+ 447              		@ link register save eliminated.
+ 448 0000 80B4     		push	{r7}
+ 449              	.LCFI18:
+ 450              		.cfi_def_cfa_offset 4
+ 451              		.cfi_offset 7, -4
+ 452 0002 85B0     		sub	sp, sp, #20
+ 453              	.LCFI19:
+ 454              		.cfi_def_cfa_offset 24
+ 455 0004 00AF     		add	r7, sp, #0
+ 456              	.LCFI20:
+ 457              		.cfi_def_cfa_register 7
+ 458 0006 7860     		str	r0, [r7, #4]
+ 459 0008 0B46     		mov	r3, r1
+ 460 000a FB70     		strb	r3, [r7, #3]
+ 432:C:/StellarisWare/driverlib\interrupt.c ****     unsigned long ulTemp;
+ 433:C:/StellarisWare/driverlib\interrupt.c **** 
+ 434:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 435:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 436:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 437:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT((ulInterrupt >= 4) && (ulInterrupt < NUM_INTERRUPTS));
+ 438:C:/StellarisWare/driverlib\interrupt.c **** 
+ 439:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 440:C:/StellarisWare/driverlib\interrupt.c ****     // Set the interrupt priority.
+ 441:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 442:C:/StellarisWare/driverlib\interrupt.c ****     ulTemp = HWREG(g_pulRegs[ulInterrupt >> 2]);
+ 461              		.loc 1 442 0
+ 462 000c 7B68     		ldr	r3, [r7, #4]
+ 463 000e 4FEA9302 		lsr	r2, r3, #2
+ 464 0012 40F20003 		movw	r3, #:lower16:g_pulRegs
+ 465 0016 C0F20003 		movt	r3, #:upper16:g_pulRegs
+ 466 001a 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 467 001e 1B68     		ldr	r3, [r3, #0]
+ 468 0020 FB60     		str	r3, [r7, #12]
+ 443:C:/StellarisWare/driverlib\interrupt.c ****     ulTemp &= ~(0xFF << (8 * (ulInterrupt & 3)));
+ 469              		.loc 1 443 0
+ 470 0022 7B68     		ldr	r3, [r7, #4]
+ 471 0024 03F00303 		and	r3, r3, #3
+ 472 0028 4FEAC303 		lsl	r3, r3, #3
+ 473 002c 4FF0FF02 		mov	r2, #255
+ 474 0030 02FA03F3 		lsl	r3, r2, r3
+ 475 0034 6FEA0303 		mvn	r3, r3
+ 476 0038 FA68     		ldr	r2, [r7, #12]
+ 477 003a 1340     		ands	r3, r3, r2
+ 478 003c FB60     		str	r3, [r7, #12]
+ 444:C:/StellarisWare/driverlib\interrupt.c ****     ulTemp |= ucPriority << (8 * (ulInterrupt & 3));
+ 479              		.loc 1 444 0
+ 480 003e FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 481 0040 7B68     		ldr	r3, [r7, #4]
+ 482 0042 03F00303 		and	r3, r3, #3
+ 483 0046 4FEAC303 		lsl	r3, r3, #3
+ 484 004a 02FA03F3 		lsl	r3, r2, r3
+ 485 004e FA68     		ldr	r2, [r7, #12]
+ 486 0050 1343     		orrs	r3, r3, r2
+ 487 0052 FB60     		str	r3, [r7, #12]
+ 445:C:/StellarisWare/driverlib\interrupt.c ****     HWREG(g_pulRegs[ulInterrupt >> 2]) = ulTemp;
+ 488              		.loc 1 445 0
+ 489 0054 7B68     		ldr	r3, [r7, #4]
+ 490 0056 4FEA9302 		lsr	r2, r3, #2
+ 491 005a 40F20003 		movw	r3, #:lower16:g_pulRegs
+ 492 005e C0F20003 		movt	r3, #:upper16:g_pulRegs
+ 493 0062 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 494 0066 FA68     		ldr	r2, [r7, #12]
+ 495 0068 1A60     		str	r2, [r3, #0]
+ 446:C:/StellarisWare/driverlib\interrupt.c **** }
+ 496              		.loc 1 446 0
+ 497 006a 07F11407 		add	r7, r7, #20
+ 498 006e BD46     		mov	sp, r7
+ 499 0070 80BC     		pop	{r7}
+ 500 0072 7047     		bx	lr
+ 501              		.cfi_endproc
+ 502              	.LFE7:
+ 504              		.section	.text.IntPriorityGet,"ax",%progbits
+ 505              		.align	2
+ 506              		.global	IntPriorityGet
+ 507              		.thumb
+ 508              		.thumb_func
+ 510              	IntPriorityGet:
+ 511              	.LFB8:
+ 447:C:/StellarisWare/driverlib\interrupt.c **** 
+ 448:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 449:C:/StellarisWare/driverlib\interrupt.c **** //
+ 450:C:/StellarisWare/driverlib\interrupt.c **** //! Gets the priority of an interrupt.
+ 451:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 452:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt in question.
+ 453:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 454:C:/StellarisWare/driverlib\interrupt.c **** //! This function gets the priority of an interrupt.  See IntPrioritySet() for
+ 455:C:/StellarisWare/driverlib\interrupt.c **** //! a definition of the priority value.
+ 456:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 457:C:/StellarisWare/driverlib\interrupt.c **** //! \return Returns the interrupt priority, or -1 if an invalid interrupt was
+ 458:C:/StellarisWare/driverlib\interrupt.c **** //! specified.
+ 459:C:/StellarisWare/driverlib\interrupt.c **** //
+ 460:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 461:C:/StellarisWare/driverlib\interrupt.c **** long
+ 462:C:/StellarisWare/driverlib\interrupt.c **** IntPriorityGet(unsigned long ulInterrupt)
+ 463:C:/StellarisWare/driverlib\interrupt.c **** {
+ 512              		.loc 1 463 0
+ 513              		.cfi_startproc
+ 514              		@ args = 0, pretend = 0, frame = 8
+ 515              		@ frame_needed = 1, uses_anonymous_args = 0
+ 516              		@ link register save eliminated.
+ 517 0000 80B4     		push	{r7}
+ 518              	.LCFI21:
+ 519              		.cfi_def_cfa_offset 4
+ 520              		.cfi_offset 7, -4
+ 521 0002 83B0     		sub	sp, sp, #12
+ 522              	.LCFI22:
+ 523              		.cfi_def_cfa_offset 16
+ 524 0004 00AF     		add	r7, sp, #0
+ 525              	.LCFI23:
+ 526              		.cfi_def_cfa_register 7
+ 527 0006 7860     		str	r0, [r7, #4]
+ 464:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 465:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 466:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 467:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT((ulInterrupt >= 4) && (ulInterrupt < NUM_INTERRUPTS));
+ 468:C:/StellarisWare/driverlib\interrupt.c **** 
+ 469:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 470:C:/StellarisWare/driverlib\interrupt.c ****     // Return the interrupt priority.
+ 471:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 472:C:/StellarisWare/driverlib\interrupt.c ****     return((HWREG(g_pulRegs[ulInterrupt >> 2]) >> (8 * (ulInterrupt & 3))) &
+ 528              		.loc 1 472 0
+ 529 0008 7B68     		ldr	r3, [r7, #4]
+ 530 000a 4FEA9302 		lsr	r2, r3, #2
+ 531 000e 40F20003 		movw	r3, #:lower16:g_pulRegs
+ 532 0012 C0F20003 		movt	r3, #:upper16:g_pulRegs
+ 533 0016 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 534 001a 1A68     		ldr	r2, [r3, #0]
+ 535 001c 7B68     		ldr	r3, [r7, #4]
+ 536 001e 03F00303 		and	r3, r3, #3
+ 537 0022 4FEAC303 		lsl	r3, r3, #3
+ 538 0026 22FA03F3 		lsr	r3, r2, r3
+ 539 002a DBB2     		uxtb	r3, r3
+ 473:C:/StellarisWare/driverlib\interrupt.c ****            0xFF);
+ 474:C:/StellarisWare/driverlib\interrupt.c **** }
+ 540              		.loc 1 474 0
+ 541 002c 1846     		mov	r0, r3
+ 542 002e 07F10C07 		add	r7, r7, #12
+ 543 0032 BD46     		mov	sp, r7
+ 544 0034 80BC     		pop	{r7}
+ 545 0036 7047     		bx	lr
+ 546              		.cfi_endproc
+ 547              	.LFE8:
+ 549              		.section	.text.IntEnable,"ax",%progbits
+ 550              		.align	2
+ 551              		.global	IntEnable
+ 552              		.thumb
+ 553              		.thumb_func
+ 555              	IntEnable:
+ 556              	.LFB9:
+ 475:C:/StellarisWare/driverlib\interrupt.c **** 
+ 476:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 477:C:/StellarisWare/driverlib\interrupt.c **** //
+ 478:C:/StellarisWare/driverlib\interrupt.c **** //! Enables an interrupt.
+ 479:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 480:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt to be enabled.
+ 481:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 482:C:/StellarisWare/driverlib\interrupt.c **** //! The specified interrupt is enabled in the interrupt controller.  Other
+ 483:C:/StellarisWare/driverlib\interrupt.c **** //! enables for the interrupt (such as at the peripheral level) are unaffected
+ 484:C:/StellarisWare/driverlib\interrupt.c **** //! by this function.
+ 485:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 486:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 487:C:/StellarisWare/driverlib\interrupt.c **** //
+ 488:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 489:C:/StellarisWare/driverlib\interrupt.c **** void
+ 490:C:/StellarisWare/driverlib\interrupt.c **** IntEnable(unsigned long ulInterrupt)
+ 491:C:/StellarisWare/driverlib\interrupt.c **** {
+ 557              		.loc 1 491 0
+ 558              		.cfi_startproc
+ 559              		@ args = 0, pretend = 0, frame = 8
+ 560              		@ frame_needed = 1, uses_anonymous_args = 0
+ 561              		@ link register save eliminated.
+ 562 0000 80B4     		push	{r7}
+ 563              	.LCFI24:
+ 564              		.cfi_def_cfa_offset 4
+ 565              		.cfi_offset 7, -4
+ 566 0002 83B0     		sub	sp, sp, #12
+ 567              	.LCFI25:
+ 568              		.cfi_def_cfa_offset 16
+ 569 0004 00AF     		add	r7, sp, #0
+ 570              	.LCFI26:
+ 571              		.cfi_def_cfa_register 7
+ 572 0006 7860     		str	r0, [r7, #4]
+ 492:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 493:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 494:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 495:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 496:C:/StellarisWare/driverlib\interrupt.c **** 
+ 497:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 498:C:/StellarisWare/driverlib\interrupt.c ****     // Determine the interrupt to enable.
+ 499:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 500:C:/StellarisWare/driverlib\interrupt.c ****     if(ulInterrupt == FAULT_MPU)
+ 573              		.loc 1 500 0
+ 574 0008 7B68     		ldr	r3, [r7, #4]
+ 575 000a 042B     		cmp	r3, #4
+ 576 000c 0CD1     		bne	.L20
+ 501:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 502:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 503:C:/StellarisWare/driverlib\interrupt.c ****         // Enable the MemManage interrupt.
+ 504:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 505:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) |= NVIC_SYS_HND_CTRL_MEM;
+ 577              		.loc 1 505 0
+ 578 000e 4EF62453 		movw	r3, #60708
+ 579 0012 CEF20003 		movt	r3, 57344
+ 580 0016 4EF62452 		movw	r2, #60708
+ 581 001a CEF20002 		movt	r2, 57344
+ 582 001e 1268     		ldr	r2, [r2, #0]
+ 583 0020 42F48032 		orr	r2, r2, #65536
+ 584 0024 1A60     		str	r2, [r3, #0]
+ 585 0026 47E0     		b	.L19
+ 586              	.L20:
+ 506:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 507:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_BUS)
+ 587              		.loc 1 507 0
+ 588 0028 7B68     		ldr	r3, [r7, #4]
+ 589 002a 052B     		cmp	r3, #5
+ 590 002c 0CD1     		bne	.L22
+ 508:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 509:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 510:C:/StellarisWare/driverlib\interrupt.c ****         // Enable the bus fault interrupt.
+ 511:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 512:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) |= NVIC_SYS_HND_CTRL_BUS;
+ 591              		.loc 1 512 0
+ 592 002e 4EF62453 		movw	r3, #60708
+ 593 0032 CEF20003 		movt	r3, 57344
+ 594 0036 4EF62452 		movw	r2, #60708
+ 595 003a CEF20002 		movt	r2, 57344
+ 596 003e 1268     		ldr	r2, [r2, #0]
+ 597 0040 42F40032 		orr	r2, r2, #131072
+ 598 0044 1A60     		str	r2, [r3, #0]
+ 599 0046 37E0     		b	.L19
+ 600              	.L22:
+ 513:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 514:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_USAGE)
+ 601              		.loc 1 514 0
+ 602 0048 7B68     		ldr	r3, [r7, #4]
+ 603 004a 062B     		cmp	r3, #6
+ 604 004c 0CD1     		bne	.L23
+ 515:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 516:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 517:C:/StellarisWare/driverlib\interrupt.c ****         // Enable the usage fault interrupt.
+ 518:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 519:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) |= NVIC_SYS_HND_CTRL_USAGE;
+ 605              		.loc 1 519 0
+ 606 004e 4EF62453 		movw	r3, #60708
+ 607 0052 CEF20003 		movt	r3, 57344
+ 608 0056 4EF62452 		movw	r2, #60708
+ 609 005a CEF20002 		movt	r2, 57344
+ 610 005e 1268     		ldr	r2, [r2, #0]
+ 611 0060 42F48022 		orr	r2, r2, #262144
+ 612 0064 1A60     		str	r2, [r3, #0]
+ 613 0066 27E0     		b	.L19
+ 614              	.L23:
+ 520:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 521:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_SYSTICK)
+ 615              		.loc 1 521 0
+ 616 0068 7B68     		ldr	r3, [r7, #4]
+ 617 006a 0F2B     		cmp	r3, #15
+ 618 006c 0CD1     		bne	.L24
+ 522:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 523:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 524:C:/StellarisWare/driverlib\interrupt.c ****         // Enable the System Tick interrupt.
+ 525:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 526:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_INTEN;
+ 619              		.loc 1 526 0
+ 620 006e 4EF21003 		movw	r3, #57360
+ 621 0072 CEF20003 		movt	r3, 57344
+ 622 0076 4EF21002 		movw	r2, #57360
+ 623 007a CEF20002 		movt	r2, 57344
+ 624 007e 1268     		ldr	r2, [r2, #0]
+ 625 0080 42F00202 		orr	r2, r2, #2
+ 626 0084 1A60     		str	r2, [r3, #0]
+ 627 0086 17E0     		b	.L19
+ 628              	.L24:
+ 527:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 528:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt >= 16)
+ 629              		.loc 1 528 0
+ 630 0088 7B68     		ldr	r3, [r7, #4]
+ 631 008a 0F2B     		cmp	r3, #15
+ 632 008c 14D9     		bls	.L19
+ 529:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 530:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 531:C:/StellarisWare/driverlib\interrupt.c ****         // Enable the general interrupt.
+ 532:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 533:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulEnRegs[(ulInterrupt - 16) / 32]) =
+ 633              		.loc 1 533 0
+ 634 008e 7B68     		ldr	r3, [r7, #4]
+ 635 0090 A3F11003 		sub	r3, r3, #16
+ 636 0094 4FEA5312 		lsr	r2, r3, #5
+ 637 0098 40F20003 		movw	r3, #:lower16:g_pulEnRegs
+ 638 009c C0F20003 		movt	r3, #:upper16:g_pulEnRegs
+ 639 00a0 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 534:C:/StellarisWare/driverlib\interrupt.c ****             1 << ((ulInterrupt - 16) & 31);
+ 640              		.loc 1 534 0
+ 641 00a4 7A68     		ldr	r2, [r7, #4]
+ 642 00a6 A2F11002 		sub	r2, r2, #16
+ 643 00aa 02F01F02 		and	r2, r2, #31
+ 644 00ae 4FF00101 		mov	r1, #1
+ 645 00b2 01FA02F2 		lsl	r2, r1, r2
+ 533:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulEnRegs[(ulInterrupt - 16) / 32]) =
+ 646              		.loc 1 533 0
+ 647 00b6 1A60     		str	r2, [r3, #0]
+ 648              	.L19:
+ 535:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 536:C:/StellarisWare/driverlib\interrupt.c **** }
+ 649              		.loc 1 536 0
+ 650 00b8 07F10C07 		add	r7, r7, #12
+ 651 00bc BD46     		mov	sp, r7
+ 652 00be 80BC     		pop	{r7}
+ 653 00c0 7047     		bx	lr
+ 654              		.cfi_endproc
+ 655              	.LFE9:
+ 657 00c2 00BF     		.section	.text.IntDisable,"ax",%progbits
+ 658              		.align	2
+ 659              		.global	IntDisable
+ 660              		.thumb
+ 661              		.thumb_func
+ 663              	IntDisable:
+ 664              	.LFB10:
+ 537:C:/StellarisWare/driverlib\interrupt.c **** 
+ 538:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 539:C:/StellarisWare/driverlib\interrupt.c **** //
+ 540:C:/StellarisWare/driverlib\interrupt.c **** //! Disables an interrupt.
+ 541:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 542:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt to be disabled.
+ 543:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 544:C:/StellarisWare/driverlib\interrupt.c **** //! The specified interrupt is disabled in the interrupt controller.  Other
+ 545:C:/StellarisWare/driverlib\interrupt.c **** //! enables for the interrupt (such as at the peripheral level) are unaffected
+ 546:C:/StellarisWare/driverlib\interrupt.c **** //! by this function.
+ 547:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 548:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 549:C:/StellarisWare/driverlib\interrupt.c **** //
+ 550:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 551:C:/StellarisWare/driverlib\interrupt.c **** void
+ 552:C:/StellarisWare/driverlib\interrupt.c **** IntDisable(unsigned long ulInterrupt)
+ 553:C:/StellarisWare/driverlib\interrupt.c **** {
+ 665              		.loc 1 553 0
+ 666              		.cfi_startproc
+ 667              		@ args = 0, pretend = 0, frame = 8
+ 668              		@ frame_needed = 1, uses_anonymous_args = 0
+ 669              		@ link register save eliminated.
+ 670 0000 80B4     		push	{r7}
+ 671              	.LCFI27:
+ 672              		.cfi_def_cfa_offset 4
+ 673              		.cfi_offset 7, -4
+ 674 0002 83B0     		sub	sp, sp, #12
+ 675              	.LCFI28:
+ 676              		.cfi_def_cfa_offset 16
+ 677 0004 00AF     		add	r7, sp, #0
+ 678              	.LCFI29:
+ 679              		.cfi_def_cfa_register 7
+ 680 0006 7860     		str	r0, [r7, #4]
+ 554:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 555:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 556:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 557:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 558:C:/StellarisWare/driverlib\interrupt.c **** 
+ 559:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 560:C:/StellarisWare/driverlib\interrupt.c ****     // Determine the interrupt to disable.
+ 561:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 562:C:/StellarisWare/driverlib\interrupt.c ****     if(ulInterrupt == FAULT_MPU)
+ 681              		.loc 1 562 0
+ 682 0008 7B68     		ldr	r3, [r7, #4]
+ 683 000a 042B     		cmp	r3, #4
+ 684 000c 0CD1     		bne	.L26
+ 563:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 564:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 565:C:/StellarisWare/driverlib\interrupt.c ****         // Disable the MemManage interrupt.
+ 566:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 567:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) &= ~(NVIC_SYS_HND_CTRL_MEM);
+ 685              		.loc 1 567 0
+ 686 000e 4EF62453 		movw	r3, #60708
+ 687 0012 CEF20003 		movt	r3, 57344
+ 688 0016 4EF62452 		movw	r2, #60708
+ 689 001a CEF20002 		movt	r2, 57344
+ 690 001e 1268     		ldr	r2, [r2, #0]
+ 691 0020 22F48032 		bic	r2, r2, #65536
+ 692 0024 1A60     		str	r2, [r3, #0]
+ 693 0026 47E0     		b	.L25
+ 694              	.L26:
+ 568:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 569:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_BUS)
+ 695              		.loc 1 569 0
+ 696 0028 7B68     		ldr	r3, [r7, #4]
+ 697 002a 052B     		cmp	r3, #5
+ 698 002c 0CD1     		bne	.L28
+ 570:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 571:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 572:C:/StellarisWare/driverlib\interrupt.c ****         // Disable the bus fault interrupt.
+ 573:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 574:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) &= ~(NVIC_SYS_HND_CTRL_BUS);
+ 699              		.loc 1 574 0
+ 700 002e 4EF62453 		movw	r3, #60708
+ 701 0032 CEF20003 		movt	r3, 57344
+ 702 0036 4EF62452 		movw	r2, #60708
+ 703 003a CEF20002 		movt	r2, 57344
+ 704 003e 1268     		ldr	r2, [r2, #0]
+ 705 0040 22F40032 		bic	r2, r2, #131072
+ 706 0044 1A60     		str	r2, [r3, #0]
+ 707 0046 37E0     		b	.L25
+ 708              	.L28:
+ 575:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 576:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_USAGE)
+ 709              		.loc 1 576 0
+ 710 0048 7B68     		ldr	r3, [r7, #4]
+ 711 004a 062B     		cmp	r3, #6
+ 712 004c 0CD1     		bne	.L29
+ 577:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 578:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 579:C:/StellarisWare/driverlib\interrupt.c ****         // Disable the usage fault interrupt.
+ 580:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 581:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_SYS_HND_CTRL) &= ~(NVIC_SYS_HND_CTRL_USAGE);
+ 713              		.loc 1 581 0
+ 714 004e 4EF62453 		movw	r3, #60708
+ 715 0052 CEF20003 		movt	r3, 57344
+ 716 0056 4EF62452 		movw	r2, #60708
+ 717 005a CEF20002 		movt	r2, 57344
+ 718 005e 1268     		ldr	r2, [r2, #0]
+ 719 0060 22F48022 		bic	r2, r2, #262144
+ 720 0064 1A60     		str	r2, [r3, #0]
+ 721 0066 27E0     		b	.L25
+ 722              	.L29:
+ 582:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 583:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_SYSTICK)
+ 723              		.loc 1 583 0
+ 724 0068 7B68     		ldr	r3, [r7, #4]
+ 725 006a 0F2B     		cmp	r3, #15
+ 726 006c 0CD1     		bne	.L30
+ 584:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 585:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 586:C:/StellarisWare/driverlib\interrupt.c ****         // Disable the System Tick interrupt.
+ 587:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 588:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_INTEN);
+ 727              		.loc 1 588 0
+ 728 006e 4EF21003 		movw	r3, #57360
+ 729 0072 CEF20003 		movt	r3, 57344
+ 730 0076 4EF21002 		movw	r2, #57360
+ 731 007a CEF20002 		movt	r2, 57344
+ 732 007e 1268     		ldr	r2, [r2, #0]
+ 733 0080 22F00202 		bic	r2, r2, #2
+ 734 0084 1A60     		str	r2, [r3, #0]
+ 735 0086 17E0     		b	.L25
+ 736              	.L30:
+ 589:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 590:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt >= 16)
+ 737              		.loc 1 590 0
+ 738 0088 7B68     		ldr	r3, [r7, #4]
+ 739 008a 0F2B     		cmp	r3, #15
+ 740 008c 14D9     		bls	.L25
+ 591:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 592:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 593:C:/StellarisWare/driverlib\interrupt.c ****         // Disable the general interrupt.
+ 594:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 595:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulDisRegs[(ulInterrupt - 16) / 32]) =
+ 741              		.loc 1 595 0
+ 742 008e 7B68     		ldr	r3, [r7, #4]
+ 743 0090 A3F11003 		sub	r3, r3, #16
+ 744 0094 4FEA5312 		lsr	r2, r3, #5
+ 745 0098 40F20003 		movw	r3, #:lower16:g_pulDisRegs
+ 746 009c C0F20003 		movt	r3, #:upper16:g_pulDisRegs
+ 747 00a0 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 596:C:/StellarisWare/driverlib\interrupt.c ****             1 << ((ulInterrupt - 16) & 31);
+ 748              		.loc 1 596 0
+ 749 00a4 7A68     		ldr	r2, [r7, #4]
+ 750 00a6 A2F11002 		sub	r2, r2, #16
+ 751 00aa 02F01F02 		and	r2, r2, #31
+ 752 00ae 4FF00101 		mov	r1, #1
+ 753 00b2 01FA02F2 		lsl	r2, r1, r2
+ 595:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulDisRegs[(ulInterrupt - 16) / 32]) =
+ 754              		.loc 1 595 0
+ 755 00b6 1A60     		str	r2, [r3, #0]
+ 756              	.L25:
+ 597:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 598:C:/StellarisWare/driverlib\interrupt.c **** }
+ 757              		.loc 1 598 0
+ 758 00b8 07F10C07 		add	r7, r7, #12
+ 759 00bc BD46     		mov	sp, r7
+ 760 00be 80BC     		pop	{r7}
+ 761 00c0 7047     		bx	lr
+ 762              		.cfi_endproc
+ 763              	.LFE10:
+ 765 00c2 00BF     		.section	.text.IntIsEnabled,"ax",%progbits
+ 766              		.align	2
+ 767              		.global	IntIsEnabled
+ 768              		.thumb
+ 769              		.thumb_func
+ 771              	IntIsEnabled:
+ 772              	.LFB11:
+ 599:C:/StellarisWare/driverlib\interrupt.c **** 
+ 600:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 601:C:/StellarisWare/driverlib\interrupt.c **** //
+ 602:C:/StellarisWare/driverlib\interrupt.c **** //! Returns if a peripheral interrupt is enabled.
+ 603:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 604:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt to check.
+ 605:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 606:C:/StellarisWare/driverlib\interrupt.c **** //! This function checks if the specified interrupt is enabled in the interrupt
+ 607:C:/StellarisWare/driverlib\interrupt.c **** //! controller.
+ 608:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 609:C:/StellarisWare/driverlib\interrupt.c **** //! \return A non-zero value if the interrupt is enabled.
+ 610:C:/StellarisWare/driverlib\interrupt.c **** //
+ 611:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 612:C:/StellarisWare/driverlib\interrupt.c **** unsigned long
+ 613:C:/StellarisWare/driverlib\interrupt.c **** IntIsEnabled(unsigned long ulInterrupt)
+ 614:C:/StellarisWare/driverlib\interrupt.c **** {
+ 773              		.loc 1 614 0
+ 774              		.cfi_startproc
+ 775              		@ args = 0, pretend = 0, frame = 16
+ 776              		@ frame_needed = 1, uses_anonymous_args = 0
+ 777              		@ link register save eliminated.
+ 778 0000 80B4     		push	{r7}
+ 779              	.LCFI30:
+ 780              		.cfi_def_cfa_offset 4
+ 781              		.cfi_offset 7, -4
+ 782 0002 85B0     		sub	sp, sp, #20
+ 783              	.LCFI31:
+ 784              		.cfi_def_cfa_offset 24
+ 785 0004 00AF     		add	r7, sp, #0
+ 786              	.LCFI32:
+ 787              		.cfi_def_cfa_register 7
+ 788 0006 7860     		str	r0, [r7, #4]
+ 615:C:/StellarisWare/driverlib\interrupt.c ****     unsigned long ulRet;
+ 616:C:/StellarisWare/driverlib\interrupt.c **** 
+ 617:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 618:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 619:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 620:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 621:C:/StellarisWare/driverlib\interrupt.c **** 
+ 622:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 623:C:/StellarisWare/driverlib\interrupt.c ****     // Initialize the return value.
+ 624:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 625:C:/StellarisWare/driverlib\interrupt.c ****     ulRet = 0;
+ 789              		.loc 1 625 0
+ 790 0008 4FF00003 		mov	r3, #0
+ 791 000c FB60     		str	r3, [r7, #12]
+ 626:C:/StellarisWare/driverlib\interrupt.c **** 
+ 627:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 628:C:/StellarisWare/driverlib\interrupt.c ****     // Determine the interrupt to disable.
+ 629:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 630:C:/StellarisWare/driverlib\interrupt.c ****     if(ulInterrupt == FAULT_MPU)
+ 792              		.loc 1 630 0
+ 793 000e 7B68     		ldr	r3, [r7, #4]
+ 794 0010 042B     		cmp	r3, #4
+ 795 0012 08D1     		bne	.L32
+ 631:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 632:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 633:C:/StellarisWare/driverlib\interrupt.c ****         // Check the MemManage interrupt.
+ 634:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 635:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(NVIC_SYS_HND_CTRL) & NVIC_SYS_HND_CTRL_MEM;
+ 796              		.loc 1 635 0
+ 797 0014 4EF62453 		movw	r3, #60708
+ 798 0018 CEF20003 		movt	r3, 57344
+ 799 001c 1B68     		ldr	r3, [r3, #0]
+ 800 001e 03F48033 		and	r3, r3, #65536
+ 801 0022 FB60     		str	r3, [r7, #12]
+ 802 0024 3DE0     		b	.L33
+ 803              	.L32:
+ 636:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 637:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_BUS)
+ 804              		.loc 1 637 0
+ 805 0026 7B68     		ldr	r3, [r7, #4]
+ 806 0028 052B     		cmp	r3, #5
+ 807 002a 08D1     		bne	.L34
+ 638:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 639:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 640:C:/StellarisWare/driverlib\interrupt.c ****         // Check the bus fault interrupt.
+ 641:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 642:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(NVIC_SYS_HND_CTRL) & NVIC_SYS_HND_CTRL_BUS;
+ 808              		.loc 1 642 0
+ 809 002c 4EF62453 		movw	r3, #60708
+ 810 0030 CEF20003 		movt	r3, 57344
+ 811 0034 1B68     		ldr	r3, [r3, #0]
+ 812 0036 03F40033 		and	r3, r3, #131072
+ 813 003a FB60     		str	r3, [r7, #12]
+ 814 003c 31E0     		b	.L33
+ 815              	.L34:
+ 643:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 644:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_USAGE)
+ 816              		.loc 1 644 0
+ 817 003e 7B68     		ldr	r3, [r7, #4]
+ 818 0040 062B     		cmp	r3, #6
+ 819 0042 08D1     		bne	.L35
+ 645:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 646:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 647:C:/StellarisWare/driverlib\interrupt.c ****         // Check the usage fault interrupt.
+ 648:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 649:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(NVIC_SYS_HND_CTRL) & NVIC_SYS_HND_CTRL_USAGE;
+ 820              		.loc 1 649 0
+ 821 0044 4EF62453 		movw	r3, #60708
+ 822 0048 CEF20003 		movt	r3, 57344
+ 823 004c 1B68     		ldr	r3, [r3, #0]
+ 824 004e 03F48023 		and	r3, r3, #262144
+ 825 0052 FB60     		str	r3, [r7, #12]
+ 826 0054 25E0     		b	.L33
+ 827              	.L35:
+ 650:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 651:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_SYSTICK)
+ 828              		.loc 1 651 0
+ 829 0056 7B68     		ldr	r3, [r7, #4]
+ 830 0058 0F2B     		cmp	r3, #15
+ 831 005a 08D1     		bne	.L36
+ 652:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 653:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 654:C:/StellarisWare/driverlib\interrupt.c ****         // Check the System Tick interrupt.
+ 655:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 656:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(NVIC_ST_CTRL) & NVIC_ST_CTRL_INTEN;
+ 832              		.loc 1 656 0
+ 833 005c 4EF21003 		movw	r3, #57360
+ 834 0060 CEF20003 		movt	r3, 57344
+ 835 0064 1B68     		ldr	r3, [r3, #0]
+ 836 0066 03F00203 		and	r3, r3, #2
+ 837 006a FB60     		str	r3, [r7, #12]
+ 838 006c 19E0     		b	.L33
+ 839              	.L36:
+ 657:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 658:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt >= 16)
+ 840              		.loc 1 658 0
+ 841 006e 7B68     		ldr	r3, [r7, #4]
+ 842 0070 0F2B     		cmp	r3, #15
+ 843 0072 16D9     		bls	.L33
+ 659:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 660:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 661:C:/StellarisWare/driverlib\interrupt.c ****         // Check the general interrupt.
+ 662:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 663:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(g_pulEnRegs[(ulInterrupt - 16) / 32]) &
+ 844              		.loc 1 663 0
+ 845 0074 7B68     		ldr	r3, [r7, #4]
+ 846 0076 A3F11003 		sub	r3, r3, #16
+ 847 007a 4FEA5312 		lsr	r2, r3, #5
+ 848 007e 40F20003 		movw	r3, #:lower16:g_pulEnRegs
+ 849 0082 C0F20003 		movt	r3, #:upper16:g_pulEnRegs
+ 850 0086 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 851 008a 1A68     		ldr	r2, [r3, #0]
+ 664:C:/StellarisWare/driverlib\interrupt.c ****                 (1 << ((ulInterrupt - 16) & 31));
+ 852              		.loc 1 664 0
+ 853 008c 7B68     		ldr	r3, [r7, #4]
+ 854 008e A3F11003 		sub	r3, r3, #16
+ 855 0092 03F01F03 		and	r3, r3, #31
+ 856 0096 4FF00101 		mov	r1, #1
+ 857 009a 01FA03F3 		lsl	r3, r1, r3
+ 663:C:/StellarisWare/driverlib\interrupt.c ****         ulRet = HWREG(g_pulEnRegs[(ulInterrupt - 16) / 32]) &
+ 858              		.loc 1 663 0
+ 859 009e 1340     		ands	r3, r3, r2
+ 860 00a0 FB60     		str	r3, [r7, #12]
+ 861              	.L33:
+ 665:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 666:C:/StellarisWare/driverlib\interrupt.c ****     return(ulRet);
+ 862              		.loc 1 666 0
+ 863 00a2 FB68     		ldr	r3, [r7, #12]
+ 667:C:/StellarisWare/driverlib\interrupt.c **** }
+ 864              		.loc 1 667 0
+ 865 00a4 1846     		mov	r0, r3
+ 866 00a6 07F11407 		add	r7, r7, #20
+ 867 00aa BD46     		mov	sp, r7
+ 868 00ac 80BC     		pop	{r7}
+ 869 00ae 7047     		bx	lr
+ 870              		.cfi_endproc
+ 871              	.LFE11:
+ 873              		.section	.text.IntPendSet,"ax",%progbits
+ 874              		.align	2
+ 875              		.global	IntPendSet
+ 876              		.thumb
+ 877              		.thumb_func
+ 879              	IntPendSet:
+ 880              	.LFB12:
+ 668:C:/StellarisWare/driverlib\interrupt.c **** 
+ 669:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 670:C:/StellarisWare/driverlib\interrupt.c **** //
+ 671:C:/StellarisWare/driverlib\interrupt.c **** //! Pends an interrupt.
+ 672:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 673:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt to be pended.
+ 674:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 675:C:/StellarisWare/driverlib\interrupt.c **** //! The specified interrupt is pended in the interrupt controller.  Pending an
+ 676:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt causes the interrupt controller to execute the corresponding
+ 677:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt handler at the next available time, based on the current
+ 678:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt state priorities. For example, if called by a higher priority
+ 679:C:/StellarisWare/driverlib\interrupt.c **** //! interrupt handler, the specified interrupt handler is not called until
+ 680:C:/StellarisWare/driverlib\interrupt.c **** //! after the current interrupt handler has completed execution.  The interrupt
+ 681:C:/StellarisWare/driverlib\interrupt.c **** //! must have been enabled for it to be called.
+ 682:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 683:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 684:C:/StellarisWare/driverlib\interrupt.c **** //
+ 685:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 686:C:/StellarisWare/driverlib\interrupt.c **** void
+ 687:C:/StellarisWare/driverlib\interrupt.c **** IntPendSet(unsigned long ulInterrupt)
+ 688:C:/StellarisWare/driverlib\interrupt.c **** {
+ 881              		.loc 1 688 0
+ 882              		.cfi_startproc
+ 883              		@ args = 0, pretend = 0, frame = 8
+ 884              		@ frame_needed = 1, uses_anonymous_args = 0
+ 885              		@ link register save eliminated.
+ 886 0000 80B4     		push	{r7}
+ 887              	.LCFI33:
+ 888              		.cfi_def_cfa_offset 4
+ 889              		.cfi_offset 7, -4
+ 890 0002 83B0     		sub	sp, sp, #12
+ 891              	.LCFI34:
+ 892              		.cfi_def_cfa_offset 16
+ 893 0004 00AF     		add	r7, sp, #0
+ 894              	.LCFI35:
+ 895              		.cfi_def_cfa_register 7
+ 896 0006 7860     		str	r0, [r7, #4]
+ 689:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 690:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 691:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 692:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 693:C:/StellarisWare/driverlib\interrupt.c **** 
+ 694:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 695:C:/StellarisWare/driverlib\interrupt.c ****     // Determine the interrupt to pend.
+ 696:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 697:C:/StellarisWare/driverlib\interrupt.c ****     if(ulInterrupt == FAULT_NMI)
+ 897              		.loc 1 697 0
+ 898 0008 7B68     		ldr	r3, [r7, #4]
+ 899 000a 022B     		cmp	r3, #2
+ 900 000c 0CD1     		bne	.L38
+ 698:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 699:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 700:C:/StellarisWare/driverlib\interrupt.c ****         // Pend the NMI interrupt.
+ 701:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 702:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_NMI_SET;
+ 901              		.loc 1 702 0
+ 902 000e 4EF60453 		movw	r3, #60676
+ 903 0012 CEF20003 		movt	r3, 57344
+ 904 0016 4EF60452 		movw	r2, #60676
+ 905 001a CEF20002 		movt	r2, 57344
+ 906 001e 1268     		ldr	r2, [r2, #0]
+ 907 0020 42F00042 		orr	r2, r2, #-2147483648
+ 908 0024 1A60     		str	r2, [r3, #0]
+ 909 0026 37E0     		b	.L37
+ 910              	.L38:
+ 703:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 704:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_PENDSV)
+ 911              		.loc 1 704 0
+ 912 0028 7B68     		ldr	r3, [r7, #4]
+ 913 002a 0E2B     		cmp	r3, #14
+ 914 002c 0CD1     		bne	.L40
+ 705:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 706:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 707:C:/StellarisWare/driverlib\interrupt.c ****         // Pend the PendSV interrupt.
+ 708:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 709:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PEND_SV;
+ 915              		.loc 1 709 0
+ 916 002e 4EF60453 		movw	r3, #60676
+ 917 0032 CEF20003 		movt	r3, 57344
+ 918 0036 4EF60452 		movw	r2, #60676
+ 919 003a CEF20002 		movt	r2, 57344
+ 920 003e 1268     		ldr	r2, [r2, #0]
+ 921 0040 42F08052 		orr	r2, r2, #268435456
+ 922 0044 1A60     		str	r2, [r3, #0]
+ 923 0046 27E0     		b	.L37
+ 924              	.L40:
+ 710:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 711:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_SYSTICK)
+ 925              		.loc 1 711 0
+ 926 0048 7B68     		ldr	r3, [r7, #4]
+ 927 004a 0F2B     		cmp	r3, #15
+ 928 004c 0CD1     		bne	.L41
+ 712:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 713:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 714:C:/StellarisWare/driverlib\interrupt.c ****         // Pend the SysTick interrupt.
+ 715:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 716:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PENDSTSET;
+ 929              		.loc 1 716 0
+ 930 004e 4EF60453 		movw	r3, #60676
+ 931 0052 CEF20003 		movt	r3, 57344
+ 932 0056 4EF60452 		movw	r2, #60676
+ 933 005a CEF20002 		movt	r2, 57344
+ 934 005e 1268     		ldr	r2, [r2, #0]
+ 935 0060 42F08062 		orr	r2, r2, #67108864
+ 936 0064 1A60     		str	r2, [r3, #0]
+ 937 0066 17E0     		b	.L37
+ 938              	.L41:
+ 717:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 718:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt >= 16)
+ 939              		.loc 1 718 0
+ 940 0068 7B68     		ldr	r3, [r7, #4]
+ 941 006a 0F2B     		cmp	r3, #15
+ 942 006c 14D9     		bls	.L37
+ 719:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 720:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 721:C:/StellarisWare/driverlib\interrupt.c ****         // Pend the general interrupt.
+ 722:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 723:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulPendRegs[(ulInterrupt - 16) / 32]) =
+ 943              		.loc 1 723 0
+ 944 006e 7B68     		ldr	r3, [r7, #4]
+ 945 0070 A3F11003 		sub	r3, r3, #16
+ 946 0074 4FEA5312 		lsr	r2, r3, #5
+ 947 0078 40F20003 		movw	r3, #:lower16:g_pulPendRegs
+ 948 007c C0F20003 		movt	r3, #:upper16:g_pulPendRegs
+ 949 0080 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 724:C:/StellarisWare/driverlib\interrupt.c ****             1 << ((ulInterrupt - 16) & 31);
+ 950              		.loc 1 724 0
+ 951 0084 7A68     		ldr	r2, [r7, #4]
+ 952 0086 A2F11002 		sub	r2, r2, #16
+ 953 008a 02F01F02 		and	r2, r2, #31
+ 954 008e 4FF00101 		mov	r1, #1
+ 955 0092 01FA02F2 		lsl	r2, r1, r2
+ 723:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulPendRegs[(ulInterrupt - 16) / 32]) =
+ 956              		.loc 1 723 0
+ 957 0096 1A60     		str	r2, [r3, #0]
+ 958              	.L37:
+ 725:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 726:C:/StellarisWare/driverlib\interrupt.c **** }
+ 959              		.loc 1 726 0
+ 960 0098 07F10C07 		add	r7, r7, #12
+ 961 009c BD46     		mov	sp, r7
+ 962 009e 80BC     		pop	{r7}
+ 963 00a0 7047     		bx	lr
+ 964              		.cfi_endproc
+ 965              	.LFE12:
+ 967 00a2 00BF     		.section	.text.IntPendClear,"ax",%progbits
+ 968              		.align	2
+ 969              		.global	IntPendClear
+ 970              		.thumb
+ 971              		.thumb_func
+ 973              	IntPendClear:
+ 974              	.LFB13:
+ 727:C:/StellarisWare/driverlib\interrupt.c **** 
+ 728:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 729:C:/StellarisWare/driverlib\interrupt.c **** //
+ 730:C:/StellarisWare/driverlib\interrupt.c **** //! Unpends an interrupt.
+ 731:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 732:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulInterrupt specifies the interrupt to be unpended.
+ 733:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 734:C:/StellarisWare/driverlib\interrupt.c **** //! The specified interrupt is unpended in the interrupt controller.  Unpending
+ 735:C:/StellarisWare/driverlib\interrupt.c **** //! an interrupt causes any previously generated interrupts that have not been
+ 736:C:/StellarisWare/driverlib\interrupt.c **** //! handled yet (due to higher priority interrupts or the interrupt not having
+ 737:C:/StellarisWare/driverlib\interrupt.c **** //! been enabled yet) to be discarded.
+ 738:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 739:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 740:C:/StellarisWare/driverlib\interrupt.c **** //
+ 741:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 742:C:/StellarisWare/driverlib\interrupt.c **** void
+ 743:C:/StellarisWare/driverlib\interrupt.c **** IntPendClear(unsigned long ulInterrupt)
+ 744:C:/StellarisWare/driverlib\interrupt.c **** {
+ 975              		.loc 1 744 0
+ 976              		.cfi_startproc
+ 977              		@ args = 0, pretend = 0, frame = 8
+ 978              		@ frame_needed = 1, uses_anonymous_args = 0
+ 979              		@ link register save eliminated.
+ 980 0000 80B4     		push	{r7}
+ 981              	.LCFI36:
+ 982              		.cfi_def_cfa_offset 4
+ 983              		.cfi_offset 7, -4
+ 984 0002 83B0     		sub	sp, sp, #12
+ 985              	.LCFI37:
+ 986              		.cfi_def_cfa_offset 16
+ 987 0004 00AF     		add	r7, sp, #0
+ 988              	.LCFI38:
+ 989              		.cfi_def_cfa_register 7
+ 990 0006 7860     		str	r0, [r7, #4]
+ 745:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 746:C:/StellarisWare/driverlib\interrupt.c ****     // Check the arguments.
+ 747:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 748:C:/StellarisWare/driverlib\interrupt.c ****     ASSERT(ulInterrupt < NUM_INTERRUPTS);
+ 749:C:/StellarisWare/driverlib\interrupt.c **** 
+ 750:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 751:C:/StellarisWare/driverlib\interrupt.c ****     // Determine the interrupt to unpend.
+ 752:C:/StellarisWare/driverlib\interrupt.c ****     //
+ 753:C:/StellarisWare/driverlib\interrupt.c ****     if(ulInterrupt == FAULT_PENDSV)
+ 991              		.loc 1 753 0
+ 992 0008 7B68     		ldr	r3, [r7, #4]
+ 993 000a 0E2B     		cmp	r3, #14
+ 994 000c 0CD1     		bne	.L43
+ 754:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 755:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 756:C:/StellarisWare/driverlib\interrupt.c ****         // Unpend the PendSV interrupt.
+ 757:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 758:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_UNPEND_SV;
+ 995              		.loc 1 758 0
+ 996 000e 4EF60453 		movw	r3, #60676
+ 997 0012 CEF20003 		movt	r3, 57344
+ 998 0016 4EF60452 		movw	r2, #60676
+ 999 001a CEF20002 		movt	r2, 57344
+ 1000 001e 1268     		ldr	r2, [r2, #0]
+ 1001 0020 42F00062 		orr	r2, r2, #134217728
+ 1002 0024 1A60     		str	r2, [r3, #0]
+ 1003 0026 27E0     		b	.L42
+ 1004              	.L43:
+ 759:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 760:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt == FAULT_SYSTICK)
+ 1005              		.loc 1 760 0
+ 1006 0028 7B68     		ldr	r3, [r7, #4]
+ 1007 002a 0F2B     		cmp	r3, #15
+ 1008 002c 0CD1     		bne	.L45
+ 761:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 762:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 763:C:/StellarisWare/driverlib\interrupt.c ****         // Unpend the SysTick interrupt.
+ 764:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 765:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(NVIC_INT_CTRL) |= NVIC_INT_CTRL_PENDSTCLR;
+ 1009              		.loc 1 765 0
+ 1010 002e 4EF60453 		movw	r3, #60676
+ 1011 0032 CEF20003 		movt	r3, 57344
+ 1012 0036 4EF60452 		movw	r2, #60676
+ 1013 003a CEF20002 		movt	r2, 57344
+ 1014 003e 1268     		ldr	r2, [r2, #0]
+ 1015 0040 42F00072 		orr	r2, r2, #33554432
+ 1016 0044 1A60     		str	r2, [r3, #0]
+ 1017 0046 17E0     		b	.L42
+ 1018              	.L45:
+ 766:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 767:C:/StellarisWare/driverlib\interrupt.c ****     else if(ulInterrupt >= 16)
+ 1019              		.loc 1 767 0
+ 1020 0048 7B68     		ldr	r3, [r7, #4]
+ 1021 004a 0F2B     		cmp	r3, #15
+ 1022 004c 14D9     		bls	.L42
+ 768:C:/StellarisWare/driverlib\interrupt.c ****     {
+ 769:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 770:C:/StellarisWare/driverlib\interrupt.c ****         // Unpend the general interrupt.
+ 771:C:/StellarisWare/driverlib\interrupt.c ****         //
+ 772:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulUnpendRegs[(ulInterrupt - 16) / 32]) =
+ 1023              		.loc 1 772 0
+ 1024 004e 7B68     		ldr	r3, [r7, #4]
+ 1025 0050 A3F11003 		sub	r3, r3, #16
+ 1026 0054 4FEA5312 		lsr	r2, r3, #5
+ 1027 0058 40F20003 		movw	r3, #:lower16:g_pulUnpendRegs
+ 1028 005c C0F20003 		movt	r3, #:upper16:g_pulUnpendRegs
+ 1029 0060 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 773:C:/StellarisWare/driverlib\interrupt.c ****             1 << ((ulInterrupt - 16) & 31);
+ 1030              		.loc 1 773 0
+ 1031 0064 7A68     		ldr	r2, [r7, #4]
+ 1032 0066 A2F11002 		sub	r2, r2, #16
+ 1033 006a 02F01F02 		and	r2, r2, #31
+ 1034 006e 4FF00101 		mov	r1, #1
+ 1035 0072 01FA02F2 		lsl	r2, r1, r2
+ 772:C:/StellarisWare/driverlib\interrupt.c ****         HWREG(g_pulUnpendRegs[(ulInterrupt - 16) / 32]) =
+ 1036              		.loc 1 772 0
+ 1037 0076 1A60     		str	r2, [r3, #0]
+ 1038              	.L42:
+ 774:C:/StellarisWare/driverlib\interrupt.c ****     }
+ 775:C:/StellarisWare/driverlib\interrupt.c **** }
+ 1039              		.loc 1 775 0
+ 1040 0078 07F10C07 		add	r7, r7, #12
+ 1041 007c BD46     		mov	sp, r7
+ 1042 007e 80BC     		pop	{r7}
+ 1043 0080 7047     		bx	lr
+ 1044              		.cfi_endproc
+ 1045              	.LFE13:
+ 1047 0082 00BF     		.section	.text.IntPriorityMaskSet,"ax",%progbits
+ 1048              		.align	2
+ 1049              		.global	IntPriorityMaskSet
+ 1050              		.thumb
+ 1051              		.thumb_func
+ 1053              	IntPriorityMaskSet:
+ 1054              	.LFB14:
+ 776:C:/StellarisWare/driverlib\interrupt.c **** 
+ 777:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 778:C:/StellarisWare/driverlib\interrupt.c **** //
+ 779:C:/StellarisWare/driverlib\interrupt.c **** //! Sets the priority masking level
+ 780:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 781:C:/StellarisWare/driverlib\interrupt.c **** //! \param ulPriorityMask is the priority level that is masked.
+ 782:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 783:C:/StellarisWare/driverlib\interrupt.c **** //! This function sets the interrupt priority masking level so that all
+ 784:C:/StellarisWare/driverlib\interrupt.c **** //! interrupts at the specified or lesser priority level are masked.  Masking
+ 785:C:/StellarisWare/driverlib\interrupt.c **** //! interrupts can be used to globally disable a set of interrupts with
+ 786:C:/StellarisWare/driverlib\interrupt.c **** //! priority below a predetermined threshold.  A value of 0 disables priority
+ 787:C:/StellarisWare/driverlib\interrupt.c **** //! masking.
+ 788:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 789:C:/StellarisWare/driverlib\interrupt.c **** //! Smaller numbers correspond to higher interrupt priorities.  So for example
+ 790:C:/StellarisWare/driverlib\interrupt.c **** //! a priority level mask of 4 allows interrupts of priority level 0-3,
+ 791:C:/StellarisWare/driverlib\interrupt.c **** //! and interrupts with a numerical priority of 4 and greater are blocked.
+ 792:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 793:C:/StellarisWare/driverlib\interrupt.c **** //! The hardware priority mechanism only looks at the upper N bits of the
+ 794:C:/StellarisWare/driverlib\interrupt.c **** //! priority level (where N is 3 for the Stellaris family), so any
+ 795:C:/StellarisWare/driverlib\interrupt.c **** //! prioritization must be performed in those bits.
+ 796:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 797:C:/StellarisWare/driverlib\interrupt.c **** //! \return None.
+ 798:C:/StellarisWare/driverlib\interrupt.c **** //
+ 799:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 800:C:/StellarisWare/driverlib\interrupt.c **** void
+ 801:C:/StellarisWare/driverlib\interrupt.c **** IntPriorityMaskSet(unsigned long ulPriorityMask)
+ 802:C:/StellarisWare/driverlib\interrupt.c **** {
+ 1055              		.loc 1 802 0
+ 1056              		.cfi_startproc
+ 1057              		@ args = 0, pretend = 0, frame = 8
+ 1058              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1059 0000 80B5     		push	{r7, lr}
+ 1060              	.LCFI39:
+ 1061              		.cfi_def_cfa_offset 8
+ 1062              		.cfi_offset 14, -4
+ 1063              		.cfi_offset 7, -8
+ 1064 0002 82B0     		sub	sp, sp, #8
+ 1065              	.LCFI40:
+ 1066              		.cfi_def_cfa_offset 16
+ 1067 0004 00AF     		add	r7, sp, #0
+ 1068              	.LCFI41:
+ 1069              		.cfi_def_cfa_register 7
+ 1070 0006 7860     		str	r0, [r7, #4]
+ 803:C:/StellarisWare/driverlib\interrupt.c ****     CPUbasepriSet(ulPriorityMask);
+ 1071              		.loc 1 803 0
+ 1072 0008 7868     		ldr	r0, [r7, #4]
+ 1073 000a FFF7FEFF 		bl	CPUbasepriSet
+ 804:C:/StellarisWare/driverlib\interrupt.c **** }
+ 1074              		.loc 1 804 0
+ 1075 000e 07F10807 		add	r7, r7, #8
+ 1076 0012 BD46     		mov	sp, r7
+ 1077 0014 80BD     		pop	{r7, pc}
+ 1078              		.cfi_endproc
+ 1079              	.LFE14:
+ 1081 0016 00BF     		.section	.text.IntPriorityMaskGet,"ax",%progbits
+ 1082              		.align	2
+ 1083              		.global	IntPriorityMaskGet
+ 1084              		.thumb
+ 1085              		.thumb_func
+ 1087              	IntPriorityMaskGet:
+ 1088              	.LFB15:
+ 805:C:/StellarisWare/driverlib\interrupt.c **** 
+ 806:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 807:C:/StellarisWare/driverlib\interrupt.c **** //
+ 808:C:/StellarisWare/driverlib\interrupt.c **** //! Gets the priority masking level
+ 809:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 810:C:/StellarisWare/driverlib\interrupt.c **** //! This function gets the current setting of the interrupt priority masking
+ 811:C:/StellarisWare/driverlib\interrupt.c **** //! level.  The value returned is the priority level such that all interrupts
+ 812:C:/StellarisWare/driverlib\interrupt.c **** //! of that and lesser priority are masked.  A value of 0 means that priority
+ 813:C:/StellarisWare/driverlib\interrupt.c **** //! masking is disabled.
+ 814:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 815:C:/StellarisWare/driverlib\interrupt.c **** //! Smaller numbers correspond to higher interrupt priorities.  So for example
+ 816:C:/StellarisWare/driverlib\interrupt.c **** //! a priority level mask of 4 allows interrupts of priority level 0-3,
+ 817:C:/StellarisWare/driverlib\interrupt.c **** //! and interrupts with a numerical priority of 4 and greater are blocked.
+ 818:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 819:C:/StellarisWare/driverlib\interrupt.c **** //! The hardware priority mechanism only looks at the upper N bits of the
+ 820:C:/StellarisWare/driverlib\interrupt.c **** //! priority level (where N is 3 for the Stellaris family), so any
+ 821:C:/StellarisWare/driverlib\interrupt.c **** //! prioritization must be performed in those bits.
+ 822:C:/StellarisWare/driverlib\interrupt.c **** //!
+ 823:C:/StellarisWare/driverlib\interrupt.c **** //! \return Returns the value of the interrupt priority level mask.
+ 824:C:/StellarisWare/driverlib\interrupt.c **** //
+ 825:C:/StellarisWare/driverlib\interrupt.c **** //*****************************************************************************
+ 826:C:/StellarisWare/driverlib\interrupt.c **** unsigned long
+ 827:C:/StellarisWare/driverlib\interrupt.c **** IntPriorityMaskGet(void)
+ 828:C:/StellarisWare/driverlib\interrupt.c **** {
+ 1089              		.loc 1 828 0
+ 1090              		.cfi_startproc
+ 1091              		@ args = 0, pretend = 0, frame = 0
+ 1092              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1093 0000 80B5     		push	{r7, lr}
+ 1094              	.LCFI42:
+ 1095              		.cfi_def_cfa_offset 8
+ 1096              		.cfi_offset 14, -4
+ 1097              		.cfi_offset 7, -8
+ 1098 0002 00AF     		add	r7, sp, #0
+ 1099              	.LCFI43:
+ 1100              		.cfi_def_cfa_register 7
+ 829:C:/StellarisWare/driverlib\interrupt.c ****     return(CPUbasepriGet());
+ 1101              		.loc 1 829 0
+ 1102 0004 FFF7FEFF 		bl	CPUbasepriGet
+ 1103 0008 0346     		mov	r3, r0
+ 830:C:/StellarisWare/driverlib\interrupt.c **** }
+ 1104              		.loc 1 830 0
+ 1105 000a 1846     		mov	r0, r3
+ 1106 000c 80BD     		pop	{r7, pc}
+ 1107              		.cfi_endproc
+ 1108              	.LFE15:
+ 1110 000e 00BF     		.text
+ 1111              	.Letext0:
+ 1112              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 interrupt.c
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:19     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:22     .rodata:00000000 g_pulPriority
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:34     .rodata:00000020 g_pulRegs
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:77     .rodata:000000bc g_pulEnRegs
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:86     .rodata:000000d0 g_pulDisRegs
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:95     .rodata:000000e4 g_pulPendRegs
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:104    .rodata:000000f8 g_pulUnpendRegs
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:111    .text.IntDefaultHandler:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:115    .text.IntDefaultHandler:00000000 IntDefaultHandler
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:137    vtable:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:140    vtable:00000000 g_pfnRAMVectors
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:143    .text.IntMasterEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:148    .text.IntMasterEnable:00000000 IntMasterEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:173    .text.IntMasterDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:178    .text.IntMasterDisable:00000000 IntMasterDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:203    .text.IntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:208    .text.IntRegister:00000000 IntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:287    .text.IntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:292    .text.IntUnregister:00000000 IntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:326    .text.IntPriorityGroupingSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:331    .text.IntPriorityGroupingSet:00000000 IntPriorityGroupingSet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:368    .text.IntPriorityGroupingGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:373    .text.IntPriorityGroupingGet:00000000 IntPriorityGroupingGet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:436    .text.IntPrioritySet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:441    .text.IntPrioritySet:00000000 IntPrioritySet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:505    .text.IntPriorityGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:510    .text.IntPriorityGet:00000000 IntPriorityGet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:550    .text.IntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:555    .text.IntEnable:00000000 IntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:658    .text.IntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:663    .text.IntDisable:00000000 IntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:766    .text.IntIsEnabled:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:771    .text.IntIsEnabled:00000000 IntIsEnabled
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:874    .text.IntPendSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:879    .text.IntPendSet:00000000 IntPendSet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:968    .text.IntPendClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:973    .text.IntPendClear:00000000 IntPendClear
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:1048   .text.IntPriorityMaskSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:1053   .text.IntPriorityMaskSet:00000000 IntPriorityMaskSet
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:1082   .text.IntPriorityMaskGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccyKR16V.s:1087   .text.IntPriorityMaskGet:00000000 IntPriorityMaskGet
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+CPUcpsie
+CPUcpsid
+CPUbasepriSet
+CPUbasepriGet

@@ -1,0 +1,2254 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"flash.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_pulFMPPERegs:
+  23 0000 34E10F40 		.word	1074782516
+  24 0004 04E40F40 		.word	1074783236
+  25 0008 08E40F40 		.word	1074783240
+  26 000c 0CE40F40 		.word	1074783244
+  27              		.align	2
+  30              	g_pulFMPRERegs:
+  31 0010 30E10F40 		.word	1074782512
+  32 0014 04E20F40 		.word	1074782724
+  33 0018 08E20F40 		.word	1074782728
+  34 001c 0CE20F40 		.word	1074782732
+  35              		.section	.text.FlashUsecGet,"ax",%progbits
+  36              		.align	2
+  37              		.global	FlashUsecGet
+  38              		.thumb
+  39              		.thumb_func
+  41              	FlashUsecGet:
+  42              	.LFB0:
+  43              		.file 1 "C:/StellarisWare/driverlib/flash.c"
+   1:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\flash.c **** //
+   3:C:/StellarisWare/driverlib\flash.c **** // flash.c - Driver for programming the on-chip flash.
+   4:C:/StellarisWare/driverlib\flash.c **** //
+   5:C:/StellarisWare/driverlib\flash.c **** // Copyright (c) 2005-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\flash.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\flash.c **** // 
+   8:C:/StellarisWare/driverlib\flash.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\flash.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\flash.c **** //   are met:
+  11:C:/StellarisWare/driverlib\flash.c **** // 
+  12:C:/StellarisWare/driverlib\flash.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\flash.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\flash.c **** // 
+  15:C:/StellarisWare/driverlib\flash.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\flash.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\flash.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\flash.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\flash.c **** // 
+  20:C:/StellarisWare/driverlib\flash.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\flash.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\flash.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\flash.c **** // 
+  24:C:/StellarisWare/driverlib\flash.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\flash.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\flash.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\flash.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\flash.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\flash.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\flash.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\flash.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\flash.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\flash.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\flash.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\flash.c **** // 
+  36:C:/StellarisWare/driverlib\flash.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\flash.c **** //
+  38:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\flash.c **** 
+  40:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\flash.c **** //
+  42:C:/StellarisWare/driverlib\flash.c **** //! \addtogroup flash_api
+  43:C:/StellarisWare/driverlib\flash.c **** //! @{
+  44:C:/StellarisWare/driverlib\flash.c **** //
+  45:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\flash.c **** 
+  47:C:/StellarisWare/driverlib\flash.c **** #include "inc/hw_flash.h"
+  48:C:/StellarisWare/driverlib\flash.c **** #include "inc/hw_ints.h"
+  49:C:/StellarisWare/driverlib\flash.c **** #include "inc/hw_sysctl.h"
+  50:C:/StellarisWare/driverlib\flash.c **** #include "inc/hw_types.h"
+  51:C:/StellarisWare/driverlib\flash.c **** #include "driverlib/debug.h"
+  52:C:/StellarisWare/driverlib\flash.c **** #include "driverlib/flash.h"
+  53:C:/StellarisWare/driverlib\flash.c **** #include "driverlib/interrupt.h"
+  54:C:/StellarisWare/driverlib\flash.c **** 
+  55:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  56:C:/StellarisWare/driverlib\flash.c **** //
+  57:C:/StellarisWare/driverlib\flash.c **** // An array that maps the specified memory bank to the appropriate Flash
+  58:C:/StellarisWare/driverlib\flash.c **** // Memory Protection Program Enable (FMPPE) register.
+  59:C:/StellarisWare/driverlib\flash.c **** //
+  60:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  61:C:/StellarisWare/driverlib\flash.c **** static const unsigned long g_pulFMPPERegs[] =
+  62:C:/StellarisWare/driverlib\flash.c **** {
+  63:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPPE,
+  64:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPPE1,
+  65:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPPE2,
+  66:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPPE3
+  67:C:/StellarisWare/driverlib\flash.c **** };
+  68:C:/StellarisWare/driverlib\flash.c **** 
+  69:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  70:C:/StellarisWare/driverlib\flash.c **** //
+  71:C:/StellarisWare/driverlib\flash.c **** // An array that maps the specified memory bank to the appropriate Flash
+  72:C:/StellarisWare/driverlib\flash.c **** // Memory Protection Read Enable (FMPRE) register.
+  73:C:/StellarisWare/driverlib\flash.c **** //
+  74:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  75:C:/StellarisWare/driverlib\flash.c **** static const unsigned long g_pulFMPRERegs[] =
+  76:C:/StellarisWare/driverlib\flash.c **** {
+  77:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPRE,
+  78:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPRE1,
+  79:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPRE2,
+  80:C:/StellarisWare/driverlib\flash.c ****     FLASH_FMPRE3
+  81:C:/StellarisWare/driverlib\flash.c **** };
+  82:C:/StellarisWare/driverlib\flash.c **** 
+  83:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  84:C:/StellarisWare/driverlib\flash.c **** //
+  85:C:/StellarisWare/driverlib\flash.c **** //! Gets the number of processor clocks per micro-second.
+  86:C:/StellarisWare/driverlib\flash.c **** //!
+  87:C:/StellarisWare/driverlib\flash.c **** //! This function returns the number of clocks per micro-second, as presently
+  88:C:/StellarisWare/driverlib\flash.c **** //! known by the flash controller. This function is only valid on Sandstorm-
+  89:C:/StellarisWare/driverlib\flash.c **** //! and Fury-class devices.
+  90:C:/StellarisWare/driverlib\flash.c **** //!
+  91:C:/StellarisWare/driverlib\flash.c **** //! \return Returns the number of processor clocks per micro-second.
+  92:C:/StellarisWare/driverlib\flash.c **** //
+  93:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+  94:C:/StellarisWare/driverlib\flash.c **** unsigned long
+  95:C:/StellarisWare/driverlib\flash.c **** FlashUsecGet(void)
+  96:C:/StellarisWare/driverlib\flash.c **** {
+  44              		.loc 1 96 0
+  45              		.cfi_startproc
+  46              		@ args = 0, pretend = 0, frame = 0
+  47              		@ frame_needed = 1, uses_anonymous_args = 0
+  48              		@ link register save eliminated.
+  49 0000 80B4     		push	{r7}
+  50              	.LCFI0:
+  51              		.cfi_def_cfa_offset 4
+  52              		.cfi_offset 7, -4
+  53 0002 00AF     		add	r7, sp, #0
+  54              	.LCFI1:
+  55              		.cfi_def_cfa_register 7
+  97:C:/StellarisWare/driverlib\flash.c ****     //
+  98:C:/StellarisWare/driverlib\flash.c ****     // Return the number of clocks per micro-second.
+  99:C:/StellarisWare/driverlib\flash.c ****     //
+ 100:C:/StellarisWare/driverlib\flash.c ****     return(HWREG(FLASH_USECRL) + 1);
+  56              		.loc 1 100 0
+  57 0004 4EF24013 		movw	r3, #57664
+  58 0008 C4F20F03 		movt	r3, 16399
+  59 000c 1B68     		ldr	r3, [r3, #0]
+  60 000e 03F10103 		add	r3, r3, #1
+ 101:C:/StellarisWare/driverlib\flash.c **** }
+  61              		.loc 1 101 0
+  62 0012 1846     		mov	r0, r3
+  63 0014 BD46     		mov	sp, r7
+  64 0016 80BC     		pop	{r7}
+  65 0018 7047     		bx	lr
+  66              		.cfi_endproc
+  67              	.LFE0:
+  69 001a 00BF     		.section	.text.FlashUsecSet,"ax",%progbits
+  70              		.align	2
+  71              		.global	FlashUsecSet
+  72              		.thumb
+  73              		.thumb_func
+  75              	FlashUsecSet:
+  76              	.LFB1:
+ 102:C:/StellarisWare/driverlib\flash.c **** 
+ 103:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 104:C:/StellarisWare/driverlib\flash.c **** //
+ 105:C:/StellarisWare/driverlib\flash.c **** //! Sets the number of processor clocks per micro-second.
+ 106:C:/StellarisWare/driverlib\flash.c **** //!
+ 107:C:/StellarisWare/driverlib\flash.c **** //! \param ulClocks is the number of processor clocks per micro-second.
+ 108:C:/StellarisWare/driverlib\flash.c **** //!
+ 109:C:/StellarisWare/driverlib\flash.c **** //! This function is used to tell the flash controller the number of processor
+ 110:C:/StellarisWare/driverlib\flash.c **** //! clocks per micro-second.  This value must be programmed correctly or the
+ 111:C:/StellarisWare/driverlib\flash.c **** //! flash most likely will not program correctly; it has no affect on reading
+ 112:C:/StellarisWare/driverlib\flash.c **** //! flash. This function is only valid on Sandstorm- and Fury-class devices.
+ 113:C:/StellarisWare/driverlib\flash.c **** //!
+ 114:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 115:C:/StellarisWare/driverlib\flash.c **** //
+ 116:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 117:C:/StellarisWare/driverlib\flash.c **** void
+ 118:C:/StellarisWare/driverlib\flash.c **** FlashUsecSet(unsigned long ulClocks)
+ 119:C:/StellarisWare/driverlib\flash.c **** {
+  77              		.loc 1 119 0
+  78              		.cfi_startproc
+  79              		@ args = 0, pretend = 0, frame = 8
+  80              		@ frame_needed = 1, uses_anonymous_args = 0
+  81              		@ link register save eliminated.
+  82 0000 80B4     		push	{r7}
+  83              	.LCFI2:
+  84              		.cfi_def_cfa_offset 4
+  85              		.cfi_offset 7, -4
+  86 0002 83B0     		sub	sp, sp, #12
+  87              	.LCFI3:
+  88              		.cfi_def_cfa_offset 16
+  89 0004 00AF     		add	r7, sp, #0
+  90              	.LCFI4:
+  91              		.cfi_def_cfa_register 7
+  92 0006 7860     		str	r0, [r7, #4]
+ 120:C:/StellarisWare/driverlib\flash.c ****     //
+ 121:C:/StellarisWare/driverlib\flash.c ****     // Set the number of clocks per micro-second.
+ 122:C:/StellarisWare/driverlib\flash.c ****     //
+ 123:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_USECRL) = ulClocks - 1;
+  93              		.loc 1 123 0
+  94 0008 4EF24013 		movw	r3, #57664
+  95 000c C4F20F03 		movt	r3, 16399
+  96 0010 7A68     		ldr	r2, [r7, #4]
+  97 0012 02F1FF32 		add	r2, r2, #-1
+  98 0016 1A60     		str	r2, [r3, #0]
+ 124:C:/StellarisWare/driverlib\flash.c **** }
+  99              		.loc 1 124 0
+ 100 0018 07F10C07 		add	r7, r7, #12
+ 101 001c BD46     		mov	sp, r7
+ 102 001e 80BC     		pop	{r7}
+ 103 0020 7047     		bx	lr
+ 104              		.cfi_endproc
+ 105              	.LFE1:
+ 107 0022 00BF     		.section	.text.FlashErase,"ax",%progbits
+ 108              		.align	2
+ 109              		.global	FlashErase
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	FlashErase:
+ 114              	.LFB2:
+ 125:C:/StellarisWare/driverlib\flash.c **** 
+ 126:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 127:C:/StellarisWare/driverlib\flash.c **** //
+ 128:C:/StellarisWare/driverlib\flash.c **** //! Erases a block of flash.
+ 129:C:/StellarisWare/driverlib\flash.c **** //!
+ 130:C:/StellarisWare/driverlib\flash.c **** //! \param ulAddress is the start address of the flash block to be erased.
+ 131:C:/StellarisWare/driverlib\flash.c **** //!
+ 132:C:/StellarisWare/driverlib\flash.c **** //! This function erases a 1-kB block of the on-chip flash.  After erasing,
+ 133:C:/StellarisWare/driverlib\flash.c **** //! the block is filled with 0xFF bytes.  Read-only and execute-only blocks
+ 134:C:/StellarisWare/driverlib\flash.c **** //! cannot be erased.
+ 135:C:/StellarisWare/driverlib\flash.c **** //!
+ 136:C:/StellarisWare/driverlib\flash.c **** //! This function does not return until the block has been erased.
+ 137:C:/StellarisWare/driverlib\flash.c **** //!
+ 138:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if an invalid block address was
+ 139:C:/StellarisWare/driverlib\flash.c **** //! specified or the block is write-protected.
+ 140:C:/StellarisWare/driverlib\flash.c **** //
+ 141:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 142:C:/StellarisWare/driverlib\flash.c **** long
+ 143:C:/StellarisWare/driverlib\flash.c **** FlashErase(unsigned long ulAddress)
+ 144:C:/StellarisWare/driverlib\flash.c **** {
+ 115              		.loc 1 144 0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 8
+ 118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 119              		@ link register save eliminated.
+ 120 0000 80B4     		push	{r7}
+ 121              	.LCFI5:
+ 122              		.cfi_def_cfa_offset 4
+ 123              		.cfi_offset 7, -4
+ 124 0002 83B0     		sub	sp, sp, #12
+ 125              	.LCFI6:
+ 126              		.cfi_def_cfa_offset 16
+ 127 0004 00AF     		add	r7, sp, #0
+ 128              	.LCFI7:
+ 129              		.cfi_def_cfa_register 7
+ 130 0006 7860     		str	r0, [r7, #4]
+ 145:C:/StellarisWare/driverlib\flash.c ****     //
+ 146:C:/StellarisWare/driverlib\flash.c ****     // Check the arguments.
+ 147:C:/StellarisWare/driverlib\flash.c ****     //
+ 148:C:/StellarisWare/driverlib\flash.c ****     ASSERT(!(ulAddress & (FLASH_ERASE_SIZE - 1)));
+ 149:C:/StellarisWare/driverlib\flash.c **** 
+ 150:C:/StellarisWare/driverlib\flash.c ****     //
+ 151:C:/StellarisWare/driverlib\flash.c ****     // Clear the flash access and error interrupts.
+ 152:C:/StellarisWare/driverlib\flash.c ****     //
+ 153:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FCMISC) = (FLASH_FCMISC_AMISC | FLASH_FCMISC_VOLTMISC |
+ 131              		.loc 1 153 0
+ 132 0008 4DF21403 		movw	r3, #53268
+ 133 000c C4F20F03 		movt	r3, 16399
+ 134 0010 40F60122 		movw	r2, #2561
+ 135 0014 1A60     		str	r2, [r3, #0]
+ 154:C:/StellarisWare/driverlib\flash.c ****                            FLASH_FCMISC_ERMISC);
+ 155:C:/StellarisWare/driverlib\flash.c **** 
+ 156:C:/StellarisWare/driverlib\flash.c ****     //
+ 157:C:/StellarisWare/driverlib\flash.c ****     // Erase the block.
+ 158:C:/StellarisWare/driverlib\flash.c ****     //
+ 159:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMA) = ulAddress;
+ 136              		.loc 1 159 0
+ 137 0016 4FF45043 		mov	r3, #53248
+ 138 001a C4F20F03 		movt	r3, 16399
+ 139 001e 7A68     		ldr	r2, [r7, #4]
+ 140 0020 1A60     		str	r2, [r3, #0]
+ 160:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMC) = FLASH_FMC_WRKEY | FLASH_FMC_ERASE;
+ 141              		.loc 1 160 0
+ 142 0022 4DF20803 		movw	r3, #53256
+ 143 0026 C4F20F03 		movt	r3, 16399
+ 144 002a 4FF00202 		mov	r2, #2
+ 145 002e CAF24242 		movt	r2, 42050
+ 146 0032 1A60     		str	r2, [r3, #0]
+ 161:C:/StellarisWare/driverlib\flash.c **** 
+ 162:C:/StellarisWare/driverlib\flash.c ****     //
+ 163:C:/StellarisWare/driverlib\flash.c ****     // Wait until the block has been erased.
+ 164:C:/StellarisWare/driverlib\flash.c ****     //
+ 165:C:/StellarisWare/driverlib\flash.c ****     while(HWREG(FLASH_FMC) & FLASH_FMC_ERASE)
+ 147              		.loc 1 165 0
+ 148 0034 00BF     		nop
+ 149              	.L4:
+ 150              		.loc 1 165 0 is_stmt 0 discriminator 1
+ 151 0036 4DF20803 		movw	r3, #53256
+ 152 003a C4F20F03 		movt	r3, 16399
+ 153 003e 1B68     		ldr	r3, [r3, #0]
+ 154 0040 03F00203 		and	r3, r3, #2
+ 155 0044 002B     		cmp	r3, #0
+ 156 0046 F6D1     		bne	.L4
+ 166:C:/StellarisWare/driverlib\flash.c ****     {
+ 167:C:/StellarisWare/driverlib\flash.c ****     }
+ 168:C:/StellarisWare/driverlib\flash.c **** 
+ 169:C:/StellarisWare/driverlib\flash.c ****     //
+ 170:C:/StellarisWare/driverlib\flash.c ****     // Return an error if an access violation or erase error occurred.
+ 171:C:/StellarisWare/driverlib\flash.c ****     //
+ 172:C:/StellarisWare/driverlib\flash.c ****     if(HWREG(FLASH_FCRIS) & (FLASH_FCRIS_ARIS | FLASH_FCRIS_VOLTRIS |
+ 157              		.loc 1 172 0 is_stmt 1
+ 158 0048 4DF20C03 		movw	r3, #53260
+ 159 004c C4F20F03 		movt	r3, 16399
+ 160 0050 1A68     		ldr	r2, [r3, #0]
+ 161 0052 40F60123 		movw	r3, #2561
+ 162 0056 1340     		ands	r3, r3, r2
+ 163 0058 002B     		cmp	r3, #0
+ 164 005a 02D0     		beq	.L5
+ 173:C:/StellarisWare/driverlib\flash.c ****                              FLASH_FCRIS_ERRIS))
+ 174:C:/StellarisWare/driverlib\flash.c ****     {
+ 175:C:/StellarisWare/driverlib\flash.c ****         return(-1);
+ 165              		.loc 1 175 0
+ 166 005c 4FF0FF33 		mov	r3, #-1
+ 167 0060 01E0     		b	.L6
+ 168              	.L5:
+ 176:C:/StellarisWare/driverlib\flash.c ****     }
+ 177:C:/StellarisWare/driverlib\flash.c **** 
+ 178:C:/StellarisWare/driverlib\flash.c ****     //
+ 179:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 180:C:/StellarisWare/driverlib\flash.c ****     //
+ 181:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 169              		.loc 1 181 0
+ 170 0062 4FF00003 		mov	r3, #0
+ 171              	.L6:
+ 182:C:/StellarisWare/driverlib\flash.c **** }
+ 172              		.loc 1 182 0
+ 173 0066 1846     		mov	r0, r3
+ 174 0068 07F10C07 		add	r7, r7, #12
+ 175 006c BD46     		mov	sp, r7
+ 176 006e 80BC     		pop	{r7}
+ 177 0070 7047     		bx	lr
+ 178              		.cfi_endproc
+ 179              	.LFE2:
+ 181 0072 00BF     		.section	.text.FlashProgram,"ax",%progbits
+ 182              		.align	2
+ 183              		.global	FlashProgram
+ 184              		.thumb
+ 185              		.thumb_func
+ 187              	FlashProgram:
+ 188              	.LFB3:
+ 183:C:/StellarisWare/driverlib\flash.c **** 
+ 184:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 185:C:/StellarisWare/driverlib\flash.c **** //
+ 186:C:/StellarisWare/driverlib\flash.c **** //! Programs flash.
+ 187:C:/StellarisWare/driverlib\flash.c **** //!
+ 188:C:/StellarisWare/driverlib\flash.c **** //! \param pulData is a pointer to the data to be programmed.
+ 189:C:/StellarisWare/driverlib\flash.c **** //! \param ulAddress is the starting address in flash to be programmed.  Must
+ 190:C:/StellarisWare/driverlib\flash.c **** //! be a multiple of four.
+ 191:C:/StellarisWare/driverlib\flash.c **** //! \param ulCount is the number of bytes to be programmed.  Must be a multiple
+ 192:C:/StellarisWare/driverlib\flash.c **** //! of four.
+ 193:C:/StellarisWare/driverlib\flash.c **** //!
+ 194:C:/StellarisWare/driverlib\flash.c **** //! This function programs a sequence of words into the on-chip flash.
+ 195:C:/StellarisWare/driverlib\flash.c **** //! Each word in a page of flash can only be programmed one time between an
+ 196:C:/StellarisWare/driverlib\flash.c **** //! erase of that page; programming a word multiple times results in an
+ 197:C:/StellarisWare/driverlib\flash.c **** //! unpredictable value in that word of flash.
+ 198:C:/StellarisWare/driverlib\flash.c **** //!
+ 199:C:/StellarisWare/driverlib\flash.c **** //! Because the flash is programmed one word at a time, the starting address
+ 200:C:/StellarisWare/driverlib\flash.c **** //! and byte count must both be multiples of four.  It is up to the caller to
+ 201:C:/StellarisWare/driverlib\flash.c **** //! verify the programmed contents, if such verification is required.
+ 202:C:/StellarisWare/driverlib\flash.c **** //!
+ 203:C:/StellarisWare/driverlib\flash.c **** //! This function does not return until the data has been programmed.
+ 204:C:/StellarisWare/driverlib\flash.c **** //!
+ 205:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if a programming error is encountered.
+ 206:C:/StellarisWare/driverlib\flash.c **** //
+ 207:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 208:C:/StellarisWare/driverlib\flash.c **** long
+ 209:C:/StellarisWare/driverlib\flash.c **** FlashProgram(unsigned long *pulData, unsigned long ulAddress,
+ 210:C:/StellarisWare/driverlib\flash.c ****              unsigned long ulCount)
+ 211:C:/StellarisWare/driverlib\flash.c **** {
+ 189              		.loc 1 211 0
+ 190              		.cfi_startproc
+ 191              		@ args = 0, pretend = 0, frame = 16
+ 192              		@ frame_needed = 1, uses_anonymous_args = 0
+ 193              		@ link register save eliminated.
+ 194 0000 80B4     		push	{r7}
+ 195              	.LCFI8:
+ 196              		.cfi_def_cfa_offset 4
+ 197              		.cfi_offset 7, -4
+ 198 0002 85B0     		sub	sp, sp, #20
+ 199              	.LCFI9:
+ 200              		.cfi_def_cfa_offset 24
+ 201 0004 00AF     		add	r7, sp, #0
+ 202              	.LCFI10:
+ 203              		.cfi_def_cfa_register 7
+ 204 0006 F860     		str	r0, [r7, #12]
+ 205 0008 B960     		str	r1, [r7, #8]
+ 206 000a 7A60     		str	r2, [r7, #4]
+ 212:C:/StellarisWare/driverlib\flash.c ****     //
+ 213:C:/StellarisWare/driverlib\flash.c ****     // Check the arguments.
+ 214:C:/StellarisWare/driverlib\flash.c ****     //
+ 215:C:/StellarisWare/driverlib\flash.c ****     ASSERT(!(ulAddress & 3));
+ 216:C:/StellarisWare/driverlib\flash.c ****     ASSERT(!(ulCount & 3));
+ 217:C:/StellarisWare/driverlib\flash.c **** 
+ 218:C:/StellarisWare/driverlib\flash.c ****     //
+ 219:C:/StellarisWare/driverlib\flash.c ****     // Clear the flash access and error interrupts.
+ 220:C:/StellarisWare/driverlib\flash.c ****     //
+ 221:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FCMISC) = (FLASH_FCMISC_AMISC | FLASH_FCMISC_VOLTMISC |
+ 207              		.loc 1 221 0
+ 208 000c 4DF21403 		movw	r3, #53268
+ 209 0010 C4F20F03 		movt	r3, 16399
+ 210 0014 42F20162 		movw	r2, #9729
+ 211 0018 1A60     		str	r2, [r3, #0]
+ 222:C:/StellarisWare/driverlib\flash.c ****                            FLASH_FCMISC_INVDMISC | FLASH_FCMISC_PROGMISC);
+ 223:C:/StellarisWare/driverlib\flash.c **** 
+ 224:C:/StellarisWare/driverlib\flash.c ****     //
+ 225:C:/StellarisWare/driverlib\flash.c ****     // See if this device has a write buffer.
+ 226:C:/StellarisWare/driverlib\flash.c ****     //
+ 227:C:/StellarisWare/driverlib\flash.c ****     if(HWREG(SYSCTL_NVMSTAT) & SYSCTL_NVMSTAT_FWB)
+ 212              		.loc 1 227 0
+ 213 001a 4EF2A013 		movw	r3, #57760
+ 214 001e C4F20F03 		movt	r3, 16399
+ 215 0022 1B68     		ldr	r3, [r3, #0]
+ 216 0024 03F00103 		and	r3, r3, #1
+ 217 0028 DBB2     		uxtb	r3, r3
+ 218 002a 002B     		cmp	r3, #0
+ 219 002c 74D0     		beq	.L17
+ 228:C:/StellarisWare/driverlib\flash.c ****     {
+ 229:C:/StellarisWare/driverlib\flash.c ****         //
+ 230:C:/StellarisWare/driverlib\flash.c ****         // Loop over the words to be programmed.
+ 231:C:/StellarisWare/driverlib\flash.c ****         //
+ 232:C:/StellarisWare/driverlib\flash.c ****         while(ulCount)
+ 220              		.loc 1 232 0
+ 221 002e 42E0     		b	.L9
+ 222              	.L15:
+ 233:C:/StellarisWare/driverlib\flash.c ****         {
+ 234:C:/StellarisWare/driverlib\flash.c ****             //
+ 235:C:/StellarisWare/driverlib\flash.c ****             // Set the address of this block of words.
+ 236:C:/StellarisWare/driverlib\flash.c ****             //
+ 237:C:/StellarisWare/driverlib\flash.c ****             HWREG(FLASH_FMA) = ulAddress & ~(0x7f);
+ 223              		.loc 1 237 0
+ 224 0030 4FF45043 		mov	r3, #53248
+ 225 0034 C4F20F03 		movt	r3, 16399
+ 226 0038 BA68     		ldr	r2, [r7, #8]
+ 227 003a 22F07F02 		bic	r2, r2, #127
+ 228 003e 1A60     		str	r2, [r3, #0]
+ 238:C:/StellarisWare/driverlib\flash.c **** 
+ 239:C:/StellarisWare/driverlib\flash.c ****             //
+ 240:C:/StellarisWare/driverlib\flash.c ****             // Loop over the words in this 32-word block.
+ 241:C:/StellarisWare/driverlib\flash.c ****             //
+ 242:C:/StellarisWare/driverlib\flash.c ****             while(((ulAddress & 0x7c) || (HWREG(FLASH_FWBVAL) == 0)) &&
+ 229              		.loc 1 242 0
+ 230 0040 16E0     		b	.L10
+ 231              	.L13:
+ 243:C:/StellarisWare/driverlib\flash.c ****                   (ulCount != 0))
+ 244:C:/StellarisWare/driverlib\flash.c ****             {
+ 245:C:/StellarisWare/driverlib\flash.c ****                 //
+ 246:C:/StellarisWare/driverlib\flash.c ****                 // Write this word into the write buffer.
+ 247:C:/StellarisWare/driverlib\flash.c ****                 //
+ 248:C:/StellarisWare/driverlib\flash.c ****                 HWREG(FLASH_FWBN + (ulAddress & 0x7c)) = *pulData++;
+ 232              		.loc 1 248 0
+ 233 0042 BB68     		ldr	r3, [r7, #8]
+ 234 0044 03F07C02 		and	r2, r3, #124
+ 235 0048 4FF45143 		mov	r3, #53504
+ 236 004c C4F20F03 		movt	r3, 16399
+ 237 0050 D318     		adds	r3, r2, r3
+ 238 0052 FA68     		ldr	r2, [r7, #12]
+ 239 0054 1268     		ldr	r2, [r2, #0]
+ 240 0056 1A60     		str	r2, [r3, #0]
+ 241 0058 FB68     		ldr	r3, [r7, #12]
+ 242 005a 03F10403 		add	r3, r3, #4
+ 243 005e FB60     		str	r3, [r7, #12]
+ 249:C:/StellarisWare/driverlib\flash.c ****                 ulAddress += 4;
+ 244              		.loc 1 249 0
+ 245 0060 BB68     		ldr	r3, [r7, #8]
+ 246 0062 03F10403 		add	r3, r3, #4
+ 247 0066 BB60     		str	r3, [r7, #8]
+ 250:C:/StellarisWare/driverlib\flash.c ****                 ulCount -= 4;
+ 248              		.loc 1 250 0
+ 249 0068 7B68     		ldr	r3, [r7, #4]
+ 250 006a A3F10403 		sub	r3, r3, #4
+ 251 006e 7B60     		str	r3, [r7, #4]
+ 252              	.L10:
+ 242:C:/StellarisWare/driverlib\flash.c ****             while(((ulAddress & 0x7c) || (HWREG(FLASH_FWBVAL) == 0)) &&
+ 253              		.loc 1 242 0 discriminator 1
+ 254 0070 BB68     		ldr	r3, [r7, #8]
+ 255 0072 03F07C03 		and	r3, r3, #124
+ 256 0076 002B     		cmp	r3, #0
+ 257 0078 06D1     		bne	.L11
+ 242:C:/StellarisWare/driverlib\flash.c ****             while(((ulAddress & 0x7c) || (HWREG(FLASH_FWBVAL) == 0)) &&
+ 258              		.loc 1 242 0 is_stmt 0 discriminator 3
+ 259 007a 4DF23003 		movw	r3, #53296
+ 260 007e C4F20F03 		movt	r3, 16399
+ 261 0082 1B68     		ldr	r3, [r3, #0]
+ 262 0084 002B     		cmp	r3, #0
+ 263 0086 02D1     		bne	.L12
+ 264              	.L11:
+ 242:C:/StellarisWare/driverlib\flash.c ****             while(((ulAddress & 0x7c) || (HWREG(FLASH_FWBVAL) == 0)) &&
+ 265              		.loc 1 242 0 discriminator 2
+ 266 0088 7B68     		ldr	r3, [r7, #4]
+ 267 008a 002B     		cmp	r3, #0
+ 268 008c D9D1     		bne	.L13
+ 269              	.L12:
+ 251:C:/StellarisWare/driverlib\flash.c ****             }
+ 252:C:/StellarisWare/driverlib\flash.c **** 
+ 253:C:/StellarisWare/driverlib\flash.c ****             //
+ 254:C:/StellarisWare/driverlib\flash.c ****             // Program the contents of the write buffer into flash.
+ 255:C:/StellarisWare/driverlib\flash.c ****             //
+ 256:C:/StellarisWare/driverlib\flash.c ****             HWREG(FLASH_FMC2) = FLASH_FMC2_WRKEY | FLASH_FMC2_WRBUF;
+ 270              		.loc 1 256 0 is_stmt 1
+ 271 008e 4DF22003 		movw	r3, #53280
+ 272 0092 C4F20F03 		movt	r3, 16399
+ 273 0096 4FF00102 		mov	r2, #1
+ 274 009a CAF24242 		movt	r2, 42050
+ 275 009e 1A60     		str	r2, [r3, #0]
+ 257:C:/StellarisWare/driverlib\flash.c **** 
+ 258:C:/StellarisWare/driverlib\flash.c ****             //
+ 259:C:/StellarisWare/driverlib\flash.c ****             // Wait until the write buffer has been programmed.
+ 260:C:/StellarisWare/driverlib\flash.c ****             //
+ 261:C:/StellarisWare/driverlib\flash.c ****             while(HWREG(FLASH_FMC2) & FLASH_FMC2_WRBUF)
+ 276              		.loc 1 261 0
+ 277 00a0 00BF     		nop
+ 278              	.L14:
+ 279              		.loc 1 261 0 is_stmt 0 discriminator 1
+ 280 00a2 4DF22003 		movw	r3, #53280
+ 281 00a6 C4F20F03 		movt	r3, 16399
+ 282 00aa 1B68     		ldr	r3, [r3, #0]
+ 283 00ac 03F00103 		and	r3, r3, #1
+ 284 00b0 DBB2     		uxtb	r3, r3
+ 285 00b2 002B     		cmp	r3, #0
+ 286 00b4 F5D1     		bne	.L14
+ 287              	.L9:
+ 232:C:/StellarisWare/driverlib\flash.c ****         while(ulCount)
+ 288              		.loc 1 232 0 is_stmt 1 discriminator 1
+ 289 00b6 7B68     		ldr	r3, [r7, #4]
+ 290 00b8 002B     		cmp	r3, #0
+ 291 00ba B9D1     		bne	.L15
+ 232:C:/StellarisWare/driverlib\flash.c ****         while(ulCount)
+ 292              		.loc 1 232 0 is_stmt 0
+ 293 00bc 2FE0     		b	.L16
+ 294              	.L19:
+ 262:C:/StellarisWare/driverlib\flash.c ****             {
+ 263:C:/StellarisWare/driverlib\flash.c ****             }
+ 264:C:/StellarisWare/driverlib\flash.c ****         }
+ 265:C:/StellarisWare/driverlib\flash.c ****     }
+ 266:C:/StellarisWare/driverlib\flash.c ****     else
+ 267:C:/StellarisWare/driverlib\flash.c ****     {
+ 268:C:/StellarisWare/driverlib\flash.c ****         //
+ 269:C:/StellarisWare/driverlib\flash.c ****         // Loop over the words to be programmed.
+ 270:C:/StellarisWare/driverlib\flash.c ****         //
+ 271:C:/StellarisWare/driverlib\flash.c ****         while(ulCount)
+ 272:C:/StellarisWare/driverlib\flash.c ****         {
+ 273:C:/StellarisWare/driverlib\flash.c ****             //
+ 274:C:/StellarisWare/driverlib\flash.c ****             // Program the next word.
+ 275:C:/StellarisWare/driverlib\flash.c ****             //
+ 276:C:/StellarisWare/driverlib\flash.c ****             HWREG(FLASH_FMA) = ulAddress;
+ 295              		.loc 1 276 0 is_stmt 1
+ 296 00be 4FF45043 		mov	r3, #53248
+ 297 00c2 C4F20F03 		movt	r3, 16399
+ 298 00c6 BA68     		ldr	r2, [r7, #8]
+ 299 00c8 1A60     		str	r2, [r3, #0]
+ 277:C:/StellarisWare/driverlib\flash.c ****             HWREG(FLASH_FMD) = *pulData;
+ 300              		.loc 1 277 0
+ 301 00ca 4DF20403 		movw	r3, #53252
+ 302 00ce C4F20F03 		movt	r3, 16399
+ 303 00d2 FA68     		ldr	r2, [r7, #12]
+ 304 00d4 1268     		ldr	r2, [r2, #0]
+ 305 00d6 1A60     		str	r2, [r3, #0]
+ 278:C:/StellarisWare/driverlib\flash.c ****             HWREG(FLASH_FMC) = FLASH_FMC_WRKEY | FLASH_FMC_WRITE;
+ 306              		.loc 1 278 0
+ 307 00d8 4DF20803 		movw	r3, #53256
+ 308 00dc C4F20F03 		movt	r3, 16399
+ 309 00e0 4FF00102 		mov	r2, #1
+ 310 00e4 CAF24242 		movt	r2, 42050
+ 311 00e8 1A60     		str	r2, [r3, #0]
+ 279:C:/StellarisWare/driverlib\flash.c **** 
+ 280:C:/StellarisWare/driverlib\flash.c ****             //
+ 281:C:/StellarisWare/driverlib\flash.c ****             // Wait until the word has been programmed.
+ 282:C:/StellarisWare/driverlib\flash.c ****             //
+ 283:C:/StellarisWare/driverlib\flash.c ****             while(HWREG(FLASH_FMC) & FLASH_FMC_WRITE)
+ 312              		.loc 1 283 0
+ 313 00ea 00BF     		nop
+ 314              	.L18:
+ 315              		.loc 1 283 0 is_stmt 0 discriminator 1
+ 316 00ec 4DF20803 		movw	r3, #53256
+ 317 00f0 C4F20F03 		movt	r3, 16399
+ 318 00f4 1B68     		ldr	r3, [r3, #0]
+ 319 00f6 03F00103 		and	r3, r3, #1
+ 320 00fa DBB2     		uxtb	r3, r3
+ 321 00fc 002B     		cmp	r3, #0
+ 322 00fe F5D1     		bne	.L18
+ 284:C:/StellarisWare/driverlib\flash.c ****             {
+ 285:C:/StellarisWare/driverlib\flash.c ****             }
+ 286:C:/StellarisWare/driverlib\flash.c **** 
+ 287:C:/StellarisWare/driverlib\flash.c ****             //
+ 288:C:/StellarisWare/driverlib\flash.c ****             // Increment to the next word.
+ 289:C:/StellarisWare/driverlib\flash.c ****             //
+ 290:C:/StellarisWare/driverlib\flash.c ****             pulData++;
+ 323              		.loc 1 290 0 is_stmt 1
+ 324 0100 FB68     		ldr	r3, [r7, #12]
+ 325 0102 03F10403 		add	r3, r3, #4
+ 326 0106 FB60     		str	r3, [r7, #12]
+ 291:C:/StellarisWare/driverlib\flash.c ****             ulAddress += 4;
+ 327              		.loc 1 291 0
+ 328 0108 BB68     		ldr	r3, [r7, #8]
+ 329 010a 03F10403 		add	r3, r3, #4
+ 330 010e BB60     		str	r3, [r7, #8]
+ 292:C:/StellarisWare/driverlib\flash.c ****             ulCount -= 4;
+ 331              		.loc 1 292 0
+ 332 0110 7B68     		ldr	r3, [r7, #4]
+ 333 0112 A3F10403 		sub	r3, r3, #4
+ 334 0116 7B60     		str	r3, [r7, #4]
+ 335              	.L17:
+ 271:C:/StellarisWare/driverlib\flash.c ****         while(ulCount)
+ 336              		.loc 1 271 0 discriminator 1
+ 337 0118 7B68     		ldr	r3, [r7, #4]
+ 338 011a 002B     		cmp	r3, #0
+ 339 011c CFD1     		bne	.L19
+ 340              	.L16:
+ 293:C:/StellarisWare/driverlib\flash.c ****         }
+ 294:C:/StellarisWare/driverlib\flash.c ****     }
+ 295:C:/StellarisWare/driverlib\flash.c **** 
+ 296:C:/StellarisWare/driverlib\flash.c ****     //
+ 297:C:/StellarisWare/driverlib\flash.c ****     // Return an error if an access violation occurred.
+ 298:C:/StellarisWare/driverlib\flash.c ****     //
+ 299:C:/StellarisWare/driverlib\flash.c ****     if(HWREG(FLASH_FCRIS) & (FLASH_FCRIS_ARIS | FLASH_FCRIS_VOLTRIS |
+ 341              		.loc 1 299 0
+ 342 011e 4DF20C03 		movw	r3, #53260
+ 343 0122 C4F20F03 		movt	r3, 16399
+ 344 0126 1A68     		ldr	r2, [r3, #0]
+ 345 0128 42F20163 		movw	r3, #9729
+ 346 012c 1340     		ands	r3, r3, r2
+ 347 012e 002B     		cmp	r3, #0
+ 348 0130 02D0     		beq	.L20
+ 300:C:/StellarisWare/driverlib\flash.c ****                              FLASH_FCRIS_INVDRIS | FLASH_FCRIS_PROGRIS))
+ 301:C:/StellarisWare/driverlib\flash.c ****     {
+ 302:C:/StellarisWare/driverlib\flash.c ****         return(-1);
+ 349              		.loc 1 302 0
+ 350 0132 4FF0FF33 		mov	r3, #-1
+ 351 0136 01E0     		b	.L21
+ 352              	.L20:
+ 303:C:/StellarisWare/driverlib\flash.c ****     }
+ 304:C:/StellarisWare/driverlib\flash.c **** 
+ 305:C:/StellarisWare/driverlib\flash.c ****     //
+ 306:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 307:C:/StellarisWare/driverlib\flash.c ****     //
+ 308:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 353              		.loc 1 308 0
+ 354 0138 4FF00003 		mov	r3, #0
+ 355              	.L21:
+ 309:C:/StellarisWare/driverlib\flash.c **** }
+ 356              		.loc 1 309 0
+ 357 013c 1846     		mov	r0, r3
+ 358 013e 07F11407 		add	r7, r7, #20
+ 359 0142 BD46     		mov	sp, r7
+ 360 0144 80BC     		pop	{r7}
+ 361 0146 7047     		bx	lr
+ 362              		.cfi_endproc
+ 363              	.LFE3:
+ 365              		.section	.text.FlashProtectGet,"ax",%progbits
+ 366              		.align	2
+ 367              		.global	FlashProtectGet
+ 368              		.thumb
+ 369              		.thumb_func
+ 371              	FlashProtectGet:
+ 372              	.LFB4:
+ 310:C:/StellarisWare/driverlib\flash.c **** 
+ 311:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 312:C:/StellarisWare/driverlib\flash.c **** //
+ 313:C:/StellarisWare/driverlib\flash.c **** //! Gets the protection setting for a block of flash.
+ 314:C:/StellarisWare/driverlib\flash.c **** //!
+ 315:C:/StellarisWare/driverlib\flash.c **** //! \param ulAddress is the start address of the flash block to be queried.
+ 316:C:/StellarisWare/driverlib\flash.c **** //!
+ 317:C:/StellarisWare/driverlib\flash.c **** //! This function gets the current protection for the specified 2-kB block
+ 318:C:/StellarisWare/driverlib\flash.c **** //! of flash.  Each block can be read/write, read-only, or execute-only.
+ 319:C:/StellarisWare/driverlib\flash.c **** //! Read/write blocks can be read, executed, erased, and programmed.  Read-only
+ 320:C:/StellarisWare/driverlib\flash.c **** //! blocks can be read and executed.  Execute-only blocks can only be executed;
+ 321:C:/StellarisWare/driverlib\flash.c **** //! processor and debugger data reads are not allowed.
+ 322:C:/StellarisWare/driverlib\flash.c **** //!
+ 323:C:/StellarisWare/driverlib\flash.c **** //! \return Returns the protection setting for this block.  See
+ 324:C:/StellarisWare/driverlib\flash.c **** //! FlashProtectSet() for possible values.
+ 325:C:/StellarisWare/driverlib\flash.c **** //
+ 326:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 327:C:/StellarisWare/driverlib\flash.c **** tFlashProtection
+ 328:C:/StellarisWare/driverlib\flash.c **** FlashProtectGet(unsigned long ulAddress)
+ 329:C:/StellarisWare/driverlib\flash.c **** {
+ 373              		.loc 1 329 0
+ 374              		.cfi_startproc
+ 375              		@ args = 0, pretend = 0, frame = 24
+ 376              		@ frame_needed = 1, uses_anonymous_args = 0
+ 377              		@ link register save eliminated.
+ 378 0000 80B4     		push	{r7}
+ 379              	.LCFI11:
+ 380              		.cfi_def_cfa_offset 4
+ 381              		.cfi_offset 7, -4
+ 382 0002 87B0     		sub	sp, sp, #28
+ 383              	.LCFI12:
+ 384              		.cfi_def_cfa_offset 32
+ 385 0004 00AF     		add	r7, sp, #0
+ 386              	.LCFI13:
+ 387              		.cfi_def_cfa_register 7
+ 388 0006 7860     		str	r0, [r7, #4]
+ 330:C:/StellarisWare/driverlib\flash.c ****     unsigned long ulFMPRE, ulFMPPE;
+ 331:C:/StellarisWare/driverlib\flash.c ****     unsigned long ulBank;
+ 332:C:/StellarisWare/driverlib\flash.c **** 
+ 333:C:/StellarisWare/driverlib\flash.c ****     //
+ 334:C:/StellarisWare/driverlib\flash.c ****     // Check the argument.
+ 335:C:/StellarisWare/driverlib\flash.c ****     //
+ 336:C:/StellarisWare/driverlib\flash.c ****     ASSERT(!(ulAddress & (FLASH_PROTECT_SIZE - 1)));
+ 337:C:/StellarisWare/driverlib\flash.c **** 
+ 338:C:/StellarisWare/driverlib\flash.c ****     //
+ 339:C:/StellarisWare/driverlib\flash.c ****     // Calculate the Flash Bank from Base Address, and mask off the Bank
+ 340:C:/StellarisWare/driverlib\flash.c ****     // from ulAddress for subsequent reference.
+ 341:C:/StellarisWare/driverlib\flash.c ****     //
+ 342:C:/StellarisWare/driverlib\flash.c ****     ulBank = (((ulAddress / FLASH_PROTECT_SIZE) / 32) % 4);
+ 389              		.loc 1 342 0
+ 390 0008 7B68     		ldr	r3, [r7, #4]
+ 391 000a 4FEA1343 		lsr	r3, r3, #16
+ 392 000e 03F00303 		and	r3, r3, #3
+ 393 0012 3B61     		str	r3, [r7, #16]
+ 343:C:/StellarisWare/driverlib\flash.c ****     ulAddress &= ((FLASH_PROTECT_SIZE * 32) - 1);
+ 394              		.loc 1 343 0
+ 395 0014 7B68     		ldr	r3, [r7, #4]
+ 396 0016 4FEA0343 		lsl	r3, r3, #16
+ 397 001a 4FEA1343 		lsr	r3, r3, #16
+ 398 001e 7B60     		str	r3, [r7, #4]
+ 344:C:/StellarisWare/driverlib\flash.c **** 
+ 345:C:/StellarisWare/driverlib\flash.c ****     //
+ 346:C:/StellarisWare/driverlib\flash.c ****     // Read the appropriate flash protection registers for the specified
+ 347:C:/StellarisWare/driverlib\flash.c ****     // flash bank.
+ 348:C:/StellarisWare/driverlib\flash.c ****     //
+ 349:C:/StellarisWare/driverlib\flash.c ****     ulFMPRE = HWREG(g_pulFMPRERegs[ulBank]);
+ 399              		.loc 1 349 0
+ 400 0020 40F20003 		movw	r3, #:lower16:g_pulFMPRERegs
+ 401 0024 C0F20003 		movt	r3, #:upper16:g_pulFMPRERegs
+ 402 0028 3A69     		ldr	r2, [r7, #16]
+ 403 002a 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 404 002e 1B68     		ldr	r3, [r3, #0]
+ 405 0030 7B61     		str	r3, [r7, #20]
+ 350:C:/StellarisWare/driverlib\flash.c ****     ulFMPPE = HWREG(g_pulFMPPERegs[ulBank]);
+ 406              		.loc 1 350 0
+ 407 0032 40F20003 		movw	r3, #:lower16:g_pulFMPPERegs
+ 408 0036 C0F20003 		movt	r3, #:upper16:g_pulFMPPERegs
+ 409 003a 3A69     		ldr	r2, [r7, #16]
+ 410 003c 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 411 0040 1B68     		ldr	r3, [r3, #0]
+ 412 0042 FB60     		str	r3, [r7, #12]
+ 351:C:/StellarisWare/driverlib\flash.c **** 
+ 352:C:/StellarisWare/driverlib\flash.c ****     //
+ 353:C:/StellarisWare/driverlib\flash.c ****     // For Stellaris Sandstorm-class devices, revision C1 and C2, the upper
+ 354:C:/StellarisWare/driverlib\flash.c ****     // bits of the FMPPE register are used for JTAG protect options, and are
+ 355:C:/StellarisWare/driverlib\flash.c ****     // not available for the FLASH protection scheme.  When Querying Block
+ 356:C:/StellarisWare/driverlib\flash.c ****     // Protection, assume these bits are 1.
+ 357:C:/StellarisWare/driverlib\flash.c ****     //
+ 358:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM && (REVISION_IS_C1 || REVISION_IS_C2))
+ 413              		.loc 1 358 0
+ 414 0044 4FF46043 		mov	r3, #57344
+ 415 0048 C4F20F03 		movt	r3, 16399
+ 416 004c 1B68     		ldr	r3, [r3, #0]
+ 417 004e 03F0E043 		and	r3, r3, #1879048192
+ 418 0052 002B     		cmp	r3, #0
+ 419 0054 0CD0     		beq	.L23
+ 420              		.loc 1 358 0 is_stmt 0 discriminator 2
+ 421 0056 4FF46043 		mov	r3, #57344
+ 422 005a C4F20F03 		movt	r3, 16399
+ 423 005e 1A68     		ldr	r2, [r3, #0]
+ 424 0060 4FF00003 		mov	r3, #0
+ 425 0064 C7F2FF03 		movt	r3, 28927
+ 426 0068 1340     		ands	r3, r3, r2
+ 427 006a B3F1805F 		cmp	r3, #268435456
+ 428 006e 1DD1     		bne	.L24
+ 429              	.L23:
+ 430              		.loc 1 358 0 discriminator 1
+ 431 0070 4FF46043 		mov	r3, #57344
+ 432 0074 C4F20F03 		movt	r3, 16399
+ 433 0078 1B68     		ldr	r3, [r3, #0]
+ 434 007a 4FEA0343 		lsl	r3, r3, #16
+ 435 007e 4FEA1343 		lsr	r3, r3, #16
+ 436 0082 40F20122 		movw	r2, #513
+ 437 0086 9342     		cmp	r3, r2
+ 438 0088 0CD0     		beq	.L25
+ 439 008a 4FF46043 		mov	r3, #57344
+ 440 008e C4F20F03 		movt	r3, 16399
+ 441 0092 1B68     		ldr	r3, [r3, #0]
+ 442 0094 4FEA0343 		lsl	r3, r3, #16
+ 443 0098 4FEA1343 		lsr	r3, r3, #16
+ 444 009c 40F20222 		movw	r2, #514
+ 445 00a0 9342     		cmp	r3, r2
+ 446 00a2 03D1     		bne	.L24
+ 447              	.L25:
+ 359:C:/StellarisWare/driverlib\flash.c ****     {
+ 360:C:/StellarisWare/driverlib\flash.c ****         ulFMPRE |= (FLASH_FMP_BLOCK_31 | FLASH_FMP_BLOCK_30);
+ 448              		.loc 1 360 0 is_stmt 1
+ 449 00a4 7B69     		ldr	r3, [r7, #20]
+ 450 00a6 43F04043 		orr	r3, r3, #-1073741824
+ 451 00aa 7B61     		str	r3, [r7, #20]
+ 452              	.L24:
+ 361:C:/StellarisWare/driverlib\flash.c ****     }
+ 362:C:/StellarisWare/driverlib\flash.c **** 
+ 363:C:/StellarisWare/driverlib\flash.c ****     //
+ 364:C:/StellarisWare/driverlib\flash.c ****     // Check the appropriate protection bits for the block of memory that
+ 365:C:/StellarisWare/driverlib\flash.c ****     // is specified by the address.
+ 366:C:/StellarisWare/driverlib\flash.c ****     //
+ 367:C:/StellarisWare/driverlib\flash.c ****     switch((((ulFMPRE >> (ulAddress / FLASH_PROTECT_SIZE)) &
+ 453              		.loc 1 367 0
+ 454 00ac 7B68     		ldr	r3, [r7, #4]
+ 455 00ae 4FEAD323 		lsr	r3, r3, #11
+ 456 00b2 7A69     		ldr	r2, [r7, #20]
+ 457 00b4 22FA03F3 		lsr	r3, r2, r3
+ 458 00b8 03F00103 		and	r3, r3, #1
+ 368:C:/StellarisWare/driverlib\flash.c ****              FLASH_FMP_BLOCK_0) << 1) |
+ 459              		.loc 1 368 0
+ 460 00bc 4FEA4302 		lsl	r2, r3, #1
+ 369:C:/StellarisWare/driverlib\flash.c ****            ((ulFMPPE >> (ulAddress / FLASH_PROTECT_SIZE)) & FLASH_FMP_BLOCK_0))
+ 461              		.loc 1 369 0
+ 462 00c0 7B68     		ldr	r3, [r7, #4]
+ 463 00c2 4FEAD323 		lsr	r3, r3, #11
+ 464 00c6 F968     		ldr	r1, [r7, #12]
+ 465 00c8 21FA03F3 		lsr	r3, r1, r3
+ 466 00cc 03F00103 		and	r3, r3, #1
+ 368:C:/StellarisWare/driverlib\flash.c ****              FLASH_FMP_BLOCK_0) << 1) |
+ 467              		.loc 1 368 0
+ 468 00d0 1343     		orrs	r3, r3, r2
+ 367:C:/StellarisWare/driverlib\flash.c ****     switch((((ulFMPRE >> (ulAddress / FLASH_PROTECT_SIZE)) &
+ 469              		.loc 1 367 0
+ 470 00d2 012B     		cmp	r3, #1
+ 471 00d4 02D9     		bls	.L27
+ 472 00d6 022B     		cmp	r3, #2
+ 473 00d8 03D0     		beq	.L28
+ 474 00da 05E0     		b	.L30
+ 475              	.L27:
+ 370:C:/StellarisWare/driverlib\flash.c ****     {
+ 371:C:/StellarisWare/driverlib\flash.c ****         //
+ 372:C:/StellarisWare/driverlib\flash.c ****         // This block is marked as execute only (that is, it can not be erased
+ 373:C:/StellarisWare/driverlib\flash.c ****         // or programmed, and the only reads allowed are via the instruction
+ 374:C:/StellarisWare/driverlib\flash.c ****         // fetch interface).
+ 375:C:/StellarisWare/driverlib\flash.c ****         //
+ 376:C:/StellarisWare/driverlib\flash.c ****         case 0:
+ 377:C:/StellarisWare/driverlib\flash.c ****         case 1:
+ 378:C:/StellarisWare/driverlib\flash.c ****         {
+ 379:C:/StellarisWare/driverlib\flash.c ****             return(FlashExecuteOnly);
+ 476              		.loc 1 379 0
+ 477 00dc 4FF00203 		mov	r3, #2
+ 478 00e0 04E0     		b	.L29
+ 479              	.L28:
+ 380:C:/StellarisWare/driverlib\flash.c ****         }
+ 381:C:/StellarisWare/driverlib\flash.c **** 
+ 382:C:/StellarisWare/driverlib\flash.c ****         //
+ 383:C:/StellarisWare/driverlib\flash.c ****         // This block is marked as read only (that is, it can not be erased or
+ 384:C:/StellarisWare/driverlib\flash.c ****         // programmed).
+ 385:C:/StellarisWare/driverlib\flash.c ****         //
+ 386:C:/StellarisWare/driverlib\flash.c ****         case 2:
+ 387:C:/StellarisWare/driverlib\flash.c ****         {
+ 388:C:/StellarisWare/driverlib\flash.c ****             return(FlashReadOnly);
+ 480              		.loc 1 388 0
+ 481 00e2 4FF00103 		mov	r3, #1
+ 482 00e6 01E0     		b	.L29
+ 483              	.L30:
+ 389:C:/StellarisWare/driverlib\flash.c ****         }
+ 390:C:/StellarisWare/driverlib\flash.c **** 
+ 391:C:/StellarisWare/driverlib\flash.c ****         //
+ 392:C:/StellarisWare/driverlib\flash.c ****         // This block is read/write; it can be read, erased, and programmed.
+ 393:C:/StellarisWare/driverlib\flash.c ****         //
+ 394:C:/StellarisWare/driverlib\flash.c ****         case 3:
+ 395:C:/StellarisWare/driverlib\flash.c ****         default:
+ 396:C:/StellarisWare/driverlib\flash.c ****         {
+ 397:C:/StellarisWare/driverlib\flash.c ****             return(FlashReadWrite);
+ 484              		.loc 1 397 0
+ 485 00e8 4FF00003 		mov	r3, #0
+ 486              	.L29:
+ 398:C:/StellarisWare/driverlib\flash.c ****         }
+ 399:C:/StellarisWare/driverlib\flash.c ****     }
+ 400:C:/StellarisWare/driverlib\flash.c **** }
+ 487              		.loc 1 400 0
+ 488 00ec 1846     		mov	r0, r3
+ 489 00ee 07F11C07 		add	r7, r7, #28
+ 490 00f2 BD46     		mov	sp, r7
+ 491 00f4 80BC     		pop	{r7}
+ 492 00f6 7047     		bx	lr
+ 493              		.cfi_endproc
+ 494              	.LFE4:
+ 496              		.section	.text.FlashProtectSet,"ax",%progbits
+ 497              		.align	2
+ 498              		.global	FlashProtectSet
+ 499              		.thumb
+ 500              		.thumb_func
+ 502              	FlashProtectSet:
+ 503              	.LFB5:
+ 401:C:/StellarisWare/driverlib\flash.c **** 
+ 402:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 403:C:/StellarisWare/driverlib\flash.c **** //
+ 404:C:/StellarisWare/driverlib\flash.c **** //! Sets the protection setting for a block of flash.
+ 405:C:/StellarisWare/driverlib\flash.c **** //!
+ 406:C:/StellarisWare/driverlib\flash.c **** //! \param ulAddress is the start address of the flash block to be protected.
+ 407:C:/StellarisWare/driverlib\flash.c **** //! \param eProtect is the protection to be applied to the block.  Can be one
+ 408:C:/StellarisWare/driverlib\flash.c **** //! of \b FlashReadWrite, \b FlashReadOnly, or \b FlashExecuteOnly.
+ 409:C:/StellarisWare/driverlib\flash.c **** //!
+ 410:C:/StellarisWare/driverlib\flash.c **** //! This function sets the protection for the specified 2-kB block of
+ 411:C:/StellarisWare/driverlib\flash.c **** //! flash.  Blocks that are read/write can be made read-only or execute-only.
+ 412:C:/StellarisWare/driverlib\flash.c **** //! Blocks that are read-only can be made execute-only.  Blocks that are
+ 413:C:/StellarisWare/driverlib\flash.c **** //! execute-only cannot have their protection modified.  Attempts to make the
+ 414:C:/StellarisWare/driverlib\flash.c **** //! block protection less stringent (that is, read-only to read/write)
+ 415:C:/StellarisWare/driverlib\flash.c **** //! result in a failure (and are prevented by the hardware).
+ 416:C:/StellarisWare/driverlib\flash.c **** //!
+ 417:C:/StellarisWare/driverlib\flash.c **** //! Changes to the flash protection are maintained only until the next reset.
+ 418:C:/StellarisWare/driverlib\flash.c **** //! This protocol allows the application to be executed in the desired flash
+ 419:C:/StellarisWare/driverlib\flash.c **** //! protection environment to check for inappropriate flash access (via the
+ 420:C:/StellarisWare/driverlib\flash.c **** //! flash interrupt).  To make the flash protection permanent, use the
+ 421:C:/StellarisWare/driverlib\flash.c **** //! FlashProtectSave() function.
+ 422:C:/StellarisWare/driverlib\flash.c **** //!
+ 423:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if an invalid address or an invalid
+ 424:C:/StellarisWare/driverlib\flash.c **** //! protection was specified.
+ 425:C:/StellarisWare/driverlib\flash.c **** //
+ 426:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 427:C:/StellarisWare/driverlib\flash.c **** long
+ 428:C:/StellarisWare/driverlib\flash.c **** FlashProtectSet(unsigned long ulAddress, tFlashProtection eProtect)
+ 429:C:/StellarisWare/driverlib\flash.c **** {
+ 504              		.loc 1 429 0
+ 505              		.cfi_startproc
+ 506              		@ args = 0, pretend = 0, frame = 24
+ 507              		@ frame_needed = 1, uses_anonymous_args = 0
+ 508              		@ link register save eliminated.
+ 509 0000 80B4     		push	{r7}
+ 510              	.LCFI14:
+ 511              		.cfi_def_cfa_offset 4
+ 512              		.cfi_offset 7, -4
+ 513 0002 87B0     		sub	sp, sp, #28
+ 514              	.LCFI15:
+ 515              		.cfi_def_cfa_offset 32
+ 516 0004 00AF     		add	r7, sp, #0
+ 517              	.LCFI16:
+ 518              		.cfi_def_cfa_register 7
+ 519 0006 7860     		str	r0, [r7, #4]
+ 520 0008 0B46     		mov	r3, r1
+ 521 000a FB70     		strb	r3, [r7, #3]
+ 430:C:/StellarisWare/driverlib\flash.c ****     unsigned long ulProtectRE, ulProtectPE;
+ 431:C:/StellarisWare/driverlib\flash.c ****     unsigned long ulBank;
+ 432:C:/StellarisWare/driverlib\flash.c **** 
+ 433:C:/StellarisWare/driverlib\flash.c ****     //
+ 434:C:/StellarisWare/driverlib\flash.c ****     // Check the argument.
+ 435:C:/StellarisWare/driverlib\flash.c ****     //
+ 436:C:/StellarisWare/driverlib\flash.c ****     ASSERT(!(ulAddress & (FLASH_PROTECT_SIZE - 1)));
+ 437:C:/StellarisWare/driverlib\flash.c ****     ASSERT((eProtect == FlashReadWrite) || (eProtect == FlashReadOnly) ||
+ 438:C:/StellarisWare/driverlib\flash.c ****            (eProtect == FlashExecuteOnly));
+ 439:C:/StellarisWare/driverlib\flash.c **** 
+ 440:C:/StellarisWare/driverlib\flash.c ****     //
+ 441:C:/StellarisWare/driverlib\flash.c ****     // Convert the address into a block number.
+ 442:C:/StellarisWare/driverlib\flash.c ****     //
+ 443:C:/StellarisWare/driverlib\flash.c ****     ulAddress /= FLASH_PROTECT_SIZE;
+ 522              		.loc 1 443 0
+ 523 000c 7B68     		ldr	r3, [r7, #4]
+ 524 000e 4FEAD323 		lsr	r3, r3, #11
+ 525 0012 7B60     		str	r3, [r7, #4]
+ 444:C:/StellarisWare/driverlib\flash.c **** 
+ 445:C:/StellarisWare/driverlib\flash.c ****     //
+ 446:C:/StellarisWare/driverlib\flash.c ****     // ulAddress contains a "raw" block number.  Derive the Flash Bank from
+ 447:C:/StellarisWare/driverlib\flash.c ****     // the "raw" block number, and convert ulAddress to a "relative"
+ 448:C:/StellarisWare/driverlib\flash.c ****     // block number.
+ 449:C:/StellarisWare/driverlib\flash.c ****     //
+ 450:C:/StellarisWare/driverlib\flash.c ****     ulBank = ((ulAddress / 32) % 4);
+ 526              		.loc 1 450 0
+ 527 0014 7B68     		ldr	r3, [r7, #4]
+ 528 0016 4FEA5313 		lsr	r3, r3, #5
+ 529 001a 03F00303 		and	r3, r3, #3
+ 530 001e FB60     		str	r3, [r7, #12]
+ 451:C:/StellarisWare/driverlib\flash.c ****     ulAddress %= 32;
+ 531              		.loc 1 451 0
+ 532 0020 7B68     		ldr	r3, [r7, #4]
+ 533 0022 03F01F03 		and	r3, r3, #31
+ 534 0026 7B60     		str	r3, [r7, #4]
+ 452:C:/StellarisWare/driverlib\flash.c **** 
+ 453:C:/StellarisWare/driverlib\flash.c ****     //
+ 454:C:/StellarisWare/driverlib\flash.c ****     // Get the current protection for the specified flash bank.
+ 455:C:/StellarisWare/driverlib\flash.c ****     //
+ 456:C:/StellarisWare/driverlib\flash.c ****     ulProtectRE = HWREG(g_pulFMPRERegs[ulBank]);
+ 535              		.loc 1 456 0
+ 536 0028 40F20003 		movw	r3, #:lower16:g_pulFMPRERegs
+ 537 002c C0F20003 		movt	r3, #:upper16:g_pulFMPRERegs
+ 538 0030 FA68     		ldr	r2, [r7, #12]
+ 539 0032 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 540 0036 1B68     		ldr	r3, [r3, #0]
+ 541 0038 7B61     		str	r3, [r7, #20]
+ 457:C:/StellarisWare/driverlib\flash.c ****     ulProtectPE = HWREG(g_pulFMPPERegs[ulBank]);
+ 542              		.loc 1 457 0
+ 543 003a 40F20003 		movw	r3, #:lower16:g_pulFMPPERegs
+ 544 003e C0F20003 		movt	r3, #:upper16:g_pulFMPPERegs
+ 545 0042 FA68     		ldr	r2, [r7, #12]
+ 546 0044 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 547 0048 1B68     		ldr	r3, [r3, #0]
+ 548 004a 3B61     		str	r3, [r7, #16]
+ 458:C:/StellarisWare/driverlib\flash.c **** 
+ 459:C:/StellarisWare/driverlib\flash.c ****     //
+ 460:C:/StellarisWare/driverlib\flash.c ****     // For Stellaris Sandstorm-class devices, revision C1 and C2, the upper
+ 461:C:/StellarisWare/driverlib\flash.c ****     // bits of the FMPPE register are used for JTAG protect options, and are
+ 462:C:/StellarisWare/driverlib\flash.c ****     // not available for the FLASH protection scheme.  When setting protection,
+ 463:C:/StellarisWare/driverlib\flash.c ****     // check to see if block 30 or 31 and protection is FlashExecuteOnly.  If
+ 464:C:/StellarisWare/driverlib\flash.c ****     // so, return an error condition.
+ 465:C:/StellarisWare/driverlib\flash.c ****     //
+ 466:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM && (REVISION_IS_C1 || REVISION_IS_C2))
+ 549              		.loc 1 466 0
+ 550 004c 4FF46043 		mov	r3, #57344
+ 551 0050 C4F20F03 		movt	r3, 16399
+ 552 0054 1B68     		ldr	r3, [r3, #0]
+ 553 0056 03F0E043 		and	r3, r3, #1879048192
+ 554 005a 002B     		cmp	r3, #0
+ 555 005c 0CD0     		beq	.L32
+ 556              		.loc 1 466 0 is_stmt 0 discriminator 2
+ 557 005e 4FF46043 		mov	r3, #57344
+ 558 0062 C4F20F03 		movt	r3, 16399
+ 559 0066 1A68     		ldr	r2, [r3, #0]
+ 560 0068 4FF00003 		mov	r3, #0
+ 561 006c C7F2FF03 		movt	r3, 28927
+ 562 0070 1340     		ands	r3, r3, r2
+ 563 0072 B3F1805F 		cmp	r3, #268435456
+ 564 0076 22D1     		bne	.L33
+ 565              	.L32:
+ 566              		.loc 1 466 0 discriminator 1
+ 567 0078 4FF46043 		mov	r3, #57344
+ 568 007c C4F20F03 		movt	r3, 16399
+ 569 0080 1B68     		ldr	r3, [r3, #0]
+ 570 0082 4FEA0343 		lsl	r3, r3, #16
+ 571 0086 4FEA1343 		lsr	r3, r3, #16
+ 572 008a 40F20122 		movw	r2, #513
+ 573 008e 9342     		cmp	r3, r2
+ 574 0090 0CD0     		beq	.L34
+ 575 0092 4FF46043 		mov	r3, #57344
+ 576 0096 C4F20F03 		movt	r3, 16399
+ 577 009a 1B68     		ldr	r3, [r3, #0]
+ 578 009c 4FEA0343 		lsl	r3, r3, #16
+ 579 00a0 4FEA1343 		lsr	r3, r3, #16
+ 580 00a4 40F20222 		movw	r2, #514
+ 581 00a8 9342     		cmp	r3, r2
+ 582 00aa 08D1     		bne	.L33
+ 583              	.L34:
+ 467:C:/StellarisWare/driverlib\flash.c ****     {
+ 468:C:/StellarisWare/driverlib\flash.c ****         if((ulAddress >= 30) && (eProtect == FlashExecuteOnly))
+ 584              		.loc 1 468 0 is_stmt 1
+ 585 00ac 7B68     		ldr	r3, [r7, #4]
+ 586 00ae 1D2B     		cmp	r3, #29
+ 587 00b0 05D9     		bls	.L33
+ 588              		.loc 1 468 0 is_stmt 0 discriminator 1
+ 589 00b2 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 590 00b4 022B     		cmp	r3, #2
+ 591 00b6 02D1     		bne	.L33
+ 469:C:/StellarisWare/driverlib\flash.c ****         {
+ 470:C:/StellarisWare/driverlib\flash.c ****             return(-1);
+ 592              		.loc 1 470 0 is_stmt 1
+ 593 00b8 4FF0FF33 		mov	r3, #-1
+ 594 00bc 9AE0     		b	.L35
+ 595              	.L33:
+ 471:C:/StellarisWare/driverlib\flash.c ****         }
+ 472:C:/StellarisWare/driverlib\flash.c ****     }
+ 473:C:/StellarisWare/driverlib\flash.c **** 
+ 474:C:/StellarisWare/driverlib\flash.c ****     //
+ 475:C:/StellarisWare/driverlib\flash.c ****     // Set the protection based on the requested proection.
+ 476:C:/StellarisWare/driverlib\flash.c ****     //
+ 477:C:/StellarisWare/driverlib\flash.c ****     switch(eProtect)
+ 596              		.loc 1 477 0
+ 597 00be FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 598 00c0 012B     		cmp	r3, #1
+ 599 00c2 16D0     		beq	.L37
+ 600 00c4 022B     		cmp	r3, #2
+ 601 00c6 2AD1     		bne	.L46
+ 602              	.L38:
+ 478:C:/StellarisWare/driverlib\flash.c ****     {
+ 479:C:/StellarisWare/driverlib\flash.c ****         //
+ 480:C:/StellarisWare/driverlib\flash.c ****         // Make this block execute only.
+ 481:C:/StellarisWare/driverlib\flash.c ****         //
+ 482:C:/StellarisWare/driverlib\flash.c ****         case FlashExecuteOnly:
+ 483:C:/StellarisWare/driverlib\flash.c ****         {
+ 484:C:/StellarisWare/driverlib\flash.c ****             //
+ 485:C:/StellarisWare/driverlib\flash.c ****             // Turn off the read and program bits for this block.
+ 486:C:/StellarisWare/driverlib\flash.c ****             //
+ 487:C:/StellarisWare/driverlib\flash.c ****             ulProtectRE &= ~(FLASH_FMP_BLOCK_0 << ulAddress);
+ 603              		.loc 1 487 0
+ 604 00c8 7B68     		ldr	r3, [r7, #4]
+ 605 00ca 4FF00102 		mov	r2, #1
+ 606 00ce 02FA03F3 		lsl	r3, r2, r3
+ 607 00d2 6FEA0303 		mvn	r3, r3
+ 608 00d6 7A69     		ldr	r2, [r7, #20]
+ 609 00d8 1340     		ands	r3, r3, r2
+ 610 00da 7B61     		str	r3, [r7, #20]
+ 488:C:/StellarisWare/driverlib\flash.c ****             ulProtectPE &= ~(FLASH_FMP_BLOCK_0 << ulAddress);
+ 611              		.loc 1 488 0
+ 612 00dc 7B68     		ldr	r3, [r7, #4]
+ 613 00de 4FF00102 		mov	r2, #1
+ 614 00e2 02FA03F3 		lsl	r3, r2, r3
+ 615 00e6 6FEA0303 		mvn	r3, r3
+ 616 00ea 3A69     		ldr	r2, [r7, #16]
+ 617 00ec 1340     		ands	r3, r3, r2
+ 618 00ee 3B61     		str	r3, [r7, #16]
+ 489:C:/StellarisWare/driverlib\flash.c **** 
+ 490:C:/StellarisWare/driverlib\flash.c ****             //
+ 491:C:/StellarisWare/driverlib\flash.c ****             // We're done handling this protection.
+ 492:C:/StellarisWare/driverlib\flash.c ****             //
+ 493:C:/StellarisWare/driverlib\flash.c ****             break;
+ 619              		.loc 1 493 0
+ 620 00f0 2BE0     		b	.L39
+ 621              	.L37:
+ 494:C:/StellarisWare/driverlib\flash.c ****         }
+ 495:C:/StellarisWare/driverlib\flash.c **** 
+ 496:C:/StellarisWare/driverlib\flash.c ****         //
+ 497:C:/StellarisWare/driverlib\flash.c ****         // Make this block read only.
+ 498:C:/StellarisWare/driverlib\flash.c ****         //
+ 499:C:/StellarisWare/driverlib\flash.c ****         case FlashReadOnly:
+ 500:C:/StellarisWare/driverlib\flash.c ****         {
+ 501:C:/StellarisWare/driverlib\flash.c ****             //
+ 502:C:/StellarisWare/driverlib\flash.c ****             // The block can not be made read only if it is execute only.
+ 503:C:/StellarisWare/driverlib\flash.c ****             //
+ 504:C:/StellarisWare/driverlib\flash.c ****             if(((ulProtectRE >> ulAddress) & FLASH_FMP_BLOCK_0) !=
+ 622              		.loc 1 504 0
+ 623 00f2 7B68     		ldr	r3, [r7, #4]
+ 624 00f4 7A69     		ldr	r2, [r7, #20]
+ 625 00f6 22FA03F3 		lsr	r3, r2, r3
+ 626 00fa 03F00103 		and	r3, r3, #1
+ 627 00fe 002B     		cmp	r3, #0
+ 628 0100 02D1     		bne	.L40
+ 505:C:/StellarisWare/driverlib\flash.c ****                FLASH_FMP_BLOCK_0)
+ 506:C:/StellarisWare/driverlib\flash.c ****             {
+ 507:C:/StellarisWare/driverlib\flash.c ****                 return(-1);
+ 629              		.loc 1 507 0
+ 630 0102 4FF0FF33 		mov	r3, #-1
+ 631 0106 75E0     		b	.L35
+ 632              	.L40:
+ 508:C:/StellarisWare/driverlib\flash.c ****             }
+ 509:C:/StellarisWare/driverlib\flash.c **** 
+ 510:C:/StellarisWare/driverlib\flash.c ****             //
+ 511:C:/StellarisWare/driverlib\flash.c ****             // Make this block read only.
+ 512:C:/StellarisWare/driverlib\flash.c ****             //
+ 513:C:/StellarisWare/driverlib\flash.c ****             ulProtectPE &= ~(FLASH_FMP_BLOCK_0 << ulAddress);
+ 633              		.loc 1 513 0
+ 634 0108 7B68     		ldr	r3, [r7, #4]
+ 635 010a 4FF00102 		mov	r2, #1
+ 636 010e 02FA03F3 		lsl	r3, r2, r3
+ 637 0112 6FEA0303 		mvn	r3, r3
+ 638 0116 3A69     		ldr	r2, [r7, #16]
+ 639 0118 1340     		ands	r3, r3, r2
+ 640 011a 3B61     		str	r3, [r7, #16]
+ 514:C:/StellarisWare/driverlib\flash.c **** 
+ 515:C:/StellarisWare/driverlib\flash.c ****             //
+ 516:C:/StellarisWare/driverlib\flash.c ****             // We're done handling this protection.
+ 517:C:/StellarisWare/driverlib\flash.c ****             //
+ 518:C:/StellarisWare/driverlib\flash.c ****             break;
+ 641              		.loc 1 518 0
+ 642 011c 15E0     		b	.L39
+ 643              	.L46:
+ 519:C:/StellarisWare/driverlib\flash.c ****         }
+ 520:C:/StellarisWare/driverlib\flash.c **** 
+ 521:C:/StellarisWare/driverlib\flash.c ****         //
+ 522:C:/StellarisWare/driverlib\flash.c ****         // Make this block read/write.
+ 523:C:/StellarisWare/driverlib\flash.c ****         //
+ 524:C:/StellarisWare/driverlib\flash.c ****         case FlashReadWrite:
+ 525:C:/StellarisWare/driverlib\flash.c ****         default:
+ 526:C:/StellarisWare/driverlib\flash.c ****         {
+ 527:C:/StellarisWare/driverlib\flash.c ****             //
+ 528:C:/StellarisWare/driverlib\flash.c ****             // The block can not be made read/write if it is not already
+ 529:C:/StellarisWare/driverlib\flash.c ****             // read/write.
+ 530:C:/StellarisWare/driverlib\flash.c ****             //
+ 531:C:/StellarisWare/driverlib\flash.c ****             if((((ulProtectRE >> ulAddress) & FLASH_FMP_BLOCK_0) !=
+ 644              		.loc 1 531 0
+ 645 011e 7B68     		ldr	r3, [r7, #4]
+ 646 0120 7A69     		ldr	r2, [r7, #20]
+ 647 0122 22FA03F3 		lsr	r3, r2, r3
+ 648 0126 03F00103 		and	r3, r3, #1
+ 649 012a 002B     		cmp	r3, #0
+ 650 012c 07D0     		beq	.L41
+ 532:C:/StellarisWare/driverlib\flash.c ****                 FLASH_FMP_BLOCK_0) ||
+ 533:C:/StellarisWare/driverlib\flash.c ****                (((ulProtectPE >> ulAddress) & FLASH_FMP_BLOCK_0) !=
+ 651              		.loc 1 533 0
+ 652 012e 7B68     		ldr	r3, [r7, #4]
+ 653 0130 3A69     		ldr	r2, [r7, #16]
+ 654 0132 22FA03F3 		lsr	r3, r2, r3
+ 655 0136 03F00103 		and	r3, r3, #1
+ 532:C:/StellarisWare/driverlib\flash.c ****                 FLASH_FMP_BLOCK_0) ||
+ 656              		.loc 1 532 0
+ 657 013a 002B     		cmp	r3, #0
+ 658 013c 02D1     		bne	.L42
+ 659              	.L41:
+ 534:C:/StellarisWare/driverlib\flash.c ****                 FLASH_FMP_BLOCK_0))
+ 535:C:/StellarisWare/driverlib\flash.c ****             {
+ 536:C:/StellarisWare/driverlib\flash.c ****                 return(-1);
+ 660              		.loc 1 536 0
+ 661 013e 4FF0FF33 		mov	r3, #-1
+ 662 0142 57E0     		b	.L35
+ 663              	.L42:
+ 537:C:/StellarisWare/driverlib\flash.c ****             }
+ 538:C:/StellarisWare/driverlib\flash.c **** 
+ 539:C:/StellarisWare/driverlib\flash.c ****             //
+ 540:C:/StellarisWare/driverlib\flash.c ****             // The block is already read/write, so there is nothing to do.
+ 541:C:/StellarisWare/driverlib\flash.c ****             //
+ 542:C:/StellarisWare/driverlib\flash.c ****             return(0);
+ 664              		.loc 1 542 0
+ 665 0144 4FF00003 		mov	r3, #0
+ 666 0148 54E0     		b	.L35
+ 667              	.L39:
+ 543:C:/StellarisWare/driverlib\flash.c ****         }
+ 544:C:/StellarisWare/driverlib\flash.c ****     }
+ 545:C:/StellarisWare/driverlib\flash.c **** 
+ 546:C:/StellarisWare/driverlib\flash.c ****     //
+ 547:C:/StellarisWare/driverlib\flash.c ****     // For Stellaris Sandstorm-class devices, revision C1 and C2, the upper
+ 548:C:/StellarisWare/driverlib\flash.c ****     // bits of the FMPPE register are used for JTAG options, and are not
+ 549:C:/StellarisWare/driverlib\flash.c ****     // available for the FLASH protection scheme.  When setting block
+ 550:C:/StellarisWare/driverlib\flash.c ****     // protection, ensure that these bits are not altered.
+ 551:C:/StellarisWare/driverlib\flash.c ****     //
+ 552:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM && (REVISION_IS_C1 || REVISION_IS_C2))
+ 668              		.loc 1 552 0
+ 669 014a 4FF46043 		mov	r3, #57344
+ 670 014e C4F20F03 		movt	r3, 16399
+ 671 0152 1B68     		ldr	r3, [r3, #0]
+ 672 0154 03F0E043 		and	r3, r3, #1879048192
+ 673 0158 002B     		cmp	r3, #0
+ 674 015a 0CD0     		beq	.L43
+ 675              		.loc 1 552 0 is_stmt 0 discriminator 2
+ 676 015c 4FF46043 		mov	r3, #57344
+ 677 0160 C4F20F03 		movt	r3, 16399
+ 678 0164 1A68     		ldr	r2, [r3, #0]
+ 679 0166 4FF00003 		mov	r3, #0
+ 680 016a C7F2FF03 		movt	r3, 28927
+ 681 016e 1340     		ands	r3, r3, r2
+ 682 0170 B3F1805F 		cmp	r3, #268435456
+ 683 0174 2AD1     		bne	.L44
+ 684              	.L43:
+ 685              		.loc 1 552 0 discriminator 1
+ 686 0176 4FF46043 		mov	r3, #57344
+ 687 017a C4F20F03 		movt	r3, 16399
+ 688 017e 1B68     		ldr	r3, [r3, #0]
+ 689 0180 4FEA0343 		lsl	r3, r3, #16
+ 690 0184 4FEA1343 		lsr	r3, r3, #16
+ 691 0188 40F20122 		movw	r2, #513
+ 692 018c 9342     		cmp	r3, r2
+ 693 018e 0CD0     		beq	.L45
+ 694 0190 4FF46043 		mov	r3, #57344
+ 695 0194 C4F20F03 		movt	r3, 16399
+ 696 0198 1B68     		ldr	r3, [r3, #0]
+ 697 019a 4FEA0343 		lsl	r3, r3, #16
+ 698 019e 4FEA1343 		lsr	r3, r3, #16
+ 699 01a2 40F20222 		movw	r2, #514
+ 700 01a6 9342     		cmp	r3, r2
+ 701 01a8 10D1     		bne	.L44
+ 702              	.L45:
+ 553:C:/StellarisWare/driverlib\flash.c ****     {
+ 554:C:/StellarisWare/driverlib\flash.c ****         ulProtectRE &= ~(FLASH_FMP_BLOCK_31 | FLASH_FMP_BLOCK_30);
+ 703              		.loc 1 554 0 is_stmt 1
+ 704 01aa 7B69     		ldr	r3, [r7, #20]
+ 705 01ac 23F04043 		bic	r3, r3, #-1073741824
+ 706 01b0 7B61     		str	r3, [r7, #20]
+ 555:C:/StellarisWare/driverlib\flash.c ****         ulProtectRE |= (HWREG(g_pulFMPRERegs[ulBank]) &
+ 707              		.loc 1 555 0
+ 708 01b2 40F20003 		movw	r3, #:lower16:g_pulFMPRERegs
+ 709 01b6 C0F20003 		movt	r3, #:upper16:g_pulFMPRERegs
+ 710 01ba FA68     		ldr	r2, [r7, #12]
+ 711 01bc 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 712 01c0 1B68     		ldr	r3, [r3, #0]
+ 713 01c2 03F04043 		and	r3, r3, #-1073741824
+ 714 01c6 7A69     		ldr	r2, [r7, #20]
+ 715 01c8 1343     		orrs	r3, r3, r2
+ 716 01ca 7B61     		str	r3, [r7, #20]
+ 717              	.L44:
+ 556:C:/StellarisWare/driverlib\flash.c ****                         (FLASH_FMP_BLOCK_31 | FLASH_FMP_BLOCK_30));
+ 557:C:/StellarisWare/driverlib\flash.c ****     }
+ 558:C:/StellarisWare/driverlib\flash.c **** 
+ 559:C:/StellarisWare/driverlib\flash.c ****     //
+ 560:C:/StellarisWare/driverlib\flash.c ****     // Set the new protection for the specified flash bank.
+ 561:C:/StellarisWare/driverlib\flash.c ****     //
+ 562:C:/StellarisWare/driverlib\flash.c ****     HWREG(g_pulFMPRERegs[ulBank]) = ulProtectRE;
+ 718              		.loc 1 562 0
+ 719 01cc 40F20003 		movw	r3, #:lower16:g_pulFMPRERegs
+ 720 01d0 C0F20003 		movt	r3, #:upper16:g_pulFMPRERegs
+ 721 01d4 FA68     		ldr	r2, [r7, #12]
+ 722 01d6 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 723 01da 7A69     		ldr	r2, [r7, #20]
+ 724 01dc 1A60     		str	r2, [r3, #0]
+ 563:C:/StellarisWare/driverlib\flash.c ****     HWREG(g_pulFMPPERegs[ulBank]) = ulProtectPE;
+ 725              		.loc 1 563 0
+ 726 01de 40F20003 		movw	r3, #:lower16:g_pulFMPPERegs
+ 727 01e2 C0F20003 		movt	r3, #:upper16:g_pulFMPPERegs
+ 728 01e6 FA68     		ldr	r2, [r7, #12]
+ 729 01e8 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 730 01ec 3A69     		ldr	r2, [r7, #16]
+ 731 01ee 1A60     		str	r2, [r3, #0]
+ 564:C:/StellarisWare/driverlib\flash.c **** 
+ 565:C:/StellarisWare/driverlib\flash.c ****     //
+ 566:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 567:C:/StellarisWare/driverlib\flash.c ****     //
+ 568:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 732              		.loc 1 568 0
+ 733 01f0 4FF00003 		mov	r3, #0
+ 734              	.L35:
+ 569:C:/StellarisWare/driverlib\flash.c **** }
+ 735              		.loc 1 569 0
+ 736 01f4 1846     		mov	r0, r3
+ 737 01f6 07F11C07 		add	r7, r7, #28
+ 738 01fa BD46     		mov	sp, r7
+ 739 01fc 80BC     		pop	{r7}
+ 740 01fe 7047     		bx	lr
+ 741              		.cfi_endproc
+ 742              	.LFE5:
+ 744              		.section	.text.FlashProtectSave,"ax",%progbits
+ 745              		.align	2
+ 746              		.global	FlashProtectSave
+ 747              		.thumb
+ 748              		.thumb_func
+ 750              	FlashProtectSave:
+ 751              	.LFB6:
+ 570:C:/StellarisWare/driverlib\flash.c **** 
+ 571:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 572:C:/StellarisWare/driverlib\flash.c **** //
+ 573:C:/StellarisWare/driverlib\flash.c **** //! Saves the flash protection settings.
+ 574:C:/StellarisWare/driverlib\flash.c **** //!
+ 575:C:/StellarisWare/driverlib\flash.c **** //! This function makes the currently programmed flash protection settings
+ 576:C:/StellarisWare/driverlib\flash.c **** //! permanent.  On some devices, this operation is non-reversible; a chip reset
+ 577:C:/StellarisWare/driverlib\flash.c **** //! or power cycle does not change the flash protection.
+ 578:C:/StellarisWare/driverlib\flash.c **** //!
+ 579:C:/StellarisWare/driverlib\flash.c **** //! This function does not return until the protection has been saved.
+ 580:C:/StellarisWare/driverlib\flash.c **** //!
+ 581:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if a hardware error is encountered.
+ 582:C:/StellarisWare/driverlib\flash.c **** //
+ 583:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 584:C:/StellarisWare/driverlib\flash.c **** long
+ 585:C:/StellarisWare/driverlib\flash.c **** FlashProtectSave(void)
+ 586:C:/StellarisWare/driverlib\flash.c **** {
+ 752              		.loc 1 586 0
+ 753              		.cfi_startproc
+ 754              		@ args = 0, pretend = 0, frame = 8
+ 755              		@ frame_needed = 1, uses_anonymous_args = 0
+ 756              		@ link register save eliminated.
+ 757 0000 80B4     		push	{r7}
+ 758              	.LCFI17:
+ 759              		.cfi_def_cfa_offset 4
+ 760              		.cfi_offset 7, -4
+ 761 0002 83B0     		sub	sp, sp, #12
+ 762              	.LCFI18:
+ 763              		.cfi_def_cfa_offset 16
+ 764 0004 00AF     		add	r7, sp, #0
+ 765              	.LCFI19:
+ 766              		.cfi_def_cfa_register 7
+ 587:C:/StellarisWare/driverlib\flash.c ****     unsigned long ulTemp, ulLimit;
+ 588:C:/StellarisWare/driverlib\flash.c **** 
+ 589:C:/StellarisWare/driverlib\flash.c ****     //
+ 590:C:/StellarisWare/driverlib\flash.c ****     // If running on a Sandstorm-class device, only trigger a save of the first
+ 591:C:/StellarisWare/driverlib\flash.c ****     // two protection registers (FMPRE and FMPPE).  Otherwise, save the
+ 592:C:/StellarisWare/driverlib\flash.c ****     // entire bank of flash protection registers.
+ 593:C:/StellarisWare/driverlib\flash.c ****     //
+ 594:C:/StellarisWare/driverlib\flash.c ****     ulLimit = CLASS_IS_SANDSTORM ? 2 : 8;
+ 767              		.loc 1 594 0
+ 768 0006 4FF46043 		mov	r3, #57344
+ 769 000a C4F20F03 		movt	r3, 16399
+ 770 000e 1B68     		ldr	r3, [r3, #0]
+ 771 0010 03F0E043 		and	r3, r3, #1879048192
+ 772 0014 002B     		cmp	r3, #0
+ 773 0016 0CD0     		beq	.L48
+ 774              		.loc 1 594 0 is_stmt 0 discriminator 2
+ 775 0018 4FF46043 		mov	r3, #57344
+ 776 001c C4F20F03 		movt	r3, 16399
+ 777 0020 1A68     		ldr	r2, [r3, #0]
+ 778 0022 4FF00003 		mov	r3, #0
+ 779 0026 C7F2FF03 		movt	r3, 28927
+ 780 002a 1340     		ands	r3, r3, r2
+ 781 002c B3F1805F 		cmp	r3, #268435456
+ 782 0030 02D1     		bne	.L49
+ 783              	.L48:
+ 784              		.loc 1 594 0 discriminator 1
+ 785 0032 4FF00203 		mov	r3, #2
+ 786 0036 01E0     		b	.L50
+ 787              	.L49:
+ 788 0038 4FF00803 		mov	r3, #8
+ 789              	.L50:
+ 790              		.loc 1 594 0 discriminator 3
+ 791 003c 3B60     		str	r3, [r7, #0]
+ 595:C:/StellarisWare/driverlib\flash.c ****     for(ulTemp = 0; ulTemp < ulLimit; ulTemp++)
+ 792              		.loc 1 595 0 is_stmt 1 discriminator 3
+ 793 003e 4FF00003 		mov	r3, #0
+ 794 0042 7B60     		str	r3, [r7, #4]
+ 795 0044 1CE0     		b	.L51
+ 796              	.L53:
+ 596:C:/StellarisWare/driverlib\flash.c ****     {
+ 597:C:/StellarisWare/driverlib\flash.c ****         //
+ 598:C:/StellarisWare/driverlib\flash.c ****         // Tell the flash controller to write the flash protection register.
+ 599:C:/StellarisWare/driverlib\flash.c ****         //
+ 600:C:/StellarisWare/driverlib\flash.c ****         HWREG(FLASH_FMA) = ulTemp;
+ 797              		.loc 1 600 0
+ 798 0046 4FF45043 		mov	r3, #53248
+ 799 004a C4F20F03 		movt	r3, 16399
+ 800 004e 7A68     		ldr	r2, [r7, #4]
+ 801 0050 1A60     		str	r2, [r3, #0]
+ 601:C:/StellarisWare/driverlib\flash.c ****         HWREG(FLASH_FMC) = FLASH_FMC_WRKEY | FLASH_FMC_COMT;
+ 802              		.loc 1 601 0
+ 803 0052 4DF20803 		movw	r3, #53256
+ 804 0056 C4F20F03 		movt	r3, 16399
+ 805 005a 4FF00802 		mov	r2, #8
+ 806 005e CAF24242 		movt	r2, 42050
+ 807 0062 1A60     		str	r2, [r3, #0]
+ 602:C:/StellarisWare/driverlib\flash.c **** 
+ 603:C:/StellarisWare/driverlib\flash.c ****         //
+ 604:C:/StellarisWare/driverlib\flash.c ****         // Wait until the write has completed.
+ 605:C:/StellarisWare/driverlib\flash.c ****         //
+ 606:C:/StellarisWare/driverlib\flash.c ****         while(HWREG(FLASH_FMC) & FLASH_FMC_COMT)
+ 808              		.loc 1 606 0
+ 809 0064 00BF     		nop
+ 810              	.L52:
+ 811              		.loc 1 606 0 is_stmt 0 discriminator 1
+ 812 0066 4DF20803 		movw	r3, #53256
+ 813 006a C4F20F03 		movt	r3, 16399
+ 814 006e 1B68     		ldr	r3, [r3, #0]
+ 815 0070 03F00803 		and	r3, r3, #8
+ 816 0074 002B     		cmp	r3, #0
+ 817 0076 F6D1     		bne	.L52
+ 595:C:/StellarisWare/driverlib\flash.c ****     for(ulTemp = 0; ulTemp < ulLimit; ulTemp++)
+ 818              		.loc 1 595 0 is_stmt 1
+ 819 0078 7B68     		ldr	r3, [r7, #4]
+ 820 007a 03F10103 		add	r3, r3, #1
+ 821 007e 7B60     		str	r3, [r7, #4]
+ 822              	.L51:
+ 595:C:/StellarisWare/driverlib\flash.c ****     for(ulTemp = 0; ulTemp < ulLimit; ulTemp++)
+ 823              		.loc 1 595 0 is_stmt 0 discriminator 1
+ 824 0080 7A68     		ldr	r2, [r7, #4]
+ 825 0082 3B68     		ldr	r3, [r7, #0]
+ 826 0084 9A42     		cmp	r2, r3
+ 827 0086 DED3     		bcc	.L53
+ 607:C:/StellarisWare/driverlib\flash.c ****         {
+ 608:C:/StellarisWare/driverlib\flash.c ****         }
+ 609:C:/StellarisWare/driverlib\flash.c ****     }
+ 610:C:/StellarisWare/driverlib\flash.c **** 
+ 611:C:/StellarisWare/driverlib\flash.c ****     //
+ 612:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 613:C:/StellarisWare/driverlib\flash.c ****     //
+ 614:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 828              		.loc 1 614 0 is_stmt 1
+ 829 0088 4FF00003 		mov	r3, #0
+ 615:C:/StellarisWare/driverlib\flash.c **** }
+ 830              		.loc 1 615 0
+ 831 008c 1846     		mov	r0, r3
+ 832 008e 07F10C07 		add	r7, r7, #12
+ 833 0092 BD46     		mov	sp, r7
+ 834 0094 80BC     		pop	{r7}
+ 835 0096 7047     		bx	lr
+ 836              		.cfi_endproc
+ 837              	.LFE6:
+ 839              		.section	.text.FlashUserGet,"ax",%progbits
+ 840              		.align	2
+ 841              		.global	FlashUserGet
+ 842              		.thumb
+ 843              		.thumb_func
+ 845              	FlashUserGet:
+ 846              	.LFB7:
+ 616:C:/StellarisWare/driverlib\flash.c **** 
+ 617:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 618:C:/StellarisWare/driverlib\flash.c **** //
+ 619:C:/StellarisWare/driverlib\flash.c **** //! Gets the user registers.
+ 620:C:/StellarisWare/driverlib\flash.c **** //!
+ 621:C:/StellarisWare/driverlib\flash.c **** //! \param pulUser0 is a pointer to the location to store USER Register 0.
+ 622:C:/StellarisWare/driverlib\flash.c **** //! \param pulUser1 is a pointer to the location to store USER Register 1.
+ 623:C:/StellarisWare/driverlib\flash.c **** //!
+ 624:C:/StellarisWare/driverlib\flash.c **** //! This function reads the contents of user registers (0 and 1), and
+ 625:C:/StellarisWare/driverlib\flash.c **** //! stores them in the specified locations.
+ 626:C:/StellarisWare/driverlib\flash.c **** //!
+ 627:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if a hardware error is encountered.
+ 628:C:/StellarisWare/driverlib\flash.c **** //
+ 629:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 630:C:/StellarisWare/driverlib\flash.c **** long
+ 631:C:/StellarisWare/driverlib\flash.c **** FlashUserGet(unsigned long *pulUser0, unsigned long *pulUser1)
+ 632:C:/StellarisWare/driverlib\flash.c **** {
+ 847              		.loc 1 632 0
+ 848              		.cfi_startproc
+ 849              		@ args = 0, pretend = 0, frame = 8
+ 850              		@ frame_needed = 1, uses_anonymous_args = 0
+ 851              		@ link register save eliminated.
+ 852 0000 80B4     		push	{r7}
+ 853              	.LCFI20:
+ 854              		.cfi_def_cfa_offset 4
+ 855              		.cfi_offset 7, -4
+ 856 0002 83B0     		sub	sp, sp, #12
+ 857              	.LCFI21:
+ 858              		.cfi_def_cfa_offset 16
+ 859 0004 00AF     		add	r7, sp, #0
+ 860              	.LCFI22:
+ 861              		.cfi_def_cfa_register 7
+ 862 0006 7860     		str	r0, [r7, #4]
+ 863 0008 3960     		str	r1, [r7, #0]
+ 633:C:/StellarisWare/driverlib\flash.c ****     //
+ 634:C:/StellarisWare/driverlib\flash.c ****     // Verify that the pointers are valid.
+ 635:C:/StellarisWare/driverlib\flash.c ****     //
+ 636:C:/StellarisWare/driverlib\flash.c ****     ASSERT(pulUser0 != 0);
+ 637:C:/StellarisWare/driverlib\flash.c ****     ASSERT(pulUser1 != 0);
+ 638:C:/StellarisWare/driverlib\flash.c **** 
+ 639:C:/StellarisWare/driverlib\flash.c ****     //
+ 640:C:/StellarisWare/driverlib\flash.c ****     // Verify that hardware supports user registers.
+ 641:C:/StellarisWare/driverlib\flash.c ****     //
+ 642:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM)
+ 864              		.loc 1 642 0
+ 865 000a 4FF46043 		mov	r3, #57344
+ 866 000e C4F20F03 		movt	r3, 16399
+ 867 0012 1B68     		ldr	r3, [r3, #0]
+ 868 0014 03F0E043 		and	r3, r3, #1879048192
+ 869 0018 002B     		cmp	r3, #0
+ 870 001a 0CD0     		beq	.L55
+ 871              		.loc 1 642 0 is_stmt 0 discriminator 1
+ 872 001c 4FF46043 		mov	r3, #57344
+ 873 0020 C4F20F03 		movt	r3, 16399
+ 874 0024 1A68     		ldr	r2, [r3, #0]
+ 875 0026 4FF00003 		mov	r3, #0
+ 876 002a C7F2FF03 		movt	r3, 28927
+ 877 002e 1340     		ands	r3, r3, r2
+ 878 0030 B3F1805F 		cmp	r3, #268435456
+ 879 0034 02D1     		bne	.L56
+ 880              	.L55:
+ 643:C:/StellarisWare/driverlib\flash.c ****     {
+ 644:C:/StellarisWare/driverlib\flash.c ****         return(-1);
+ 881              		.loc 1 644 0 is_stmt 1
+ 882 0036 4FF0FF33 		mov	r3, #-1
+ 883 003a 0FE0     		b	.L57
+ 884              	.L56:
+ 645:C:/StellarisWare/driverlib\flash.c ****     }
+ 646:C:/StellarisWare/driverlib\flash.c **** 
+ 647:C:/StellarisWare/driverlib\flash.c ****     //
+ 648:C:/StellarisWare/driverlib\flash.c ****     // Get and store the current value of the user registers.
+ 649:C:/StellarisWare/driverlib\flash.c ****     //
+ 650:C:/StellarisWare/driverlib\flash.c ****     *pulUser0 = HWREG(FLASH_USERREG0);
+ 885              		.loc 1 650 0
+ 886 003c 4EF2E013 		movw	r3, #57824
+ 887 0040 C4F20F03 		movt	r3, 16399
+ 888 0044 1A68     		ldr	r2, [r3, #0]
+ 889 0046 7B68     		ldr	r3, [r7, #4]
+ 890 0048 1A60     		str	r2, [r3, #0]
+ 651:C:/StellarisWare/driverlib\flash.c ****     *pulUser1 = HWREG(FLASH_USERREG1);
+ 891              		.loc 1 651 0
+ 892 004a 4EF2E413 		movw	r3, #57828
+ 893 004e C4F20F03 		movt	r3, 16399
+ 894 0052 1A68     		ldr	r2, [r3, #0]
+ 895 0054 3B68     		ldr	r3, [r7, #0]
+ 896 0056 1A60     		str	r2, [r3, #0]
+ 652:C:/StellarisWare/driverlib\flash.c **** 
+ 653:C:/StellarisWare/driverlib\flash.c ****     //
+ 654:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 655:C:/StellarisWare/driverlib\flash.c ****     //
+ 656:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 897              		.loc 1 656 0
+ 898 0058 4FF00003 		mov	r3, #0
+ 899              	.L57:
+ 657:C:/StellarisWare/driverlib\flash.c **** }
+ 900              		.loc 1 657 0
+ 901 005c 1846     		mov	r0, r3
+ 902 005e 07F10C07 		add	r7, r7, #12
+ 903 0062 BD46     		mov	sp, r7
+ 904 0064 80BC     		pop	{r7}
+ 905 0066 7047     		bx	lr
+ 906              		.cfi_endproc
+ 907              	.LFE7:
+ 909              		.section	.text.FlashUserSet,"ax",%progbits
+ 910              		.align	2
+ 911              		.global	FlashUserSet
+ 912              		.thumb
+ 913              		.thumb_func
+ 915              	FlashUserSet:
+ 916              	.LFB8:
+ 658:C:/StellarisWare/driverlib\flash.c **** 
+ 659:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 660:C:/StellarisWare/driverlib\flash.c **** //
+ 661:C:/StellarisWare/driverlib\flash.c **** //! Sets the user registers.
+ 662:C:/StellarisWare/driverlib\flash.c **** //!
+ 663:C:/StellarisWare/driverlib\flash.c **** //! \param ulUser0 is the value to store in USER Register 0.
+ 664:C:/StellarisWare/driverlib\flash.c **** //! \param ulUser1 is the value to store in USER Register 1.
+ 665:C:/StellarisWare/driverlib\flash.c **** //!
+ 666:C:/StellarisWare/driverlib\flash.c **** //! This function sets the contents of the user registers (0 and 1) to
+ 667:C:/StellarisWare/driverlib\flash.c **** //! the specified values.
+ 668:C:/StellarisWare/driverlib\flash.c **** //!
+ 669:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if a hardware error is encountered.
+ 670:C:/StellarisWare/driverlib\flash.c **** //
+ 671:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 672:C:/StellarisWare/driverlib\flash.c **** long
+ 673:C:/StellarisWare/driverlib\flash.c **** FlashUserSet(unsigned long ulUser0, unsigned long ulUser1)
+ 674:C:/StellarisWare/driverlib\flash.c **** {
+ 917              		.loc 1 674 0
+ 918              		.cfi_startproc
+ 919              		@ args = 0, pretend = 0, frame = 8
+ 920              		@ frame_needed = 1, uses_anonymous_args = 0
+ 921              		@ link register save eliminated.
+ 922 0000 80B4     		push	{r7}
+ 923              	.LCFI23:
+ 924              		.cfi_def_cfa_offset 4
+ 925              		.cfi_offset 7, -4
+ 926 0002 83B0     		sub	sp, sp, #12
+ 927              	.LCFI24:
+ 928              		.cfi_def_cfa_offset 16
+ 929 0004 00AF     		add	r7, sp, #0
+ 930              	.LCFI25:
+ 931              		.cfi_def_cfa_register 7
+ 932 0006 7860     		str	r0, [r7, #4]
+ 933 0008 3960     		str	r1, [r7, #0]
+ 675:C:/StellarisWare/driverlib\flash.c ****     //
+ 676:C:/StellarisWare/driverlib\flash.c ****     // Verify that hardware supports user registers.
+ 677:C:/StellarisWare/driverlib\flash.c ****     //
+ 678:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM)
+ 934              		.loc 1 678 0
+ 935 000a 4FF46043 		mov	r3, #57344
+ 936 000e C4F20F03 		movt	r3, 16399
+ 937 0012 1B68     		ldr	r3, [r3, #0]
+ 938 0014 03F0E043 		and	r3, r3, #1879048192
+ 939 0018 002B     		cmp	r3, #0
+ 940 001a 0CD0     		beq	.L59
+ 941              		.loc 1 678 0 is_stmt 0 discriminator 1
+ 942 001c 4FF46043 		mov	r3, #57344
+ 943 0020 C4F20F03 		movt	r3, 16399
+ 944 0024 1A68     		ldr	r2, [r3, #0]
+ 945 0026 4FF00003 		mov	r3, #0
+ 946 002a C7F2FF03 		movt	r3, 28927
+ 947 002e 1340     		ands	r3, r3, r2
+ 948 0030 B3F1805F 		cmp	r3, #268435456
+ 949 0034 02D1     		bne	.L60
+ 950              	.L59:
+ 679:C:/StellarisWare/driverlib\flash.c ****     {
+ 680:C:/StellarisWare/driverlib\flash.c ****         return(-1);
+ 951              		.loc 1 680 0 is_stmt 1
+ 952 0036 4FF0FF33 		mov	r3, #-1
+ 953 003a 0DE0     		b	.L61
+ 954              	.L60:
+ 681:C:/StellarisWare/driverlib\flash.c ****     }
+ 682:C:/StellarisWare/driverlib\flash.c **** 
+ 683:C:/StellarisWare/driverlib\flash.c ****     //
+ 684:C:/StellarisWare/driverlib\flash.c ****     // Save the new values into the user registers.
+ 685:C:/StellarisWare/driverlib\flash.c ****     //
+ 686:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_USERREG0) = ulUser0;
+ 955              		.loc 1 686 0
+ 956 003c 4EF2E013 		movw	r3, #57824
+ 957 0040 C4F20F03 		movt	r3, 16399
+ 958 0044 7A68     		ldr	r2, [r7, #4]
+ 959 0046 1A60     		str	r2, [r3, #0]
+ 687:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_USERREG1) = ulUser1;
+ 960              		.loc 1 687 0
+ 961 0048 4EF2E413 		movw	r3, #57828
+ 962 004c C4F20F03 		movt	r3, 16399
+ 963 0050 3A68     		ldr	r2, [r7, #0]
+ 964 0052 1A60     		str	r2, [r3, #0]
+ 688:C:/StellarisWare/driverlib\flash.c **** 
+ 689:C:/StellarisWare/driverlib\flash.c ****     //
+ 690:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 691:C:/StellarisWare/driverlib\flash.c ****     //
+ 692:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 965              		.loc 1 692 0
+ 966 0054 4FF00003 		mov	r3, #0
+ 967              	.L61:
+ 693:C:/StellarisWare/driverlib\flash.c **** }
+ 968              		.loc 1 693 0
+ 969 0058 1846     		mov	r0, r3
+ 970 005a 07F10C07 		add	r7, r7, #12
+ 971 005e BD46     		mov	sp, r7
+ 972 0060 80BC     		pop	{r7}
+ 973 0062 7047     		bx	lr
+ 974              		.cfi_endproc
+ 975              	.LFE8:
+ 977              		.section	.text.FlashUserSave,"ax",%progbits
+ 978              		.align	2
+ 979              		.global	FlashUserSave
+ 980              		.thumb
+ 981              		.thumb_func
+ 983              	FlashUserSave:
+ 984              	.LFB9:
+ 694:C:/StellarisWare/driverlib\flash.c **** 
+ 695:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 696:C:/StellarisWare/driverlib\flash.c **** //
+ 697:C:/StellarisWare/driverlib\flash.c **** //! Saves the user registers.
+ 698:C:/StellarisWare/driverlib\flash.c **** //!
+ 699:C:/StellarisWare/driverlib\flash.c **** //! This function makes the currently programmed user register settings
+ 700:C:/StellarisWare/driverlib\flash.c **** //! permanent.  On some devices, this operation is non-reversible; a chip reset
+ 701:C:/StellarisWare/driverlib\flash.c **** //! or power cycle does not change this setting.
+ 702:C:/StellarisWare/driverlib\flash.c **** //!
+ 703:C:/StellarisWare/driverlib\flash.c **** //! This function does not return until the protection has been saved.
+ 704:C:/StellarisWare/driverlib\flash.c **** //!
+ 705:C:/StellarisWare/driverlib\flash.c **** //! \return Returns 0 on success, or -1 if a hardware error is encountered.
+ 706:C:/StellarisWare/driverlib\flash.c **** //
+ 707:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 708:C:/StellarisWare/driverlib\flash.c **** long
+ 709:C:/StellarisWare/driverlib\flash.c **** FlashUserSave(void)
+ 710:C:/StellarisWare/driverlib\flash.c **** {
+ 985              		.loc 1 710 0
+ 986              		.cfi_startproc
+ 987              		@ args = 0, pretend = 0, frame = 0
+ 988              		@ frame_needed = 1, uses_anonymous_args = 0
+ 989              		@ link register save eliminated.
+ 990 0000 80B4     		push	{r7}
+ 991              	.LCFI26:
+ 992              		.cfi_def_cfa_offset 4
+ 993              		.cfi_offset 7, -4
+ 994 0002 00AF     		add	r7, sp, #0
+ 995              	.LCFI27:
+ 996              		.cfi_def_cfa_register 7
+ 711:C:/StellarisWare/driverlib\flash.c ****     //
+ 712:C:/StellarisWare/driverlib\flash.c ****     // Verify that hardware supports user registers.
+ 713:C:/StellarisWare/driverlib\flash.c ****     //
+ 714:C:/StellarisWare/driverlib\flash.c ****     if(CLASS_IS_SANDSTORM)
+ 997              		.loc 1 714 0
+ 998 0004 4FF46043 		mov	r3, #57344
+ 999 0008 C4F20F03 		movt	r3, 16399
+ 1000 000c 1B68     		ldr	r3, [r3, #0]
+ 1001 000e 03F0E043 		and	r3, r3, #1879048192
+ 1002 0012 002B     		cmp	r3, #0
+ 1003 0014 0CD0     		beq	.L63
+ 1004              		.loc 1 714 0 is_stmt 0 discriminator 1
+ 1005 0016 4FF46043 		mov	r3, #57344
+ 1006 001a C4F20F03 		movt	r3, 16399
+ 1007 001e 1A68     		ldr	r2, [r3, #0]
+ 1008 0020 4FF00003 		mov	r3, #0
+ 1009 0024 C7F2FF03 		movt	r3, 28927
+ 1010 0028 1340     		ands	r3, r3, r2
+ 1011 002a B3F1805F 		cmp	r3, #268435456
+ 1012 002e 02D1     		bne	.L64
+ 1013              	.L63:
+ 715:C:/StellarisWare/driverlib\flash.c ****     {
+ 716:C:/StellarisWare/driverlib\flash.c ****         return(-1);
+ 1014              		.loc 1 716 0 is_stmt 1
+ 1015 0030 4FF0FF33 		mov	r3, #-1
+ 1016 0034 37E0     		b	.L65
+ 1017              	.L64:
+ 717:C:/StellarisWare/driverlib\flash.c ****     }
+ 718:C:/StellarisWare/driverlib\flash.c **** 
+ 719:C:/StellarisWare/driverlib\flash.c ****     //
+ 720:C:/StellarisWare/driverlib\flash.c ****     // Setting the MSB of FMA will trigger a permanent save of a USER
+ 721:C:/StellarisWare/driverlib\flash.c ****     // register.  Bit 0 will indicate User 0 (0) or User 1 (1).
+ 722:C:/StellarisWare/driverlib\flash.c ****     //
+ 723:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMA) = 0x80000000;
+ 1018              		.loc 1 723 0
+ 1019 0036 4FF45043 		mov	r3, #53248
+ 1020 003a C4F20F03 		movt	r3, 16399
+ 1021 003e 4FF00042 		mov	r2, #-2147483648
+ 1022 0042 1A60     		str	r2, [r3, #0]
+ 724:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMC) = FLASH_FMC_WRKEY | FLASH_FMC_COMT;
+ 1023              		.loc 1 724 0
+ 1024 0044 4DF20803 		movw	r3, #53256
+ 1025 0048 C4F20F03 		movt	r3, 16399
+ 1026 004c 4FF00802 		mov	r2, #8
+ 1027 0050 CAF24242 		movt	r2, 42050
+ 1028 0054 1A60     		str	r2, [r3, #0]
+ 725:C:/StellarisWare/driverlib\flash.c **** 
+ 726:C:/StellarisWare/driverlib\flash.c ****     //
+ 727:C:/StellarisWare/driverlib\flash.c ****     // Wait until the write has completed.
+ 728:C:/StellarisWare/driverlib\flash.c ****     //
+ 729:C:/StellarisWare/driverlib\flash.c ****     while(HWREG(FLASH_FMC) & FLASH_FMC_COMT)
+ 1029              		.loc 1 729 0
+ 1030 0056 00BF     		nop
+ 1031              	.L66:
+ 1032              		.loc 1 729 0 is_stmt 0 discriminator 1
+ 1033 0058 4DF20803 		movw	r3, #53256
+ 1034 005c C4F20F03 		movt	r3, 16399
+ 1035 0060 1B68     		ldr	r3, [r3, #0]
+ 1036 0062 03F00803 		and	r3, r3, #8
+ 1037 0066 002B     		cmp	r3, #0
+ 1038 0068 F6D1     		bne	.L66
+ 730:C:/StellarisWare/driverlib\flash.c ****     {
+ 731:C:/StellarisWare/driverlib\flash.c ****     }
+ 732:C:/StellarisWare/driverlib\flash.c **** 
+ 733:C:/StellarisWare/driverlib\flash.c ****     //
+ 734:C:/StellarisWare/driverlib\flash.c ****     // Tell the flash controller to write the USER1 Register.
+ 735:C:/StellarisWare/driverlib\flash.c ****     //
+ 736:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMA) = 0x80000001;
+ 1039              		.loc 1 736 0 is_stmt 1
+ 1040 006a 4FF45043 		mov	r3, #53248
+ 1041 006e C4F20F03 		movt	r3, 16399
+ 1042 0072 4FF00102 		mov	r2, #1
+ 1043 0076 C8F20002 		movt	r2, 32768
+ 1044 007a 1A60     		str	r2, [r3, #0]
+ 737:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FMC) = FLASH_FMC_WRKEY | FLASH_FMC_COMT;
+ 1045              		.loc 1 737 0
+ 1046 007c 4DF20803 		movw	r3, #53256
+ 1047 0080 C4F20F03 		movt	r3, 16399
+ 1048 0084 4FF00802 		mov	r2, #8
+ 1049 0088 CAF24242 		movt	r2, 42050
+ 1050 008c 1A60     		str	r2, [r3, #0]
+ 738:C:/StellarisWare/driverlib\flash.c **** 
+ 739:C:/StellarisWare/driverlib\flash.c ****     //
+ 740:C:/StellarisWare/driverlib\flash.c ****     // Wait until the write has completed.
+ 741:C:/StellarisWare/driverlib\flash.c ****     //
+ 742:C:/StellarisWare/driverlib\flash.c ****     while(HWREG(FLASH_FMC) & FLASH_FMC_COMT)
+ 1051              		.loc 1 742 0
+ 1052 008e 00BF     		nop
+ 1053              	.L67:
+ 1054              		.loc 1 742 0 is_stmt 0 discriminator 1
+ 1055 0090 4DF20803 		movw	r3, #53256
+ 1056 0094 C4F20F03 		movt	r3, 16399
+ 1057 0098 1B68     		ldr	r3, [r3, #0]
+ 1058 009a 03F00803 		and	r3, r3, #8
+ 1059 009e 002B     		cmp	r3, #0
+ 1060 00a0 F6D1     		bne	.L67
+ 743:C:/StellarisWare/driverlib\flash.c ****     {
+ 744:C:/StellarisWare/driverlib\flash.c ****     }
+ 745:C:/StellarisWare/driverlib\flash.c **** 
+ 746:C:/StellarisWare/driverlib\flash.c ****     //
+ 747:C:/StellarisWare/driverlib\flash.c ****     // Success.
+ 748:C:/StellarisWare/driverlib\flash.c ****     //
+ 749:C:/StellarisWare/driverlib\flash.c ****     return(0);
+ 1061              		.loc 1 749 0 is_stmt 1
+ 1062 00a2 4FF00003 		mov	r3, #0
+ 1063              	.L65:
+ 750:C:/StellarisWare/driverlib\flash.c **** }
+ 1064              		.loc 1 750 0
+ 1065 00a6 1846     		mov	r0, r3
+ 1066 00a8 BD46     		mov	sp, r7
+ 1067 00aa 80BC     		pop	{r7}
+ 1068 00ac 7047     		bx	lr
+ 1069              		.cfi_endproc
+ 1070              	.LFE9:
+ 1072 00ae 00BF     		.section	.text.FlashIntRegister,"ax",%progbits
+ 1073              		.align	2
+ 1074              		.global	FlashIntRegister
+ 1075              		.thumb
+ 1076              		.thumb_func
+ 1078              	FlashIntRegister:
+ 1079              	.LFB10:
+ 751:C:/StellarisWare/driverlib\flash.c **** 
+ 752:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 753:C:/StellarisWare/driverlib\flash.c **** //
+ 754:C:/StellarisWare/driverlib\flash.c **** //! Registers an interrupt handler for the flash interrupt.
+ 755:C:/StellarisWare/driverlib\flash.c **** //!
+ 756:C:/StellarisWare/driverlib\flash.c **** //! \param pfnHandler is a pointer to the function to be called when the flash
+ 757:C:/StellarisWare/driverlib\flash.c **** //! interrupt occurs.
+ 758:C:/StellarisWare/driverlib\flash.c **** //!
+ 759:C:/StellarisWare/driverlib\flash.c **** //! This function sets the handler to be called when the flash interrupt
+ 760:C:/StellarisWare/driverlib\flash.c **** //! occurs.  The flash controller can generate an interrupt when an invalid
+ 761:C:/StellarisWare/driverlib\flash.c **** //! flash access occurs, such as trying to program or erase a read-only block,
+ 762:C:/StellarisWare/driverlib\flash.c **** //! or trying to read from an execute-only block.  It can also generate an
+ 763:C:/StellarisWare/driverlib\flash.c **** //! interrupt when a program or erase operation has completed.  The interrupt
+ 764:C:/StellarisWare/driverlib\flash.c **** //! is automatically enabled when the handler is registered.
+ 765:C:/StellarisWare/driverlib\flash.c **** //!
+ 766:C:/StellarisWare/driverlib\flash.c **** //! \sa IntRegister() for important information about registering interrupt
+ 767:C:/StellarisWare/driverlib\flash.c **** //! handlers.
+ 768:C:/StellarisWare/driverlib\flash.c **** //!
+ 769:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 770:C:/StellarisWare/driverlib\flash.c **** //
+ 771:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 772:C:/StellarisWare/driverlib\flash.c **** void
+ 773:C:/StellarisWare/driverlib\flash.c **** FlashIntRegister(void (*pfnHandler)(void))
+ 774:C:/StellarisWare/driverlib\flash.c **** {
+ 1080              		.loc 1 774 0
+ 1081              		.cfi_startproc
+ 1082              		@ args = 0, pretend = 0, frame = 8
+ 1083              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1084 0000 80B5     		push	{r7, lr}
+ 1085              	.LCFI28:
+ 1086              		.cfi_def_cfa_offset 8
+ 1087              		.cfi_offset 14, -4
+ 1088              		.cfi_offset 7, -8
+ 1089 0002 82B0     		sub	sp, sp, #8
+ 1090              	.LCFI29:
+ 1091              		.cfi_def_cfa_offset 16
+ 1092 0004 00AF     		add	r7, sp, #0
+ 1093              	.LCFI30:
+ 1094              		.cfi_def_cfa_register 7
+ 1095 0006 7860     		str	r0, [r7, #4]
+ 775:C:/StellarisWare/driverlib\flash.c ****     //
+ 776:C:/StellarisWare/driverlib\flash.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 777:C:/StellarisWare/driverlib\flash.c ****     //
+ 778:C:/StellarisWare/driverlib\flash.c ****     IntRegister(INT_FLASH, pfnHandler);
+ 1096              		.loc 1 778 0
+ 1097 0008 4FF02D00 		mov	r0, #45
+ 1098 000c 7968     		ldr	r1, [r7, #4]
+ 1099 000e FFF7FEFF 		bl	IntRegister
+ 779:C:/StellarisWare/driverlib\flash.c **** 
+ 780:C:/StellarisWare/driverlib\flash.c ****     //
+ 781:C:/StellarisWare/driverlib\flash.c ****     // Enable the flash interrupt.
+ 782:C:/StellarisWare/driverlib\flash.c ****     //
+ 783:C:/StellarisWare/driverlib\flash.c ****     IntEnable(INT_FLASH);
+ 1100              		.loc 1 783 0
+ 1101 0012 4FF02D00 		mov	r0, #45
+ 1102 0016 FFF7FEFF 		bl	IntEnable
+ 784:C:/StellarisWare/driverlib\flash.c **** }
+ 1103              		.loc 1 784 0
+ 1104 001a 07F10807 		add	r7, r7, #8
+ 1105 001e BD46     		mov	sp, r7
+ 1106 0020 80BD     		pop	{r7, pc}
+ 1107              		.cfi_endproc
+ 1108              	.LFE10:
+ 1110 0022 00BF     		.section	.text.FlashIntUnregister,"ax",%progbits
+ 1111              		.align	2
+ 1112              		.global	FlashIntUnregister
+ 1113              		.thumb
+ 1114              		.thumb_func
+ 1116              	FlashIntUnregister:
+ 1117              	.LFB11:
+ 785:C:/StellarisWare/driverlib\flash.c **** 
+ 786:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 787:C:/StellarisWare/driverlib\flash.c **** //
+ 788:C:/StellarisWare/driverlib\flash.c **** //! Unregisters the interrupt handler for the flash interrupt.
+ 789:C:/StellarisWare/driverlib\flash.c **** //!
+ 790:C:/StellarisWare/driverlib\flash.c **** //! This function clears the handler to be called when the flash interrupt
+ 791:C:/StellarisWare/driverlib\flash.c **** //! occurs.  This function also masks off the interrupt in the interrupt
+ 792:C:/StellarisWare/driverlib\flash.c **** //! controller so that the interrupt handler is no longer called.
+ 793:C:/StellarisWare/driverlib\flash.c **** //!
+ 794:C:/StellarisWare/driverlib\flash.c **** //! \sa IntRegister() for important information about registering interrupt
+ 795:C:/StellarisWare/driverlib\flash.c **** //! handlers.
+ 796:C:/StellarisWare/driverlib\flash.c **** //!
+ 797:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 798:C:/StellarisWare/driverlib\flash.c **** //
+ 799:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 800:C:/StellarisWare/driverlib\flash.c **** void
+ 801:C:/StellarisWare/driverlib\flash.c **** FlashIntUnregister(void)
+ 802:C:/StellarisWare/driverlib\flash.c **** {
+ 1118              		.loc 1 802 0
+ 1119              		.cfi_startproc
+ 1120              		@ args = 0, pretend = 0, frame = 0
+ 1121              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1122 0000 80B5     		push	{r7, lr}
+ 1123              	.LCFI31:
+ 1124              		.cfi_def_cfa_offset 8
+ 1125              		.cfi_offset 14, -4
+ 1126              		.cfi_offset 7, -8
+ 1127 0002 00AF     		add	r7, sp, #0
+ 1128              	.LCFI32:
+ 1129              		.cfi_def_cfa_register 7
+ 803:C:/StellarisWare/driverlib\flash.c ****     //
+ 804:C:/StellarisWare/driverlib\flash.c ****     // Disable the interrupt.
+ 805:C:/StellarisWare/driverlib\flash.c ****     //
+ 806:C:/StellarisWare/driverlib\flash.c ****     IntDisable(INT_FLASH);
+ 1130              		.loc 1 806 0
+ 1131 0004 4FF02D00 		mov	r0, #45
+ 1132 0008 FFF7FEFF 		bl	IntDisable
+ 807:C:/StellarisWare/driverlib\flash.c **** 
+ 808:C:/StellarisWare/driverlib\flash.c ****     //
+ 809:C:/StellarisWare/driverlib\flash.c ****     // Unregister the interrupt handler.
+ 810:C:/StellarisWare/driverlib\flash.c ****     //
+ 811:C:/StellarisWare/driverlib\flash.c ****     IntUnregister(INT_FLASH);
+ 1133              		.loc 1 811 0
+ 1134 000c 4FF02D00 		mov	r0, #45
+ 1135 0010 FFF7FEFF 		bl	IntUnregister
+ 812:C:/StellarisWare/driverlib\flash.c **** }
+ 1136              		.loc 1 812 0
+ 1137 0014 80BD     		pop	{r7, pc}
+ 1138              		.cfi_endproc
+ 1139              	.LFE11:
+ 1141 0016 00BF     		.section	.text.FlashIntEnable,"ax",%progbits
+ 1142              		.align	2
+ 1143              		.global	FlashIntEnable
+ 1144              		.thumb
+ 1145              		.thumb_func
+ 1147              	FlashIntEnable:
+ 1148              	.LFB12:
+ 813:C:/StellarisWare/driverlib\flash.c **** 
+ 814:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 815:C:/StellarisWare/driverlib\flash.c **** //
+ 816:C:/StellarisWare/driverlib\flash.c **** //! Enables individual flash controller interrupt sources.
+ 817:C:/StellarisWare/driverlib\flash.c **** //!
+ 818:C:/StellarisWare/driverlib\flash.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be enabled.
+ 819:C:/StellarisWare/driverlib\flash.c **** //! Can be any of the \b FLASH_INT_PROGRAM or \b FLASH_INT_ACCESS values.
+ 820:C:/StellarisWare/driverlib\flash.c **** //!
+ 821:C:/StellarisWare/driverlib\flash.c **** //! This function enables the indicated flash controller interrupt sources.
+ 822:C:/StellarisWare/driverlib\flash.c **** //! Only the sources that are enabled can be reflected to the processor
+ 823:C:/StellarisWare/driverlib\flash.c **** //! interrupt; disabled sources have no effect on the processor.
+ 824:C:/StellarisWare/driverlib\flash.c **** //!
+ 825:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 826:C:/StellarisWare/driverlib\flash.c **** //
+ 827:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 828:C:/StellarisWare/driverlib\flash.c **** void
+ 829:C:/StellarisWare/driverlib\flash.c **** FlashIntEnable(unsigned long ulIntFlags)
+ 830:C:/StellarisWare/driverlib\flash.c **** {
+ 1149              		.loc 1 830 0
+ 1150              		.cfi_startproc
+ 1151              		@ args = 0, pretend = 0, frame = 8
+ 1152              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1153              		@ link register save eliminated.
+ 1154 0000 80B4     		push	{r7}
+ 1155              	.LCFI33:
+ 1156              		.cfi_def_cfa_offset 4
+ 1157              		.cfi_offset 7, -4
+ 1158 0002 83B0     		sub	sp, sp, #12
+ 1159              	.LCFI34:
+ 1160              		.cfi_def_cfa_offset 16
+ 1161 0004 00AF     		add	r7, sp, #0
+ 1162              	.LCFI35:
+ 1163              		.cfi_def_cfa_register 7
+ 1164 0006 7860     		str	r0, [r7, #4]
+ 831:C:/StellarisWare/driverlib\flash.c ****     //
+ 832:C:/StellarisWare/driverlib\flash.c ****     // Enable the specified interrupts.
+ 833:C:/StellarisWare/driverlib\flash.c ****     //
+ 834:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FCIM) |= ulIntFlags;
+ 1165              		.loc 1 834 0
+ 1166 0008 4DF21003 		movw	r3, #53264
+ 1167 000c C4F20F03 		movt	r3, 16399
+ 1168 0010 4DF21002 		movw	r2, #53264
+ 1169 0014 C4F20F02 		movt	r2, 16399
+ 1170 0018 1168     		ldr	r1, [r2, #0]
+ 1171 001a 7A68     		ldr	r2, [r7, #4]
+ 1172 001c 0A43     		orrs	r2, r2, r1
+ 1173 001e 1A60     		str	r2, [r3, #0]
+ 835:C:/StellarisWare/driverlib\flash.c **** }
+ 1174              		.loc 1 835 0
+ 1175 0020 07F10C07 		add	r7, r7, #12
+ 1176 0024 BD46     		mov	sp, r7
+ 1177 0026 80BC     		pop	{r7}
+ 1178 0028 7047     		bx	lr
+ 1179              		.cfi_endproc
+ 1180              	.LFE12:
+ 1182 002a 00BF     		.section	.text.FlashIntDisable,"ax",%progbits
+ 1183              		.align	2
+ 1184              		.global	FlashIntDisable
+ 1185              		.thumb
+ 1186              		.thumb_func
+ 1188              	FlashIntDisable:
+ 1189              	.LFB13:
+ 836:C:/StellarisWare/driverlib\flash.c **** 
+ 837:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 838:C:/StellarisWare/driverlib\flash.c **** //
+ 839:C:/StellarisWare/driverlib\flash.c **** //! Disables individual flash controller interrupt sources.
+ 840:C:/StellarisWare/driverlib\flash.c **** //!
+ 841:C:/StellarisWare/driverlib\flash.c **** //! \param ulIntFlags is a bit mask of the interrupt sources to be disabled.
+ 842:C:/StellarisWare/driverlib\flash.c **** //! Can be any of the \b FLASH_INT_PROGRAM or \b FLASH_INT_ACCESS values.
+ 843:C:/StellarisWare/driverlib\flash.c **** //!
+ 844:C:/StellarisWare/driverlib\flash.c **** //! This function disables the indicated flash controller interrupt sources.
+ 845:C:/StellarisWare/driverlib\flash.c **** //! Only the sources that are enabled can be reflected to the processor
+ 846:C:/StellarisWare/driverlib\flash.c **** //! interrupt; disabled sources have no effect on the processor.
+ 847:C:/StellarisWare/driverlib\flash.c **** //!
+ 848:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 849:C:/StellarisWare/driverlib\flash.c **** //
+ 850:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 851:C:/StellarisWare/driverlib\flash.c **** void
+ 852:C:/StellarisWare/driverlib\flash.c **** FlashIntDisable(unsigned long ulIntFlags)
+ 853:C:/StellarisWare/driverlib\flash.c **** {
+ 1190              		.loc 1 853 0
+ 1191              		.cfi_startproc
+ 1192              		@ args = 0, pretend = 0, frame = 8
+ 1193              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1194              		@ link register save eliminated.
+ 1195 0000 80B4     		push	{r7}
+ 1196              	.LCFI36:
+ 1197              		.cfi_def_cfa_offset 4
+ 1198              		.cfi_offset 7, -4
+ 1199 0002 83B0     		sub	sp, sp, #12
+ 1200              	.LCFI37:
+ 1201              		.cfi_def_cfa_offset 16
+ 1202 0004 00AF     		add	r7, sp, #0
+ 1203              	.LCFI38:
+ 1204              		.cfi_def_cfa_register 7
+ 1205 0006 7860     		str	r0, [r7, #4]
+ 854:C:/StellarisWare/driverlib\flash.c ****     //
+ 855:C:/StellarisWare/driverlib\flash.c ****     // Disable the specified interrupts.
+ 856:C:/StellarisWare/driverlib\flash.c ****     //
+ 857:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FCIM) &= ~(ulIntFlags);
+ 1206              		.loc 1 857 0
+ 1207 0008 4DF21003 		movw	r3, #53264
+ 1208 000c C4F20F03 		movt	r3, 16399
+ 1209 0010 4DF21002 		movw	r2, #53264
+ 1210 0014 C4F20F02 		movt	r2, 16399
+ 1211 0018 1168     		ldr	r1, [r2, #0]
+ 1212 001a 7A68     		ldr	r2, [r7, #4]
+ 1213 001c 6FEA0202 		mvn	r2, r2
+ 1214 0020 0A40     		ands	r2, r2, r1
+ 1215 0022 1A60     		str	r2, [r3, #0]
+ 858:C:/StellarisWare/driverlib\flash.c **** }
+ 1216              		.loc 1 858 0
+ 1217 0024 07F10C07 		add	r7, r7, #12
+ 1218 0028 BD46     		mov	sp, r7
+ 1219 002a 80BC     		pop	{r7}
+ 1220 002c 7047     		bx	lr
+ 1221              		.cfi_endproc
+ 1222              	.LFE13:
+ 1224 002e 00BF     		.section	.text.FlashIntStatus,"ax",%progbits
+ 1225              		.align	2
+ 1226              		.global	FlashIntStatus
+ 1227              		.thumb
+ 1228              		.thumb_func
+ 1230              	FlashIntStatus:
+ 1231              	.LFB14:
+ 859:C:/StellarisWare/driverlib\flash.c **** 
+ 860:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 861:C:/StellarisWare/driverlib\flash.c **** //
+ 862:C:/StellarisWare/driverlib\flash.c **** //! Gets the current interrupt status.
+ 863:C:/StellarisWare/driverlib\flash.c **** //!
+ 864:C:/StellarisWare/driverlib\flash.c **** //! \param bMasked is false if the raw interrupt status is required and true if
+ 865:C:/StellarisWare/driverlib\flash.c **** //! the masked interrupt status is required.
+ 866:C:/StellarisWare/driverlib\flash.c **** //!
+ 867:C:/StellarisWare/driverlib\flash.c **** //! This function returns the interrupt status for the flash controller.
+ 868:C:/StellarisWare/driverlib\flash.c **** //! Either the raw interrupt status or the status of interrupts that are
+ 869:C:/StellarisWare/driverlib\flash.c **** //! allowed to reflect to the processor can be returned.
+ 870:C:/StellarisWare/driverlib\flash.c **** //!
+ 871:C:/StellarisWare/driverlib\flash.c **** //! \return The current interrupt status, enumerated as a bit field of
+ 872:C:/StellarisWare/driverlib\flash.c **** //! \b FLASH_INT_PROGRAM and \b FLASH_INT_ACCESS.
+ 873:C:/StellarisWare/driverlib\flash.c **** //
+ 874:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 875:C:/StellarisWare/driverlib\flash.c **** unsigned long
+ 876:C:/StellarisWare/driverlib\flash.c **** FlashIntStatus(tBoolean bMasked)
+ 877:C:/StellarisWare/driverlib\flash.c **** {
+ 1232              		.loc 1 877 0
+ 1233              		.cfi_startproc
+ 1234              		@ args = 0, pretend = 0, frame = 8
+ 1235              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1236              		@ link register save eliminated.
+ 1237 0000 80B4     		push	{r7}
+ 1238              	.LCFI39:
+ 1239              		.cfi_def_cfa_offset 4
+ 1240              		.cfi_offset 7, -4
+ 1241 0002 83B0     		sub	sp, sp, #12
+ 1242              	.LCFI40:
+ 1243              		.cfi_def_cfa_offset 16
+ 1244 0004 00AF     		add	r7, sp, #0
+ 1245              	.LCFI41:
+ 1246              		.cfi_def_cfa_register 7
+ 1247 0006 0346     		mov	r3, r0
+ 1248 0008 FB71     		strb	r3, [r7, #7]
+ 878:C:/StellarisWare/driverlib\flash.c ****     //
+ 879:C:/StellarisWare/driverlib\flash.c ****     // Return either the interrupt status or the raw interrupt status as
+ 880:C:/StellarisWare/driverlib\flash.c ****     // requested.
+ 881:C:/StellarisWare/driverlib\flash.c ****     //
+ 882:C:/StellarisWare/driverlib\flash.c ****     if(bMasked)
+ 1249              		.loc 1 882 0
+ 1250 000a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1251 000c 002B     		cmp	r3, #0
+ 1252 000e 05D0     		beq	.L73
+ 883:C:/StellarisWare/driverlib\flash.c ****     {
+ 884:C:/StellarisWare/driverlib\flash.c ****         return(HWREG(FLASH_FCMISC));
+ 1253              		.loc 1 884 0
+ 1254 0010 4DF21403 		movw	r3, #53268
+ 1255 0014 C4F20F03 		movt	r3, 16399
+ 1256 0018 1B68     		ldr	r3, [r3, #0]
+ 1257 001a 04E0     		b	.L74
+ 1258              	.L73:
+ 885:C:/StellarisWare/driverlib\flash.c ****     }
+ 886:C:/StellarisWare/driverlib\flash.c ****     else
+ 887:C:/StellarisWare/driverlib\flash.c ****     {
+ 888:C:/StellarisWare/driverlib\flash.c ****         return(HWREG(FLASH_FCRIS));
+ 1259              		.loc 1 888 0
+ 1260 001c 4DF20C03 		movw	r3, #53260
+ 1261 0020 C4F20F03 		movt	r3, 16399
+ 1262 0024 1B68     		ldr	r3, [r3, #0]
+ 1263              	.L74:
+ 889:C:/StellarisWare/driverlib\flash.c ****     }
+ 890:C:/StellarisWare/driverlib\flash.c **** }
+ 1264              		.loc 1 890 0
+ 1265 0026 1846     		mov	r0, r3
+ 1266 0028 07F10C07 		add	r7, r7, #12
+ 1267 002c BD46     		mov	sp, r7
+ 1268 002e 80BC     		pop	{r7}
+ 1269 0030 7047     		bx	lr
+ 1270              		.cfi_endproc
+ 1271              	.LFE14:
+ 1273 0032 00BF     		.section	.text.FlashIntClear,"ax",%progbits
+ 1274              		.align	2
+ 1275              		.global	FlashIntClear
+ 1276              		.thumb
+ 1277              		.thumb_func
+ 1279              	FlashIntClear:
+ 1280              	.LFB15:
+ 891:C:/StellarisWare/driverlib\flash.c **** 
+ 892:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 893:C:/StellarisWare/driverlib\flash.c **** //
+ 894:C:/StellarisWare/driverlib\flash.c **** //! Clears flash controller interrupt sources.
+ 895:C:/StellarisWare/driverlib\flash.c **** //!
+ 896:C:/StellarisWare/driverlib\flash.c **** //! \param ulIntFlags is the bit mask of the interrupt sources to be cleared.
+ 897:C:/StellarisWare/driverlib\flash.c **** //! Can be any of the \b FLASH_INT_PROGRAM or \b FLASH_INT_AMISC values.
+ 898:C:/StellarisWare/driverlib\flash.c **** //!
+ 899:C:/StellarisWare/driverlib\flash.c **** //! The specified flash controller interrupt sources are cleared, so that they
+ 900:C:/StellarisWare/driverlib\flash.c **** //! no longer assert.  This function must be called in the interrupt handler
+ 901:C:/StellarisWare/driverlib\flash.c **** //! to keep the interrupt from being triggered again immediately upon exit.
+ 902:C:/StellarisWare/driverlib\flash.c **** //!
+ 903:C:/StellarisWare/driverlib\flash.c **** //! \note Because there is a write buffer in the Cortex-M processor, it may
+ 904:C:/StellarisWare/driverlib\flash.c **** //! take several clock cycles before the interrupt source is actually cleared.
+ 905:C:/StellarisWare/driverlib\flash.c **** //! Therefore, it is recommended that the interrupt source be cleared early in
+ 906:C:/StellarisWare/driverlib\flash.c **** //! the interrupt handler (as opposed to the very last action) to avoid
+ 907:C:/StellarisWare/driverlib\flash.c **** //! returning from the interrupt handler before the interrupt source is
+ 908:C:/StellarisWare/driverlib\flash.c **** //! actually cleared.  Failure to do so may result in the interrupt handler
+ 909:C:/StellarisWare/driverlib\flash.c **** //! being immediately reentered (because the interrupt controller still sees
+ 910:C:/StellarisWare/driverlib\flash.c **** //! the interrupt source asserted).
+ 911:C:/StellarisWare/driverlib\flash.c **** //!
+ 912:C:/StellarisWare/driverlib\flash.c **** //! \return None.
+ 913:C:/StellarisWare/driverlib\flash.c **** //
+ 914:C:/StellarisWare/driverlib\flash.c **** //*****************************************************************************
+ 915:C:/StellarisWare/driverlib\flash.c **** void
+ 916:C:/StellarisWare/driverlib\flash.c **** FlashIntClear(unsigned long ulIntFlags)
+ 917:C:/StellarisWare/driverlib\flash.c **** {
+ 1281              		.loc 1 917 0
+ 1282              		.cfi_startproc
+ 1283              		@ args = 0, pretend = 0, frame = 8
+ 1284              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1285              		@ link register save eliminated.
+ 1286 0000 80B4     		push	{r7}
+ 1287              	.LCFI42:
+ 1288              		.cfi_def_cfa_offset 4
+ 1289              		.cfi_offset 7, -4
+ 1290 0002 83B0     		sub	sp, sp, #12
+ 1291              	.LCFI43:
+ 1292              		.cfi_def_cfa_offset 16
+ 1293 0004 00AF     		add	r7, sp, #0
+ 1294              	.LCFI44:
+ 1295              		.cfi_def_cfa_register 7
+ 1296 0006 7860     		str	r0, [r7, #4]
+ 918:C:/StellarisWare/driverlib\flash.c ****     //
+ 919:C:/StellarisWare/driverlib\flash.c ****     // Clear the flash interrupt.
+ 920:C:/StellarisWare/driverlib\flash.c ****     //
+ 921:C:/StellarisWare/driverlib\flash.c ****     HWREG(FLASH_FCMISC) = ulIntFlags;
+ 1297              		.loc 1 921 0
+ 1298 0008 4DF21403 		movw	r3, #53268
+ 1299 000c C4F20F03 		movt	r3, 16399
+ 1300 0010 7A68     		ldr	r2, [r7, #4]
+ 1301 0012 1A60     		str	r2, [r3, #0]
+ 922:C:/StellarisWare/driverlib\flash.c **** }
+ 1302              		.loc 1 922 0
+ 1303 0014 07F10C07 		add	r7, r7, #12
+ 1304 0018 BD46     		mov	sp, r7
+ 1305 001a 80BC     		pop	{r7}
+ 1306 001c 7047     		bx	lr
+ 1307              		.cfi_endproc
+ 1308              	.LFE15:
+ 1310 001e 00BF     		.text
+ 1311              	.Letext0:
+ 1312              		.file 2 "C:\\StellarisWare/inc/hw_types.h"
+ 1313              		.file 3 "C:\\StellarisWare/driverlib/flash.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 flash.c
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:19     .rodata:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:22     .rodata:00000000 g_pulFMPPERegs
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:30     .rodata:00000010 g_pulFMPRERegs
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:36     .text.FlashUsecGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:41     .text.FlashUsecGet:00000000 FlashUsecGet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:70     .text.FlashUsecSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:75     .text.FlashUsecSet:00000000 FlashUsecSet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:108    .text.FlashErase:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:113    .text.FlashErase:00000000 FlashErase
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:182    .text.FlashProgram:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:187    .text.FlashProgram:00000000 FlashProgram
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:366    .text.FlashProtectGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:371    .text.FlashProtectGet:00000000 FlashProtectGet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:497    .text.FlashProtectSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:502    .text.FlashProtectSet:00000000 FlashProtectSet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:745    .text.FlashProtectSave:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:750    .text.FlashProtectSave:00000000 FlashProtectSave
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:840    .text.FlashUserGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:845    .text.FlashUserGet:00000000 FlashUserGet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:910    .text.FlashUserSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:915    .text.FlashUserSet:00000000 FlashUserSet
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:978    .text.FlashUserSave:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:983    .text.FlashUserSave:00000000 FlashUserSave
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1073   .text.FlashIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1078   .text.FlashIntRegister:00000000 FlashIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1111   .text.FlashIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1116   .text.FlashIntUnregister:00000000 FlashIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1142   .text.FlashIntEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1147   .text.FlashIntEnable:00000000 FlashIntEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1183   .text.FlashIntDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1188   .text.FlashIntDisable:00000000 FlashIntDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1225   .text.FlashIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1230   .text.FlashIntStatus:00000000 FlashIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1274   .text.FlashIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccUO1ast.s:1279   .text.FlashIntClear:00000000 FlashIntClear
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

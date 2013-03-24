@@ -1,0 +1,851 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"mpu.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.MPUEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	MPUEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	MPUEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/mpu.c"
+   1:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\mpu.c **** //
+   3:C:/StellarisWare/driverlib\mpu.c **** // mpu.c - Driver for the Cortex-M3 memory protection unit (MPU).
+   4:C:/StellarisWare/driverlib\mpu.c **** //
+   5:C:/StellarisWare/driverlib\mpu.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\mpu.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\mpu.c **** // 
+   8:C:/StellarisWare/driverlib\mpu.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\mpu.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\mpu.c **** //   are met:
+  11:C:/StellarisWare/driverlib\mpu.c **** // 
+  12:C:/StellarisWare/driverlib\mpu.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\mpu.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\mpu.c **** // 
+  15:C:/StellarisWare/driverlib\mpu.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\mpu.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\mpu.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\mpu.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\mpu.c **** // 
+  20:C:/StellarisWare/driverlib\mpu.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\mpu.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\mpu.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\mpu.c **** // 
+  24:C:/StellarisWare/driverlib\mpu.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\mpu.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\mpu.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\mpu.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\mpu.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\mpu.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\mpu.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\mpu.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\mpu.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\mpu.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\mpu.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\mpu.c **** // 
+  36:C:/StellarisWare/driverlib\mpu.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\mpu.c **** //
+  38:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\mpu.c **** 
+  40:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\mpu.c **** //
+  42:C:/StellarisWare/driverlib\mpu.c **** //! \addtogroup mpu_api
+  43:C:/StellarisWare/driverlib\mpu.c **** //! @{
+  44:C:/StellarisWare/driverlib\mpu.c **** //
+  45:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\mpu.c **** 
+  47:C:/StellarisWare/driverlib\mpu.c **** #include "inc/hw_ints.h"
+  48:C:/StellarisWare/driverlib\mpu.c **** #include "inc/hw_nvic.h"
+  49:C:/StellarisWare/driverlib\mpu.c **** #include "inc/hw_types.h"
+  50:C:/StellarisWare/driverlib\mpu.c **** #include "driverlib/debug.h"
+  51:C:/StellarisWare/driverlib\mpu.c **** #include "driverlib/interrupt.h"
+  52:C:/StellarisWare/driverlib\mpu.c **** #include "driverlib/mpu.h"
+  53:C:/StellarisWare/driverlib\mpu.c **** 
+  54:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+  55:C:/StellarisWare/driverlib\mpu.c **** //
+  56:C:/StellarisWare/driverlib\mpu.c **** //! Enables and configures the MPU for use.
+  57:C:/StellarisWare/driverlib\mpu.c **** //!
+  58:C:/StellarisWare/driverlib\mpu.c **** //! \param ulMPUConfig is the logical OR of the possible configurations.
+  59:C:/StellarisWare/driverlib\mpu.c **** //!
+  60:C:/StellarisWare/driverlib\mpu.c **** //! This function enables the Cortex-M memory protection unit.  It also
+  61:C:/StellarisWare/driverlib\mpu.c **** //! configures the default behavior when in privileged mode and while handling
+  62:C:/StellarisWare/driverlib\mpu.c **** //! a hard fault or NMI.  Prior to enabling the MPU, at least one region must
+  63:C:/StellarisWare/driverlib\mpu.c **** //! be set by calling MPURegionSet() or else by enabling the default region for
+  64:C:/StellarisWare/driverlib\mpu.c **** //! privileged mode by passing the \b MPU_CONFIG_PRIV_DEFAULT flag to
+  65:C:/StellarisWare/driverlib\mpu.c **** //! MPUEnable().  Once the MPU is enabled, a memory management fault is
+  66:C:/StellarisWare/driverlib\mpu.c **** //! generated for memory access violations.
+  67:C:/StellarisWare/driverlib\mpu.c **** //!
+  68:C:/StellarisWare/driverlib\mpu.c **** //! The \e ulMPUConfig parameter should be the logical OR of any of the
+  69:C:/StellarisWare/driverlib\mpu.c **** //! following:
+  70:C:/StellarisWare/driverlib\mpu.c **** //!
+  71:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_CONFIG_PRIV_DEFAULT enables the default memory map when in
+  72:C:/StellarisWare/driverlib\mpu.c **** //! privileged mode and when no other regions are defined.  If this option
+  73:C:/StellarisWare/driverlib\mpu.c **** //! is not enabled, then there must be at least one valid region already
+  74:C:/StellarisWare/driverlib\mpu.c **** //! defined when the MPU is enabled.
+  75:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_CONFIG_HARDFLT_NMI enables the MPU while in a hard fault or NMI
+  76:C:/StellarisWare/driverlib\mpu.c **** //! exception handler.  If this option is not enabled, then the MPU is
+  77:C:/StellarisWare/driverlib\mpu.c **** //! disabled while in one of these exception handlers and the default
+  78:C:/StellarisWare/driverlib\mpu.c **** //! memory map is applied.
+  79:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_CONFIG_NONE chooses none of the above options.  In this case,
+  80:C:/StellarisWare/driverlib\mpu.c **** //! no default memory map is provided in privileged mode, and the MPU isl
+  81:C:/StellarisWare/driverlib\mpu.c **** //! not enabled in the fault handlers.
+  82:C:/StellarisWare/driverlib\mpu.c **** //!
+  83:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+  84:C:/StellarisWare/driverlib\mpu.c **** //
+  85:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+  86:C:/StellarisWare/driverlib\mpu.c **** void
+  87:C:/StellarisWare/driverlib\mpu.c **** MPUEnable(unsigned long ulMPUConfig)
+  88:C:/StellarisWare/driverlib\mpu.c **** {
+  27              		.loc 1 88 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 83B0     		sub	sp, sp, #12
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  89:C:/StellarisWare/driverlib\mpu.c ****     //
+  90:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+  91:C:/StellarisWare/driverlib\mpu.c ****     //
+  92:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(!(ulMPUConfig & ~(MPU_CONFIG_PRIV_DEFAULT |
+  93:C:/StellarisWare/driverlib\mpu.c ****                              MPU_CONFIG_HARDFLT_NMI)));
+  94:C:/StellarisWare/driverlib\mpu.c **** 
+  95:C:/StellarisWare/driverlib\mpu.c ****     //
+  96:C:/StellarisWare/driverlib\mpu.c ****     // Set the MPU control bits according to the flags passed by the user,
+  97:C:/StellarisWare/driverlib\mpu.c ****     // and also set the enable bit.
+  98:C:/StellarisWare/driverlib\mpu.c ****     //
+  99:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_CTRL) = ulMPUConfig | NVIC_MPU_CTRL_ENABLE;
+  43              		.loc 1 99 0
+  44 0008 4EF69453 		movw	r3, #60820
+  45 000c CEF20003 		movt	r3, 57344
+  46 0010 7A68     		ldr	r2, [r7, #4]
+  47 0012 42F00102 		orr	r2, r2, #1
+  48 0016 1A60     		str	r2, [r3, #0]
+ 100:C:/StellarisWare/driverlib\mpu.c **** }
+  49              		.loc 1 100 0
+  50 0018 07F10C07 		add	r7, r7, #12
+  51 001c BD46     		mov	sp, r7
+  52 001e 80BC     		pop	{r7}
+  53 0020 7047     		bx	lr
+  54              		.cfi_endproc
+  55              	.LFE0:
+  57 0022 00BF     		.section	.text.MPUDisable,"ax",%progbits
+  58              		.align	2
+  59              		.global	MPUDisable
+  60              		.thumb
+  61              		.thumb_func
+  63              	MPUDisable:
+  64              	.LFB1:
+ 101:C:/StellarisWare/driverlib\mpu.c **** 
+ 102:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 103:C:/StellarisWare/driverlib\mpu.c **** //
+ 104:C:/StellarisWare/driverlib\mpu.c **** //! Disables the MPU for use.
+ 105:C:/StellarisWare/driverlib\mpu.c **** //!
+ 106:C:/StellarisWare/driverlib\mpu.c **** //! This function disables the Cortex-M memory protection unit.  When the
+ 107:C:/StellarisWare/driverlib\mpu.c **** //! MPU is disabled, the default memory map is used and memory management
+ 108:C:/StellarisWare/driverlib\mpu.c **** //! faults are not generated.
+ 109:C:/StellarisWare/driverlib\mpu.c **** //!
+ 110:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 111:C:/StellarisWare/driverlib\mpu.c **** //
+ 112:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 113:C:/StellarisWare/driverlib\mpu.c **** void
+ 114:C:/StellarisWare/driverlib\mpu.c **** MPUDisable(void)
+ 115:C:/StellarisWare/driverlib\mpu.c **** {
+  65              		.loc 1 115 0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 1, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  70 0000 80B4     		push	{r7}
+  71              	.LCFI3:
+  72              		.cfi_def_cfa_offset 4
+  73              		.cfi_offset 7, -4
+  74 0002 00AF     		add	r7, sp, #0
+  75              	.LCFI4:
+  76              		.cfi_def_cfa_register 7
+ 116:C:/StellarisWare/driverlib\mpu.c ****     //
+ 117:C:/StellarisWare/driverlib\mpu.c ****     // Turn off the MPU enable bit.
+ 118:C:/StellarisWare/driverlib\mpu.c ****     //
+ 119:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_CTRL) &= ~NVIC_MPU_CTRL_ENABLE;
+  77              		.loc 1 119 0
+  78 0004 4EF69453 		movw	r3, #60820
+  79 0008 CEF20003 		movt	r3, 57344
+  80 000c 4EF69452 		movw	r2, #60820
+  81 0010 CEF20002 		movt	r2, 57344
+  82 0014 1268     		ldr	r2, [r2, #0]
+  83 0016 22F00102 		bic	r2, r2, #1
+  84 001a 1A60     		str	r2, [r3, #0]
+ 120:C:/StellarisWare/driverlib\mpu.c **** }
+  85              		.loc 1 120 0
+  86 001c BD46     		mov	sp, r7
+  87 001e 80BC     		pop	{r7}
+  88 0020 7047     		bx	lr
+  89              		.cfi_endproc
+  90              	.LFE1:
+  92 0022 00BF     		.section	.text.MPURegionCountGet,"ax",%progbits
+  93              		.align	2
+  94              		.global	MPURegionCountGet
+  95              		.thumb
+  96              		.thumb_func
+  98              	MPURegionCountGet:
+  99              	.LFB2:
+ 121:C:/StellarisWare/driverlib\mpu.c **** 
+ 122:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 123:C:/StellarisWare/driverlib\mpu.c **** //
+ 124:C:/StellarisWare/driverlib\mpu.c **** //! Gets the count of regions supported by the MPU.
+ 125:C:/StellarisWare/driverlib\mpu.c **** //!
+ 126:C:/StellarisWare/driverlib\mpu.c **** //! This function is used to get the total number of regions that are supported
+ 127:C:/StellarisWare/driverlib\mpu.c **** //! by the MPU, including regions that are already programmed.
+ 128:C:/StellarisWare/driverlib\mpu.c **** //!
+ 129:C:/StellarisWare/driverlib\mpu.c **** //! \return The number of memory protection regions that are available
+ 130:C:/StellarisWare/driverlib\mpu.c **** //! for programming using MPURegionSet().
+ 131:C:/StellarisWare/driverlib\mpu.c **** //
+ 132:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 133:C:/StellarisWare/driverlib\mpu.c **** unsigned long
+ 134:C:/StellarisWare/driverlib\mpu.c **** MPURegionCountGet(void)
+ 135:C:/StellarisWare/driverlib\mpu.c **** {
+ 100              		.loc 1 135 0
+ 101              		.cfi_startproc
+ 102              		@ args = 0, pretend = 0, frame = 0
+ 103              		@ frame_needed = 1, uses_anonymous_args = 0
+ 104              		@ link register save eliminated.
+ 105 0000 80B4     		push	{r7}
+ 106              	.LCFI5:
+ 107              		.cfi_def_cfa_offset 4
+ 108              		.cfi_offset 7, -4
+ 109 0002 00AF     		add	r7, sp, #0
+ 110              	.LCFI6:
+ 111              		.cfi_def_cfa_register 7
+ 136:C:/StellarisWare/driverlib\mpu.c ****     //
+ 137:C:/StellarisWare/driverlib\mpu.c ****     // Read the DREGION field of the MPU type register and mask off
+ 138:C:/StellarisWare/driverlib\mpu.c ****     // the bits of interest to get the count of regions.
+ 139:C:/StellarisWare/driverlib\mpu.c ****     //
+ 140:C:/StellarisWare/driverlib\mpu.c ****     return((HWREG(NVIC_MPU_TYPE) & NVIC_MPU_TYPE_DREGION_M)
+ 112              		.loc 1 140 0
+ 113 0004 4EF69053 		movw	r3, #60816
+ 114 0008 CEF20003 		movt	r3, 57344
+ 115 000c 1B68     		ldr	r3, [r3, #0]
+ 116 000e 03F47F43 		and	r3, r3, #65280
+ 117 0012 4FEA1323 		lsr	r3, r3, #8
+ 141:C:/StellarisWare/driverlib\mpu.c ****             >> NVIC_MPU_TYPE_DREGION_S);
+ 142:C:/StellarisWare/driverlib\mpu.c **** }
+ 118              		.loc 1 142 0
+ 119 0016 1846     		mov	r0, r3
+ 120 0018 BD46     		mov	sp, r7
+ 121 001a 80BC     		pop	{r7}
+ 122 001c 7047     		bx	lr
+ 123              		.cfi_endproc
+ 124              	.LFE2:
+ 126 001e 00BF     		.section	.text.MPURegionEnable,"ax",%progbits
+ 127              		.align	2
+ 128              		.global	MPURegionEnable
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	MPURegionEnable:
+ 133              	.LFB3:
+ 143:C:/StellarisWare/driverlib\mpu.c **** 
+ 144:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 145:C:/StellarisWare/driverlib\mpu.c **** //
+ 146:C:/StellarisWare/driverlib\mpu.c **** //! Enables a specific region.
+ 147:C:/StellarisWare/driverlib\mpu.c **** //!
+ 148:C:/StellarisWare/driverlib\mpu.c **** //! \param ulRegion is the region number to enable.
+ 149:C:/StellarisWare/driverlib\mpu.c **** //!
+ 150:C:/StellarisWare/driverlib\mpu.c **** //! This function is used to enable a memory protection region.  The region
+ 151:C:/StellarisWare/driverlib\mpu.c **** //! should already be configured with the MPURegionSet() function.  Once
+ 152:C:/StellarisWare/driverlib\mpu.c **** //! enabled, the memory protection rules of the region are applied and access
+ 153:C:/StellarisWare/driverlib\mpu.c **** //! violations cause a memory management fault.
+ 154:C:/StellarisWare/driverlib\mpu.c **** //!
+ 155:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 156:C:/StellarisWare/driverlib\mpu.c **** //
+ 157:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 158:C:/StellarisWare/driverlib\mpu.c **** void
+ 159:C:/StellarisWare/driverlib\mpu.c **** MPURegionEnable(unsigned long ulRegion)
+ 160:C:/StellarisWare/driverlib\mpu.c **** {
+ 134              		.loc 1 160 0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 8
+ 137              		@ frame_needed = 1, uses_anonymous_args = 0
+ 138              		@ link register save eliminated.
+ 139 0000 80B4     		push	{r7}
+ 140              	.LCFI7:
+ 141              		.cfi_def_cfa_offset 4
+ 142              		.cfi_offset 7, -4
+ 143 0002 83B0     		sub	sp, sp, #12
+ 144              	.LCFI8:
+ 145              		.cfi_def_cfa_offset 16
+ 146 0004 00AF     		add	r7, sp, #0
+ 147              	.LCFI9:
+ 148              		.cfi_def_cfa_register 7
+ 149 0006 7860     		str	r0, [r7, #4]
+ 161:C:/StellarisWare/driverlib\mpu.c ****     //
+ 162:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+ 163:C:/StellarisWare/driverlib\mpu.c ****     //
+ 164:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(ulRegion < 8);
+ 165:C:/StellarisWare/driverlib\mpu.c **** 
+ 166:C:/StellarisWare/driverlib\mpu.c ****     //
+ 167:C:/StellarisWare/driverlib\mpu.c ****     // Select the region to modify.
+ 168:C:/StellarisWare/driverlib\mpu.c ****     //
+ 169:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_NUMBER) = ulRegion;
+ 150              		.loc 1 169 0
+ 151 0008 4EF69853 		movw	r3, #60824
+ 152 000c CEF20003 		movt	r3, 57344
+ 153 0010 7A68     		ldr	r2, [r7, #4]
+ 154 0012 1A60     		str	r2, [r3, #0]
+ 170:C:/StellarisWare/driverlib\mpu.c **** 
+ 171:C:/StellarisWare/driverlib\mpu.c ****     //
+ 172:C:/StellarisWare/driverlib\mpu.c ****     // Modify the enable bit in the region attributes.
+ 173:C:/StellarisWare/driverlib\mpu.c ****     //
+ 174:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_ATTR) |= NVIC_MPU_ATTR_ENABLE;
+ 155              		.loc 1 174 0
+ 156 0014 4EF6A053 		movw	r3, #60832
+ 157 0018 CEF20003 		movt	r3, 57344
+ 158 001c 4EF6A052 		movw	r2, #60832
+ 159 0020 CEF20002 		movt	r2, 57344
+ 160 0024 1268     		ldr	r2, [r2, #0]
+ 161 0026 42F00102 		orr	r2, r2, #1
+ 162 002a 1A60     		str	r2, [r3, #0]
+ 175:C:/StellarisWare/driverlib\mpu.c **** }
+ 163              		.loc 1 175 0
+ 164 002c 07F10C07 		add	r7, r7, #12
+ 165 0030 BD46     		mov	sp, r7
+ 166 0032 80BC     		pop	{r7}
+ 167 0034 7047     		bx	lr
+ 168              		.cfi_endproc
+ 169              	.LFE3:
+ 171 0036 00BF     		.section	.text.MPURegionDisable,"ax",%progbits
+ 172              		.align	2
+ 173              		.global	MPURegionDisable
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	MPURegionDisable:
+ 178              	.LFB4:
+ 176:C:/StellarisWare/driverlib\mpu.c **** 
+ 177:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 178:C:/StellarisWare/driverlib\mpu.c **** //
+ 179:C:/StellarisWare/driverlib\mpu.c **** //! Disables a specific region.
+ 180:C:/StellarisWare/driverlib\mpu.c **** //!
+ 181:C:/StellarisWare/driverlib\mpu.c **** //! \param ulRegion is the region number to disable.
+ 182:C:/StellarisWare/driverlib\mpu.c **** //!
+ 183:C:/StellarisWare/driverlib\mpu.c **** //! This function is used to disable a previously enabled memory protection
+ 184:C:/StellarisWare/driverlib\mpu.c **** //! region.  The region remains configured if it is not overwritten with
+ 185:C:/StellarisWare/driverlib\mpu.c **** //! another call to MPURegionSet(), and can be enabled again by calling
+ 186:C:/StellarisWare/driverlib\mpu.c **** //! MPURegionEnable().
+ 187:C:/StellarisWare/driverlib\mpu.c **** //!
+ 188:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 189:C:/StellarisWare/driverlib\mpu.c **** //
+ 190:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 191:C:/StellarisWare/driverlib\mpu.c **** void
+ 192:C:/StellarisWare/driverlib\mpu.c **** MPURegionDisable(unsigned long ulRegion)
+ 193:C:/StellarisWare/driverlib\mpu.c **** {
+ 179              		.loc 1 193 0
+ 180              		.cfi_startproc
+ 181              		@ args = 0, pretend = 0, frame = 8
+ 182              		@ frame_needed = 1, uses_anonymous_args = 0
+ 183              		@ link register save eliminated.
+ 184 0000 80B4     		push	{r7}
+ 185              	.LCFI10:
+ 186              		.cfi_def_cfa_offset 4
+ 187              		.cfi_offset 7, -4
+ 188 0002 83B0     		sub	sp, sp, #12
+ 189              	.LCFI11:
+ 190              		.cfi_def_cfa_offset 16
+ 191 0004 00AF     		add	r7, sp, #0
+ 192              	.LCFI12:
+ 193              		.cfi_def_cfa_register 7
+ 194 0006 7860     		str	r0, [r7, #4]
+ 194:C:/StellarisWare/driverlib\mpu.c ****     //
+ 195:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+ 196:C:/StellarisWare/driverlib\mpu.c ****     //
+ 197:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(ulRegion < 8);
+ 198:C:/StellarisWare/driverlib\mpu.c **** 
+ 199:C:/StellarisWare/driverlib\mpu.c ****     //
+ 200:C:/StellarisWare/driverlib\mpu.c ****     // Select the region to modify.
+ 201:C:/StellarisWare/driverlib\mpu.c ****     //
+ 202:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_NUMBER) = ulRegion;
+ 195              		.loc 1 202 0
+ 196 0008 4EF69853 		movw	r3, #60824
+ 197 000c CEF20003 		movt	r3, 57344
+ 198 0010 7A68     		ldr	r2, [r7, #4]
+ 199 0012 1A60     		str	r2, [r3, #0]
+ 203:C:/StellarisWare/driverlib\mpu.c **** 
+ 204:C:/StellarisWare/driverlib\mpu.c ****     //
+ 205:C:/StellarisWare/driverlib\mpu.c ****     // Modify the enable bit in the region attributes.
+ 206:C:/StellarisWare/driverlib\mpu.c ****     //
+ 207:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_ATTR) &= ~NVIC_MPU_ATTR_ENABLE;
+ 200              		.loc 1 207 0
+ 201 0014 4EF6A053 		movw	r3, #60832
+ 202 0018 CEF20003 		movt	r3, 57344
+ 203 001c 4EF6A052 		movw	r2, #60832
+ 204 0020 CEF20002 		movt	r2, 57344
+ 205 0024 1268     		ldr	r2, [r2, #0]
+ 206 0026 22F00102 		bic	r2, r2, #1
+ 207 002a 1A60     		str	r2, [r3, #0]
+ 208:C:/StellarisWare/driverlib\mpu.c **** }
+ 208              		.loc 1 208 0
+ 209 002c 07F10C07 		add	r7, r7, #12
+ 210 0030 BD46     		mov	sp, r7
+ 211 0032 80BC     		pop	{r7}
+ 212 0034 7047     		bx	lr
+ 213              		.cfi_endproc
+ 214              	.LFE4:
+ 216 0036 00BF     		.section	.text.MPURegionSet,"ax",%progbits
+ 217              		.align	2
+ 218              		.global	MPURegionSet
+ 219              		.thumb
+ 220              		.thumb_func
+ 222              	MPURegionSet:
+ 223              	.LFB5:
+ 209:C:/StellarisWare/driverlib\mpu.c **** 
+ 210:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 211:C:/StellarisWare/driverlib\mpu.c **** //
+ 212:C:/StellarisWare/driverlib\mpu.c **** //! Sets up the access rules for a specific region.
+ 213:C:/StellarisWare/driverlib\mpu.c **** //!
+ 214:C:/StellarisWare/driverlib\mpu.c **** //! \param ulRegion is the region number to set up.
+ 215:C:/StellarisWare/driverlib\mpu.c **** //! \param ulAddr is the base address of the region.  It must be aligned
+ 216:C:/StellarisWare/driverlib\mpu.c **** //! according to the size of the region specified in ulFlags.
+ 217:C:/StellarisWare/driverlib\mpu.c **** //! \param ulFlags is a set of flags to define the attributes of the region.
+ 218:C:/StellarisWare/driverlib\mpu.c **** //!
+ 219:C:/StellarisWare/driverlib\mpu.c **** //! This function sets up the protection rules for a region.  The region has
+ 220:C:/StellarisWare/driverlib\mpu.c **** //! a base address and a set of attributes including the size. The base
+ 221:C:/StellarisWare/driverlib\mpu.c **** //! address parameter, \e ulAddr, must be aligned according to the size, and
+ 222:C:/StellarisWare/driverlib\mpu.c **** //! the size must be a power of 2.
+ 223:C:/StellarisWare/driverlib\mpu.c **** //!
+ 224:C:/StellarisWare/driverlib\mpu.c **** //! The \e ulFlags parameter is the logical OR of all of the attributes
+ 225:C:/StellarisWare/driverlib\mpu.c **** //! of the region.  It is a combination of choices for region size,
+ 226:C:/StellarisWare/driverlib\mpu.c **** //! execute permission, read/write permissions, disabled sub-regions,
+ 227:C:/StellarisWare/driverlib\mpu.c **** //! and a flag to determine if the region is enabled.
+ 228:C:/StellarisWare/driverlib\mpu.c **** //!
+ 229:C:/StellarisWare/driverlib\mpu.c **** //! The size flag determines the size of a region and must be one of the
+ 230:C:/StellarisWare/driverlib\mpu.c **** //! following:
+ 231:C:/StellarisWare/driverlib\mpu.c **** //!
+ 232:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_32B
+ 233:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_64B
+ 234:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_128B
+ 235:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_256B
+ 236:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_512B
+ 237:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_1K
+ 238:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_2K
+ 239:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_4K
+ 240:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_8K
+ 241:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_16K
+ 242:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_32K
+ 243:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_64K
+ 244:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_128K
+ 245:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_256K
+ 246:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_512K
+ 247:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_1M
+ 248:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_2M
+ 249:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_4M
+ 250:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_8M
+ 251:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_16M
+ 252:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_32M
+ 253:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_64M
+ 254:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_128M
+ 255:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_256M
+ 256:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_512M
+ 257:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_1G
+ 258:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_2G
+ 259:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_SIZE_4G
+ 260:C:/StellarisWare/driverlib\mpu.c **** //!
+ 261:C:/StellarisWare/driverlib\mpu.c **** //! The execute permission flag must be one of the following:
+ 262:C:/StellarisWare/driverlib\mpu.c **** //!
+ 263:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_EXEC enables the region for execution of code
+ 264:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_NOEXEC disables the region for execution of code
+ 265:C:/StellarisWare/driverlib\mpu.c **** //!
+ 266:C:/StellarisWare/driverlib\mpu.c **** //! The read/write access permissions are applied separately for the
+ 267:C:/StellarisWare/driverlib\mpu.c **** //! privileged and user modes.  The read/write access flags must be one
+ 268:C:/StellarisWare/driverlib\mpu.c **** //! of the following:
+ 269:C:/StellarisWare/driverlib\mpu.c **** //!
+ 270:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_NO_USR_NO - no access in privileged or user mode
+ 271:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_RW_USR_NO - privileged read/write, user no access
+ 272:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_RW_USR_RO - privileged read/write, user read-only
+ 273:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_RW_USR_RW - privileged read/write, user read/write
+ 274:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_RO_USR_NO - privileged read-only, user no access
+ 275:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_PERM_PRV_RO_USR_RO - privileged read-only, user read-only
+ 276:C:/StellarisWare/driverlib\mpu.c **** //!
+ 277:C:/StellarisWare/driverlib\mpu.c **** //! The region is automatically divided into 8 equally-sized sub-regions by
+ 278:C:/StellarisWare/driverlib\mpu.c **** //! the MPU.  Sub-regions can only be used in regions of size 256 bytes
+ 279:C:/StellarisWare/driverlib\mpu.c **** //! or larger.  Any of these 8 sub-regions can be disabled, allowing for
+ 280:C:/StellarisWare/driverlib\mpu.c **** //! creation of ``holes'' in a region which can be left open, or overlaid
+ 281:C:/StellarisWare/driverlib\mpu.c **** //! by another region with different attributes.  Any of the 8 sub-regions
+ 282:C:/StellarisWare/driverlib\mpu.c **** //! can be disabled with a logical OR of any of the following flags:
+ 283:C:/StellarisWare/driverlib\mpu.c **** //!
+ 284:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_0
+ 285:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_1
+ 286:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_2
+ 287:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_3
+ 288:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_4
+ 289:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_5
+ 290:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_6
+ 291:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_SUB_RGN_DISABLE_7
+ 292:C:/StellarisWare/driverlib\mpu.c **** //!
+ 293:C:/StellarisWare/driverlib\mpu.c **** //! Finally, the region can be initially enabled or disabled with one of
+ 294:C:/StellarisWare/driverlib\mpu.c **** //! the following flags:
+ 295:C:/StellarisWare/driverlib\mpu.c **** //!
+ 296:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_ENABLE
+ 297:C:/StellarisWare/driverlib\mpu.c **** //! - \b MPU_RGN_DISABLE
+ 298:C:/StellarisWare/driverlib\mpu.c **** //!
+ 299:C:/StellarisWare/driverlib\mpu.c **** //! As an example, to set a region with the following attributes: size of
+ 300:C:/StellarisWare/driverlib\mpu.c **** //! 32 KB, execution enabled, read-only for both privileged and user, one
+ 301:C:/StellarisWare/driverlib\mpu.c **** //! sub-region disabled, and initially enabled; the \e ulFlags parameter would
+ 302:C:/StellarisWare/driverlib\mpu.c **** //! have the following value:
+ 303:C:/StellarisWare/driverlib\mpu.c **** //!
+ 304:C:/StellarisWare/driverlib\mpu.c **** //! <code>
+ 305:C:/StellarisWare/driverlib\mpu.c **** //! (MPU_RG_SIZE_32K | MPU_RGN_PERM_EXEC | MPU_RGN_PERM_PRV_RO_USR_RO |
+ 306:C:/StellarisWare/driverlib\mpu.c **** //!  MPU_SUB_RGN_DISABLE_2 | MPU_RGN_ENABLE)
+ 307:C:/StellarisWare/driverlib\mpu.c **** //! </code>
+ 308:C:/StellarisWare/driverlib\mpu.c **** //!
+ 309:C:/StellarisWare/driverlib\mpu.c **** //! \note This function writes to multiple registers and is not protected
+ 310:C:/StellarisWare/driverlib\mpu.c **** //! from interrupts.  It is possible that an interrupt which accesses a
+ 311:C:/StellarisWare/driverlib\mpu.c **** //! region may occur while that region is in the process of being changed.
+ 312:C:/StellarisWare/driverlib\mpu.c **** //! The safest way to handle this is to disable a region before changing it.
+ 313:C:/StellarisWare/driverlib\mpu.c **** //! Refer to the discussion of this in the API Detailed Description section.
+ 314:C:/StellarisWare/driverlib\mpu.c **** //!
+ 315:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 316:C:/StellarisWare/driverlib\mpu.c **** //
+ 317:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 318:C:/StellarisWare/driverlib\mpu.c **** void
+ 319:C:/StellarisWare/driverlib\mpu.c **** MPURegionSet(unsigned long ulRegion, unsigned long ulAddr,
+ 320:C:/StellarisWare/driverlib\mpu.c ****              unsigned long ulFlags)
+ 321:C:/StellarisWare/driverlib\mpu.c **** {
+ 224              		.loc 1 321 0
+ 225              		.cfi_startproc
+ 226              		@ args = 0, pretend = 0, frame = 16
+ 227              		@ frame_needed = 1, uses_anonymous_args = 0
+ 228              		@ link register save eliminated.
+ 229 0000 80B4     		push	{r7}
+ 230              	.LCFI13:
+ 231              		.cfi_def_cfa_offset 4
+ 232              		.cfi_offset 7, -4
+ 233 0002 85B0     		sub	sp, sp, #20
+ 234              	.LCFI14:
+ 235              		.cfi_def_cfa_offset 24
+ 236 0004 00AF     		add	r7, sp, #0
+ 237              	.LCFI15:
+ 238              		.cfi_def_cfa_register 7
+ 239 0006 F860     		str	r0, [r7, #12]
+ 240 0008 B960     		str	r1, [r7, #8]
+ 241 000a 7A60     		str	r2, [r7, #4]
+ 322:C:/StellarisWare/driverlib\mpu.c ****     //
+ 323:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+ 324:C:/StellarisWare/driverlib\mpu.c ****     //
+ 325:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(ulRegion < 8);
+ 326:C:/StellarisWare/driverlib\mpu.c ****     ASSERT((ulAddr & ~0 << (((ulFlags & NVIC_MPU_ATTR_SIZE_M) >> 1) + 1))
+ 327:C:/StellarisWare/driverlib\mpu.c ****             == ulAddr);
+ 328:C:/StellarisWare/driverlib\mpu.c **** 
+ 329:C:/StellarisWare/driverlib\mpu.c ****     //
+ 330:C:/StellarisWare/driverlib\mpu.c ****     // Program the base address, use the region field to select the
+ 331:C:/StellarisWare/driverlib\mpu.c ****     // region at the same time.
+ 332:C:/StellarisWare/driverlib\mpu.c ****     //
+ 333:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_BASE) = ulAddr | ulRegion | NVIC_MPU_BASE_VALID;
+ 242              		.loc 1 333 0
+ 243 000c 4EF69C53 		movw	r3, #60828
+ 244 0010 CEF20003 		movt	r3, 57344
+ 245 0014 B968     		ldr	r1, [r7, #8]
+ 246 0016 FA68     		ldr	r2, [r7, #12]
+ 247 0018 0A43     		orrs	r2, r2, r1
+ 248 001a 42F01002 		orr	r2, r2, #16
+ 249 001e 1A60     		str	r2, [r3, #0]
+ 334:C:/StellarisWare/driverlib\mpu.c **** 
+ 335:C:/StellarisWare/driverlib\mpu.c ****     //
+ 336:C:/StellarisWare/driverlib\mpu.c ****     // Program the region attributes.  Set the TEX field and the S, C,
+ 337:C:/StellarisWare/driverlib\mpu.c ****     // and B bits to fixed values that are suitable for all Stellaris
+ 338:C:/StellarisWare/driverlib\mpu.c ****     // memory.
+ 339:C:/StellarisWare/driverlib\mpu.c ****     //
+ 340:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_ATTR) = (ulFlags & ~(NVIC_MPU_ATTR_TEX_M |
+ 250              		.loc 1 340 0
+ 251 0020 4EF6A053 		movw	r3, #60832
+ 252 0024 CEF20003 		movt	r3, 57344
+ 341:C:/StellarisWare/driverlib\mpu.c ****                                        NVIC_MPU_ATTR_CACHEABLE)) |
+ 342:C:/StellarisWare/driverlib\mpu.c ****                             NVIC_MPU_ATTR_SHAREABLE |
+ 253              		.loc 1 342 0
+ 254 0028 7A68     		ldr	r2, [r7, #4]
+ 255 002a 22F47C12 		bic	r2, r2, #4128768
+ 256 002e 42F4A022 		orr	r2, r2, #327680
+ 340:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_ATTR) = (ulFlags & ~(NVIC_MPU_ATTR_TEX_M |
+ 257              		.loc 1 340 0
+ 258 0032 1A60     		str	r2, [r3, #0]
+ 343:C:/StellarisWare/driverlib\mpu.c ****                             NVIC_MPU_ATTR_BUFFRABLE;
+ 344:C:/StellarisWare/driverlib\mpu.c **** }
+ 259              		.loc 1 344 0
+ 260 0034 07F11407 		add	r7, r7, #20
+ 261 0038 BD46     		mov	sp, r7
+ 262 003a 80BC     		pop	{r7}
+ 263 003c 7047     		bx	lr
+ 264              		.cfi_endproc
+ 265              	.LFE5:
+ 267 003e 00BF     		.section	.text.MPURegionGet,"ax",%progbits
+ 268              		.align	2
+ 269              		.global	MPURegionGet
+ 270              		.thumb
+ 271              		.thumb_func
+ 273              	MPURegionGet:
+ 274              	.LFB6:
+ 345:C:/StellarisWare/driverlib\mpu.c **** 
+ 346:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 347:C:/StellarisWare/driverlib\mpu.c **** //
+ 348:C:/StellarisWare/driverlib\mpu.c **** //! Gets the current settings for a specific region.
+ 349:C:/StellarisWare/driverlib\mpu.c **** //!
+ 350:C:/StellarisWare/driverlib\mpu.c **** //! \param ulRegion is the region number to get.
+ 351:C:/StellarisWare/driverlib\mpu.c **** //! \param pulAddr points to storage for the base address of the region.
+ 352:C:/StellarisWare/driverlib\mpu.c **** //! \param pulFlags points to the attribute flags for the region.
+ 353:C:/StellarisWare/driverlib\mpu.c **** //!
+ 354:C:/StellarisWare/driverlib\mpu.c **** //! This function retrieves the configuration of a specific region.  The
+ 355:C:/StellarisWare/driverlib\mpu.c **** //! meanings and format of the parameters is the same as that of the
+ 356:C:/StellarisWare/driverlib\mpu.c **** //! MPURegionSet() function.
+ 357:C:/StellarisWare/driverlib\mpu.c **** //!
+ 358:C:/StellarisWare/driverlib\mpu.c **** //! This function can be used to save the configuration of a region for later
+ 359:C:/StellarisWare/driverlib\mpu.c **** //! use with the MPURegionSet() function.  The region's enable state is
+ 360:C:/StellarisWare/driverlib\mpu.c **** //! preserved in the attributes that are saved.
+ 361:C:/StellarisWare/driverlib\mpu.c **** //!
+ 362:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 363:C:/StellarisWare/driverlib\mpu.c **** //
+ 364:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 365:C:/StellarisWare/driverlib\mpu.c **** void
+ 366:C:/StellarisWare/driverlib\mpu.c **** MPURegionGet(unsigned long ulRegion, unsigned long *pulAddr,
+ 367:C:/StellarisWare/driverlib\mpu.c ****              unsigned long *pulFlags)
+ 368:C:/StellarisWare/driverlib\mpu.c **** {
+ 275              		.loc 1 368 0
+ 276              		.cfi_startproc
+ 277              		@ args = 0, pretend = 0, frame = 16
+ 278              		@ frame_needed = 1, uses_anonymous_args = 0
+ 279              		@ link register save eliminated.
+ 280 0000 80B4     		push	{r7}
+ 281              	.LCFI16:
+ 282              		.cfi_def_cfa_offset 4
+ 283              		.cfi_offset 7, -4
+ 284 0002 85B0     		sub	sp, sp, #20
+ 285              	.LCFI17:
+ 286              		.cfi_def_cfa_offset 24
+ 287 0004 00AF     		add	r7, sp, #0
+ 288              	.LCFI18:
+ 289              		.cfi_def_cfa_register 7
+ 290 0006 F860     		str	r0, [r7, #12]
+ 291 0008 B960     		str	r1, [r7, #8]
+ 292 000a 7A60     		str	r2, [r7, #4]
+ 369:C:/StellarisWare/driverlib\mpu.c ****     //
+ 370:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+ 371:C:/StellarisWare/driverlib\mpu.c ****     //
+ 372:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(ulRegion < 8);
+ 373:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(pulAddr);
+ 374:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(pulFlags);
+ 375:C:/StellarisWare/driverlib\mpu.c **** 
+ 376:C:/StellarisWare/driverlib\mpu.c ****     //
+ 377:C:/StellarisWare/driverlib\mpu.c ****     // Select the region to get.
+ 378:C:/StellarisWare/driverlib\mpu.c ****     //
+ 379:C:/StellarisWare/driverlib\mpu.c ****     HWREG(NVIC_MPU_NUMBER) = ulRegion;
+ 293              		.loc 1 379 0
+ 294 000c 4EF69853 		movw	r3, #60824
+ 295 0010 CEF20003 		movt	r3, 57344
+ 296 0014 FA68     		ldr	r2, [r7, #12]
+ 297 0016 1A60     		str	r2, [r3, #0]
+ 380:C:/StellarisWare/driverlib\mpu.c **** 
+ 381:C:/StellarisWare/driverlib\mpu.c ****     //
+ 382:C:/StellarisWare/driverlib\mpu.c ****     // Read and store the base address for the region.
+ 383:C:/StellarisWare/driverlib\mpu.c ****     //
+ 384:C:/StellarisWare/driverlib\mpu.c ****     *pulAddr = HWREG(NVIC_MPU_BASE);
+ 298              		.loc 1 384 0
+ 299 0018 4EF69C53 		movw	r3, #60828
+ 300 001c CEF20003 		movt	r3, 57344
+ 301 0020 1A68     		ldr	r2, [r3, #0]
+ 302 0022 BB68     		ldr	r3, [r7, #8]
+ 303 0024 1A60     		str	r2, [r3, #0]
+ 385:C:/StellarisWare/driverlib\mpu.c **** 
+ 386:C:/StellarisWare/driverlib\mpu.c ****     //
+ 387:C:/StellarisWare/driverlib\mpu.c ****     // Read and store the region attributes.
+ 388:C:/StellarisWare/driverlib\mpu.c ****     //
+ 389:C:/StellarisWare/driverlib\mpu.c ****     *pulFlags = HWREG(NVIC_MPU_ATTR);
+ 304              		.loc 1 389 0
+ 305 0026 4EF6A053 		movw	r3, #60832
+ 306 002a CEF20003 		movt	r3, 57344
+ 307 002e 1A68     		ldr	r2, [r3, #0]
+ 308 0030 7B68     		ldr	r3, [r7, #4]
+ 309 0032 1A60     		str	r2, [r3, #0]
+ 390:C:/StellarisWare/driverlib\mpu.c **** }
+ 310              		.loc 1 390 0
+ 311 0034 07F11407 		add	r7, r7, #20
+ 312 0038 BD46     		mov	sp, r7
+ 313 003a 80BC     		pop	{r7}
+ 314 003c 7047     		bx	lr
+ 315              		.cfi_endproc
+ 316              	.LFE6:
+ 318 003e 00BF     		.section	.text.MPUIntRegister,"ax",%progbits
+ 319              		.align	2
+ 320              		.global	MPUIntRegister
+ 321              		.thumb
+ 322              		.thumb_func
+ 324              	MPUIntRegister:
+ 325              	.LFB7:
+ 391:C:/StellarisWare/driverlib\mpu.c **** 
+ 392:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 393:C:/StellarisWare/driverlib\mpu.c **** //
+ 394:C:/StellarisWare/driverlib\mpu.c **** //! Registers an interrupt handler for the memory management fault.
+ 395:C:/StellarisWare/driverlib\mpu.c **** //!
+ 396:C:/StellarisWare/driverlib\mpu.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 397:C:/StellarisWare/driverlib\mpu.c **** //! memory management fault occurs.
+ 398:C:/StellarisWare/driverlib\mpu.c **** //!
+ 399:C:/StellarisWare/driverlib\mpu.c **** //! This function sets and enables the handler to be called when the MPU
+ 400:C:/StellarisWare/driverlib\mpu.c **** //! generates a memory management fault due to a protection region access
+ 401:C:/StellarisWare/driverlib\mpu.c **** //! violation.
+ 402:C:/StellarisWare/driverlib\mpu.c **** //!
+ 403:C:/StellarisWare/driverlib\mpu.c **** //! \sa IntRegister() for important information about registering interrupt
+ 404:C:/StellarisWare/driverlib\mpu.c **** //! handlers.
+ 405:C:/StellarisWare/driverlib\mpu.c **** //!
+ 406:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 407:C:/StellarisWare/driverlib\mpu.c **** //
+ 408:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 409:C:/StellarisWare/driverlib\mpu.c **** void
+ 410:C:/StellarisWare/driverlib\mpu.c **** MPUIntRegister(void (*pfnHandler)(void))
+ 411:C:/StellarisWare/driverlib\mpu.c **** {
+ 326              		.loc 1 411 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 8
+ 329              		@ frame_needed = 1, uses_anonymous_args = 0
+ 330 0000 80B5     		push	{r7, lr}
+ 331              	.LCFI19:
+ 332              		.cfi_def_cfa_offset 8
+ 333              		.cfi_offset 14, -4
+ 334              		.cfi_offset 7, -8
+ 335 0002 82B0     		sub	sp, sp, #8
+ 336              	.LCFI20:
+ 337              		.cfi_def_cfa_offset 16
+ 338 0004 00AF     		add	r7, sp, #0
+ 339              	.LCFI21:
+ 340              		.cfi_def_cfa_register 7
+ 341 0006 7860     		str	r0, [r7, #4]
+ 412:C:/StellarisWare/driverlib\mpu.c ****     //
+ 413:C:/StellarisWare/driverlib\mpu.c ****     // Check the arguments.
+ 414:C:/StellarisWare/driverlib\mpu.c ****     //
+ 415:C:/StellarisWare/driverlib\mpu.c ****     ASSERT(pfnHandler);
+ 416:C:/StellarisWare/driverlib\mpu.c **** 
+ 417:C:/StellarisWare/driverlib\mpu.c ****     //
+ 418:C:/StellarisWare/driverlib\mpu.c ****     // Register the interrupt handler.
+ 419:C:/StellarisWare/driverlib\mpu.c ****     //
+ 420:C:/StellarisWare/driverlib\mpu.c ****     IntRegister(FAULT_MPU, pfnHandler);
+ 342              		.loc 1 420 0
+ 343 0008 4FF00400 		mov	r0, #4
+ 344 000c 7968     		ldr	r1, [r7, #4]
+ 345 000e FFF7FEFF 		bl	IntRegister
+ 421:C:/StellarisWare/driverlib\mpu.c **** 
+ 422:C:/StellarisWare/driverlib\mpu.c ****     //
+ 423:C:/StellarisWare/driverlib\mpu.c ****     // Enable the memory management fault.
+ 424:C:/StellarisWare/driverlib\mpu.c ****     //
+ 425:C:/StellarisWare/driverlib\mpu.c ****     IntEnable(FAULT_MPU);
+ 346              		.loc 1 425 0
+ 347 0012 4FF00400 		mov	r0, #4
+ 348 0016 FFF7FEFF 		bl	IntEnable
+ 426:C:/StellarisWare/driverlib\mpu.c **** }
+ 349              		.loc 1 426 0
+ 350 001a 07F10807 		add	r7, r7, #8
+ 351 001e BD46     		mov	sp, r7
+ 352 0020 80BD     		pop	{r7, pc}
+ 353              		.cfi_endproc
+ 354              	.LFE7:
+ 356 0022 00BF     		.section	.text.MPUIntUnregister,"ax",%progbits
+ 357              		.align	2
+ 358              		.global	MPUIntUnregister
+ 359              		.thumb
+ 360              		.thumb_func
+ 362              	MPUIntUnregister:
+ 363              	.LFB8:
+ 427:C:/StellarisWare/driverlib\mpu.c **** 
+ 428:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 429:C:/StellarisWare/driverlib\mpu.c **** //
+ 430:C:/StellarisWare/driverlib\mpu.c **** //! Unregisters an interrupt handler for the memory management fault.
+ 431:C:/StellarisWare/driverlib\mpu.c **** //!
+ 432:C:/StellarisWare/driverlib\mpu.c **** //! This function disables and clears the handler to be called when a
+ 433:C:/StellarisWare/driverlib\mpu.c **** //! memory management fault occurs.
+ 434:C:/StellarisWare/driverlib\mpu.c **** //!
+ 435:C:/StellarisWare/driverlib\mpu.c **** //! \sa IntRegister() for important information about registering interrupt
+ 436:C:/StellarisWare/driverlib\mpu.c **** //! handlers.
+ 437:C:/StellarisWare/driverlib\mpu.c **** //!
+ 438:C:/StellarisWare/driverlib\mpu.c **** //! \return None.
+ 439:C:/StellarisWare/driverlib\mpu.c **** //
+ 440:C:/StellarisWare/driverlib\mpu.c **** //*****************************************************************************
+ 441:C:/StellarisWare/driverlib\mpu.c **** void
+ 442:C:/StellarisWare/driverlib\mpu.c **** MPUIntUnregister(void)
+ 443:C:/StellarisWare/driverlib\mpu.c **** {
+ 364              		.loc 1 443 0
+ 365              		.cfi_startproc
+ 366              		@ args = 0, pretend = 0, frame = 0
+ 367              		@ frame_needed = 1, uses_anonymous_args = 0
+ 368 0000 80B5     		push	{r7, lr}
+ 369              	.LCFI22:
+ 370              		.cfi_def_cfa_offset 8
+ 371              		.cfi_offset 14, -4
+ 372              		.cfi_offset 7, -8
+ 373 0002 00AF     		add	r7, sp, #0
+ 374              	.LCFI23:
+ 375              		.cfi_def_cfa_register 7
+ 444:C:/StellarisWare/driverlib\mpu.c ****     //
+ 445:C:/StellarisWare/driverlib\mpu.c ****     // Disable the interrupt.
+ 446:C:/StellarisWare/driverlib\mpu.c ****     //
+ 447:C:/StellarisWare/driverlib\mpu.c ****     IntDisable(FAULT_MPU);
+ 376              		.loc 1 447 0
+ 377 0004 4FF00400 		mov	r0, #4
+ 378 0008 FFF7FEFF 		bl	IntDisable
+ 448:C:/StellarisWare/driverlib\mpu.c **** 
+ 449:C:/StellarisWare/driverlib\mpu.c ****     //
+ 450:C:/StellarisWare/driverlib\mpu.c ****     // Unregister the interrupt handler.
+ 451:C:/StellarisWare/driverlib\mpu.c ****     //
+ 452:C:/StellarisWare/driverlib\mpu.c ****     IntUnregister(FAULT_MPU);
+ 379              		.loc 1 452 0
+ 380 000c 4FF00400 		mov	r0, #4
+ 381 0010 FFF7FEFF 		bl	IntUnregister
+ 453:C:/StellarisWare/driverlib\mpu.c **** }
+ 382              		.loc 1 453 0
+ 383 0014 80BD     		pop	{r7, pc}
+ 384              		.cfi_endproc
+ 385              	.LFE8:
+ 387 0016 00BF     		.text
+ 388              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 mpu.c
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:19     .text.MPUEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:24     .text.MPUEnable:00000000 MPUEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:58     .text.MPUDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:63     .text.MPUDisable:00000000 MPUDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:93     .text.MPURegionCountGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:98     .text.MPURegionCountGet:00000000 MPURegionCountGet
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:127    .text.MPURegionEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:132    .text.MPURegionEnable:00000000 MPURegionEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:172    .text.MPURegionDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:177    .text.MPURegionDisable:00000000 MPURegionDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:217    .text.MPURegionSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:222    .text.MPURegionSet:00000000 MPURegionSet
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:268    .text.MPURegionGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:273    .text.MPURegionGet:00000000 MPURegionGet
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:319    .text.MPUIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:324    .text.MPUIntRegister:00000000 MPUIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:357    .text.MPUIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccl78g2G.s:362    .text.MPUIntUnregister:00000000 MPUIntUnregister
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

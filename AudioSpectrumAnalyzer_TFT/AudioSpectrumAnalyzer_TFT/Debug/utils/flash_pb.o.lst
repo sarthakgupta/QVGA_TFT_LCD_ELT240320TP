@@ -1,0 +1,1098 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"flash_pb.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	g_pucFlashPBStart:
+  21 0000 00000000 		.space	4
+  22              		.align	2
+  23              	g_pucFlashPBEnd:
+  24 0004 00000000 		.space	4
+  25              		.align	2
+  26              	g_ulFlashPBSize:
+  27 0008 00000000 		.space	4
+  28              		.align	2
+  29              	g_pucFlashPBCurrent:
+  30 000c 00000000 		.space	4
+  31              		.section	.text.FlashPBIsValid,"ax",%progbits
+  32              		.align	2
+  33              		.thumb
+  34              		.thumb_func
+  36              	FlashPBIsValid:
+  37              	.LFB0:
+  38              		.file 1 "C:/StellarisWare/utils/flash_pb.c"
+   1:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+   2:C:/StellarisWare/utils\flash_pb.c **** //
+   3:C:/StellarisWare/utils\flash_pb.c **** // flash_pb.c - Flash parameter block functions.
+   4:C:/StellarisWare/utils\flash_pb.c **** //
+   5:C:/StellarisWare/utils\flash_pb.c **** // Copyright (c) 2008-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/utils\flash_pb.c **** // Software License Agreement
+   7:C:/StellarisWare/utils\flash_pb.c **** // 
+   8:C:/StellarisWare/utils\flash_pb.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:C:/StellarisWare/utils\flash_pb.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:C:/StellarisWare/utils\flash_pb.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:C:/StellarisWare/utils\flash_pb.c **** // laws. You may not combine this software with "viral" open-source
+  12:C:/StellarisWare/utils\flash_pb.c **** // software in order to form a larger program.
+  13:C:/StellarisWare/utils\flash_pb.c **** // 
+  14:C:/StellarisWare/utils\flash_pb.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:C:/StellarisWare/utils\flash_pb.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:C:/StellarisWare/utils\flash_pb.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:C:/StellarisWare/utils\flash_pb.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:C:/StellarisWare/utils\flash_pb.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:C:/StellarisWare/utils\flash_pb.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:C:/StellarisWare/utils\flash_pb.c **** // 
+  21:C:/StellarisWare/utils\flash_pb.c **** // This is part of revision 9107 of the Stellaris Firmware Development Package.
+  22:C:/StellarisWare/utils\flash_pb.c **** //
+  23:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  24:C:/StellarisWare/utils\flash_pb.c **** 
+  25:C:/StellarisWare/utils\flash_pb.c **** #include "inc/hw_flash.h"
+  26:C:/StellarisWare/utils\flash_pb.c **** #include "inc/hw_types.h"
+  27:C:/StellarisWare/utils\flash_pb.c **** #include "driverlib/debug.h"
+  28:C:/StellarisWare/utils\flash_pb.c **** #include "driverlib/flash.h"
+  29:C:/StellarisWare/utils\flash_pb.c **** #include "driverlib/sysctl.h"
+  30:C:/StellarisWare/utils\flash_pb.c **** #include "utils/flash_pb.h"
+  31:C:/StellarisWare/utils\flash_pb.c **** 
+  32:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  33:C:/StellarisWare/utils\flash_pb.c **** //
+  34:C:/StellarisWare/utils\flash_pb.c **** //! \addtogroup flash_pb_api
+  35:C:/StellarisWare/utils\flash_pb.c **** //! @{
+  36:C:/StellarisWare/utils\flash_pb.c **** //
+  37:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  38:C:/StellarisWare/utils\flash_pb.c **** 
+  39:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  40:C:/StellarisWare/utils\flash_pb.c **** //
+  41:C:/StellarisWare/utils\flash_pb.c **** // The address of the beginning of the flash used for storing parameter blocks;
+  42:C:/StellarisWare/utils\flash_pb.c **** // this must be the start of an erase block in the flash.
+  43:C:/StellarisWare/utils\flash_pb.c **** //
+  44:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  45:C:/StellarisWare/utils\flash_pb.c **** static unsigned char *g_pucFlashPBStart;
+  46:C:/StellarisWare/utils\flash_pb.c **** 
+  47:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  48:C:/StellarisWare/utils\flash_pb.c **** //
+  49:C:/StellarisWare/utils\flash_pb.c **** // The address of the end of the flash used for storing parameter blocks; this
+  50:C:/StellarisWare/utils\flash_pb.c **** // must be the start of an erase block in the flash, or the first location
+  51:C:/StellarisWare/utils\flash_pb.c **** // after the end of the flash array if the last erase block is used for storing
+  52:C:/StellarisWare/utils\flash_pb.c **** // parameters.
+  53:C:/StellarisWare/utils\flash_pb.c **** //
+  54:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  55:C:/StellarisWare/utils\flash_pb.c **** static unsigned char *g_pucFlashPBEnd;
+  56:C:/StellarisWare/utils\flash_pb.c **** 
+  57:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  58:C:/StellarisWare/utils\flash_pb.c **** //
+  59:C:/StellarisWare/utils\flash_pb.c **** // The size of the parameter block when stored in flash; this must be a power
+  60:C:/StellarisWare/utils\flash_pb.c **** // of two less than or equal to 1024.
+  61:C:/StellarisWare/utils\flash_pb.c **** //
+  62:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  63:C:/StellarisWare/utils\flash_pb.c **** static unsigned long g_ulFlashPBSize;
+  64:C:/StellarisWare/utils\flash_pb.c **** 
+  65:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  66:C:/StellarisWare/utils\flash_pb.c **** //
+  67:C:/StellarisWare/utils\flash_pb.c **** // The address of the most recent parameter block in flash.
+  68:C:/StellarisWare/utils\flash_pb.c **** //
+  69:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  70:C:/StellarisWare/utils\flash_pb.c **** static unsigned char *g_pucFlashPBCurrent;
+  71:C:/StellarisWare/utils\flash_pb.c **** 
+  72:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  73:C:/StellarisWare/utils\flash_pb.c **** //
+  74:C:/StellarisWare/utils\flash_pb.c **** //! Determines if the parameter block at the given address is valid.
+  75:C:/StellarisWare/utils\flash_pb.c **** //!
+  76:C:/StellarisWare/utils\flash_pb.c **** //! \param pucOffset is the address of the parameter block to check.
+  77:C:/StellarisWare/utils\flash_pb.c **** //!
+  78:C:/StellarisWare/utils\flash_pb.c **** //! This function will compute the checksum of a parameter block in flash to
+  79:C:/StellarisWare/utils\flash_pb.c **** //! determine if it is valid.
+  80:C:/StellarisWare/utils\flash_pb.c **** //!
+  81:C:/StellarisWare/utils\flash_pb.c **** //! \return Returns one if the parameter block is valid and zero if it is not.
+  82:C:/StellarisWare/utils\flash_pb.c **** //
+  83:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+  84:C:/StellarisWare/utils\flash_pb.c **** static unsigned long
+  85:C:/StellarisWare/utils\flash_pb.c **** FlashPBIsValid(unsigned char *pucOffset)
+  86:C:/StellarisWare/utils\flash_pb.c **** {
+  39              		.loc 1 86 0
+  40              		.cfi_startproc
+  41              		@ args = 0, pretend = 0, frame = 16
+  42              		@ frame_needed = 1, uses_anonymous_args = 0
+  43              		@ link register save eliminated.
+  44 0000 80B4     		push	{r7}
+  45              	.LCFI0:
+  46              		.cfi_def_cfa_offset 4
+  47              		.cfi_offset 7, -4
+  48 0002 85B0     		sub	sp, sp, #20
+  49              	.LCFI1:
+  50              		.cfi_def_cfa_offset 24
+  51 0004 00AF     		add	r7, sp, #0
+  52              	.LCFI2:
+  53              		.cfi_def_cfa_register 7
+  54 0006 7860     		str	r0, [r7, #4]
+  87:C:/StellarisWare/utils\flash_pb.c ****     unsigned long ulIdx, ulSum;
+  88:C:/StellarisWare/utils\flash_pb.c **** 
+  89:C:/StellarisWare/utils\flash_pb.c ****     //
+  90:C:/StellarisWare/utils\flash_pb.c ****     // Check the arguments.
+  91:C:/StellarisWare/utils\flash_pb.c ****     //
+  92:C:/StellarisWare/utils\flash_pb.c ****     ASSERT(pucOffset != (void *)0);
+  93:C:/StellarisWare/utils\flash_pb.c **** 
+  94:C:/StellarisWare/utils\flash_pb.c ****     //
+  95:C:/StellarisWare/utils\flash_pb.c ****     // Loop through the bytes in the block, computing the checksum.
+  96:C:/StellarisWare/utils\flash_pb.c ****     //
+  97:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+  55              		.loc 1 97 0
+  56 0008 4FF00003 		mov	r3, #0
+  57 000c FB60     		str	r3, [r7, #12]
+  58 000e 4FF00003 		mov	r3, #0
+  59 0012 BB60     		str	r3, [r7, #8]
+  60 0014 0AE0     		b	.L2
+  61              	.L3:
+  98:C:/StellarisWare/utils\flash_pb.c ****     {
+  99:C:/StellarisWare/utils\flash_pb.c ****         ulSum += pucOffset[ulIdx];
+  62              		.loc 1 99 0 discriminator 2
+  63 0016 7A68     		ldr	r2, [r7, #4]
+  64 0018 FB68     		ldr	r3, [r7, #12]
+  65 001a D318     		adds	r3, r2, r3
+  66 001c 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+  67 001e BA68     		ldr	r2, [r7, #8]
+  68 0020 D318     		adds	r3, r2, r3
+  69 0022 BB60     		str	r3, [r7, #8]
+  97:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+  70              		.loc 1 97 0 discriminator 2
+  71 0024 FB68     		ldr	r3, [r7, #12]
+  72 0026 03F10103 		add	r3, r3, #1
+  73 002a FB60     		str	r3, [r7, #12]
+  74              	.L2:
+  97:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+  75              		.loc 1 97 0 is_stmt 0 discriminator 1
+  76 002c 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+  77 0030 C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+  78 0034 1B68     		ldr	r3, [r3, #0]
+  79 0036 FA68     		ldr	r2, [r7, #12]
+  80 0038 9A42     		cmp	r2, r3
+  81 003a ECD3     		bcc	.L3
+ 100:C:/StellarisWare/utils\flash_pb.c ****     }
+ 101:C:/StellarisWare/utils\flash_pb.c **** 
+ 102:C:/StellarisWare/utils\flash_pb.c ****     //
+ 103:C:/StellarisWare/utils\flash_pb.c ****     // The checksum should be zero, so return a failure if it is not.
+ 104:C:/StellarisWare/utils\flash_pb.c ****     //
+ 105:C:/StellarisWare/utils\flash_pb.c ****     if((ulSum & 255) != 0)
+  82              		.loc 1 105 0 is_stmt 1
+  83 003c BB68     		ldr	r3, [r7, #8]
+  84 003e DBB2     		uxtb	r3, r3
+  85 0040 002B     		cmp	r3, #0
+  86 0042 02D0     		beq	.L4
+ 106:C:/StellarisWare/utils\flash_pb.c ****     {
+ 107:C:/StellarisWare/utils\flash_pb.c ****         return(0);
+  87              		.loc 1 107 0
+  88 0044 4FF00003 		mov	r3, #0
+  89 0048 10E0     		b	.L5
+  90              	.L4:
+ 108:C:/StellarisWare/utils\flash_pb.c ****     }
+ 109:C:/StellarisWare/utils\flash_pb.c **** 
+ 110:C:/StellarisWare/utils\flash_pb.c ****     //
+ 111:C:/StellarisWare/utils\flash_pb.c ****     // If the sum is equal to the size * 255, then the block is all ones and
+ 112:C:/StellarisWare/utils\flash_pb.c ****     // should not be considered valid.
+ 113:C:/StellarisWare/utils\flash_pb.c ****     //
+ 114:C:/StellarisWare/utils\flash_pb.c ****     if((g_ulFlashPBSize * 255) == ulSum)
+  91              		.loc 1 114 0
+  92 004a 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+  93 004e C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+  94 0052 1A68     		ldr	r2, [r3, #0]
+  95 0054 1346     		mov	r3, r2
+  96 0056 4FEA0323 		lsl	r3, r3, #8
+  97 005a 9A1A     		subs	r2, r3, r2
+  98 005c BB68     		ldr	r3, [r7, #8]
+  99 005e 9A42     		cmp	r2, r3
+ 100 0060 02D1     		bne	.L6
+ 115:C:/StellarisWare/utils\flash_pb.c ****     {
+ 116:C:/StellarisWare/utils\flash_pb.c ****         return(0);
+ 101              		.loc 1 116 0
+ 102 0062 4FF00003 		mov	r3, #0
+ 103 0066 01E0     		b	.L5
+ 104              	.L6:
+ 117:C:/StellarisWare/utils\flash_pb.c ****     }
+ 118:C:/StellarisWare/utils\flash_pb.c **** 
+ 119:C:/StellarisWare/utils\flash_pb.c ****     //
+ 120:C:/StellarisWare/utils\flash_pb.c ****     // This is a valid parameter block.
+ 121:C:/StellarisWare/utils\flash_pb.c ****     //
+ 122:C:/StellarisWare/utils\flash_pb.c ****     return(1);
+ 105              		.loc 1 122 0
+ 106 0068 4FF00103 		mov	r3, #1
+ 107              	.L5:
+ 123:C:/StellarisWare/utils\flash_pb.c **** }
+ 108              		.loc 1 123 0
+ 109 006c 1846     		mov	r0, r3
+ 110 006e 07F11407 		add	r7, r7, #20
+ 111 0072 BD46     		mov	sp, r7
+ 112 0074 80BC     		pop	{r7}
+ 113 0076 7047     		bx	lr
+ 114              		.cfi_endproc
+ 115              	.LFE0:
+ 117              		.section	.text.FlashPBGet,"ax",%progbits
+ 118              		.align	2
+ 119              		.global	FlashPBGet
+ 120              		.thumb
+ 121              		.thumb_func
+ 123              	FlashPBGet:
+ 124              	.LFB1:
+ 124:C:/StellarisWare/utils\flash_pb.c **** 
+ 125:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 126:C:/StellarisWare/utils\flash_pb.c **** //
+ 127:C:/StellarisWare/utils\flash_pb.c **** //! Gets the address of the most recent parameter block.
+ 128:C:/StellarisWare/utils\flash_pb.c **** //!
+ 129:C:/StellarisWare/utils\flash_pb.c **** //! This function returns the address of the most recent parameter block that
+ 130:C:/StellarisWare/utils\flash_pb.c **** //! is stored in flash.
+ 131:C:/StellarisWare/utils\flash_pb.c **** //!
+ 132:C:/StellarisWare/utils\flash_pb.c **** //! \return Returns the address of the most recent parameter block, or NULL if
+ 133:C:/StellarisWare/utils\flash_pb.c **** //! there are no valid parameter blocks in flash.
+ 134:C:/StellarisWare/utils\flash_pb.c **** //
+ 135:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 136:C:/StellarisWare/utils\flash_pb.c **** unsigned char *
+ 137:C:/StellarisWare/utils\flash_pb.c **** FlashPBGet(void)
+ 138:C:/StellarisWare/utils\flash_pb.c **** {
+ 125              		.loc 1 138 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 0
+ 128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 129              		@ link register save eliminated.
+ 130 0000 80B4     		push	{r7}
+ 131              	.LCFI3:
+ 132              		.cfi_def_cfa_offset 4
+ 133              		.cfi_offset 7, -4
+ 134 0002 00AF     		add	r7, sp, #0
+ 135              	.LCFI4:
+ 136              		.cfi_def_cfa_register 7
+ 139:C:/StellarisWare/utils\flash_pb.c ****     //
+ 140:C:/StellarisWare/utils\flash_pb.c ****     // See if there is a valid parameter block.
+ 141:C:/StellarisWare/utils\flash_pb.c ****     //
+ 142:C:/StellarisWare/utils\flash_pb.c ****     if(g_pucFlashPBCurrent)
+ 137              		.loc 1 142 0
+ 138 0004 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 139 0008 C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 140 000c 1B68     		ldr	r3, [r3, #0]
+ 141 000e 002B     		cmp	r3, #0
+ 142 0010 05D0     		beq	.L8
+ 143:C:/StellarisWare/utils\flash_pb.c ****     {
+ 144:C:/StellarisWare/utils\flash_pb.c ****         //
+ 145:C:/StellarisWare/utils\flash_pb.c ****         // Return the address of the most recent parameter block.
+ 146:C:/StellarisWare/utils\flash_pb.c ****         //
+ 147:C:/StellarisWare/utils\flash_pb.c ****         return(g_pucFlashPBCurrent);
+ 143              		.loc 1 147 0
+ 144 0012 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 145 0016 C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 146 001a 1B68     		ldr	r3, [r3, #0]
+ 147 001c 01E0     		b	.L9
+ 148              	.L8:
+ 148:C:/StellarisWare/utils\flash_pb.c ****     }
+ 149:C:/StellarisWare/utils\flash_pb.c **** 
+ 150:C:/StellarisWare/utils\flash_pb.c ****     //
+ 151:C:/StellarisWare/utils\flash_pb.c ****     // There are no valid parameter blocks in flash, so return NULL.
+ 152:C:/StellarisWare/utils\flash_pb.c ****     //
+ 153:C:/StellarisWare/utils\flash_pb.c ****     return(0);
+ 149              		.loc 1 153 0
+ 150 001e 4FF00003 		mov	r3, #0
+ 151              	.L9:
+ 154:C:/StellarisWare/utils\flash_pb.c **** }
+ 152              		.loc 1 154 0
+ 153 0022 1846     		mov	r0, r3
+ 154 0024 BD46     		mov	sp, r7
+ 155 0026 80BC     		pop	{r7}
+ 156 0028 7047     		bx	lr
+ 157              		.cfi_endproc
+ 158              	.LFE1:
+ 160 002a 00BF     		.section	.text.FlashPBSave,"ax",%progbits
+ 161              		.align	2
+ 162              		.global	FlashPBSave
+ 163              		.thumb
+ 164              		.thumb_func
+ 166              	FlashPBSave:
+ 167              	.LFB2:
+ 155:C:/StellarisWare/utils\flash_pb.c **** 
+ 156:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 157:C:/StellarisWare/utils\flash_pb.c **** //
+ 158:C:/StellarisWare/utils\flash_pb.c **** //! Writes a new parameter block to flash.
+ 159:C:/StellarisWare/utils\flash_pb.c **** //!
+ 160:C:/StellarisWare/utils\flash_pb.c **** //! \param pucBuffer is the address of the parameter block to be written to
+ 161:C:/StellarisWare/utils\flash_pb.c **** //! flash.
+ 162:C:/StellarisWare/utils\flash_pb.c **** //!
+ 163:C:/StellarisWare/utils\flash_pb.c **** //! This function will write a parameter block to flash.  Saving the new
+ 164:C:/StellarisWare/utils\flash_pb.c **** //! parameter blocks involves three steps:
+ 165:C:/StellarisWare/utils\flash_pb.c **** //!
+ 166:C:/StellarisWare/utils\flash_pb.c **** //! - Setting the sequence number such that it is one greater than the sequence
+ 167:C:/StellarisWare/utils\flash_pb.c **** //!   number of the latest parameter block in flash.
+ 168:C:/StellarisWare/utils\flash_pb.c **** //! - Computing the checksum of the parameter block.
+ 169:C:/StellarisWare/utils\flash_pb.c **** //! - Writing the parameter block into the storage immediately following the
+ 170:C:/StellarisWare/utils\flash_pb.c **** //!   latest parameter block in flash; if that storage is at the start of an
+ 171:C:/StellarisWare/utils\flash_pb.c **** //!   erase block, that block is erased first.
+ 172:C:/StellarisWare/utils\flash_pb.c **** //!
+ 173:C:/StellarisWare/utils\flash_pb.c **** //! By this process, there is always a valid parameter block in flash.  If
+ 174:C:/StellarisWare/utils\flash_pb.c **** //! power is lost while writing a new parameter block, the checksum will not
+ 175:C:/StellarisWare/utils\flash_pb.c **** //! match and the partially written parameter block will be ignored.  This is
+ 176:C:/StellarisWare/utils\flash_pb.c **** //! what makes this fault-tolerant.
+ 177:C:/StellarisWare/utils\flash_pb.c **** //!
+ 178:C:/StellarisWare/utils\flash_pb.c **** //! Another benefit of this scheme is that it provides wear leveling on the
+ 179:C:/StellarisWare/utils\flash_pb.c **** //! flash.  Since multiple parameter blocks fit into each erase block of flash,
+ 180:C:/StellarisWare/utils\flash_pb.c **** //! and multiple erase blocks are used for parameter block storage, it takes
+ 181:C:/StellarisWare/utils\flash_pb.c **** //! quite a few parameter block saves before flash is re-written.
+ 182:C:/StellarisWare/utils\flash_pb.c **** //!
+ 183:C:/StellarisWare/utils\flash_pb.c **** //! \return None.
+ 184:C:/StellarisWare/utils\flash_pb.c **** //
+ 185:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 186:C:/StellarisWare/utils\flash_pb.c **** void
+ 187:C:/StellarisWare/utils\flash_pb.c **** FlashPBSave(unsigned char *pucBuffer)
+ 188:C:/StellarisWare/utils\flash_pb.c **** {
+ 168              		.loc 1 188 0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 24
+ 171              		@ frame_needed = 1, uses_anonymous_args = 0
+ 172 0000 80B5     		push	{r7, lr}
+ 173              	.LCFI5:
+ 174              		.cfi_def_cfa_offset 8
+ 175              		.cfi_offset 14, -4
+ 176              		.cfi_offset 7, -8
+ 177 0002 86B0     		sub	sp, sp, #24
+ 178              	.LCFI6:
+ 179              		.cfi_def_cfa_offset 32
+ 180 0004 00AF     		add	r7, sp, #0
+ 181              	.LCFI7:
+ 182              		.cfi_def_cfa_register 7
+ 183 0006 7860     		str	r0, [r7, #4]
+ 189:C:/StellarisWare/utils\flash_pb.c ****     unsigned char *pucNew;
+ 190:C:/StellarisWare/utils\flash_pb.c ****     unsigned long ulIdx, ulSum;
+ 191:C:/StellarisWare/utils\flash_pb.c **** 
+ 192:C:/StellarisWare/utils\flash_pb.c ****     //
+ 193:C:/StellarisWare/utils\flash_pb.c ****     // Check the arguments.
+ 194:C:/StellarisWare/utils\flash_pb.c ****     //
+ 195:C:/StellarisWare/utils\flash_pb.c ****     ASSERT(pucBuffer != (void *)0);
+ 196:C:/StellarisWare/utils\flash_pb.c **** 
+ 197:C:/StellarisWare/utils\flash_pb.c ****     //
+ 198:C:/StellarisWare/utils\flash_pb.c ****     // See if there is a valid parameter block in flash.
+ 199:C:/StellarisWare/utils\flash_pb.c ****     //
+ 200:C:/StellarisWare/utils\flash_pb.c ****     if(g_pucFlashPBCurrent)
+ 184              		.loc 1 200 0
+ 185 0008 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 186 000c C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 187 0010 1B68     		ldr	r3, [r3, #0]
+ 188 0012 002B     		cmp	r3, #0
+ 189 0014 25D0     		beq	.L11
+ 201:C:/StellarisWare/utils\flash_pb.c ****     {
+ 202:C:/StellarisWare/utils\flash_pb.c ****         //
+ 203:C:/StellarisWare/utils\flash_pb.c ****         // Set the sequence number to one greater than the most recent
+ 204:C:/StellarisWare/utils\flash_pb.c ****         // parameter block.
+ 205:C:/StellarisWare/utils\flash_pb.c ****         //
+ 206:C:/StellarisWare/utils\flash_pb.c ****         pucBuffer[0] = g_pucFlashPBCurrent[0] + 1;
+ 190              		.loc 1 206 0
+ 191 0016 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 192 001a C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 193 001e 1B68     		ldr	r3, [r3, #0]
+ 194 0020 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 195 0022 03F10103 		add	r3, r3, #1
+ 196 0026 DAB2     		uxtb	r2, r3
+ 197 0028 7B68     		ldr	r3, [r7, #4]
+ 198 002a 1A70     		strb	r2, [r3, #0]
+ 207:C:/StellarisWare/utils\flash_pb.c **** 
+ 208:C:/StellarisWare/utils\flash_pb.c ****         //
+ 209:C:/StellarisWare/utils\flash_pb.c ****         // Try to write the new parameter block immediately after the most
+ 210:C:/StellarisWare/utils\flash_pb.c ****         // recent parameter block.
+ 211:C:/StellarisWare/utils\flash_pb.c ****         //
+ 212:C:/StellarisWare/utils\flash_pb.c ****         pucNew = g_pucFlashPBCurrent + g_ulFlashPBSize;
+ 199              		.loc 1 212 0
+ 200 002c 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 201 0030 C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 202 0034 1A68     		ldr	r2, [r3, #0]
+ 203 0036 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 204 003a C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 205 003e 1B68     		ldr	r3, [r3, #0]
+ 206 0040 D318     		adds	r3, r2, r3
+ 207 0042 7B61     		str	r3, [r7, #20]
+ 213:C:/StellarisWare/utils\flash_pb.c ****         if(pucNew == g_pucFlashPBEnd)
+ 208              		.loc 1 213 0
+ 209 0044 40F20003 		movw	r3, #:lower16:g_pucFlashPBEnd
+ 210 0048 C0F20003 		movt	r3, #:upper16:g_pucFlashPBEnd
+ 211 004c 1B68     		ldr	r3, [r3, #0]
+ 212 004e 7A69     		ldr	r2, [r7, #20]
+ 213 0050 9A42     		cmp	r2, r3
+ 214 0052 10D1     		bne	.L12
+ 214:C:/StellarisWare/utils\flash_pb.c ****         {
+ 215:C:/StellarisWare/utils\flash_pb.c ****             pucNew = g_pucFlashPBStart;
+ 215              		.loc 1 215 0
+ 216 0054 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 217 0058 C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 218 005c 1B68     		ldr	r3, [r3, #0]
+ 219 005e 7B61     		str	r3, [r7, #20]
+ 220 0060 09E0     		b	.L12
+ 221              	.L11:
+ 216:C:/StellarisWare/utils\flash_pb.c ****         }
+ 217:C:/StellarisWare/utils\flash_pb.c ****     }
+ 218:C:/StellarisWare/utils\flash_pb.c ****     else
+ 219:C:/StellarisWare/utils\flash_pb.c ****     {
+ 220:C:/StellarisWare/utils\flash_pb.c ****         //
+ 221:C:/StellarisWare/utils\flash_pb.c ****         // There is not a valid parameter block in flash, so set the sequence
+ 222:C:/StellarisWare/utils\flash_pb.c ****         // number of this parameter block to zero.
+ 223:C:/StellarisWare/utils\flash_pb.c ****         //
+ 224:C:/StellarisWare/utils\flash_pb.c ****         pucBuffer[0] = 0;
+ 222              		.loc 1 224 0
+ 223 0062 7B68     		ldr	r3, [r7, #4]
+ 224 0064 4FF00002 		mov	r2, #0
+ 225 0068 1A70     		strb	r2, [r3, #0]
+ 225:C:/StellarisWare/utils\flash_pb.c **** 
+ 226:C:/StellarisWare/utils\flash_pb.c ****         //
+ 227:C:/StellarisWare/utils\flash_pb.c ****         // Try to write the new parameter block at the beginning of the flash
+ 228:C:/StellarisWare/utils\flash_pb.c ****         // space for parameter blocks.
+ 229:C:/StellarisWare/utils\flash_pb.c ****         //
+ 230:C:/StellarisWare/utils\flash_pb.c ****         pucNew = g_pucFlashPBStart;
+ 226              		.loc 1 230 0
+ 227 006a 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 228 006e C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 229 0072 1B68     		ldr	r3, [r3, #0]
+ 230 0074 7B61     		str	r3, [r7, #20]
+ 231              	.L12:
+ 231:C:/StellarisWare/utils\flash_pb.c ****     }
+ 232:C:/StellarisWare/utils\flash_pb.c **** 
+ 233:C:/StellarisWare/utils\flash_pb.c ****     //
+ 234:C:/StellarisWare/utils\flash_pb.c ****     // Compute the checksum of the parameter block to be written.
+ 235:C:/StellarisWare/utils\flash_pb.c ****     //
+ 236:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 232              		.loc 1 236 0
+ 233 0076 4FF00003 		mov	r3, #0
+ 234 007a 3B61     		str	r3, [r7, #16]
+ 235 007c 4FF00003 		mov	r3, #0
+ 236 0080 FB60     		str	r3, [r7, #12]
+ 237 0082 0AE0     		b	.L13
+ 238              	.L14:
+ 237:C:/StellarisWare/utils\flash_pb.c ****     {
+ 238:C:/StellarisWare/utils\flash_pb.c ****         ulSum -= pucBuffer[ulIdx];
+ 239              		.loc 1 238 0 discriminator 2
+ 240 0084 7A68     		ldr	r2, [r7, #4]
+ 241 0086 3B69     		ldr	r3, [r7, #16]
+ 242 0088 D318     		adds	r3, r2, r3
+ 243 008a 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 244 008c FA68     		ldr	r2, [r7, #12]
+ 245 008e D31A     		subs	r3, r2, r3
+ 246 0090 FB60     		str	r3, [r7, #12]
+ 236:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 247              		.loc 1 236 0 discriminator 2
+ 248 0092 3B69     		ldr	r3, [r7, #16]
+ 249 0094 03F10103 		add	r3, r3, #1
+ 250 0098 3B61     		str	r3, [r7, #16]
+ 251              	.L13:
+ 236:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0, ulSum = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 252              		.loc 1 236 0 is_stmt 0 discriminator 1
+ 253 009a 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 254 009e C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 255 00a2 1B68     		ldr	r3, [r3, #0]
+ 256 00a4 3A69     		ldr	r2, [r7, #16]
+ 257 00a6 9A42     		cmp	r2, r3
+ 258 00a8 ECD3     		bcc	.L14
+ 239:C:/StellarisWare/utils\flash_pb.c ****     }
+ 240:C:/StellarisWare/utils\flash_pb.c **** 
+ 241:C:/StellarisWare/utils\flash_pb.c ****     //
+ 242:C:/StellarisWare/utils\flash_pb.c ****     // Store the checksum into the parameter block.
+ 243:C:/StellarisWare/utils\flash_pb.c ****     //
+ 244:C:/StellarisWare/utils\flash_pb.c ****     pucBuffer[1] += ulSum;
+ 259              		.loc 1 244 0 is_stmt 1
+ 260 00aa 7B68     		ldr	r3, [r7, #4]
+ 261 00ac 03F10103 		add	r3, r3, #1
+ 262 00b0 7A68     		ldr	r2, [r7, #4]
+ 263 00b2 02F10102 		add	r2, r2, #1
+ 264 00b6 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
+ 265 00b8 FA68     		ldr	r2, [r7, #12]
+ 266 00ba D2B2     		uxtb	r2, r2
+ 267 00bc 8A18     		adds	r2, r1, r2
+ 268 00be D2B2     		uxtb	r2, r2
+ 269 00c0 1A70     		strb	r2, [r3, #0]
+ 270 00c2 00E0     		b	.L27
+ 271              	.L35:
+ 245:C:/StellarisWare/utils\flash_pb.c **** 
+ 246:C:/StellarisWare/utils\flash_pb.c ****     //
+ 247:C:/StellarisWare/utils\flash_pb.c ****     // Look for a location to store this parameter block.  This infinite loop
+ 248:C:/StellarisWare/utils\flash_pb.c ****     // will be explicitly broken out of when a valid location is found.
+ 249:C:/StellarisWare/utils\flash_pb.c ****     //
+ 250:C:/StellarisWare/utils\flash_pb.c ****     while(1)
+ 251:C:/StellarisWare/utils\flash_pb.c ****     {
+ 252:C:/StellarisWare/utils\flash_pb.c ****         //
+ 253:C:/StellarisWare/utils\flash_pb.c ****         // See if this location is at the start of an erase block.
+ 254:C:/StellarisWare/utils\flash_pb.c ****         //
+ 255:C:/StellarisWare/utils\flash_pb.c ****         if(((unsigned long)pucNew & 1023) == 0)
+ 256:C:/StellarisWare/utils\flash_pb.c ****         {
+ 257:C:/StellarisWare/utils\flash_pb.c ****             //
+ 258:C:/StellarisWare/utils\flash_pb.c ****             // Erase this block of the flash.  This does not assume that the
+ 259:C:/StellarisWare/utils\flash_pb.c ****             // erase succeeded in case this block of the flash has become bad
+ 260:C:/StellarisWare/utils\flash_pb.c ****             // through too much use.  Given the extremely low frequency that
+ 261:C:/StellarisWare/utils\flash_pb.c ****             // the parameter blocks are written, this will likely never fail.
+ 262:C:/StellarisWare/utils\flash_pb.c ****             // But, that assumption is not made in order to be safe.
+ 263:C:/StellarisWare/utils\flash_pb.c ****             //
+ 264:C:/StellarisWare/utils\flash_pb.c ****             FlashErase((unsigned long)pucNew);
+ 265:C:/StellarisWare/utils\flash_pb.c ****         }
+ 266:C:/StellarisWare/utils\flash_pb.c **** 
+ 267:C:/StellarisWare/utils\flash_pb.c ****         //
+ 268:C:/StellarisWare/utils\flash_pb.c ****         // Loop through this portion of flash to see if is all ones (i.e. it
+ 269:C:/StellarisWare/utils\flash_pb.c ****         // is an erased portion of flash).
+ 270:C:/StellarisWare/utils\flash_pb.c ****         //
+ 271:C:/StellarisWare/utils\flash_pb.c ****         for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 272:C:/StellarisWare/utils\flash_pb.c ****         {
+ 273:C:/StellarisWare/utils\flash_pb.c ****             if(pucNew[ulIdx] != 0xff)
+ 274:C:/StellarisWare/utils\flash_pb.c ****             {
+ 275:C:/StellarisWare/utils\flash_pb.c ****                 break;
+ 276:C:/StellarisWare/utils\flash_pb.c ****             }
+ 277:C:/StellarisWare/utils\flash_pb.c ****         }
+ 278:C:/StellarisWare/utils\flash_pb.c **** 
+ 279:C:/StellarisWare/utils\flash_pb.c ****         //
+ 280:C:/StellarisWare/utils\flash_pb.c ****         // If all bytes in this portion of flash are ones, then break out of
+ 281:C:/StellarisWare/utils\flash_pb.c ****         // the loop since this is a good location for storing the parameter
+ 282:C:/StellarisWare/utils\flash_pb.c ****         // block.
+ 283:C:/StellarisWare/utils\flash_pb.c ****         //
+ 284:C:/StellarisWare/utils\flash_pb.c ****         if(ulIdx == g_ulFlashPBSize)
+ 285:C:/StellarisWare/utils\flash_pb.c ****         {
+ 286:C:/StellarisWare/utils\flash_pb.c ****             break;
+ 287:C:/StellarisWare/utils\flash_pb.c ****         }
+ 288:C:/StellarisWare/utils\flash_pb.c **** 
+ 289:C:/StellarisWare/utils\flash_pb.c ****         //
+ 290:C:/StellarisWare/utils\flash_pb.c ****         // Increment to the next parameter block location.
+ 291:C:/StellarisWare/utils\flash_pb.c ****         //
+ 292:C:/StellarisWare/utils\flash_pb.c ****         pucNew += g_ulFlashPBSize;
+ 293:C:/StellarisWare/utils\flash_pb.c ****         if(pucNew == g_pucFlashPBEnd)
+ 294:C:/StellarisWare/utils\flash_pb.c ****         {
+ 295:C:/StellarisWare/utils\flash_pb.c ****             pucNew = g_pucFlashPBStart;
+ 296:C:/StellarisWare/utils\flash_pb.c ****         }
+ 297:C:/StellarisWare/utils\flash_pb.c **** 
+ 298:C:/StellarisWare/utils\flash_pb.c ****         //
+ 299:C:/StellarisWare/utils\flash_pb.c ****         // If every possible location has been checked and none are valid, then
+ 300:C:/StellarisWare/utils\flash_pb.c ****         // it will not be possible to write this parameter block.  Simply
+ 301:C:/StellarisWare/utils\flash_pb.c ****         // return without writing it.
+ 302:C:/StellarisWare/utils\flash_pb.c ****         //
+ 303:C:/StellarisWare/utils\flash_pb.c ****         if((g_pucFlashPBCurrent && (pucNew == g_pucFlashPBCurrent)) ||
+ 304:C:/StellarisWare/utils\flash_pb.c ****            (!g_pucFlashPBCurrent && (pucNew == g_pucFlashPBStart)))
+ 305:C:/StellarisWare/utils\flash_pb.c ****         {
+ 306:C:/StellarisWare/utils\flash_pb.c ****             return;
+ 307:C:/StellarisWare/utils\flash_pb.c ****         }
+ 308:C:/StellarisWare/utils\flash_pb.c ****     }
+ 272              		.loc 1 308 0
+ 273 00c4 00BF     		nop
+ 274              	.L27:
+ 255:C:/StellarisWare/utils\flash_pb.c ****         if(((unsigned long)pucNew & 1023) == 0)
+ 275              		.loc 1 255 0
+ 276 00c6 7B69     		ldr	r3, [r7, #20]
+ 277 00c8 4FEA8353 		lsl	r3, r3, #22
+ 278 00cc 4FEA9353 		lsr	r3, r3, #22
+ 279 00d0 002B     		cmp	r3, #0
+ 280 00d2 03D1     		bne	.L15
+ 264:C:/StellarisWare/utils\flash_pb.c ****             FlashErase((unsigned long)pucNew);
+ 281              		.loc 1 264 0
+ 282 00d4 7B69     		ldr	r3, [r7, #20]
+ 283 00d6 1846     		mov	r0, r3
+ 284 00d8 FFF7FEFF 		bl	FlashErase
+ 285              	.L15:
+ 271:C:/StellarisWare/utils\flash_pb.c ****         for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 286              		.loc 1 271 0
+ 287 00dc 4FF00003 		mov	r3, #0
+ 288 00e0 3B61     		str	r3, [r7, #16]
+ 289 00e2 09E0     		b	.L16
+ 290              	.L19:
+ 273:C:/StellarisWare/utils\flash_pb.c ****             if(pucNew[ulIdx] != 0xff)
+ 291              		.loc 1 273 0
+ 292 00e4 7A69     		ldr	r2, [r7, #20]
+ 293 00e6 3B69     		ldr	r3, [r7, #16]
+ 294 00e8 D318     		adds	r3, r2, r3
+ 295 00ea 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 296 00ec FF2B     		cmp	r3, #255
+ 297 00ee 0CD1     		bne	.L32
+ 298              	.L17:
+ 271:C:/StellarisWare/utils\flash_pb.c ****         for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 299              		.loc 1 271 0
+ 300 00f0 3B69     		ldr	r3, [r7, #16]
+ 301 00f2 03F10103 		add	r3, r3, #1
+ 302 00f6 3B61     		str	r3, [r7, #16]
+ 303              	.L16:
+ 271:C:/StellarisWare/utils\flash_pb.c ****         for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 304              		.loc 1 271 0 is_stmt 0 discriminator 1
+ 305 00f8 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 306 00fc C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 307 0100 1B68     		ldr	r3, [r3, #0]
+ 308 0102 3A69     		ldr	r2, [r7, #16]
+ 309 0104 9A42     		cmp	r2, r3
+ 310 0106 EDD3     		bcc	.L19
+ 311 0108 00E0     		b	.L18
+ 312              	.L32:
+ 275:C:/StellarisWare/utils\flash_pb.c ****                 break;
+ 313              		.loc 1 275 0 is_stmt 1
+ 314 010a 00BF     		nop
+ 315              	.L18:
+ 284:C:/StellarisWare/utils\flash_pb.c ****         if(ulIdx == g_ulFlashPBSize)
+ 316              		.loc 1 284 0
+ 317 010c 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 318 0110 C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 319 0114 1B68     		ldr	r3, [r3, #0]
+ 320 0116 3A69     		ldr	r2, [r7, #16]
+ 321 0118 9A42     		cmp	r2, r3
+ 322 011a 34D0     		beq	.L33
+ 323              	.L20:
+ 292:C:/StellarisWare/utils\flash_pb.c ****         pucNew += g_ulFlashPBSize;
+ 324              		.loc 1 292 0
+ 325 011c 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 326 0120 C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 327 0124 1B68     		ldr	r3, [r3, #0]
+ 328 0126 7A69     		ldr	r2, [r7, #20]
+ 329 0128 D318     		adds	r3, r2, r3
+ 330 012a 7B61     		str	r3, [r7, #20]
+ 293:C:/StellarisWare/utils\flash_pb.c ****         if(pucNew == g_pucFlashPBEnd)
+ 331              		.loc 1 293 0
+ 332 012c 40F20003 		movw	r3, #:lower16:g_pucFlashPBEnd
+ 333 0130 C0F20003 		movt	r3, #:upper16:g_pucFlashPBEnd
+ 334 0134 1B68     		ldr	r3, [r3, #0]
+ 335 0136 7A69     		ldr	r2, [r7, #20]
+ 336 0138 9A42     		cmp	r2, r3
+ 337 013a 05D1     		bne	.L22
+ 295:C:/StellarisWare/utils\flash_pb.c ****             pucNew = g_pucFlashPBStart;
+ 338              		.loc 1 295 0
+ 339 013c 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 340 0140 C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 341 0144 1B68     		ldr	r3, [r3, #0]
+ 342 0146 7B61     		str	r3, [r7, #20]
+ 343              	.L22:
+ 303:C:/StellarisWare/utils\flash_pb.c ****         if((g_pucFlashPBCurrent && (pucNew == g_pucFlashPBCurrent)) ||
+ 344              		.loc 1 303 0
+ 345 0148 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 346 014c C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 347 0150 1B68     		ldr	r3, [r3, #0]
+ 348 0152 002B     		cmp	r3, #0
+ 349 0154 07D0     		beq	.L23
+ 303:C:/StellarisWare/utils\flash_pb.c ****         if((g_pucFlashPBCurrent && (pucNew == g_pucFlashPBCurrent)) ||
+ 350              		.loc 1 303 0 is_stmt 0 discriminator 1
+ 351 0156 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 352 015a C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 353 015e 1B68     		ldr	r3, [r3, #0]
+ 354 0160 7A69     		ldr	r2, [r7, #20]
+ 355 0162 9A42     		cmp	r2, r3
+ 356 0164 3CD0     		beq	.L34
+ 357              	.L23:
+ 304:C:/StellarisWare/utils\flash_pb.c ****            (!g_pucFlashPBCurrent && (pucNew == g_pucFlashPBStart)))
+ 358              		.loc 1 304 0 is_stmt 1 discriminator 2
+ 359 0166 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 360 016a C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 361 016e 1B68     		ldr	r3, [r3, #0]
+ 303:C:/StellarisWare/utils\flash_pb.c ****         if((g_pucFlashPBCurrent && (pucNew == g_pucFlashPBCurrent)) ||
+ 362              		.loc 1 303 0 discriminator 2
+ 363 0170 002B     		cmp	r3, #0
+ 364 0172 A7D1     		bne	.L35
+ 304:C:/StellarisWare/utils\flash_pb.c ****            (!g_pucFlashPBCurrent && (pucNew == g_pucFlashPBStart)))
+ 365              		.loc 1 304 0
+ 366 0174 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 367 0178 C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 368 017c 1B68     		ldr	r3, [r3, #0]
+ 369 017e 7A69     		ldr	r2, [r7, #20]
+ 370 0180 9A42     		cmp	r2, r3
+ 371 0182 9FD1     		bne	.L35
+ 306:C:/StellarisWare/utils\flash_pb.c ****             return;
+ 372              		.loc 1 306 0
+ 373 0184 2CE0     		b	.L34
+ 374              	.L33:
+ 286:C:/StellarisWare/utils\flash_pb.c ****             break;
+ 375              		.loc 1 286 0
+ 376 0186 00BF     		nop
+ 377              	.L31:
+ 309:C:/StellarisWare/utils\flash_pb.c **** 
+ 310:C:/StellarisWare/utils\flash_pb.c ****     //
+ 311:C:/StellarisWare/utils\flash_pb.c ****     // Write this parameter block to flash.
+ 312:C:/StellarisWare/utils\flash_pb.c ****     //
+ 313:C:/StellarisWare/utils\flash_pb.c ****     FlashProgram((unsigned long *)pucBuffer, (unsigned long)pucNew,
+ 378              		.loc 1 313 0
+ 379 0188 7A69     		ldr	r2, [r7, #20]
+ 380 018a 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 381 018e C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 382 0192 1B68     		ldr	r3, [r3, #0]
+ 383 0194 7868     		ldr	r0, [r7, #4]
+ 384 0196 1146     		mov	r1, r2
+ 385 0198 1A46     		mov	r2, r3
+ 386 019a FFF7FEFF 		bl	FlashProgram
+ 314:C:/StellarisWare/utils\flash_pb.c ****                  g_ulFlashPBSize);
+ 315:C:/StellarisWare/utils\flash_pb.c **** 
+ 316:C:/StellarisWare/utils\flash_pb.c ****     //
+ 317:C:/StellarisWare/utils\flash_pb.c ****     // Compare the parameter block data to the data that should now be in
+ 318:C:/StellarisWare/utils\flash_pb.c ****     // flash.  Return if any of the data does not compare, leaving the previous
+ 319:C:/StellarisWare/utils\flash_pb.c ****     // parameter block in flash as the most recent (since the current parameter
+ 320:C:/StellarisWare/utils\flash_pb.c ****     // block failed to properly program).
+ 321:C:/StellarisWare/utils\flash_pb.c ****     //
+ 322:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 387              		.loc 1 322 0
+ 388 019e 4FF00003 		mov	r3, #0
+ 389 01a2 3B61     		str	r3, [r7, #16]
+ 390 01a4 0DE0     		b	.L28
+ 391              	.L30:
+ 323:C:/StellarisWare/utils\flash_pb.c ****     {
+ 324:C:/StellarisWare/utils\flash_pb.c ****         if(pucNew[ulIdx] != pucBuffer[ulIdx])
+ 392              		.loc 1 324 0
+ 393 01a6 7A69     		ldr	r2, [r7, #20]
+ 394 01a8 3B69     		ldr	r3, [r7, #16]
+ 395 01aa D318     		adds	r3, r2, r3
+ 396 01ac 1A78     		ldrb	r2, [r3, #0]	@ zero_extendqisi2
+ 397 01ae 7968     		ldr	r1, [r7, #4]
+ 398 01b0 3B69     		ldr	r3, [r7, #16]
+ 399 01b2 CB18     		adds	r3, r1, r3
+ 400 01b4 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 401 01b6 9A42     		cmp	r2, r3
+ 402 01b8 14D1     		bne	.L36
+ 403              	.L29:
+ 322:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 404              		.loc 1 322 0
+ 405 01ba 3B69     		ldr	r3, [r7, #16]
+ 406 01bc 03F10103 		add	r3, r3, #1
+ 407 01c0 3B61     		str	r3, [r7, #16]
+ 408              	.L28:
+ 322:C:/StellarisWare/utils\flash_pb.c ****     for(ulIdx = 0; ulIdx < g_ulFlashPBSize; ulIdx++)
+ 409              		.loc 1 322 0 is_stmt 0 discriminator 1
+ 410 01c2 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 411 01c6 C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 412 01ca 1B68     		ldr	r3, [r3, #0]
+ 413 01cc 3A69     		ldr	r2, [r7, #16]
+ 414 01ce 9A42     		cmp	r2, r3
+ 415 01d0 E9D3     		bcc	.L30
+ 325:C:/StellarisWare/utils\flash_pb.c ****         {
+ 326:C:/StellarisWare/utils\flash_pb.c ****             return;
+ 327:C:/StellarisWare/utils\flash_pb.c ****         }
+ 328:C:/StellarisWare/utils\flash_pb.c ****     }
+ 329:C:/StellarisWare/utils\flash_pb.c **** 
+ 330:C:/StellarisWare/utils\flash_pb.c ****     //
+ 331:C:/StellarisWare/utils\flash_pb.c ****     // The new parameter block becomes the most recent parameter block.
+ 332:C:/StellarisWare/utils\flash_pb.c ****     //
+ 333:C:/StellarisWare/utils\flash_pb.c ****     g_pucFlashPBCurrent = pucNew;
+ 416              		.loc 1 333 0 is_stmt 1
+ 417 01d2 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 418 01d6 C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 419 01da 7A69     		ldr	r2, [r7, #20]
+ 420 01dc 1A60     		str	r2, [r3, #0]
+ 421 01de 02E0     		b	.L10
+ 422              	.L34:
+ 306:C:/StellarisWare/utils\flash_pb.c ****             return;
+ 423              		.loc 1 306 0
+ 424 01e0 00BF     		nop
+ 425 01e2 00E0     		b	.L10
+ 426              	.L36:
+ 326:C:/StellarisWare/utils\flash_pb.c ****             return;
+ 427              		.loc 1 326 0
+ 428 01e4 00BF     		nop
+ 429              	.L10:
+ 334:C:/StellarisWare/utils\flash_pb.c **** }
+ 430              		.loc 1 334 0
+ 431 01e6 07F11807 		add	r7, r7, #24
+ 432 01ea BD46     		mov	sp, r7
+ 433 01ec 80BD     		pop	{r7, pc}
+ 434              		.cfi_endproc
+ 435              	.LFE2:
+ 437 01ee 00BF     		.section	.text.FlashPBInit,"ax",%progbits
+ 438              		.align	2
+ 439              		.global	FlashPBInit
+ 440              		.thumb
+ 441              		.thumb_func
+ 443              	FlashPBInit:
+ 444              	.LFB3:
+ 335:C:/StellarisWare/utils\flash_pb.c **** 
+ 336:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 337:C:/StellarisWare/utils\flash_pb.c **** //
+ 338:C:/StellarisWare/utils\flash_pb.c **** //! Initializes the flash parameter block.
+ 339:C:/StellarisWare/utils\flash_pb.c **** //!
+ 340:C:/StellarisWare/utils\flash_pb.c **** //! \param ulStart is the address of the flash memory to be used for storing
+ 341:C:/StellarisWare/utils\flash_pb.c **** //! flash parameter blocks; this must be the start of an erase block in the
+ 342:C:/StellarisWare/utils\flash_pb.c **** //! flash.
+ 343:C:/StellarisWare/utils\flash_pb.c **** //! \param ulEnd is the address of the end of flash memory to be used for
+ 344:C:/StellarisWare/utils\flash_pb.c **** //! storing flash parameter blocks; this must be the start of an erase block in
+ 345:C:/StellarisWare/utils\flash_pb.c **** //! the flash (the first block that is NOT part of the flash memory to be
+ 346:C:/StellarisWare/utils\flash_pb.c **** //! used), or the address of the first word after the flash array if the last
+ 347:C:/StellarisWare/utils\flash_pb.c **** //! block of flash is to be used.
+ 348:C:/StellarisWare/utils\flash_pb.c **** //! \param ulSize is the size of the parameter block when stored in flash;
+ 349:C:/StellarisWare/utils\flash_pb.c **** //! this must be a power of two less than or equal to the flash erase block
+ 350:C:/StellarisWare/utils\flash_pb.c **** //! size (typically 1024).
+ 351:C:/StellarisWare/utils\flash_pb.c **** //!
+ 352:C:/StellarisWare/utils\flash_pb.c **** //! This function initializes a fault-tolerant, persistent storage mechanism
+ 353:C:/StellarisWare/utils\flash_pb.c **** //! for a parameter block for an application.  The last several erase blocks
+ 354:C:/StellarisWare/utils\flash_pb.c **** //! of flash (as specified by \e ulStart and \e ulEnd are used for the
+ 355:C:/StellarisWare/utils\flash_pb.c **** //! storage; more than one erase block is required in order to be
+ 356:C:/StellarisWare/utils\flash_pb.c **** //! fault-tolerant.
+ 357:C:/StellarisWare/utils\flash_pb.c **** //!
+ 358:C:/StellarisWare/utils\flash_pb.c **** //! A parameter block is an array of bytes that contain the persistent
+ 359:C:/StellarisWare/utils\flash_pb.c **** //! parameters for the application.  The only special requirement for the
+ 360:C:/StellarisWare/utils\flash_pb.c **** //! parameter block is that the first byte is a sequence number (explained
+ 361:C:/StellarisWare/utils\flash_pb.c **** //! in FlashPBSave()) and the second byte is a checksum used to validate the
+ 362:C:/StellarisWare/utils\flash_pb.c **** //! correctness of the data (the checksum byte is the byte such that the sum of
+ 363:C:/StellarisWare/utils\flash_pb.c **** //! all bytes in the parameter block is zero).
+ 364:C:/StellarisWare/utils\flash_pb.c **** //!
+ 365:C:/StellarisWare/utils\flash_pb.c **** //! The portion of flash for parameter block storage is split into N
+ 366:C:/StellarisWare/utils\flash_pb.c **** //! equal-sized regions, where each region is the size of a parameter block
+ 367:C:/StellarisWare/utils\flash_pb.c **** //! (\e ulSize).  Each region is scanned to find the most recent valid
+ 368:C:/StellarisWare/utils\flash_pb.c **** //! parameter block.  The region that has a valid checksum and has the highest
+ 369:C:/StellarisWare/utils\flash_pb.c **** //! sequence number (with special consideration given to wrapping back to zero)
+ 370:C:/StellarisWare/utils\flash_pb.c **** //! is considered to be the current parameter block.
+ 371:C:/StellarisWare/utils\flash_pb.c **** //!
+ 372:C:/StellarisWare/utils\flash_pb.c **** //! In order to make this efficient and effective, three conditions must be
+ 373:C:/StellarisWare/utils\flash_pb.c **** //! met.  The first is \e ulStart and \e ulEnd must be specified such that at
+ 374:C:/StellarisWare/utils\flash_pb.c **** //! least two erase blocks of flash are dedicated to parameter block storage.
+ 375:C:/StellarisWare/utils\flash_pb.c **** //! If not, fault tolerance can not be guaranteed since an erase of a single
+ 376:C:/StellarisWare/utils\flash_pb.c **** //! block will leave a window where there are no valid parameter blocks in
+ 377:C:/StellarisWare/utils\flash_pb.c **** //! flash.  The second condition is that the size (\e ulSize) of the parameter
+ 378:C:/StellarisWare/utils\flash_pb.c **** //! block must be an integral divisor of the size of an erase block of flash.
+ 379:C:/StellarisWare/utils\flash_pb.c **** //! If not, a parameter block will end up spanning between two erase blocks of
+ 380:C:/StellarisWare/utils\flash_pb.c **** //! flash, making it more difficult to manage.  The final condition is that the
+ 381:C:/StellarisWare/utils\flash_pb.c **** //! size of the flash dedicated to parameter blocks (\e ulEnd - \e ulStart)
+ 382:C:/StellarisWare/utils\flash_pb.c **** //! divided by the parameter block size (\e ulSize) must be less than or equal
+ 383:C:/StellarisWare/utils\flash_pb.c **** //! to 128.  If not, it will not be possible in all cases to determine which
+ 384:C:/StellarisWare/utils\flash_pb.c **** //! parameter block is the most recent (specifically when dealing with the
+ 385:C:/StellarisWare/utils\flash_pb.c **** //! sequence number wrapping back to zero).
+ 386:C:/StellarisWare/utils\flash_pb.c **** //!
+ 387:C:/StellarisWare/utils\flash_pb.c **** //! When the microcontroller is initially programmed, the flash blocks used for
+ 388:C:/StellarisWare/utils\flash_pb.c **** //! parameter block storage are left in an erased state.
+ 389:C:/StellarisWare/utils\flash_pb.c **** //!
+ 390:C:/StellarisWare/utils\flash_pb.c **** //! This function must be called before any other flash parameter block
+ 391:C:/StellarisWare/utils\flash_pb.c **** //! functions are called.
+ 392:C:/StellarisWare/utils\flash_pb.c **** //!
+ 393:C:/StellarisWare/utils\flash_pb.c **** //! \return None.
+ 394:C:/StellarisWare/utils\flash_pb.c **** //
+ 395:C:/StellarisWare/utils\flash_pb.c **** //*****************************************************************************
+ 396:C:/StellarisWare/utils\flash_pb.c **** void
+ 397:C:/StellarisWare/utils\flash_pb.c **** FlashPBInit(unsigned long ulStart, unsigned long ulEnd, unsigned long ulSize)
+ 398:C:/StellarisWare/utils\flash_pb.c **** {
+ 445              		.loc 1 398 0
+ 446              		.cfi_startproc
+ 447              		@ args = 0, pretend = 0, frame = 32
+ 448              		@ frame_needed = 1, uses_anonymous_args = 0
+ 449 0000 80B5     		push	{r7, lr}
+ 450              	.LCFI8:
+ 451              		.cfi_def_cfa_offset 8
+ 452              		.cfi_offset 14, -4
+ 453              		.cfi_offset 7, -8
+ 454 0002 88B0     		sub	sp, sp, #32
+ 455              	.LCFI9:
+ 456              		.cfi_def_cfa_offset 40
+ 457 0004 00AF     		add	r7, sp, #0
+ 458              	.LCFI10:
+ 459              		.cfi_def_cfa_register 7
+ 460 0006 F860     		str	r0, [r7, #12]
+ 461 0008 B960     		str	r1, [r7, #8]
+ 462 000a 7A60     		str	r2, [r7, #4]
+ 399:C:/StellarisWare/utils\flash_pb.c ****     unsigned char *pucOffset, *pucCurrent;
+ 400:C:/StellarisWare/utils\flash_pb.c ****     unsigned char ucOne, ucTwo;
+ 401:C:/StellarisWare/utils\flash_pb.c **** 
+ 402:C:/StellarisWare/utils\flash_pb.c ****     //
+ 403:C:/StellarisWare/utils\flash_pb.c ****     // Check the arguments.
+ 404:C:/StellarisWare/utils\flash_pb.c ****     //
+ 405:C:/StellarisWare/utils\flash_pb.c ****     ASSERT((ulStart % FLASH_ERASE_SIZE) == 0);
+ 406:C:/StellarisWare/utils\flash_pb.c ****     ASSERT((ulEnd % FLASH_ERASE_SIZE) == 0);
+ 407:C:/StellarisWare/utils\flash_pb.c ****     ASSERT((FLASH_ERASE_SIZE % ulSize) == 0);
+ 408:C:/StellarisWare/utils\flash_pb.c **** 
+ 409:C:/StellarisWare/utils\flash_pb.c ****     //
+ 410:C:/StellarisWare/utils\flash_pb.c ****     // Set the number of clocks per microsecond to enable the flash controller
+ 411:C:/StellarisWare/utils\flash_pb.c ****     // to properly program the flash.
+ 412:C:/StellarisWare/utils\flash_pb.c ****     //
+ 413:C:/StellarisWare/utils\flash_pb.c ****     FlashUsecSet(SysCtlClockGet() / 1000000);
+ 463              		.loc 1 413 0
+ 464 000c FFF7FEFF 		bl	SysCtlClockGet
+ 465 0010 0246     		mov	r2, r0
+ 466 0012 4DF68363 		movw	r3, #56963
+ 467 0016 C4F21B33 		movt	r3, 17179
+ 468 001a A3FB0213 		umull	r1, r3, r3, r2
+ 469 001e 4FEA9343 		lsr	r3, r3, #18
+ 470 0022 1846     		mov	r0, r3
+ 471 0024 FFF7FEFF 		bl	FlashUsecSet
+ 414:C:/StellarisWare/utils\flash_pb.c **** 
+ 415:C:/StellarisWare/utils\flash_pb.c ****     //
+ 416:C:/StellarisWare/utils\flash_pb.c ****     // Save the characteristics of the flash memory to be used for storing
+ 417:C:/StellarisWare/utils\flash_pb.c ****     // parameter blocks.
+ 418:C:/StellarisWare/utils\flash_pb.c ****     //
+ 419:C:/StellarisWare/utils\flash_pb.c ****     g_pucFlashPBStart = (unsigned char *)ulStart;
+ 472              		.loc 1 419 0
+ 473 0028 FA68     		ldr	r2, [r7, #12]
+ 474 002a 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 475 002e C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 476 0032 1A60     		str	r2, [r3, #0]
+ 420:C:/StellarisWare/utils\flash_pb.c ****     g_pucFlashPBEnd = (unsigned char *)ulEnd;
+ 477              		.loc 1 420 0
+ 478 0034 BA68     		ldr	r2, [r7, #8]
+ 479 0036 40F20003 		movw	r3, #:lower16:g_pucFlashPBEnd
+ 480 003a C0F20003 		movt	r3, #:upper16:g_pucFlashPBEnd
+ 481 003e 1A60     		str	r2, [r3, #0]
+ 421:C:/StellarisWare/utils\flash_pb.c ****     g_ulFlashPBSize = ulSize;
+ 482              		.loc 1 421 0
+ 483 0040 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 484 0044 C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 485 0048 7A68     		ldr	r2, [r7, #4]
+ 486 004a 1A60     		str	r2, [r3, #0]
+ 422:C:/StellarisWare/utils\flash_pb.c **** 
+ 423:C:/StellarisWare/utils\flash_pb.c ****     //
+ 424:C:/StellarisWare/utils\flash_pb.c ****     // Loop through the portion of flash memory used for storing parameter
+ 425:C:/StellarisWare/utils\flash_pb.c ****     // blocks.
+ 426:C:/StellarisWare/utils\flash_pb.c ****     //
+ 427:C:/StellarisWare/utils\flash_pb.c ****     for(pucOffset = g_pucFlashPBStart, pucCurrent = 0;
+ 487              		.loc 1 427 0
+ 488 004c 40F20003 		movw	r3, #:lower16:g_pucFlashPBStart
+ 489 0050 C0F20003 		movt	r3, #:upper16:g_pucFlashPBStart
+ 490 0054 1B68     		ldr	r3, [r3, #0]
+ 491 0056 FB61     		str	r3, [r7, #28]
+ 492 0058 4FF00003 		mov	r3, #0
+ 493 005c BB61     		str	r3, [r7, #24]
+ 494 005e 2CE0     		b	.L38
+ 495              	.L43:
+ 428:C:/StellarisWare/utils\flash_pb.c ****         pucOffset < g_pucFlashPBEnd; pucOffset += g_ulFlashPBSize)
+ 429:C:/StellarisWare/utils\flash_pb.c ****     {
+ 430:C:/StellarisWare/utils\flash_pb.c ****         //
+ 431:C:/StellarisWare/utils\flash_pb.c ****         // See if this is a valid parameter block (i.e. the checksum is
+ 432:C:/StellarisWare/utils\flash_pb.c ****         // correct).
+ 433:C:/StellarisWare/utils\flash_pb.c ****         //
+ 434:C:/StellarisWare/utils\flash_pb.c ****         if(FlashPBIsValid(pucOffset))
+ 496              		.loc 1 434 0
+ 497 0060 F869     		ldr	r0, [r7, #28]
+ 498 0062 FFF7FEFF 		bl	FlashPBIsValid
+ 499 0066 0346     		mov	r3, r0
+ 500 0068 002B     		cmp	r3, #0
+ 501 006a 1ED0     		beq	.L39
+ 435:C:/StellarisWare/utils\flash_pb.c ****         {
+ 436:C:/StellarisWare/utils\flash_pb.c ****             //
+ 437:C:/StellarisWare/utils\flash_pb.c ****             // See if a valid parameter block has been previously found.
+ 438:C:/StellarisWare/utils\flash_pb.c ****             //
+ 439:C:/StellarisWare/utils\flash_pb.c ****             if(pucCurrent != 0)
+ 502              		.loc 1 439 0
+ 503 006c BB69     		ldr	r3, [r7, #24]
+ 504 006e 002B     		cmp	r3, #0
+ 505 0070 17D0     		beq	.L40
+ 440:C:/StellarisWare/utils\flash_pb.c ****             {
+ 441:C:/StellarisWare/utils\flash_pb.c ****                 //
+ 442:C:/StellarisWare/utils\flash_pb.c ****                 // Get the sequence numbers for the current and new parameter
+ 443:C:/StellarisWare/utils\flash_pb.c ****                 // blocks.
+ 444:C:/StellarisWare/utils\flash_pb.c ****                 //
+ 445:C:/StellarisWare/utils\flash_pb.c ****                 ucOne = pucCurrent[0];
+ 506              		.loc 1 445 0
+ 507 0072 BB69     		ldr	r3, [r7, #24]
+ 508 0074 1B78     		ldrb	r3, [r3, #0]
+ 509 0076 FB75     		strb	r3, [r7, #23]
+ 446:C:/StellarisWare/utils\flash_pb.c ****                 ucTwo = pucOffset[0];
+ 510              		.loc 1 446 0
+ 511 0078 FB69     		ldr	r3, [r7, #28]
+ 512 007a 1B78     		ldrb	r3, [r3, #0]
+ 513 007c BB75     		strb	r3, [r7, #22]
+ 447:C:/StellarisWare/utils\flash_pb.c **** 
+ 448:C:/StellarisWare/utils\flash_pb.c ****                 //
+ 449:C:/StellarisWare/utils\flash_pb.c ****                 // See if the sequence number for the new parameter block is
+ 450:C:/StellarisWare/utils\flash_pb.c ****                 // greater than the current block.  The comparison isn't
+ 451:C:/StellarisWare/utils\flash_pb.c ****                 // straightforward since the one byte sequence number will wrap
+ 452:C:/StellarisWare/utils\flash_pb.c ****                 // after 256 parameter blocks.
+ 453:C:/StellarisWare/utils\flash_pb.c ****                 //
+ 454:C:/StellarisWare/utils\flash_pb.c ****                 if(((ucOne > ucTwo) && ((ucOne - ucTwo) < 128)) ||
+ 514              		.loc 1 454 0
+ 515 007e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 516 0080 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 517 0082 9A42     		cmp	r2, r3
+ 518 0084 04D9     		bls	.L41
+ 519              		.loc 1 454 0 is_stmt 0 discriminator 1
+ 520 0086 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 521 0088 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 522 008a D31A     		subs	r3, r2, r3
+ 523 008c 7F2B     		cmp	r3, #127
+ 524 008e 0BDD     		ble	.L44
+ 525              	.L41:
+ 526              		.loc 1 454 0 discriminator 2
+ 527 0090 BA7D     		ldrb	r2, [r7, #22]	@ zero_extendqisi2
+ 528 0092 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 529 0094 9A42     		cmp	r2, r3
+ 530 0096 04D9     		bls	.L40
+ 455:C:/StellarisWare/utils\flash_pb.c ****                    ((ucTwo > ucOne) && ((ucTwo - ucOne) > 128)))
+ 531              		.loc 1 455 0 is_stmt 1
+ 532 0098 BA7D     		ldrb	r2, [r7, #22]	@ zero_extendqisi2
+ 533 009a FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 534 009c D31A     		subs	r3, r2, r3
+ 535 009e 802B     		cmp	r3, #128
+ 536 00a0 02DC     		bgt	.L44
+ 537              	.L40:
+ 456:C:/StellarisWare/utils\flash_pb.c ****                 {
+ 457:C:/StellarisWare/utils\flash_pb.c ****                     //
+ 458:C:/StellarisWare/utils\flash_pb.c ****                     // The new parameter block is older than the current
+ 459:C:/StellarisWare/utils\flash_pb.c ****                     // parameter block, so skip the new parameter block and
+ 460:C:/StellarisWare/utils\flash_pb.c ****                     // keep searching.
+ 461:C:/StellarisWare/utils\flash_pb.c ****                     //
+ 462:C:/StellarisWare/utils\flash_pb.c ****                     continue;
+ 463:C:/StellarisWare/utils\flash_pb.c ****                 }
+ 464:C:/StellarisWare/utils\flash_pb.c ****             }
+ 465:C:/StellarisWare/utils\flash_pb.c **** 
+ 466:C:/StellarisWare/utils\flash_pb.c ****             //
+ 467:C:/StellarisWare/utils\flash_pb.c ****             // The new parameter block is more recent than the current one, so
+ 468:C:/StellarisWare/utils\flash_pb.c ****             // make it the new current parameter block.
+ 469:C:/StellarisWare/utils\flash_pb.c ****             //
+ 470:C:/StellarisWare/utils\flash_pb.c ****             pucCurrent = pucOffset;
+ 538              		.loc 1 470 0
+ 539 00a2 FB69     		ldr	r3, [r7, #28]
+ 540 00a4 BB61     		str	r3, [r7, #24]
+ 541 00a6 00E0     		b	.L39
+ 542              	.L44:
+ 462:C:/StellarisWare/utils\flash_pb.c ****                     continue;
+ 543              		.loc 1 462 0
+ 544 00a8 00BF     		nop
+ 545              	.L39:
+ 428:C:/StellarisWare/utils\flash_pb.c ****         pucOffset < g_pucFlashPBEnd; pucOffset += g_ulFlashPBSize)
+ 546              		.loc 1 428 0
+ 547 00aa 40F20003 		movw	r3, #:lower16:g_ulFlashPBSize
+ 548 00ae C0F20003 		movt	r3, #:upper16:g_ulFlashPBSize
+ 549 00b2 1B68     		ldr	r3, [r3, #0]
+ 550 00b4 FA69     		ldr	r2, [r7, #28]
+ 551 00b6 D318     		adds	r3, r2, r3
+ 552 00b8 FB61     		str	r3, [r7, #28]
+ 553              	.L38:
+ 428:C:/StellarisWare/utils\flash_pb.c ****         pucOffset < g_pucFlashPBEnd; pucOffset += g_ulFlashPBSize)
+ 554              		.loc 1 428 0 is_stmt 0 discriminator 1
+ 555 00ba 40F20003 		movw	r3, #:lower16:g_pucFlashPBEnd
+ 556 00be C0F20003 		movt	r3, #:upper16:g_pucFlashPBEnd
+ 557 00c2 1B68     		ldr	r3, [r3, #0]
+ 427:C:/StellarisWare/utils\flash_pb.c ****     for(pucOffset = g_pucFlashPBStart, pucCurrent = 0;
+ 558              		.loc 1 427 0 is_stmt 1 discriminator 1
+ 559 00c4 FA69     		ldr	r2, [r7, #28]
+ 560 00c6 9A42     		cmp	r2, r3
+ 561 00c8 CAD3     		bcc	.L43
+ 471:C:/StellarisWare/utils\flash_pb.c ****         }
+ 472:C:/StellarisWare/utils\flash_pb.c ****     }
+ 473:C:/StellarisWare/utils\flash_pb.c **** 
+ 474:C:/StellarisWare/utils\flash_pb.c ****     //
+ 475:C:/StellarisWare/utils\flash_pb.c ****     // Save the address of the most recent parameter block found.  If no valid
+ 476:C:/StellarisWare/utils\flash_pb.c ****     // parameter blocks were found, this will be a NULL pointer.
+ 477:C:/StellarisWare/utils\flash_pb.c ****     //
+ 478:C:/StellarisWare/utils\flash_pb.c ****     g_pucFlashPBCurrent = pucCurrent;
+ 562              		.loc 1 478 0
+ 563 00ca 40F20003 		movw	r3, #:lower16:g_pucFlashPBCurrent
+ 564 00ce C0F20003 		movt	r3, #:upper16:g_pucFlashPBCurrent
+ 565 00d2 BA69     		ldr	r2, [r7, #24]
+ 566 00d4 1A60     		str	r2, [r3, #0]
+ 479:C:/StellarisWare/utils\flash_pb.c **** }
+ 567              		.loc 1 479 0
+ 568 00d6 07F12007 		add	r7, r7, #32
+ 569 00da BD46     		mov	sp, r7
+ 570 00dc 80BD     		pop	{r7, pc}
+ 571              		.cfi_endproc
+ 572              	.LFE3:
+ 574 00de 00BF     		.text
+ 575              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 flash_pb.c
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:19     .bss:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:20     .bss:00000000 g_pucFlashPBStart
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:23     .bss:00000004 g_pucFlashPBEnd
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:26     .bss:00000008 g_ulFlashPBSize
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:29     .bss:0000000c g_pucFlashPBCurrent
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:32     .text.FlashPBIsValid:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:36     .text.FlashPBIsValid:00000000 FlashPBIsValid
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:118    .text.FlashPBGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:123    .text.FlashPBGet:00000000 FlashPBGet
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:161    .text.FlashPBSave:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:166    .text.FlashPBSave:00000000 FlashPBSave
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:438    .text.FlashPBInit:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc8ZBXVf.s:443    .text.FlashPBInit:00000000 FlashPBInit
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+FlashErase
+FlashProgram
+SysCtlClockGet
+FlashUsecSet

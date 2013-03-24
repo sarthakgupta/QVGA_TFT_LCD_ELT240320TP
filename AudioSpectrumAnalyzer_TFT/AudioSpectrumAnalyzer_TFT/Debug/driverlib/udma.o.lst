@@ -1,0 +1,2854 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"udma.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.uDMAEnable,"ax",%progbits
+  19              		.align	2
+  20              		.global	uDMAEnable
+  21              		.thumb
+  22              		.thumb_func
+  24              	uDMAEnable:
+  25              	.LFB0:
+  26              		.file 1 "C:/StellarisWare/driverlib/udma.c"
+   1:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+   2:C:/StellarisWare/driverlib\udma.c **** //
+   3:C:/StellarisWare/driverlib\udma.c **** // udma.c - Driver for the micro-DMA controller.
+   4:C:/StellarisWare/driverlib\udma.c **** //
+   5:C:/StellarisWare/driverlib\udma.c **** // Copyright (c) 2007-2012 Texas Instruments Incorporated.  All rights reserved.
+   6:C:/StellarisWare/driverlib\udma.c **** // Software License Agreement
+   7:C:/StellarisWare/driverlib\udma.c **** // 
+   8:C:/StellarisWare/driverlib\udma.c **** //   Redistribution and use in source and binary forms, with or without
+   9:C:/StellarisWare/driverlib\udma.c **** //   modification, are permitted provided that the following conditions
+  10:C:/StellarisWare/driverlib\udma.c **** //   are met:
+  11:C:/StellarisWare/driverlib\udma.c **** // 
+  12:C:/StellarisWare/driverlib\udma.c **** //   Redistributions of source code must retain the above copyright
+  13:C:/StellarisWare/driverlib\udma.c **** //   notice, this list of conditions and the following disclaimer.
+  14:C:/StellarisWare/driverlib\udma.c **** // 
+  15:C:/StellarisWare/driverlib\udma.c **** //   Redistributions in binary form must reproduce the above copyright
+  16:C:/StellarisWare/driverlib\udma.c **** //   notice, this list of conditions and the following disclaimer in the
+  17:C:/StellarisWare/driverlib\udma.c **** //   documentation and/or other materials provided with the  
+  18:C:/StellarisWare/driverlib\udma.c **** //   distribution.
+  19:C:/StellarisWare/driverlib\udma.c **** // 
+  20:C:/StellarisWare/driverlib\udma.c **** //   Neither the name of Texas Instruments Incorporated nor the names of
+  21:C:/StellarisWare/driverlib\udma.c **** //   its contributors may be used to endorse or promote products derived
+  22:C:/StellarisWare/driverlib\udma.c **** //   from this software without specific prior written permission.
+  23:C:/StellarisWare/driverlib\udma.c **** // 
+  24:C:/StellarisWare/driverlib\udma.c **** // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  25:C:/StellarisWare/driverlib\udma.c **** // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  26:C:/StellarisWare/driverlib\udma.c **** // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  27:C:/StellarisWare/driverlib\udma.c **** // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  28:C:/StellarisWare/driverlib\udma.c **** // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  29:C:/StellarisWare/driverlib\udma.c **** // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  30:C:/StellarisWare/driverlib\udma.c **** // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  31:C:/StellarisWare/driverlib\udma.c **** // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  32:C:/StellarisWare/driverlib\udma.c **** // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  33:C:/StellarisWare/driverlib\udma.c **** // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  34:C:/StellarisWare/driverlib\udma.c **** // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  35:C:/StellarisWare/driverlib\udma.c **** // 
+  36:C:/StellarisWare/driverlib\udma.c **** // This is part of revision 9107 of the Stellaris Peripheral Driver Library.
+  37:C:/StellarisWare/driverlib\udma.c **** //
+  38:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  39:C:/StellarisWare/driverlib\udma.c **** 
+  40:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  41:C:/StellarisWare/driverlib\udma.c **** //
+  42:C:/StellarisWare/driverlib\udma.c **** //! \addtogroup udma_api
+  43:C:/StellarisWare/driverlib\udma.c **** //! @{
+  44:C:/StellarisWare/driverlib\udma.c **** //
+  45:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  46:C:/StellarisWare/driverlib\udma.c **** 
+  47:C:/StellarisWare/driverlib\udma.c **** #include "inc/hw_sysctl.h"
+  48:C:/StellarisWare/driverlib\udma.c **** #include "inc/hw_types.h"
+  49:C:/StellarisWare/driverlib\udma.c **** #include "inc/hw_udma.h"
+  50:C:/StellarisWare/driverlib\udma.c **** #include "driverlib/debug.h"
+  51:C:/StellarisWare/driverlib\udma.c **** #include "driverlib/interrupt.h"
+  52:C:/StellarisWare/driverlib\udma.c **** #include "driverlib/udma.h"
+  53:C:/StellarisWare/driverlib\udma.c **** 
+  54:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  55:C:/StellarisWare/driverlib\udma.c **** //
+  56:C:/StellarisWare/driverlib\udma.c **** //! Enables the uDMA controller for use.
+  57:C:/StellarisWare/driverlib\udma.c **** //!
+  58:C:/StellarisWare/driverlib\udma.c **** //! This function enables the uDMA controller.  The uDMA controller must be
+  59:C:/StellarisWare/driverlib\udma.c **** //! enabled before it can be configured and used.
+  60:C:/StellarisWare/driverlib\udma.c **** //!
+  61:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+  62:C:/StellarisWare/driverlib\udma.c **** //
+  63:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  64:C:/StellarisWare/driverlib\udma.c **** void
+  65:C:/StellarisWare/driverlib\udma.c **** uDMAEnable(void)
+  66:C:/StellarisWare/driverlib\udma.c **** {
+  27              		.loc 1 66 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 00AF     		add	r7, sp, #0
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_register 7
+  67:C:/StellarisWare/driverlib\udma.c ****     //
+  68:C:/StellarisWare/driverlib\udma.c ****     // Set the master enable bit in the config register.
+  69:C:/StellarisWare/driverlib\udma.c ****     //
+  70:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CFG) = UDMA_CFG_MASTEN;
+  39              		.loc 1 70 0
+  40 0004 4FF20403 		movw	r3, #61444
+  41 0008 C4F20F03 		movt	r3, 16399
+  42 000c 4FF00102 		mov	r2, #1
+  43 0010 1A60     		str	r2, [r3, #0]
+  71:C:/StellarisWare/driverlib\udma.c **** }
+  44              		.loc 1 71 0
+  45 0012 BD46     		mov	sp, r7
+  46 0014 80BC     		pop	{r7}
+  47 0016 7047     		bx	lr
+  48              		.cfi_endproc
+  49              	.LFE0:
+  51              		.section	.text.uDMADisable,"ax",%progbits
+  52              		.align	2
+  53              		.global	uDMADisable
+  54              		.thumb
+  55              		.thumb_func
+  57              	uDMADisable:
+  58              	.LFB1:
+  72:C:/StellarisWare/driverlib\udma.c **** 
+  73:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  74:C:/StellarisWare/driverlib\udma.c **** //
+  75:C:/StellarisWare/driverlib\udma.c **** //! Disables the uDMA controller for use.
+  76:C:/StellarisWare/driverlib\udma.c **** //!
+  77:C:/StellarisWare/driverlib\udma.c **** //! This function disables the uDMA controller.  Once disabled, the uDMA
+  78:C:/StellarisWare/driverlib\udma.c **** //! controller cannot operate until re-enabled with uDMAEnable().
+  79:C:/StellarisWare/driverlib\udma.c **** //!
+  80:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+  81:C:/StellarisWare/driverlib\udma.c **** //
+  82:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  83:C:/StellarisWare/driverlib\udma.c **** void
+  84:C:/StellarisWare/driverlib\udma.c **** uDMADisable(void)
+  85:C:/StellarisWare/driverlib\udma.c **** {
+  59              		.loc 1 85 0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 1, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+  64 0000 80B4     		push	{r7}
+  65              	.LCFI2:
+  66              		.cfi_def_cfa_offset 4
+  67              		.cfi_offset 7, -4
+  68 0002 00AF     		add	r7, sp, #0
+  69              	.LCFI3:
+  70              		.cfi_def_cfa_register 7
+  86:C:/StellarisWare/driverlib\udma.c ****     //
+  87:C:/StellarisWare/driverlib\udma.c ****     // Clear the master enable bit in the config register.
+  88:C:/StellarisWare/driverlib\udma.c ****     //
+  89:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CFG) = 0;
+  71              		.loc 1 89 0
+  72 0004 4FF20403 		movw	r3, #61444
+  73 0008 C4F20F03 		movt	r3, 16399
+  74 000c 4FF00002 		mov	r2, #0
+  75 0010 1A60     		str	r2, [r3, #0]
+  90:C:/StellarisWare/driverlib\udma.c **** }
+  76              		.loc 1 90 0
+  77 0012 BD46     		mov	sp, r7
+  78 0014 80BC     		pop	{r7}
+  79 0016 7047     		bx	lr
+  80              		.cfi_endproc
+  81              	.LFE1:
+  83              		.section	.text.uDMAErrorStatusGet,"ax",%progbits
+  84              		.align	2
+  85              		.global	uDMAErrorStatusGet
+  86              		.thumb
+  87              		.thumb_func
+  89              	uDMAErrorStatusGet:
+  90              	.LFB2:
+  91:C:/StellarisWare/driverlib\udma.c **** 
+  92:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+  93:C:/StellarisWare/driverlib\udma.c **** //
+  94:C:/StellarisWare/driverlib\udma.c **** //! Gets the uDMA error status.
+  95:C:/StellarisWare/driverlib\udma.c **** //!
+  96:C:/StellarisWare/driverlib\udma.c **** //! This function returns the uDMA error status.  It should be called from
+  97:C:/StellarisWare/driverlib\udma.c **** //! within the uDMA error interrupt handler to determine if a uDMA error
+  98:C:/StellarisWare/driverlib\udma.c **** //! occurred.
+  99:C:/StellarisWare/driverlib\udma.c **** //!
+ 100:C:/StellarisWare/driverlib\udma.c **** //! \return Returns non-zero if a uDMA error is pending.
+ 101:C:/StellarisWare/driverlib\udma.c **** //
+ 102:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 103:C:/StellarisWare/driverlib\udma.c **** unsigned long
+ 104:C:/StellarisWare/driverlib\udma.c **** uDMAErrorStatusGet(void)
+ 105:C:/StellarisWare/driverlib\udma.c **** {
+  91              		.loc 1 105 0
+  92              		.cfi_startproc
+  93              		@ args = 0, pretend = 0, frame = 0
+  94              		@ frame_needed = 1, uses_anonymous_args = 0
+  95              		@ link register save eliminated.
+  96 0000 80B4     		push	{r7}
+  97              	.LCFI4:
+  98              		.cfi_def_cfa_offset 4
+  99              		.cfi_offset 7, -4
+ 100 0002 00AF     		add	r7, sp, #0
+ 101              	.LCFI5:
+ 102              		.cfi_def_cfa_register 7
+ 106:C:/StellarisWare/driverlib\udma.c ****     //
+ 107:C:/StellarisWare/driverlib\udma.c ****     // Return the uDMA error status.
+ 108:C:/StellarisWare/driverlib\udma.c ****     //
+ 109:C:/StellarisWare/driverlib\udma.c ****     return(HWREG(UDMA_ERRCLR));
+ 103              		.loc 1 109 0
+ 104 0004 4FF24C03 		movw	r3, #61516
+ 105 0008 C4F20F03 		movt	r3, 16399
+ 106 000c 1B68     		ldr	r3, [r3, #0]
+ 110:C:/StellarisWare/driverlib\udma.c **** }
+ 107              		.loc 1 110 0
+ 108 000e 1846     		mov	r0, r3
+ 109 0010 BD46     		mov	sp, r7
+ 110 0012 80BC     		pop	{r7}
+ 111 0014 7047     		bx	lr
+ 112              		.cfi_endproc
+ 113              	.LFE2:
+ 115 0016 00BF     		.section	.text.uDMAErrorStatusClear,"ax",%progbits
+ 116              		.align	2
+ 117              		.global	uDMAErrorStatusClear
+ 118              		.thumb
+ 119              		.thumb_func
+ 121              	uDMAErrorStatusClear:
+ 122              	.LFB3:
+ 111:C:/StellarisWare/driverlib\udma.c **** 
+ 112:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 113:C:/StellarisWare/driverlib\udma.c **** //
+ 114:C:/StellarisWare/driverlib\udma.c **** //! Clears the uDMA error interrupt.
+ 115:C:/StellarisWare/driverlib\udma.c **** //!
+ 116:C:/StellarisWare/driverlib\udma.c **** //! This function clears a pending uDMA error interrupt.  This function should
+ 117:C:/StellarisWare/driverlib\udma.c **** //! be called from within the uDMA error interrupt handler to clear the
+ 118:C:/StellarisWare/driverlib\udma.c **** //! interrupt.
+ 119:C:/StellarisWare/driverlib\udma.c **** //!
+ 120:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 121:C:/StellarisWare/driverlib\udma.c **** //
+ 122:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 123:C:/StellarisWare/driverlib\udma.c **** void
+ 124:C:/StellarisWare/driverlib\udma.c **** uDMAErrorStatusClear(void)
+ 125:C:/StellarisWare/driverlib\udma.c **** {
+ 123              		.loc 1 125 0
+ 124              		.cfi_startproc
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 1, uses_anonymous_args = 0
+ 127              		@ link register save eliminated.
+ 128 0000 80B4     		push	{r7}
+ 129              	.LCFI6:
+ 130              		.cfi_def_cfa_offset 4
+ 131              		.cfi_offset 7, -4
+ 132 0002 00AF     		add	r7, sp, #0
+ 133              	.LCFI7:
+ 134              		.cfi_def_cfa_register 7
+ 126:C:/StellarisWare/driverlib\udma.c ****     //
+ 127:C:/StellarisWare/driverlib\udma.c ****     // Clear the uDMA error interrupt.
+ 128:C:/StellarisWare/driverlib\udma.c ****     //
+ 129:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_ERRCLR) = 1;
+ 135              		.loc 1 129 0
+ 136 0004 4FF24C03 		movw	r3, #61516
+ 137 0008 C4F20F03 		movt	r3, 16399
+ 138 000c 4FF00102 		mov	r2, #1
+ 139 0010 1A60     		str	r2, [r3, #0]
+ 130:C:/StellarisWare/driverlib\udma.c **** }
+ 140              		.loc 1 130 0
+ 141 0012 BD46     		mov	sp, r7
+ 142 0014 80BC     		pop	{r7}
+ 143 0016 7047     		bx	lr
+ 144              		.cfi_endproc
+ 145              	.LFE3:
+ 147              		.section	.text.uDMAChannelEnable,"ax",%progbits
+ 148              		.align	2
+ 149              		.global	uDMAChannelEnable
+ 150              		.thumb
+ 151              		.thumb_func
+ 153              	uDMAChannelEnable:
+ 154              	.LFB4:
+ 131:C:/StellarisWare/driverlib\udma.c **** 
+ 132:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 133:C:/StellarisWare/driverlib\udma.c **** //
+ 134:C:/StellarisWare/driverlib\udma.c **** //! Enables a uDMA channel for operation.
+ 135:C:/StellarisWare/driverlib\udma.c **** //!
+ 136:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel number to enable.
+ 137:C:/StellarisWare/driverlib\udma.c **** //!
+ 138:C:/StellarisWare/driverlib\udma.c **** //! This function enables a specific uDMA channel for use.  This function must
+ 139:C:/StellarisWare/driverlib\udma.c **** //! be used to enable a channel before it can be used to perform a uDMA
+ 140:C:/StellarisWare/driverlib\udma.c **** //! transfer.
+ 141:C:/StellarisWare/driverlib\udma.c **** //!
+ 142:C:/StellarisWare/driverlib\udma.c **** //! When a uDMA transfer is completed, the channel is automatically disabled by
+ 143:C:/StellarisWare/driverlib\udma.c **** //! the uDMA controller.  Therefore, this function should be called prior to
+ 144:C:/StellarisWare/driverlib\udma.c **** //! starting up any new transfer.
+ 145:C:/StellarisWare/driverlib\udma.c **** //!
+ 146:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 147:C:/StellarisWare/driverlib\udma.c **** //
+ 148:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 149:C:/StellarisWare/driverlib\udma.c **** void
+ 150:C:/StellarisWare/driverlib\udma.c **** uDMAChannelEnable(unsigned long ulChannelNum)
+ 151:C:/StellarisWare/driverlib\udma.c **** {
+ 155              		.loc 1 151 0
+ 156              		.cfi_startproc
+ 157              		@ args = 0, pretend = 0, frame = 8
+ 158              		@ frame_needed = 1, uses_anonymous_args = 0
+ 159              		@ link register save eliminated.
+ 160 0000 80B4     		push	{r7}
+ 161              	.LCFI8:
+ 162              		.cfi_def_cfa_offset 4
+ 163              		.cfi_offset 7, -4
+ 164 0002 83B0     		sub	sp, sp, #12
+ 165              	.LCFI9:
+ 166              		.cfi_def_cfa_offset 16
+ 167 0004 00AF     		add	r7, sp, #0
+ 168              	.LCFI10:
+ 169              		.cfi_def_cfa_register 7
+ 170 0006 7860     		str	r0, [r7, #4]
+ 152:C:/StellarisWare/driverlib\udma.c ****     //
+ 153:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 154:C:/StellarisWare/driverlib\udma.c ****     //
+ 155:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 156:C:/StellarisWare/driverlib\udma.c **** 
+ 157:C:/StellarisWare/driverlib\udma.c ****     //
+ 158:C:/StellarisWare/driverlib\udma.c ****     // Set the bit for this channel in the enable set register.
+ 159:C:/StellarisWare/driverlib\udma.c ****     //
+ 160:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_ENASET) = 1 << (ulChannelNum & 0x1f);
+ 171              		.loc 1 160 0
+ 172 0008 4FF22803 		movw	r3, #61480
+ 173 000c C4F20F03 		movt	r3, 16399
+ 174 0010 7A68     		ldr	r2, [r7, #4]
+ 175 0012 02F01F02 		and	r2, r2, #31
+ 176 0016 4FF00101 		mov	r1, #1
+ 177 001a 01FA02F2 		lsl	r2, r1, r2
+ 178 001e 1A60     		str	r2, [r3, #0]
+ 161:C:/StellarisWare/driverlib\udma.c **** }
+ 179              		.loc 1 161 0
+ 180 0020 07F10C07 		add	r7, r7, #12
+ 181 0024 BD46     		mov	sp, r7
+ 182 0026 80BC     		pop	{r7}
+ 183 0028 7047     		bx	lr
+ 184              		.cfi_endproc
+ 185              	.LFE4:
+ 187 002a 00BF     		.section	.text.uDMAChannelDisable,"ax",%progbits
+ 188              		.align	2
+ 189              		.global	uDMAChannelDisable
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	uDMAChannelDisable:
+ 194              	.LFB5:
+ 162:C:/StellarisWare/driverlib\udma.c **** 
+ 163:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 164:C:/StellarisWare/driverlib\udma.c **** //
+ 165:C:/StellarisWare/driverlib\udma.c **** //! Disables a uDMA channel for operation.
+ 166:C:/StellarisWare/driverlib\udma.c **** //!
+ 167:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel number to disable.
+ 168:C:/StellarisWare/driverlib\udma.c **** //!
+ 169:C:/StellarisWare/driverlib\udma.c **** //! This function disables a specific uDMA channel.  Once disabled, a channel
+ 170:C:/StellarisWare/driverlib\udma.c **** //! cannot respond to uDMA transfer requests until re-enabled via
+ 171:C:/StellarisWare/driverlib\udma.c **** //! uDMAChannelEnable().
+ 172:C:/StellarisWare/driverlib\udma.c **** //!
+ 173:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 174:C:/StellarisWare/driverlib\udma.c **** //
+ 175:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 176:C:/StellarisWare/driverlib\udma.c **** void
+ 177:C:/StellarisWare/driverlib\udma.c **** uDMAChannelDisable(unsigned long ulChannelNum)
+ 178:C:/StellarisWare/driverlib\udma.c **** {
+ 195              		.loc 1 178 0
+ 196              		.cfi_startproc
+ 197              		@ args = 0, pretend = 0, frame = 8
+ 198              		@ frame_needed = 1, uses_anonymous_args = 0
+ 199              		@ link register save eliminated.
+ 200 0000 80B4     		push	{r7}
+ 201              	.LCFI11:
+ 202              		.cfi_def_cfa_offset 4
+ 203              		.cfi_offset 7, -4
+ 204 0002 83B0     		sub	sp, sp, #12
+ 205              	.LCFI12:
+ 206              		.cfi_def_cfa_offset 16
+ 207 0004 00AF     		add	r7, sp, #0
+ 208              	.LCFI13:
+ 209              		.cfi_def_cfa_register 7
+ 210 0006 7860     		str	r0, [r7, #4]
+ 179:C:/StellarisWare/driverlib\udma.c ****     //
+ 180:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 181:C:/StellarisWare/driverlib\udma.c ****     //
+ 182:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 183:C:/StellarisWare/driverlib\udma.c **** 
+ 184:C:/StellarisWare/driverlib\udma.c ****     //
+ 185:C:/StellarisWare/driverlib\udma.c ****     // Set the bit for this channel in the enable clear register.
+ 186:C:/StellarisWare/driverlib\udma.c ****     //
+ 187:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_ENACLR) = 1 << (ulChannelNum & 0x1f);
+ 211              		.loc 1 187 0
+ 212 0008 4FF22C03 		movw	r3, #61484
+ 213 000c C4F20F03 		movt	r3, 16399
+ 214 0010 7A68     		ldr	r2, [r7, #4]
+ 215 0012 02F01F02 		and	r2, r2, #31
+ 216 0016 4FF00101 		mov	r1, #1
+ 217 001a 01FA02F2 		lsl	r2, r1, r2
+ 218 001e 1A60     		str	r2, [r3, #0]
+ 188:C:/StellarisWare/driverlib\udma.c **** }
+ 219              		.loc 1 188 0
+ 220 0020 07F10C07 		add	r7, r7, #12
+ 221 0024 BD46     		mov	sp, r7
+ 222 0026 80BC     		pop	{r7}
+ 223 0028 7047     		bx	lr
+ 224              		.cfi_endproc
+ 225              	.LFE5:
+ 227 002a 00BF     		.section	.text.uDMAChannelIsEnabled,"ax",%progbits
+ 228              		.align	2
+ 229              		.global	uDMAChannelIsEnabled
+ 230              		.thumb
+ 231              		.thumb_func
+ 233              	uDMAChannelIsEnabled:
+ 234              	.LFB6:
+ 189:C:/StellarisWare/driverlib\udma.c **** 
+ 190:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 191:C:/StellarisWare/driverlib\udma.c **** //
+ 192:C:/StellarisWare/driverlib\udma.c **** //! Checks if a uDMA channel is enabled for operation.
+ 193:C:/StellarisWare/driverlib\udma.c **** //!
+ 194:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel number to check.
+ 195:C:/StellarisWare/driverlib\udma.c **** //!
+ 196:C:/StellarisWare/driverlib\udma.c **** //! This function checks to see if a specific uDMA channel is enabled.  This
+ 197:C:/StellarisWare/driverlib\udma.c **** //! function can be used to check the status of a transfer, as the channel is
+ 198:C:/StellarisWare/driverlib\udma.c **** //! automatically disabled at the end of a transfer.
+ 199:C:/StellarisWare/driverlib\udma.c **** //!
+ 200:C:/StellarisWare/driverlib\udma.c **** //! \return Returns \b true if the channel is enabled, \b false if disabled.
+ 201:C:/StellarisWare/driverlib\udma.c **** //
+ 202:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 203:C:/StellarisWare/driverlib\udma.c **** tBoolean
+ 204:C:/StellarisWare/driverlib\udma.c **** uDMAChannelIsEnabled(unsigned long ulChannelNum)
+ 205:C:/StellarisWare/driverlib\udma.c **** {
+ 235              		.loc 1 205 0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 8
+ 238              		@ frame_needed = 1, uses_anonymous_args = 0
+ 239              		@ link register save eliminated.
+ 240 0000 80B4     		push	{r7}
+ 241              	.LCFI14:
+ 242              		.cfi_def_cfa_offset 4
+ 243              		.cfi_offset 7, -4
+ 244 0002 83B0     		sub	sp, sp, #12
+ 245              	.LCFI15:
+ 246              		.cfi_def_cfa_offset 16
+ 247 0004 00AF     		add	r7, sp, #0
+ 248              	.LCFI16:
+ 249              		.cfi_def_cfa_register 7
+ 250 0006 7860     		str	r0, [r7, #4]
+ 206:C:/StellarisWare/driverlib\udma.c ****     //
+ 207:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 208:C:/StellarisWare/driverlib\udma.c ****     //
+ 209:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 210:C:/StellarisWare/driverlib\udma.c **** 
+ 211:C:/StellarisWare/driverlib\udma.c ****     //
+ 212:C:/StellarisWare/driverlib\udma.c ****     // AND the specified channel bit with the enable register and return the
+ 213:C:/StellarisWare/driverlib\udma.c ****     // result.
+ 214:C:/StellarisWare/driverlib\udma.c ****     //
+ 215:C:/StellarisWare/driverlib\udma.c ****     return((HWREG(UDMA_ENASET) & (1 << (ulChannelNum & 0x1f))) ? true : false);
+ 251              		.loc 1 215 0
+ 252 0008 4FF22803 		movw	r3, #61480
+ 253 000c C4F20F03 		movt	r3, 16399
+ 254 0010 1A68     		ldr	r2, [r3, #0]
+ 255 0012 7B68     		ldr	r3, [r7, #4]
+ 256 0014 03F01F03 		and	r3, r3, #31
+ 257 0018 4FF00101 		mov	r1, #1
+ 258 001c 01FA03F3 		lsl	r3, r1, r3
+ 259 0020 1340     		ands	r3, r3, r2
+ 260 0022 002B     		cmp	r3, #0
+ 261 0024 0CBF     		ite	eq
+ 262 0026 0023     		moveq	r3, #0
+ 263 0028 0123     		movne	r3, #1
+ 264 002a DBB2     		uxtb	r3, r3
+ 216:C:/StellarisWare/driverlib\udma.c **** }
+ 265              		.loc 1 216 0
+ 266 002c 1846     		mov	r0, r3
+ 267 002e 07F10C07 		add	r7, r7, #12
+ 268 0032 BD46     		mov	sp, r7
+ 269 0034 80BC     		pop	{r7}
+ 270 0036 7047     		bx	lr
+ 271              		.cfi_endproc
+ 272              	.LFE6:
+ 274              		.section	.text.uDMAControlBaseSet,"ax",%progbits
+ 275              		.align	2
+ 276              		.global	uDMAControlBaseSet
+ 277              		.thumb
+ 278              		.thumb_func
+ 280              	uDMAControlBaseSet:
+ 281              	.LFB7:
+ 217:C:/StellarisWare/driverlib\udma.c **** 
+ 218:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 219:C:/StellarisWare/driverlib\udma.c **** //
+ 220:C:/StellarisWare/driverlib\udma.c **** //! Sets the base address for the channel control table.
+ 221:C:/StellarisWare/driverlib\udma.c **** //!
+ 222:C:/StellarisWare/driverlib\udma.c **** //! \param pControlTable is a pointer to the 1024-byte-aligned base address
+ 223:C:/StellarisWare/driverlib\udma.c **** //! of the uDMA channel control table.
+ 224:C:/StellarisWare/driverlib\udma.c **** //!
+ 225:C:/StellarisWare/driverlib\udma.c **** //! This function configures the base address of the channel control table.
+ 226:C:/StellarisWare/driverlib\udma.c **** //! This table resides in system memory and holds control information for each
+ 227:C:/StellarisWare/driverlib\udma.c **** //! uDMA channel.  The table must be aligned on a 1024-byte boundary.  The base
+ 228:C:/StellarisWare/driverlib\udma.c **** //! address must be configured before any of the channel functions can be used.
+ 229:C:/StellarisWare/driverlib\udma.c **** //!
+ 230:C:/StellarisWare/driverlib\udma.c **** //! The size of the channel control table depends on the number of uDMA
+ 231:C:/StellarisWare/driverlib\udma.c **** //! channels and the transfer modes that are used.  Refer to the introductory
+ 232:C:/StellarisWare/driverlib\udma.c **** //! text and the microcontroller datasheet for more information about the
+ 233:C:/StellarisWare/driverlib\udma.c **** //! channel control table.
+ 234:C:/StellarisWare/driverlib\udma.c **** //!
+ 235:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 236:C:/StellarisWare/driverlib\udma.c **** //
+ 237:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 238:C:/StellarisWare/driverlib\udma.c **** void
+ 239:C:/StellarisWare/driverlib\udma.c **** uDMAControlBaseSet(void *pControlTable)
+ 240:C:/StellarisWare/driverlib\udma.c **** {
+ 282              		.loc 1 240 0
+ 283              		.cfi_startproc
+ 284              		@ args = 0, pretend = 0, frame = 8
+ 285              		@ frame_needed = 1, uses_anonymous_args = 0
+ 286              		@ link register save eliminated.
+ 287 0000 80B4     		push	{r7}
+ 288              	.LCFI17:
+ 289              		.cfi_def_cfa_offset 4
+ 290              		.cfi_offset 7, -4
+ 291 0002 83B0     		sub	sp, sp, #12
+ 292              	.LCFI18:
+ 293              		.cfi_def_cfa_offset 16
+ 294 0004 00AF     		add	r7, sp, #0
+ 295              	.LCFI19:
+ 296              		.cfi_def_cfa_register 7
+ 297 0006 7860     		str	r0, [r7, #4]
+ 241:C:/StellarisWare/driverlib\udma.c ****     //
+ 242:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 243:C:/StellarisWare/driverlib\udma.c ****     //
+ 244:C:/StellarisWare/driverlib\udma.c ****     ASSERT(((unsigned long)pControlTable & ~0x3FF) ==
+ 245:C:/StellarisWare/driverlib\udma.c ****             (unsigned long)pControlTable);
+ 246:C:/StellarisWare/driverlib\udma.c ****     ASSERT((unsigned long)pControlTable >= 0x20000000);
+ 247:C:/StellarisWare/driverlib\udma.c **** 
+ 248:C:/StellarisWare/driverlib\udma.c ****     //
+ 249:C:/StellarisWare/driverlib\udma.c ****     // Program the base address into the register.
+ 250:C:/StellarisWare/driverlib\udma.c ****     //
+ 251:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CTLBASE) = (unsigned long)pControlTable;
+ 298              		.loc 1 251 0
+ 299 0008 4FF20803 		movw	r3, #61448
+ 300 000c C4F20F03 		movt	r3, 16399
+ 301 0010 7A68     		ldr	r2, [r7, #4]
+ 302 0012 1A60     		str	r2, [r3, #0]
+ 252:C:/StellarisWare/driverlib\udma.c **** }
+ 303              		.loc 1 252 0
+ 304 0014 07F10C07 		add	r7, r7, #12
+ 305 0018 BD46     		mov	sp, r7
+ 306 001a 80BC     		pop	{r7}
+ 307 001c 7047     		bx	lr
+ 308              		.cfi_endproc
+ 309              	.LFE7:
+ 311 001e 00BF     		.section	.text.uDMAControlBaseGet,"ax",%progbits
+ 312              		.align	2
+ 313              		.global	uDMAControlBaseGet
+ 314              		.thumb
+ 315              		.thumb_func
+ 317              	uDMAControlBaseGet:
+ 318              	.LFB8:
+ 253:C:/StellarisWare/driverlib\udma.c **** 
+ 254:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 255:C:/StellarisWare/driverlib\udma.c **** //
+ 256:C:/StellarisWare/driverlib\udma.c **** //! Gets the base address for the channel control table.
+ 257:C:/StellarisWare/driverlib\udma.c **** //!
+ 258:C:/StellarisWare/driverlib\udma.c **** //! This function gets the base address of the channel control table.  This
+ 259:C:/StellarisWare/driverlib\udma.c **** //! table resides in system memory and holds control information for each uDMA
+ 260:C:/StellarisWare/driverlib\udma.c **** //! channel.
+ 261:C:/StellarisWare/driverlib\udma.c **** //!
+ 262:C:/StellarisWare/driverlib\udma.c **** //! \return Returns a pointer to the base address of the channel control table.
+ 263:C:/StellarisWare/driverlib\udma.c **** //
+ 264:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 265:C:/StellarisWare/driverlib\udma.c **** void *
+ 266:C:/StellarisWare/driverlib\udma.c **** uDMAControlBaseGet(void)
+ 267:C:/StellarisWare/driverlib\udma.c **** {
+ 319              		.loc 1 267 0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 0
+ 322              		@ frame_needed = 1, uses_anonymous_args = 0
+ 323              		@ link register save eliminated.
+ 324 0000 80B4     		push	{r7}
+ 325              	.LCFI20:
+ 326              		.cfi_def_cfa_offset 4
+ 327              		.cfi_offset 7, -4
+ 328 0002 00AF     		add	r7, sp, #0
+ 329              	.LCFI21:
+ 330              		.cfi_def_cfa_register 7
+ 268:C:/StellarisWare/driverlib\udma.c ****     //
+ 269:C:/StellarisWare/driverlib\udma.c ****     // Read the current value of the control base register and return it to
+ 270:C:/StellarisWare/driverlib\udma.c ****     // the caller.
+ 271:C:/StellarisWare/driverlib\udma.c ****     //
+ 272:C:/StellarisWare/driverlib\udma.c ****     return((void *)HWREG(UDMA_CTLBASE));
+ 331              		.loc 1 272 0
+ 332 0004 4FF20803 		movw	r3, #61448
+ 333 0008 C4F20F03 		movt	r3, 16399
+ 334 000c 1B68     		ldr	r3, [r3, #0]
+ 273:C:/StellarisWare/driverlib\udma.c **** }
+ 335              		.loc 1 273 0
+ 336 000e 1846     		mov	r0, r3
+ 337 0010 BD46     		mov	sp, r7
+ 338 0012 80BC     		pop	{r7}
+ 339 0014 7047     		bx	lr
+ 340              		.cfi_endproc
+ 341              	.LFE8:
+ 343 0016 00BF     		.section	.text.uDMAControlAlternateBaseGet,"ax",%progbits
+ 344              		.align	2
+ 345              		.global	uDMAControlAlternateBaseGet
+ 346              		.thumb
+ 347              		.thumb_func
+ 349              	uDMAControlAlternateBaseGet:
+ 350              	.LFB9:
+ 274:C:/StellarisWare/driverlib\udma.c **** 
+ 275:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 276:C:/StellarisWare/driverlib\udma.c **** //
+ 277:C:/StellarisWare/driverlib\udma.c **** //! Gets the base address for the channel control table alternate structures.
+ 278:C:/StellarisWare/driverlib\udma.c **** //!
+ 279:C:/StellarisWare/driverlib\udma.c **** //! This function gets the base address of the second half of the channel
+ 280:C:/StellarisWare/driverlib\udma.c **** //! control table that holds the alternate control structures for each channel.
+ 281:C:/StellarisWare/driverlib\udma.c **** //!
+ 282:C:/StellarisWare/driverlib\udma.c **** //! \return Returns a pointer to the base address of the second half of the
+ 283:C:/StellarisWare/driverlib\udma.c **** //! channel control table.
+ 284:C:/StellarisWare/driverlib\udma.c **** //
+ 285:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 286:C:/StellarisWare/driverlib\udma.c **** void *
+ 287:C:/StellarisWare/driverlib\udma.c **** uDMAControlAlternateBaseGet(void)
+ 288:C:/StellarisWare/driverlib\udma.c **** {
+ 351              		.loc 1 288 0
+ 352              		.cfi_startproc
+ 353              		@ args = 0, pretend = 0, frame = 0
+ 354              		@ frame_needed = 1, uses_anonymous_args = 0
+ 355              		@ link register save eliminated.
+ 356 0000 80B4     		push	{r7}
+ 357              	.LCFI22:
+ 358              		.cfi_def_cfa_offset 4
+ 359              		.cfi_offset 7, -4
+ 360 0002 00AF     		add	r7, sp, #0
+ 361              	.LCFI23:
+ 362              		.cfi_def_cfa_register 7
+ 289:C:/StellarisWare/driverlib\udma.c ****     //
+ 290:C:/StellarisWare/driverlib\udma.c ****     // Read the current value of the control base register and return it to
+ 291:C:/StellarisWare/driverlib\udma.c ****     // the caller.
+ 292:C:/StellarisWare/driverlib\udma.c ****     //
+ 293:C:/StellarisWare/driverlib\udma.c ****     return((void *)HWREG(UDMA_ALTBASE));
+ 363              		.loc 1 293 0
+ 364 0004 4FF20C03 		movw	r3, #61452
+ 365 0008 C4F20F03 		movt	r3, 16399
+ 366 000c 1B68     		ldr	r3, [r3, #0]
+ 294:C:/StellarisWare/driverlib\udma.c **** }
+ 367              		.loc 1 294 0
+ 368 000e 1846     		mov	r0, r3
+ 369 0010 BD46     		mov	sp, r7
+ 370 0012 80BC     		pop	{r7}
+ 371 0014 7047     		bx	lr
+ 372              		.cfi_endproc
+ 373              	.LFE9:
+ 375 0016 00BF     		.section	.text.uDMAChannelRequest,"ax",%progbits
+ 376              		.align	2
+ 377              		.global	uDMAChannelRequest
+ 378              		.thumb
+ 379              		.thumb_func
+ 381              	uDMAChannelRequest:
+ 382              	.LFB10:
+ 295:C:/StellarisWare/driverlib\udma.c **** 
+ 296:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 297:C:/StellarisWare/driverlib\udma.c **** //
+ 298:C:/StellarisWare/driverlib\udma.c **** //! Requests a uDMA channel to start a transfer.
+ 299:C:/StellarisWare/driverlib\udma.c **** //!
+ 300:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel number on which to request a uDMA
+ 301:C:/StellarisWare/driverlib\udma.c **** //! transfer.
+ 302:C:/StellarisWare/driverlib\udma.c **** //!
+ 303:C:/StellarisWare/driverlib\udma.c **** //! This function allows software to request a uDMA channel to begin a
+ 304:C:/StellarisWare/driverlib\udma.c **** //! transfer.  This function could be used for performing a memory-to-memory
+ 305:C:/StellarisWare/driverlib\udma.c **** //! transfer or if for some reason, a transfer needs to be initiated by
+ 306:C:/StellarisWare/driverlib\udma.c **** //! software instead of the peripheral associated with that channel.
+ 307:C:/StellarisWare/driverlib\udma.c **** //!
+ 308:C:/StellarisWare/driverlib\udma.c **** //! \note If the channel is \b UDMA_CHANNEL_SW and interrupts are used, then
+ 309:C:/StellarisWare/driverlib\udma.c **** //! the completion is signaled on the uDMA dedicated interrupt.  If a
+ 310:C:/StellarisWare/driverlib\udma.c **** //! peripheral channel is used, then the completion is signaled on the
+ 311:C:/StellarisWare/driverlib\udma.c **** //! peripheral's interrupt.
+ 312:C:/StellarisWare/driverlib\udma.c **** //!
+ 313:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 314:C:/StellarisWare/driverlib\udma.c **** //
+ 315:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 316:C:/StellarisWare/driverlib\udma.c **** void
+ 317:C:/StellarisWare/driverlib\udma.c **** uDMAChannelRequest(unsigned long ulChannelNum)
+ 318:C:/StellarisWare/driverlib\udma.c **** {
+ 383              		.loc 1 318 0
+ 384              		.cfi_startproc
+ 385              		@ args = 0, pretend = 0, frame = 8
+ 386              		@ frame_needed = 1, uses_anonymous_args = 0
+ 387              		@ link register save eliminated.
+ 388 0000 80B4     		push	{r7}
+ 389              	.LCFI24:
+ 390              		.cfi_def_cfa_offset 4
+ 391              		.cfi_offset 7, -4
+ 392 0002 83B0     		sub	sp, sp, #12
+ 393              	.LCFI25:
+ 394              		.cfi_def_cfa_offset 16
+ 395 0004 00AF     		add	r7, sp, #0
+ 396              	.LCFI26:
+ 397              		.cfi_def_cfa_register 7
+ 398 0006 7860     		str	r0, [r7, #4]
+ 319:C:/StellarisWare/driverlib\udma.c ****     //
+ 320:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 321:C:/StellarisWare/driverlib\udma.c ****     //
+ 322:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 323:C:/StellarisWare/driverlib\udma.c **** 
+ 324:C:/StellarisWare/driverlib\udma.c ****     //
+ 325:C:/StellarisWare/driverlib\udma.c ****     // Set the bit for this channel in the software uDMA request register.
+ 326:C:/StellarisWare/driverlib\udma.c ****     //
+ 327:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_SWREQ) = 1 << (ulChannelNum & 0x1f);
+ 399              		.loc 1 327 0
+ 400 0008 4FF21403 		movw	r3, #61460
+ 401 000c C4F20F03 		movt	r3, 16399
+ 402 0010 7A68     		ldr	r2, [r7, #4]
+ 403 0012 02F01F02 		and	r2, r2, #31
+ 404 0016 4FF00101 		mov	r1, #1
+ 405 001a 01FA02F2 		lsl	r2, r1, r2
+ 406 001e 1A60     		str	r2, [r3, #0]
+ 328:C:/StellarisWare/driverlib\udma.c **** }
+ 407              		.loc 1 328 0
+ 408 0020 07F10C07 		add	r7, r7, #12
+ 409 0024 BD46     		mov	sp, r7
+ 410 0026 80BC     		pop	{r7}
+ 411 0028 7047     		bx	lr
+ 412              		.cfi_endproc
+ 413              	.LFE10:
+ 415 002a 00BF     		.section	.text.uDMAChannelAttributeEnable,"ax",%progbits
+ 416              		.align	2
+ 417              		.global	uDMAChannelAttributeEnable
+ 418              		.thumb
+ 419              		.thumb_func
+ 421              	uDMAChannelAttributeEnable:
+ 422              	.LFB11:
+ 329:C:/StellarisWare/driverlib\udma.c **** 
+ 330:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 331:C:/StellarisWare/driverlib\udma.c **** //
+ 332:C:/StellarisWare/driverlib\udma.c **** //! Enables attributes of a uDMA channel.
+ 333:C:/StellarisWare/driverlib\udma.c **** //!
+ 334:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel to configure.
+ 335:C:/StellarisWare/driverlib\udma.c **** //! \param ulAttr is a combination of attributes for the channel.
+ 336:C:/StellarisWare/driverlib\udma.c **** //!
+ 337:C:/StellarisWare/driverlib\udma.c **** //! This function is used to enable attributes of a uDMA channel.
+ 338:C:/StellarisWare/driverlib\udma.c **** //!
+ 339:C:/StellarisWare/driverlib\udma.c **** //! The \e ulAttr parameter is the logical OR of any of the following:
+ 340:C:/StellarisWare/driverlib\udma.c **** //!
+ 341:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_USEBURST is used to restrict transfers to use only burst
+ 342:C:/StellarisWare/driverlib\udma.c **** //!   mode.
+ 343:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_ALTSELECT is used to select the alternate control structure
+ 344:C:/StellarisWare/driverlib\udma.c **** //!   for this channel (it is very unlikely that this flag should be used).
+ 345:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_HIGH_PRIORITY is used to set this channel to high priority.
+ 346:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_REQMASK is used to mask the hardware request signal from the
+ 347:C:/StellarisWare/driverlib\udma.c **** //!   peripheral for this channel.
+ 348:C:/StellarisWare/driverlib\udma.c **** //!
+ 349:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 350:C:/StellarisWare/driverlib\udma.c **** //
+ 351:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 352:C:/StellarisWare/driverlib\udma.c **** void
+ 353:C:/StellarisWare/driverlib\udma.c **** uDMAChannelAttributeEnable(unsigned long ulChannelNum, unsigned long ulAttr)
+ 354:C:/StellarisWare/driverlib\udma.c **** {
+ 423              		.loc 1 354 0
+ 424              		.cfi_startproc
+ 425              		@ args = 0, pretend = 0, frame = 8
+ 426              		@ frame_needed = 1, uses_anonymous_args = 0
+ 427              		@ link register save eliminated.
+ 428 0000 80B4     		push	{r7}
+ 429              	.LCFI27:
+ 430              		.cfi_def_cfa_offset 4
+ 431              		.cfi_offset 7, -4
+ 432 0002 83B0     		sub	sp, sp, #12
+ 433              	.LCFI28:
+ 434              		.cfi_def_cfa_offset 16
+ 435 0004 00AF     		add	r7, sp, #0
+ 436              	.LCFI29:
+ 437              		.cfi_def_cfa_register 7
+ 438 0006 7860     		str	r0, [r7, #4]
+ 439 0008 3960     		str	r1, [r7, #0]
+ 355:C:/StellarisWare/driverlib\udma.c ****     //
+ 356:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 357:C:/StellarisWare/driverlib\udma.c ****     //
+ 358:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 359:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulAttr & ~(UDMA_ATTR_USEBURST | UDMA_ATTR_ALTSELECT |
+ 360:C:/StellarisWare/driverlib\udma.c ****                        UDMA_ATTR_HIGH_PRIORITY | UDMA_ATTR_REQMASK)) == 0);
+ 361:C:/StellarisWare/driverlib\udma.c **** 
+ 362:C:/StellarisWare/driverlib\udma.c ****     //
+ 363:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 364:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelNum parameter, extract just the channel number
+ 365:C:/StellarisWare/driverlib\udma.c ****     // from this parameter.
+ 366:C:/StellarisWare/driverlib\udma.c ****     //
+ 367:C:/StellarisWare/driverlib\udma.c ****     ulChannelNum &= 0x1f;
+ 440              		.loc 1 367 0
+ 441 000a 7B68     		ldr	r3, [r7, #4]
+ 442 000c 03F01F03 		and	r3, r3, #31
+ 443 0010 7B60     		str	r3, [r7, #4]
+ 368:C:/StellarisWare/driverlib\udma.c **** 
+ 369:C:/StellarisWare/driverlib\udma.c ****     //
+ 370:C:/StellarisWare/driverlib\udma.c ****     // Set the useburst bit for this channel if set in ulConfig.
+ 371:C:/StellarisWare/driverlib\udma.c ****     //
+ 372:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_USEBURST)
+ 444              		.loc 1 372 0
+ 445 0012 3B68     		ldr	r3, [r7, #0]
+ 446 0014 03F00103 		and	r3, r3, #1
+ 447 0018 DBB2     		uxtb	r3, r3
+ 448 001a 002B     		cmp	r3, #0
+ 449 001c 09D0     		beq	.L13
+ 373:C:/StellarisWare/driverlib\udma.c ****     {
+ 374:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_USEBURSTSET) = 1 << ulChannelNum;
+ 450              		.loc 1 374 0
+ 451 001e 4FF21803 		movw	r3, #61464
+ 452 0022 C4F20F03 		movt	r3, 16399
+ 453 0026 7A68     		ldr	r2, [r7, #4]
+ 454 0028 4FF00101 		mov	r1, #1
+ 455 002c 01FA02F2 		lsl	r2, r1, r2
+ 456 0030 1A60     		str	r2, [r3, #0]
+ 457              	.L13:
+ 375:C:/StellarisWare/driverlib\udma.c ****     }
+ 376:C:/StellarisWare/driverlib\udma.c **** 
+ 377:C:/StellarisWare/driverlib\udma.c ****     //
+ 378:C:/StellarisWare/driverlib\udma.c ****     // Set the alternate control select bit for this channel,
+ 379:C:/StellarisWare/driverlib\udma.c ****     // if set in ulConfig.
+ 380:C:/StellarisWare/driverlib\udma.c ****     //
+ 381:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_ALTSELECT)
+ 458              		.loc 1 381 0
+ 459 0032 3B68     		ldr	r3, [r7, #0]
+ 460 0034 03F00203 		and	r3, r3, #2
+ 461 0038 002B     		cmp	r3, #0
+ 462 003a 09D0     		beq	.L14
+ 382:C:/StellarisWare/driverlib\udma.c ****     {
+ 383:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_ALTSET) = 1 << ulChannelNum;
+ 463              		.loc 1 383 0
+ 464 003c 4FF23003 		movw	r3, #61488
+ 465 0040 C4F20F03 		movt	r3, 16399
+ 466 0044 7A68     		ldr	r2, [r7, #4]
+ 467 0046 4FF00101 		mov	r1, #1
+ 468 004a 01FA02F2 		lsl	r2, r1, r2
+ 469 004e 1A60     		str	r2, [r3, #0]
+ 470              	.L14:
+ 384:C:/StellarisWare/driverlib\udma.c ****     }
+ 385:C:/StellarisWare/driverlib\udma.c **** 
+ 386:C:/StellarisWare/driverlib\udma.c ****     //
+ 387:C:/StellarisWare/driverlib\udma.c ****     // Set the high priority bit for this channel, if set in ulConfig.
+ 388:C:/StellarisWare/driverlib\udma.c ****     //
+ 389:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_HIGH_PRIORITY)
+ 471              		.loc 1 389 0
+ 472 0050 3B68     		ldr	r3, [r7, #0]
+ 473 0052 03F00403 		and	r3, r3, #4
+ 474 0056 002B     		cmp	r3, #0
+ 475 0058 09D0     		beq	.L15
+ 390:C:/StellarisWare/driverlib\udma.c ****     {
+ 391:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_PRIOSET) = 1 << ulChannelNum;
+ 476              		.loc 1 391 0
+ 477 005a 4FF23803 		movw	r3, #61496
+ 478 005e C4F20F03 		movt	r3, 16399
+ 479 0062 7A68     		ldr	r2, [r7, #4]
+ 480 0064 4FF00101 		mov	r1, #1
+ 481 0068 01FA02F2 		lsl	r2, r1, r2
+ 482 006c 1A60     		str	r2, [r3, #0]
+ 483              	.L15:
+ 392:C:/StellarisWare/driverlib\udma.c ****     }
+ 393:C:/StellarisWare/driverlib\udma.c **** 
+ 394:C:/StellarisWare/driverlib\udma.c ****     //
+ 395:C:/StellarisWare/driverlib\udma.c ****     // Set the request mask bit for this channel, if set in ulConfig.
+ 396:C:/StellarisWare/driverlib\udma.c ****     //
+ 397:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_REQMASK)
+ 484              		.loc 1 397 0
+ 485 006e 3B68     		ldr	r3, [r7, #0]
+ 486 0070 03F00803 		and	r3, r3, #8
+ 487 0074 002B     		cmp	r3, #0
+ 488 0076 09D0     		beq	.L12
+ 398:C:/StellarisWare/driverlib\udma.c ****     {
+ 399:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_REQMASKSET) = 1 << ulChannelNum;
+ 489              		.loc 1 399 0
+ 490 0078 4FF22003 		movw	r3, #61472
+ 491 007c C4F20F03 		movt	r3, 16399
+ 492 0080 7A68     		ldr	r2, [r7, #4]
+ 493 0082 4FF00101 		mov	r1, #1
+ 494 0086 01FA02F2 		lsl	r2, r1, r2
+ 495 008a 1A60     		str	r2, [r3, #0]
+ 496              	.L12:
+ 400:C:/StellarisWare/driverlib\udma.c ****     }
+ 401:C:/StellarisWare/driverlib\udma.c **** }
+ 497              		.loc 1 401 0
+ 498 008c 07F10C07 		add	r7, r7, #12
+ 499 0090 BD46     		mov	sp, r7
+ 500 0092 80BC     		pop	{r7}
+ 501 0094 7047     		bx	lr
+ 502              		.cfi_endproc
+ 503              	.LFE11:
+ 505 0096 00BF     		.section	.text.uDMAChannelAttributeDisable,"ax",%progbits
+ 506              		.align	2
+ 507              		.global	uDMAChannelAttributeDisable
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	uDMAChannelAttributeDisable:
+ 512              	.LFB12:
+ 402:C:/StellarisWare/driverlib\udma.c **** 
+ 403:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 404:C:/StellarisWare/driverlib\udma.c **** //
+ 405:C:/StellarisWare/driverlib\udma.c **** //! Disables attributes of a uDMA channel.
+ 406:C:/StellarisWare/driverlib\udma.c **** //!
+ 407:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel to configure.
+ 408:C:/StellarisWare/driverlib\udma.c **** //! \param ulAttr is a combination of attributes for the channel.
+ 409:C:/StellarisWare/driverlib\udma.c **** //!
+ 410:C:/StellarisWare/driverlib\udma.c **** //! This function is used to disable attributes of a uDMA channel.
+ 411:C:/StellarisWare/driverlib\udma.c **** //!
+ 412:C:/StellarisWare/driverlib\udma.c **** //! The \e ulAttr parameter is the logical OR of any of the following:
+ 413:C:/StellarisWare/driverlib\udma.c **** //!
+ 414:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_USEBURST is used to restrict transfers to use only burst
+ 415:C:/StellarisWare/driverlib\udma.c **** //!   mode.
+ 416:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_ALTSELECT is used to select the alternate control structure
+ 417:C:/StellarisWare/driverlib\udma.c **** //!   for this channel.
+ 418:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_HIGH_PRIORITY is used to set this channel to high priority.
+ 419:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_REQMASK is used to mask the hardware request signal from the
+ 420:C:/StellarisWare/driverlib\udma.c **** //!   peripheral for this channel.
+ 421:C:/StellarisWare/driverlib\udma.c **** //!
+ 422:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 423:C:/StellarisWare/driverlib\udma.c **** //
+ 424:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 425:C:/StellarisWare/driverlib\udma.c **** void
+ 426:C:/StellarisWare/driverlib\udma.c **** uDMAChannelAttributeDisable(unsigned long ulChannelNum, unsigned long ulAttr)
+ 427:C:/StellarisWare/driverlib\udma.c **** {
+ 513              		.loc 1 427 0
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 8
+ 516              		@ frame_needed = 1, uses_anonymous_args = 0
+ 517              		@ link register save eliminated.
+ 518 0000 80B4     		push	{r7}
+ 519              	.LCFI30:
+ 520              		.cfi_def_cfa_offset 4
+ 521              		.cfi_offset 7, -4
+ 522 0002 83B0     		sub	sp, sp, #12
+ 523              	.LCFI31:
+ 524              		.cfi_def_cfa_offset 16
+ 525 0004 00AF     		add	r7, sp, #0
+ 526              	.LCFI32:
+ 527              		.cfi_def_cfa_register 7
+ 528 0006 7860     		str	r0, [r7, #4]
+ 529 0008 3960     		str	r1, [r7, #0]
+ 428:C:/StellarisWare/driverlib\udma.c ****     //
+ 429:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 430:C:/StellarisWare/driverlib\udma.c ****     //
+ 431:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 432:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulAttr & ~(UDMA_ATTR_USEBURST | UDMA_ATTR_ALTSELECT |
+ 433:C:/StellarisWare/driverlib\udma.c ****                        UDMA_ATTR_HIGH_PRIORITY | UDMA_ATTR_REQMASK)) == 0);
+ 434:C:/StellarisWare/driverlib\udma.c **** 
+ 435:C:/StellarisWare/driverlib\udma.c ****     //
+ 436:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 437:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelNum parameter, extract just the channel number
+ 438:C:/StellarisWare/driverlib\udma.c ****     // from this parameter.
+ 439:C:/StellarisWare/driverlib\udma.c ****     //
+ 440:C:/StellarisWare/driverlib\udma.c ****     ulChannelNum &= 0x1f;
+ 530              		.loc 1 440 0
+ 531 000a 7B68     		ldr	r3, [r7, #4]
+ 532 000c 03F01F03 		and	r3, r3, #31
+ 533 0010 7B60     		str	r3, [r7, #4]
+ 441:C:/StellarisWare/driverlib\udma.c **** 
+ 442:C:/StellarisWare/driverlib\udma.c ****     //
+ 443:C:/StellarisWare/driverlib\udma.c ****     // Clear the useburst bit for this channel if set in ulConfig.
+ 444:C:/StellarisWare/driverlib\udma.c ****     //
+ 445:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_USEBURST)
+ 534              		.loc 1 445 0
+ 535 0012 3B68     		ldr	r3, [r7, #0]
+ 536 0014 03F00103 		and	r3, r3, #1
+ 537 0018 DBB2     		uxtb	r3, r3
+ 538 001a 002B     		cmp	r3, #0
+ 539 001c 09D0     		beq	.L18
+ 446:C:/StellarisWare/driverlib\udma.c ****     {
+ 447:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_USEBURSTCLR) = 1 << ulChannelNum;
+ 540              		.loc 1 447 0
+ 541 001e 4FF21C03 		movw	r3, #61468
+ 542 0022 C4F20F03 		movt	r3, 16399
+ 543 0026 7A68     		ldr	r2, [r7, #4]
+ 544 0028 4FF00101 		mov	r1, #1
+ 545 002c 01FA02F2 		lsl	r2, r1, r2
+ 546 0030 1A60     		str	r2, [r3, #0]
+ 547              	.L18:
+ 448:C:/StellarisWare/driverlib\udma.c ****     }
+ 449:C:/StellarisWare/driverlib\udma.c **** 
+ 450:C:/StellarisWare/driverlib\udma.c ****     //
+ 451:C:/StellarisWare/driverlib\udma.c ****     // Clear the alternate control select bit for this channel, if set in
+ 452:C:/StellarisWare/driverlib\udma.c ****     // ulConfig.
+ 453:C:/StellarisWare/driverlib\udma.c ****     //
+ 454:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_ALTSELECT)
+ 548              		.loc 1 454 0
+ 549 0032 3B68     		ldr	r3, [r7, #0]
+ 550 0034 03F00203 		and	r3, r3, #2
+ 551 0038 002B     		cmp	r3, #0
+ 552 003a 09D0     		beq	.L19
+ 455:C:/StellarisWare/driverlib\udma.c ****     {
+ 456:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_ALTCLR) = 1 << ulChannelNum;
+ 553              		.loc 1 456 0
+ 554 003c 4FF23403 		movw	r3, #61492
+ 555 0040 C4F20F03 		movt	r3, 16399
+ 556 0044 7A68     		ldr	r2, [r7, #4]
+ 557 0046 4FF00101 		mov	r1, #1
+ 558 004a 01FA02F2 		lsl	r2, r1, r2
+ 559 004e 1A60     		str	r2, [r3, #0]
+ 560              	.L19:
+ 457:C:/StellarisWare/driverlib\udma.c ****     }
+ 458:C:/StellarisWare/driverlib\udma.c **** 
+ 459:C:/StellarisWare/driverlib\udma.c ****     //
+ 460:C:/StellarisWare/driverlib\udma.c ****     // Clear the high priority bit for this channel, if set in ulConfig.
+ 461:C:/StellarisWare/driverlib\udma.c ****     //
+ 462:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_HIGH_PRIORITY)
+ 561              		.loc 1 462 0
+ 562 0050 3B68     		ldr	r3, [r7, #0]
+ 563 0052 03F00403 		and	r3, r3, #4
+ 564 0056 002B     		cmp	r3, #0
+ 565 0058 09D0     		beq	.L20
+ 463:C:/StellarisWare/driverlib\udma.c ****     {
+ 464:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_PRIOCLR) = 1 << ulChannelNum;
+ 566              		.loc 1 464 0
+ 567 005a 4FF23C03 		movw	r3, #61500
+ 568 005e C4F20F03 		movt	r3, 16399
+ 569 0062 7A68     		ldr	r2, [r7, #4]
+ 570 0064 4FF00101 		mov	r1, #1
+ 571 0068 01FA02F2 		lsl	r2, r1, r2
+ 572 006c 1A60     		str	r2, [r3, #0]
+ 573              	.L20:
+ 465:C:/StellarisWare/driverlib\udma.c ****     }
+ 466:C:/StellarisWare/driverlib\udma.c **** 
+ 467:C:/StellarisWare/driverlib\udma.c ****     //
+ 468:C:/StellarisWare/driverlib\udma.c ****     // Clear the request mask bit for this channel, if set in ulConfig.
+ 469:C:/StellarisWare/driverlib\udma.c ****     //
+ 470:C:/StellarisWare/driverlib\udma.c ****     if(ulAttr & UDMA_ATTR_REQMASK)
+ 574              		.loc 1 470 0
+ 575 006e 3B68     		ldr	r3, [r7, #0]
+ 576 0070 03F00803 		and	r3, r3, #8
+ 577 0074 002B     		cmp	r3, #0
+ 578 0076 09D0     		beq	.L17
+ 471:C:/StellarisWare/driverlib\udma.c ****     {
+ 472:C:/StellarisWare/driverlib\udma.c ****         HWREG(UDMA_REQMASKCLR) = 1 << ulChannelNum;
+ 579              		.loc 1 472 0
+ 580 0078 4FF22403 		movw	r3, #61476
+ 581 007c C4F20F03 		movt	r3, 16399
+ 582 0080 7A68     		ldr	r2, [r7, #4]
+ 583 0082 4FF00101 		mov	r1, #1
+ 584 0086 01FA02F2 		lsl	r2, r1, r2
+ 585 008a 1A60     		str	r2, [r3, #0]
+ 586              	.L17:
+ 473:C:/StellarisWare/driverlib\udma.c ****     }
+ 474:C:/StellarisWare/driverlib\udma.c **** }
+ 587              		.loc 1 474 0
+ 588 008c 07F10C07 		add	r7, r7, #12
+ 589 0090 BD46     		mov	sp, r7
+ 590 0092 80BC     		pop	{r7}
+ 591 0094 7047     		bx	lr
+ 592              		.cfi_endproc
+ 593              	.LFE12:
+ 595 0096 00BF     		.section	.text.uDMAChannelAttributeGet,"ax",%progbits
+ 596              		.align	2
+ 597              		.global	uDMAChannelAttributeGet
+ 598              		.thumb
+ 599              		.thumb_func
+ 601              	uDMAChannelAttributeGet:
+ 602              	.LFB13:
+ 475:C:/StellarisWare/driverlib\udma.c **** 
+ 476:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 477:C:/StellarisWare/driverlib\udma.c **** //
+ 478:C:/StellarisWare/driverlib\udma.c **** //! Gets the enabled attributes of a uDMA channel.
+ 479:C:/StellarisWare/driverlib\udma.c **** //!
+ 480:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the channel to configure.
+ 481:C:/StellarisWare/driverlib\udma.c **** //!
+ 482:C:/StellarisWare/driverlib\udma.c **** //! This function returns a combination of flags representing the attributes of
+ 483:C:/StellarisWare/driverlib\udma.c **** //! the uDMA channel.
+ 484:C:/StellarisWare/driverlib\udma.c **** //!
+ 485:C:/StellarisWare/driverlib\udma.c **** //! \return Returns the logical OR of the attributes of the uDMA channel, which
+ 486:C:/StellarisWare/driverlib\udma.c **** //! can be any of the following:
+ 487:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_USEBURST is used to restrict transfers to use only burst
+ 488:C:/StellarisWare/driverlib\udma.c **** //!   mode.
+ 489:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_ALTSELECT is used to select the alternate control structure
+ 490:C:/StellarisWare/driverlib\udma.c **** //!   for this channel.
+ 491:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_HIGH_PRIORITY is used to set this channel to high priority.
+ 492:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_ATTR_REQMASK is used to mask the hardware request signal from the
+ 493:C:/StellarisWare/driverlib\udma.c **** //!   peripheral for this channel.
+ 494:C:/StellarisWare/driverlib\udma.c **** //
+ 495:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 496:C:/StellarisWare/driverlib\udma.c **** unsigned long
+ 497:C:/StellarisWare/driverlib\udma.c **** uDMAChannelAttributeGet(unsigned long ulChannelNum)
+ 498:C:/StellarisWare/driverlib\udma.c **** {
+ 603              		.loc 1 498 0
+ 604              		.cfi_startproc
+ 605              		@ args = 0, pretend = 0, frame = 16
+ 606              		@ frame_needed = 1, uses_anonymous_args = 0
+ 607              		@ link register save eliminated.
+ 608 0000 80B4     		push	{r7}
+ 609              	.LCFI33:
+ 610              		.cfi_def_cfa_offset 4
+ 611              		.cfi_offset 7, -4
+ 612 0002 85B0     		sub	sp, sp, #20
+ 613              	.LCFI34:
+ 614              		.cfi_def_cfa_offset 24
+ 615 0004 00AF     		add	r7, sp, #0
+ 616              	.LCFI35:
+ 617              		.cfi_def_cfa_register 7
+ 618 0006 7860     		str	r0, [r7, #4]
+ 499:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulAttr = 0;
+ 619              		.loc 1 499 0
+ 620 0008 4FF00003 		mov	r3, #0
+ 621 000c FB60     		str	r3, [r7, #12]
+ 500:C:/StellarisWare/driverlib\udma.c **** 
+ 501:C:/StellarisWare/driverlib\udma.c ****     //
+ 502:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 503:C:/StellarisWare/driverlib\udma.c ****     //
+ 504:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 505:C:/StellarisWare/driverlib\udma.c **** 
+ 506:C:/StellarisWare/driverlib\udma.c ****     //
+ 507:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 508:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelNum parameter, extract just the channel number
+ 509:C:/StellarisWare/driverlib\udma.c ****     // from this parameter.
+ 510:C:/StellarisWare/driverlib\udma.c ****     //
+ 511:C:/StellarisWare/driverlib\udma.c ****     ulChannelNum &= 0x1f;
+ 622              		.loc 1 511 0
+ 623 000e 7B68     		ldr	r3, [r7, #4]
+ 624 0010 03F01F03 		and	r3, r3, #31
+ 625 0014 7B60     		str	r3, [r7, #4]
+ 512:C:/StellarisWare/driverlib\udma.c **** 
+ 513:C:/StellarisWare/driverlib\udma.c ****     //
+ 514:C:/StellarisWare/driverlib\udma.c ****     // Check to see if useburst bit is set for this channel.
+ 515:C:/StellarisWare/driverlib\udma.c ****     //
+ 516:C:/StellarisWare/driverlib\udma.c ****     if(HWREG(UDMA_USEBURSTSET) & (1 << ulChannelNum))
+ 626              		.loc 1 516 0
+ 627 0016 4FF21803 		movw	r3, #61464
+ 628 001a C4F20F03 		movt	r3, 16399
+ 629 001e 1A68     		ldr	r2, [r3, #0]
+ 630 0020 7B68     		ldr	r3, [r7, #4]
+ 631 0022 4FF00101 		mov	r1, #1
+ 632 0026 01FA03F3 		lsl	r3, r1, r3
+ 633 002a 1340     		ands	r3, r3, r2
+ 634 002c 002B     		cmp	r3, #0
+ 635 002e 03D0     		beq	.L23
+ 517:C:/StellarisWare/driverlib\udma.c ****     {
+ 518:C:/StellarisWare/driverlib\udma.c ****         ulAttr |= UDMA_ATTR_USEBURST;
+ 636              		.loc 1 518 0
+ 637 0030 FB68     		ldr	r3, [r7, #12]
+ 638 0032 43F00103 		orr	r3, r3, #1
+ 639 0036 FB60     		str	r3, [r7, #12]
+ 640              	.L23:
+ 519:C:/StellarisWare/driverlib\udma.c ****     }
+ 520:C:/StellarisWare/driverlib\udma.c **** 
+ 521:C:/StellarisWare/driverlib\udma.c ****     //
+ 522:C:/StellarisWare/driverlib\udma.c ****     // Check to see if the alternate control bit is set for this channel.
+ 523:C:/StellarisWare/driverlib\udma.c ****     //
+ 524:C:/StellarisWare/driverlib\udma.c ****     if(HWREG(UDMA_ALTSET) & (1 << ulChannelNum))
+ 641              		.loc 1 524 0
+ 642 0038 4FF23003 		movw	r3, #61488
+ 643 003c C4F20F03 		movt	r3, 16399
+ 644 0040 1A68     		ldr	r2, [r3, #0]
+ 645 0042 7B68     		ldr	r3, [r7, #4]
+ 646 0044 4FF00101 		mov	r1, #1
+ 647 0048 01FA03F3 		lsl	r3, r1, r3
+ 648 004c 1340     		ands	r3, r3, r2
+ 649 004e 002B     		cmp	r3, #0
+ 650 0050 03D0     		beq	.L24
+ 525:C:/StellarisWare/driverlib\udma.c ****     {
+ 526:C:/StellarisWare/driverlib\udma.c ****         ulAttr |= UDMA_ATTR_ALTSELECT;
+ 651              		.loc 1 526 0
+ 652 0052 FB68     		ldr	r3, [r7, #12]
+ 653 0054 43F00203 		orr	r3, r3, #2
+ 654 0058 FB60     		str	r3, [r7, #12]
+ 655              	.L24:
+ 527:C:/StellarisWare/driverlib\udma.c ****     }
+ 528:C:/StellarisWare/driverlib\udma.c **** 
+ 529:C:/StellarisWare/driverlib\udma.c ****     //
+ 530:C:/StellarisWare/driverlib\udma.c ****     // Check to see if the high priority bit is set for this channel.
+ 531:C:/StellarisWare/driverlib\udma.c ****     //
+ 532:C:/StellarisWare/driverlib\udma.c ****     if(HWREG(UDMA_PRIOSET) & (1 << ulChannelNum))
+ 656              		.loc 1 532 0
+ 657 005a 4FF23803 		movw	r3, #61496
+ 658 005e C4F20F03 		movt	r3, 16399
+ 659 0062 1A68     		ldr	r2, [r3, #0]
+ 660 0064 7B68     		ldr	r3, [r7, #4]
+ 661 0066 4FF00101 		mov	r1, #1
+ 662 006a 01FA03F3 		lsl	r3, r1, r3
+ 663 006e 1340     		ands	r3, r3, r2
+ 664 0070 002B     		cmp	r3, #0
+ 665 0072 03D0     		beq	.L25
+ 533:C:/StellarisWare/driverlib\udma.c ****     {
+ 534:C:/StellarisWare/driverlib\udma.c ****         ulAttr |= UDMA_ATTR_HIGH_PRIORITY;
+ 666              		.loc 1 534 0
+ 667 0074 FB68     		ldr	r3, [r7, #12]
+ 668 0076 43F00403 		orr	r3, r3, #4
+ 669 007a FB60     		str	r3, [r7, #12]
+ 670              	.L25:
+ 535:C:/StellarisWare/driverlib\udma.c ****     }
+ 536:C:/StellarisWare/driverlib\udma.c **** 
+ 537:C:/StellarisWare/driverlib\udma.c ****     //
+ 538:C:/StellarisWare/driverlib\udma.c ****     // Check to see if the request mask bit is set for this channel.
+ 539:C:/StellarisWare/driverlib\udma.c ****     //
+ 540:C:/StellarisWare/driverlib\udma.c ****     if(HWREG(UDMA_REQMASKSET) & (1 << ulChannelNum))
+ 671              		.loc 1 540 0
+ 672 007c 4FF22003 		movw	r3, #61472
+ 673 0080 C4F20F03 		movt	r3, 16399
+ 674 0084 1A68     		ldr	r2, [r3, #0]
+ 675 0086 7B68     		ldr	r3, [r7, #4]
+ 676 0088 4FF00101 		mov	r1, #1
+ 677 008c 01FA03F3 		lsl	r3, r1, r3
+ 678 0090 1340     		ands	r3, r3, r2
+ 679 0092 002B     		cmp	r3, #0
+ 680 0094 03D0     		beq	.L26
+ 541:C:/StellarisWare/driverlib\udma.c ****     {
+ 542:C:/StellarisWare/driverlib\udma.c ****         ulAttr |= UDMA_ATTR_REQMASK;
+ 681              		.loc 1 542 0
+ 682 0096 FB68     		ldr	r3, [r7, #12]
+ 683 0098 43F00803 		orr	r3, r3, #8
+ 684 009c FB60     		str	r3, [r7, #12]
+ 685              	.L26:
+ 543:C:/StellarisWare/driverlib\udma.c ****     }
+ 544:C:/StellarisWare/driverlib\udma.c **** 
+ 545:C:/StellarisWare/driverlib\udma.c ****     //
+ 546:C:/StellarisWare/driverlib\udma.c ****     // Return the configuration flags.
+ 547:C:/StellarisWare/driverlib\udma.c ****     //
+ 548:C:/StellarisWare/driverlib\udma.c ****     return(ulAttr);
+ 686              		.loc 1 548 0
+ 687 009e FB68     		ldr	r3, [r7, #12]
+ 549:C:/StellarisWare/driverlib\udma.c **** }
+ 688              		.loc 1 549 0
+ 689 00a0 1846     		mov	r0, r3
+ 690 00a2 07F11407 		add	r7, r7, #20
+ 691 00a6 BD46     		mov	sp, r7
+ 692 00a8 80BC     		pop	{r7}
+ 693 00aa 7047     		bx	lr
+ 694              		.cfi_endproc
+ 695              	.LFE13:
+ 697              		.section	.text.uDMAChannelControlSet,"ax",%progbits
+ 698              		.align	2
+ 699              		.global	uDMAChannelControlSet
+ 700              		.thumb
+ 701              		.thumb_func
+ 703              	uDMAChannelControlSet:
+ 704              	.LFB14:
+ 550:C:/StellarisWare/driverlib\udma.c **** 
+ 551:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 552:C:/StellarisWare/driverlib\udma.c **** //
+ 553:C:/StellarisWare/driverlib\udma.c **** //! Sets the control parameters for a uDMA channel control structure.
+ 554:C:/StellarisWare/driverlib\udma.c **** //!
+ 555:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelStructIndex is the logical OR of the uDMA channel number
+ 556:C:/StellarisWare/driverlib\udma.c **** //! with \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT.
+ 557:C:/StellarisWare/driverlib\udma.c **** //! \param ulControl is logical OR of several control values to set the control
+ 558:C:/StellarisWare/driverlib\udma.c **** //! parameters for the channel.
+ 559:C:/StellarisWare/driverlib\udma.c **** //!
+ 560:C:/StellarisWare/driverlib\udma.c **** //! This function is used to set control parameters for a uDMA transfer.  These
+ 561:C:/StellarisWare/driverlib\udma.c **** //! parameters are typically not changed often.
+ 562:C:/StellarisWare/driverlib\udma.c **** //!
+ 563:C:/StellarisWare/driverlib\udma.c **** //! The \e ulChannelStructIndex parameter should be the logical OR of the
+ 564:C:/StellarisWare/driverlib\udma.c **** //! channel number with one of \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT to
+ 565:C:/StellarisWare/driverlib\udma.c **** //! choose whether the primary or alternate data structure is used.
+ 566:C:/StellarisWare/driverlib\udma.c **** //!
+ 567:C:/StellarisWare/driverlib\udma.c **** //! The \e ulControl parameter is the logical OR of five values: the data size,
+ 568:C:/StellarisWare/driverlib\udma.c **** //! the source address increment, the destination address increment, the
+ 569:C:/StellarisWare/driverlib\udma.c **** //! arbitration size, and the use burst flag.  The choices available for each
+ 570:C:/StellarisWare/driverlib\udma.c **** //! of these values is described below.
+ 571:C:/StellarisWare/driverlib\udma.c **** //!
+ 572:C:/StellarisWare/driverlib\udma.c **** //! Choose the data size from one of \b UDMA_SIZE_8, \b UDMA_SIZE_16, or
+ 573:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_SIZE_32 to select a data size of 8, 16, or 32 bits.
+ 574:C:/StellarisWare/driverlib\udma.c **** //!
+ 575:C:/StellarisWare/driverlib\udma.c **** //! Choose the source address increment from one of \b UDMA_SRC_INC_8,
+ 576:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_SRC_INC_16, \b UDMA_SRC_INC_32, or \b UDMA_SRC_INC_NONE to select
+ 577:C:/StellarisWare/driverlib\udma.c **** //! an address increment of 8-bit bytes, 16-bit halfwords, 32-bit words, or
+ 578:C:/StellarisWare/driverlib\udma.c **** //! to select non-incrementing.
+ 579:C:/StellarisWare/driverlib\udma.c **** //!
+ 580:C:/StellarisWare/driverlib\udma.c **** //! Choose the destination address increment from one of \b UDMA_DST_INC_8,
+ 581:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_DST_INC_16, \b UDMA_DST_INC_32, or \b UDMA_DST_INC_NONE to select
+ 582:C:/StellarisWare/driverlib\udma.c **** //! an address increment of 8-bit bytes, 16-bit halfwords, 32-bit words, or
+ 583:C:/StellarisWare/driverlib\udma.c **** //! to select non-incrementing.
+ 584:C:/StellarisWare/driverlib\udma.c **** //!
+ 585:C:/StellarisWare/driverlib\udma.c **** //! The arbitration size determines how many items are transferred before
+ 586:C:/StellarisWare/driverlib\udma.c **** //! the uDMA controller re-arbitrates for the bus.  Choose the arbitration size
+ 587:C:/StellarisWare/driverlib\udma.c **** //! from one of \b UDMA_ARB_1, \b UDMA_ARB_2, \b UDMA_ARB_4, \b UDMA_ARB_8,
+ 588:C:/StellarisWare/driverlib\udma.c **** //! through \b UDMA_ARB_1024 to select the arbitration size from 1 to 1024
+ 589:C:/StellarisWare/driverlib\udma.c **** //! items, in powers of 2.
+ 590:C:/StellarisWare/driverlib\udma.c **** //!
+ 591:C:/StellarisWare/driverlib\udma.c **** //! The value \b UDMA_NEXT_USEBURST is used to force the channel to only
+ 592:C:/StellarisWare/driverlib\udma.c **** //! respond to burst requests at the tail end of a scatter-gather transfer.
+ 593:C:/StellarisWare/driverlib\udma.c **** //!
+ 594:C:/StellarisWare/driverlib\udma.c **** //! \note The address increment cannot be smaller than the data size.
+ 595:C:/StellarisWare/driverlib\udma.c **** //!
+ 596:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 597:C:/StellarisWare/driverlib\udma.c **** //
+ 598:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 599:C:/StellarisWare/driverlib\udma.c **** void
+ 600:C:/StellarisWare/driverlib\udma.c **** uDMAChannelControlSet(unsigned long ulChannelStructIndex,
+ 601:C:/StellarisWare/driverlib\udma.c ****                       unsigned long ulControl)
+ 602:C:/StellarisWare/driverlib\udma.c **** {
+ 705              		.loc 1 602 0
+ 706              		.cfi_startproc
+ 707              		@ args = 0, pretend = 0, frame = 16
+ 708              		@ frame_needed = 1, uses_anonymous_args = 0
+ 709              		@ link register save eliminated.
+ 710 0000 80B4     		push	{r7}
+ 711              	.LCFI36:
+ 712              		.cfi_def_cfa_offset 4
+ 713              		.cfi_offset 7, -4
+ 714 0002 85B0     		sub	sp, sp, #20
+ 715              	.LCFI37:
+ 716              		.cfi_def_cfa_offset 24
+ 717 0004 00AF     		add	r7, sp, #0
+ 718              	.LCFI38:
+ 719              		.cfi_def_cfa_register 7
+ 720 0006 7860     		str	r0, [r7, #4]
+ 721 0008 3960     		str	r1, [r7, #0]
+ 603:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pCtl;
+ 604:C:/StellarisWare/driverlib\udma.c **** 
+ 605:C:/StellarisWare/driverlib\udma.c ****     //
+ 606:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 607:C:/StellarisWare/driverlib\udma.c ****     //
+ 608:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelStructIndex & 0xffff) < 64);
+ 609:C:/StellarisWare/driverlib\udma.c ****     ASSERT(HWREG(UDMA_CTLBASE) != 0);
+ 610:C:/StellarisWare/driverlib\udma.c **** 
+ 611:C:/StellarisWare/driverlib\udma.c ****     //
+ 612:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 613:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelStructIndex parameter, extract just the channel
+ 614:C:/StellarisWare/driverlib\udma.c ****     // index from this parameter.
+ 615:C:/StellarisWare/driverlib\udma.c ****     //
+ 616:C:/StellarisWare/driverlib\udma.c ****     ulChannelStructIndex &= 0x3f;
+ 722              		.loc 1 616 0
+ 723 000a 7B68     		ldr	r3, [r7, #4]
+ 724 000c 03F03F03 		and	r3, r3, #63
+ 725 0010 7B60     		str	r3, [r7, #4]
+ 617:C:/StellarisWare/driverlib\udma.c **** 
+ 618:C:/StellarisWare/driverlib\udma.c ****     //
+ 619:C:/StellarisWare/driverlib\udma.c ****     // Get the base address of the control table.
+ 620:C:/StellarisWare/driverlib\udma.c ****     //
+ 621:C:/StellarisWare/driverlib\udma.c ****     pCtl = (tDMAControlTable *)HWREG(UDMA_CTLBASE);
+ 726              		.loc 1 621 0
+ 727 0012 4FF20803 		movw	r3, #61448
+ 728 0016 C4F20F03 		movt	r3, 16399
+ 729 001a 1B68     		ldr	r3, [r3, #0]
+ 730 001c FB60     		str	r3, [r7, #12]
+ 622:C:/StellarisWare/driverlib\udma.c **** 
+ 623:C:/StellarisWare/driverlib\udma.c ****     //
+ 624:C:/StellarisWare/driverlib\udma.c ****     // Get the current control word value and mask off the fields to be
+ 625:C:/StellarisWare/driverlib\udma.c ****     // changed, then OR in the new settings.
+ 626:C:/StellarisWare/driverlib\udma.c ****     //
+ 627:C:/StellarisWare/driverlib\udma.c ****     pCtl[ulChannelStructIndex].ulControl =
+ 731              		.loc 1 627 0
+ 732 001e 7B68     		ldr	r3, [r7, #4]
+ 733 0020 4FEA0313 		lsl	r3, r3, #4
+ 734 0024 FA68     		ldr	r2, [r7, #12]
+ 735 0026 D218     		adds	r2, r2, r3
+ 628:C:/StellarisWare/driverlib\udma.c ****         ((pCtl[ulChannelStructIndex].ulControl &
+ 736              		.loc 1 628 0
+ 737 0028 7B68     		ldr	r3, [r7, #4]
+ 738 002a 4FEA0313 		lsl	r3, r3, #4
+ 739 002e F968     		ldr	r1, [r7, #12]
+ 740 0030 CB18     		adds	r3, r1, r3
+ 741 0032 9968     		ldr	r1, [r3, #8]
+ 742 0034 43F6F773 		movw	r3, #16375
+ 743 0038 C0F2FC03 		movt	r3, 252
+ 744 003c 0B40     		ands	r3, r3, r1
+ 629:C:/StellarisWare/driverlib\udma.c ****           ~(UDMA_CHCTL_DSTINC_M |
+ 630:C:/StellarisWare/driverlib\udma.c ****             UDMA_CHCTL_DSTSIZE_M |
+ 631:C:/StellarisWare/driverlib\udma.c ****             UDMA_CHCTL_SRCINC_M |
+ 632:C:/StellarisWare/driverlib\udma.c ****             UDMA_CHCTL_SRCSIZE_M |
+ 633:C:/StellarisWare/driverlib\udma.c ****             UDMA_CHCTL_ARBSIZE_M |
+ 634:C:/StellarisWare/driverlib\udma.c ****             UDMA_CHCTL_NXTUSEBURST)) |
+ 745              		.loc 1 634 0
+ 746 003e 3968     		ldr	r1, [r7, #0]
+ 747 0040 0B43     		orrs	r3, r3, r1
+ 627:C:/StellarisWare/driverlib\udma.c ****     pCtl[ulChannelStructIndex].ulControl =
+ 748              		.loc 1 627 0
+ 749 0042 9360     		str	r3, [r2, #8]
+ 635:C:/StellarisWare/driverlib\udma.c ****          ulControl);
+ 636:C:/StellarisWare/driverlib\udma.c **** }
+ 750              		.loc 1 636 0
+ 751 0044 07F11407 		add	r7, r7, #20
+ 752 0048 BD46     		mov	sp, r7
+ 753 004a 80BC     		pop	{r7}
+ 754 004c 7047     		bx	lr
+ 755              		.cfi_endproc
+ 756              	.LFE14:
+ 758 004e 00BF     		.section	.text.uDMAChannelTransferSet,"ax",%progbits
+ 759              		.align	2
+ 760              		.global	uDMAChannelTransferSet
+ 761              		.thumb
+ 762              		.thumb_func
+ 764              	uDMAChannelTransferSet:
+ 765              	.LFB15:
+ 637:C:/StellarisWare/driverlib\udma.c **** 
+ 638:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 639:C:/StellarisWare/driverlib\udma.c **** //
+ 640:C:/StellarisWare/driverlib\udma.c **** //! Sets the transfer parameters for a uDMA channel control structure.
+ 641:C:/StellarisWare/driverlib\udma.c **** //!
+ 642:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelStructIndex is the logical OR of the uDMA channel number
+ 643:C:/StellarisWare/driverlib\udma.c **** //! with either \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT.
+ 644:C:/StellarisWare/driverlib\udma.c **** //! \param ulMode is the type of uDMA transfer.
+ 645:C:/StellarisWare/driverlib\udma.c **** //! \param pvSrcAddr is the source address for the transfer.
+ 646:C:/StellarisWare/driverlib\udma.c **** //! \param pvDstAddr is the destination address for the transfer.
+ 647:C:/StellarisWare/driverlib\udma.c **** //! \param ulTransferSize is the number of data items to transfer.
+ 648:C:/StellarisWare/driverlib\udma.c **** //!
+ 649:C:/StellarisWare/driverlib\udma.c **** //! This function is used to configure the parameters for a uDMA transfer.
+ 650:C:/StellarisWare/driverlib\udma.c **** //! These parameters are typically changed often.  The function
+ 651:C:/StellarisWare/driverlib\udma.c **** //! uDMAChannelControlSet() MUST be called at least once for this channel prior
+ 652:C:/StellarisWare/driverlib\udma.c **** //! to calling this function.
+ 653:C:/StellarisWare/driverlib\udma.c **** //!
+ 654:C:/StellarisWare/driverlib\udma.c **** //! The \e ulChannelStructIndex parameter should be the logical OR of the
+ 655:C:/StellarisWare/driverlib\udma.c **** //! channel number with one of \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT to
+ 656:C:/StellarisWare/driverlib\udma.c **** //! choose whether the primary or alternate data structure is used.
+ 657:C:/StellarisWare/driverlib\udma.c **** //!
+ 658:C:/StellarisWare/driverlib\udma.c **** //! The \e ulMode parameter should be one of the following values:
+ 659:C:/StellarisWare/driverlib\udma.c **** //!
+ 660:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_STOP stops the uDMA transfer.  The controller sets the mode
+ 661:C:/StellarisWare/driverlib\udma.c **** //!   to this value at the end of a transfer.
+ 662:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_BASIC to perform a basic transfer based on request.
+ 663:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_AUTO to perform a transfer that always completes once
+ 664:C:/StellarisWare/driverlib\udma.c **** //!   started even if the request is removed.
+ 665:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_PINGPONG to set up a transfer that switches between the
+ 666:C:/StellarisWare/driverlib\udma.c **** //!   primary and alternate control structures for the channel.  This mode
+ 667:C:/StellarisWare/driverlib\udma.c **** //!   allows use of ping-pong buffering for uDMA transfers.
+ 668:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_MEM_SCATTER_GATHER to set up a memory scatter-gather
+ 669:C:/StellarisWare/driverlib\udma.c **** //!   transfer.
+ 670:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_MODE_PER_SCATTER_GATHER to set up a peripheral scatter-gather
+ 671:C:/StellarisWare/driverlib\udma.c **** //!   transfer.
+ 672:C:/StellarisWare/driverlib\udma.c **** //!
+ 673:C:/StellarisWare/driverlib\udma.c **** //! The \e pvSrcAddr and \e pvDstAddr parameters are pointers to the first
+ 674:C:/StellarisWare/driverlib\udma.c **** //! location of the data to be transferred.  These addresses should be aligned
+ 675:C:/StellarisWare/driverlib\udma.c **** //! according to the item size.  The compiler takes care of this alignment if
+ 676:C:/StellarisWare/driverlib\udma.c **** //! the pointers are pointing to storage of the appropriate data type.
+ 677:C:/StellarisWare/driverlib\udma.c **** //!
+ 678:C:/StellarisWare/driverlib\udma.c **** //! The \e ulTransferSize parameter is the number of data items, not the number
+ 679:C:/StellarisWare/driverlib\udma.c **** //! of bytes.
+ 680:C:/StellarisWare/driverlib\udma.c **** //!
+ 681:C:/StellarisWare/driverlib\udma.c **** //! The two scatter-gather modes, memory and peripheral, are actually different
+ 682:C:/StellarisWare/driverlib\udma.c **** //! depending on whether the primary or alternate control structure is
+ 683:C:/StellarisWare/driverlib\udma.c **** //! selected.  This function looks for the \b UDMA_PRI_SELECT and
+ 684:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_ALT_SELECT flag along with the channel number and sets the
+ 685:C:/StellarisWare/driverlib\udma.c **** //! scatter-gather mode as appropriate for the primary or alternate control
+ 686:C:/StellarisWare/driverlib\udma.c **** //! structure.
+ 687:C:/StellarisWare/driverlib\udma.c **** //!
+ 688:C:/StellarisWare/driverlib\udma.c **** //! The channel must also be enabled using uDMAChannelEnable() after calling
+ 689:C:/StellarisWare/driverlib\udma.c **** //! this function.  The transfer does not begin until the channel has been
+ 690:C:/StellarisWare/driverlib\udma.c **** //! configured and enabled.  Note that the channel is automatically disabled
+ 691:C:/StellarisWare/driverlib\udma.c **** //! after the transfer is completed, meaning that uDMAChannelEnable() must be
+ 692:C:/StellarisWare/driverlib\udma.c **** //! called again after setting up the next transfer.
+ 693:C:/StellarisWare/driverlib\udma.c **** //!
+ 694:C:/StellarisWare/driverlib\udma.c **** //! \note Great care must be taken to not modify a channel control structure
+ 695:C:/StellarisWare/driverlib\udma.c **** //! that is in use or else the results are unpredictable, including the
+ 696:C:/StellarisWare/driverlib\udma.c **** //! possibility of undesired data transfers to or from memory or peripherals.
+ 697:C:/StellarisWare/driverlib\udma.c **** //! For BASIC and AUTO modes, it is safe to make changes when the channel is
+ 698:C:/StellarisWare/driverlib\udma.c **** //! disabled, or the uDMAChannelModeGet() returns \b UDMA_MODE_STOP.  For
+ 699:C:/StellarisWare/driverlib\udma.c **** //! PINGPONG or one of the SCATTER_GATHER modes, it is safe to modify the
+ 700:C:/StellarisWare/driverlib\udma.c **** //! primary or alternate control structure only when the other is being used.
+ 701:C:/StellarisWare/driverlib\udma.c **** //! The uDMAChannelModeGet() function returns \b UDMA_MODE_STOP when a
+ 702:C:/StellarisWare/driverlib\udma.c **** //! channel control structure is inactive and safe to modify.
+ 703:C:/StellarisWare/driverlib\udma.c **** //!
+ 704:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 705:C:/StellarisWare/driverlib\udma.c **** //
+ 706:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 707:C:/StellarisWare/driverlib\udma.c **** void
+ 708:C:/StellarisWare/driverlib\udma.c **** uDMAChannelTransferSet(unsigned long ulChannelStructIndex,
+ 709:C:/StellarisWare/driverlib\udma.c ****                        unsigned long ulMode, void *pvSrcAddr, void *pvDstAddr,
+ 710:C:/StellarisWare/driverlib\udma.c ****                        unsigned long ulTransferSize)
+ 711:C:/StellarisWare/driverlib\udma.c **** {
+ 766              		.loc 1 711 0
+ 767              		.cfi_startproc
+ 768              		@ args = 4, pretend = 0, frame = 32
+ 769              		@ frame_needed = 1, uses_anonymous_args = 0
+ 770              		@ link register save eliminated.
+ 771 0000 80B4     		push	{r7}
+ 772              	.LCFI39:
+ 773              		.cfi_def_cfa_offset 4
+ 774              		.cfi_offset 7, -4
+ 775 0002 89B0     		sub	sp, sp, #36
+ 776              	.LCFI40:
+ 777              		.cfi_def_cfa_offset 40
+ 778 0004 00AF     		add	r7, sp, #0
+ 779              	.LCFI41:
+ 780              		.cfi_def_cfa_register 7
+ 781 0006 F860     		str	r0, [r7, #12]
+ 782 0008 B960     		str	r1, [r7, #8]
+ 783 000a 7A60     		str	r2, [r7, #4]
+ 784 000c 3B60     		str	r3, [r7, #0]
+ 712:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pControlTable;
+ 713:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulControl;
+ 714:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulInc;
+ 715:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulBufferBytes;
+ 716:C:/StellarisWare/driverlib\udma.c **** 
+ 717:C:/StellarisWare/driverlib\udma.c ****     //
+ 718:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 719:C:/StellarisWare/driverlib\udma.c ****     //
+ 720:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelStructIndex & 0xffff) < 64);
+ 721:C:/StellarisWare/driverlib\udma.c ****     ASSERT(HWREG(UDMA_CTLBASE) != 0);
+ 722:C:/StellarisWare/driverlib\udma.c ****     ASSERT(ulMode <= UDMA_MODE_PER_SCATTER_GATHER);
+ 723:C:/StellarisWare/driverlib\udma.c ****     ASSERT((unsigned long)pvSrcAddr >= 0x20000000);
+ 724:C:/StellarisWare/driverlib\udma.c ****     ASSERT((unsigned long)pvDstAddr >= 0x20000000);
+ 725:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulTransferSize != 0) && (ulTransferSize <= 1024));
+ 726:C:/StellarisWare/driverlib\udma.c **** 
+ 727:C:/StellarisWare/driverlib\udma.c ****     //
+ 728:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 729:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelStructIndex parameter, extract just the channel
+ 730:C:/StellarisWare/driverlib\udma.c ****     // index from this parameter.
+ 731:C:/StellarisWare/driverlib\udma.c ****     //
+ 732:C:/StellarisWare/driverlib\udma.c ****     ulChannelStructIndex &= 0x3f;
+ 785              		.loc 1 732 0
+ 786 000e FB68     		ldr	r3, [r7, #12]
+ 787 0010 03F03F03 		and	r3, r3, #63
+ 788 0014 FB60     		str	r3, [r7, #12]
+ 733:C:/StellarisWare/driverlib\udma.c **** 
+ 734:C:/StellarisWare/driverlib\udma.c ****     //
+ 735:C:/StellarisWare/driverlib\udma.c ****     // Get the base address of the control table.
+ 736:C:/StellarisWare/driverlib\udma.c ****     //
+ 737:C:/StellarisWare/driverlib\udma.c ****     pControlTable = (tDMAControlTable *)HWREG(UDMA_CTLBASE);
+ 789              		.loc 1 737 0
+ 790 0016 4FF20803 		movw	r3, #61448
+ 791 001a C4F20F03 		movt	r3, 16399
+ 792 001e 1B68     		ldr	r3, [r3, #0]
+ 793 0020 FB61     		str	r3, [r7, #28]
+ 738:C:/StellarisWare/driverlib\udma.c **** 
+ 739:C:/StellarisWare/driverlib\udma.c ****     //
+ 740:C:/StellarisWare/driverlib\udma.c ****     // Get the current control word value and mask off the mode and size
+ 741:C:/StellarisWare/driverlib\udma.c ****     // fields.
+ 742:C:/StellarisWare/driverlib\udma.c ****     //
+ 743:C:/StellarisWare/driverlib\udma.c ****     ulControl = (pControlTable[ulChannelStructIndex].ulControl &
+ 794              		.loc 1 743 0
+ 795 0022 FB68     		ldr	r3, [r7, #12]
+ 796 0024 4FEA0313 		lsl	r3, r3, #4
+ 797 0028 FA69     		ldr	r2, [r7, #28]
+ 798 002a D318     		adds	r3, r2, r3
+ 799 002c 9B68     		ldr	r3, [r3, #8]
+ 800 002e 23F47E53 		bic	r3, r3, #16256
+ 801 0032 23F07703 		bic	r3, r3, #119
+ 802 0036 BB61     		str	r3, [r7, #24]
+ 744:C:/StellarisWare/driverlib\udma.c ****                  ~(UDMA_CHCTL_XFERSIZE_M | UDMA_CHCTL_XFERMODE_M));
+ 745:C:/StellarisWare/driverlib\udma.c **** 
+ 746:C:/StellarisWare/driverlib\udma.c ****     //
+ 747:C:/StellarisWare/driverlib\udma.c ****     // Adjust the mode if the alt control structure is selected.
+ 748:C:/StellarisWare/driverlib\udma.c ****     //
+ 749:C:/StellarisWare/driverlib\udma.c ****     if(ulChannelStructIndex & UDMA_ALT_SELECT)
+ 803              		.loc 1 749 0
+ 804 0038 FB68     		ldr	r3, [r7, #12]
+ 805 003a 03F02003 		and	r3, r3, #32
+ 806 003e 002B     		cmp	r3, #0
+ 807 0040 09D0     		beq	.L29
+ 750:C:/StellarisWare/driverlib\udma.c ****     {
+ 751:C:/StellarisWare/driverlib\udma.c ****         if((ulMode == UDMA_MODE_MEM_SCATTER_GATHER) ||
+ 808              		.loc 1 751 0
+ 809 0042 BB68     		ldr	r3, [r7, #8]
+ 810 0044 042B     		cmp	r3, #4
+ 811 0046 02D0     		beq	.L30
+ 812              		.loc 1 751 0 is_stmt 0 discriminator 1
+ 813 0048 BB68     		ldr	r3, [r7, #8]
+ 814 004a 062B     		cmp	r3, #6
+ 815 004c 03D1     		bne	.L29
+ 816              	.L30:
+ 752:C:/StellarisWare/driverlib\udma.c ****            (ulMode == UDMA_MODE_PER_SCATTER_GATHER))
+ 753:C:/StellarisWare/driverlib\udma.c ****         {
+ 754:C:/StellarisWare/driverlib\udma.c ****             ulMode |= UDMA_MODE_ALT_SELECT;
+ 817              		.loc 1 754 0 is_stmt 1
+ 818 004e BB68     		ldr	r3, [r7, #8]
+ 819 0050 43F00103 		orr	r3, r3, #1
+ 820 0054 BB60     		str	r3, [r7, #8]
+ 821              	.L29:
+ 755:C:/StellarisWare/driverlib\udma.c ****         }
+ 756:C:/StellarisWare/driverlib\udma.c ****     }
+ 757:C:/StellarisWare/driverlib\udma.c **** 
+ 758:C:/StellarisWare/driverlib\udma.c ****     //
+ 759:C:/StellarisWare/driverlib\udma.c ****     // Set the transfer size and mode in the control word (but don't write the
+ 760:C:/StellarisWare/driverlib\udma.c ****     // control word yet as it could kick off a transfer).
+ 761:C:/StellarisWare/driverlib\udma.c ****     //
+ 762:C:/StellarisWare/driverlib\udma.c ****     ulControl |= ulMode | ((ulTransferSize - 1) << 4);
+ 822              		.loc 1 762 0
+ 823 0056 BB6A     		ldr	r3, [r7, #40]
+ 824 0058 03F1FF33 		add	r3, r3, #-1
+ 825 005c 4FEA0312 		lsl	r2, r3, #4
+ 826 0060 BB68     		ldr	r3, [r7, #8]
+ 827 0062 1343     		orrs	r3, r3, r2
+ 828 0064 BA69     		ldr	r2, [r7, #24]
+ 829 0066 1343     		orrs	r3, r3, r2
+ 830 0068 BB61     		str	r3, [r7, #24]
+ 763:C:/StellarisWare/driverlib\udma.c **** 
+ 764:C:/StellarisWare/driverlib\udma.c ****     //
+ 765:C:/StellarisWare/driverlib\udma.c ****     // Get the address increment value for the source, from the control word.
+ 766:C:/StellarisWare/driverlib\udma.c ****     //
+ 767:C:/StellarisWare/driverlib\udma.c ****     ulInc = (ulControl & UDMA_CHCTL_SRCINC_M);
+ 831              		.loc 1 767 0
+ 832 006a BB69     		ldr	r3, [r7, #24]
+ 833 006c 03F04063 		and	r3, r3, #201326592
+ 834 0070 7B61     		str	r3, [r7, #20]
+ 768:C:/StellarisWare/driverlib\udma.c **** 
+ 769:C:/StellarisWare/driverlib\udma.c ****     //
+ 770:C:/StellarisWare/driverlib\udma.c ****     // Compute the ending source address of the transfer.  If the source
+ 771:C:/StellarisWare/driverlib\udma.c ****     // increment is set to none, then the ending address is the same as the
+ 772:C:/StellarisWare/driverlib\udma.c ****     // beginning.
+ 773:C:/StellarisWare/driverlib\udma.c ****     //
+ 774:C:/StellarisWare/driverlib\udma.c ****     if(ulInc != UDMA_SRC_INC_NONE)
+ 835              		.loc 1 774 0
+ 836 0072 7B69     		ldr	r3, [r7, #20]
+ 837 0074 B3F1406F 		cmp	r3, #201326592
+ 838 0078 0ED0     		beq	.L31
+ 775:C:/StellarisWare/driverlib\udma.c ****     {
+ 776:C:/StellarisWare/driverlib\udma.c ****         ulInc = ulInc >> 26;
+ 839              		.loc 1 776 0
+ 840 007a 7B69     		ldr	r3, [r7, #20]
+ 841 007c 4FEA9363 		lsr	r3, r3, #26
+ 842 0080 7B61     		str	r3, [r7, #20]
+ 777:C:/StellarisWare/driverlib\udma.c ****         ulBufferBytes = ulTransferSize << ulInc;
+ 843              		.loc 1 777 0
+ 844 0082 7B69     		ldr	r3, [r7, #20]
+ 845 0084 BA6A     		ldr	r2, [r7, #40]
+ 846 0086 02FA03F3 		lsl	r3, r2, r3
+ 847 008a 3B61     		str	r3, [r7, #16]
+ 778:C:/StellarisWare/driverlib\udma.c ****         pvSrcAddr = (void *)((unsigned long)pvSrcAddr + ulBufferBytes - 1);
+ 848              		.loc 1 778 0
+ 849 008c 7A68     		ldr	r2, [r7, #4]
+ 850 008e 3B69     		ldr	r3, [r7, #16]
+ 851 0090 D318     		adds	r3, r2, r3
+ 852 0092 03F1FF33 		add	r3, r3, #-1
+ 853 0096 7B60     		str	r3, [r7, #4]
+ 854              	.L31:
+ 779:C:/StellarisWare/driverlib\udma.c ****     }
+ 780:C:/StellarisWare/driverlib\udma.c **** 
+ 781:C:/StellarisWare/driverlib\udma.c ****     //
+ 782:C:/StellarisWare/driverlib\udma.c ****     // Load the source ending address into the control block.
+ 783:C:/StellarisWare/driverlib\udma.c ****     //
+ 784:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelStructIndex].pvSrcEndAddr = pvSrcAddr;
+ 855              		.loc 1 784 0
+ 856 0098 FB68     		ldr	r3, [r7, #12]
+ 857 009a 4FEA0313 		lsl	r3, r3, #4
+ 858 009e FA69     		ldr	r2, [r7, #28]
+ 859 00a0 D318     		adds	r3, r2, r3
+ 860 00a2 7A68     		ldr	r2, [r7, #4]
+ 861 00a4 1A60     		str	r2, [r3, #0]
+ 785:C:/StellarisWare/driverlib\udma.c **** 
+ 786:C:/StellarisWare/driverlib\udma.c ****     //
+ 787:C:/StellarisWare/driverlib\udma.c ****     // Get the address increment value for the destination, from the control
+ 788:C:/StellarisWare/driverlib\udma.c ****     // word.
+ 789:C:/StellarisWare/driverlib\udma.c ****     //
+ 790:C:/StellarisWare/driverlib\udma.c ****     ulInc = ulControl & UDMA_CHCTL_DSTINC_M;
+ 862              		.loc 1 790 0
+ 863 00a6 BB69     		ldr	r3, [r7, #24]
+ 864 00a8 03F04043 		and	r3, r3, #-1073741824
+ 865 00ac 7B61     		str	r3, [r7, #20]
+ 791:C:/StellarisWare/driverlib\udma.c **** 
+ 792:C:/StellarisWare/driverlib\udma.c ****     //
+ 793:C:/StellarisWare/driverlib\udma.c ****     // Compute the ending destination address of the transfer.  If the
+ 794:C:/StellarisWare/driverlib\udma.c ****     // destination increment is set to none, then the ending address is the
+ 795:C:/StellarisWare/driverlib\udma.c ****     // same as the beginning.
+ 796:C:/StellarisWare/driverlib\udma.c ****     //
+ 797:C:/StellarisWare/driverlib\udma.c ****     if(ulInc != UDMA_DST_INC_NONE)
+ 866              		.loc 1 797 0
+ 867 00ae 7B69     		ldr	r3, [r7, #20]
+ 868 00b0 B3F1404F 		cmp	r3, #-1073741824
+ 869 00b4 1FD0     		beq	.L32
+ 798:C:/StellarisWare/driverlib\udma.c ****     {
+ 799:C:/StellarisWare/driverlib\udma.c ****         //
+ 800:C:/StellarisWare/driverlib\udma.c ****         // There is a special case if this is setting up a scatter-gather
+ 801:C:/StellarisWare/driverlib\udma.c ****         // transfer.  The destination pointer must point to the end of
+ 802:C:/StellarisWare/driverlib\udma.c ****         // the alternate structure for this channel instead of calculating
+ 803:C:/StellarisWare/driverlib\udma.c ****         // the end of the buffer in the normal way.
+ 804:C:/StellarisWare/driverlib\udma.c ****         //
+ 805:C:/StellarisWare/driverlib\udma.c ****         if((ulMode == UDMA_MODE_MEM_SCATTER_GATHER) ||
+ 870              		.loc 1 805 0
+ 871 00b6 BB68     		ldr	r3, [r7, #8]
+ 872 00b8 042B     		cmp	r3, #4
+ 873 00ba 02D0     		beq	.L33
+ 874              		.loc 1 805 0 is_stmt 0 discriminator 1
+ 875 00bc BB68     		ldr	r3, [r7, #8]
+ 876 00be 062B     		cmp	r3, #6
+ 877 00c0 0AD1     		bne	.L34
+ 878              	.L33:
+ 806:C:/StellarisWare/driverlib\udma.c ****            (ulMode == UDMA_MODE_PER_SCATTER_GATHER))
+ 807:C:/StellarisWare/driverlib\udma.c ****         {
+ 808:C:/StellarisWare/driverlib\udma.c ****             pvDstAddr =
+ 809:C:/StellarisWare/driverlib\udma.c ****                 (void *)&pControlTable[ulChannelStructIndex |
+ 879              		.loc 1 809 0 is_stmt 1
+ 880 00c2 FB68     		ldr	r3, [r7, #12]
+ 881 00c4 43F02003 		orr	r3, r3, #32
+ 882 00c8 4FEA0313 		lsl	r3, r3, #4
+ 883 00cc FA69     		ldr	r2, [r7, #28]
+ 884 00ce D318     		adds	r3, r2, r3
+ 808:C:/StellarisWare/driverlib\udma.c ****             pvDstAddr =
+ 885              		.loc 1 808 0
+ 886 00d0 03F10C03 		add	r3, r3, #12
+ 887 00d4 3B60     		str	r3, [r7, #0]
+ 888 00d6 0EE0     		b	.L32
+ 889              	.L34:
+ 810:C:/StellarisWare/driverlib\udma.c ****                                        UDMA_ALT_SELECT].ulSpare;
+ 811:C:/StellarisWare/driverlib\udma.c ****         }
+ 812:C:/StellarisWare/driverlib\udma.c ****         //
+ 813:C:/StellarisWare/driverlib\udma.c ****         // Not a scatter-gather transfer, calculate end pointer normally.
+ 814:C:/StellarisWare/driverlib\udma.c ****         //
+ 815:C:/StellarisWare/driverlib\udma.c ****         else
+ 816:C:/StellarisWare/driverlib\udma.c ****         {
+ 817:C:/StellarisWare/driverlib\udma.c ****             ulInc = ulInc >> 30;
+ 890              		.loc 1 817 0
+ 891 00d8 7B69     		ldr	r3, [r7, #20]
+ 892 00da 4FEA9373 		lsr	r3, r3, #30
+ 893 00de 7B61     		str	r3, [r7, #20]
+ 818:C:/StellarisWare/driverlib\udma.c ****             ulBufferBytes = ulTransferSize << ulInc;
+ 894              		.loc 1 818 0
+ 895 00e0 7B69     		ldr	r3, [r7, #20]
+ 896 00e2 BA6A     		ldr	r2, [r7, #40]
+ 897 00e4 02FA03F3 		lsl	r3, r2, r3
+ 898 00e8 3B61     		str	r3, [r7, #16]
+ 819:C:/StellarisWare/driverlib\udma.c ****             pvDstAddr = (void *)((unsigned long)pvDstAddr + ulBufferBytes - 1);
+ 899              		.loc 1 819 0
+ 900 00ea 3A68     		ldr	r2, [r7, #0]
+ 901 00ec 3B69     		ldr	r3, [r7, #16]
+ 902 00ee D318     		adds	r3, r2, r3
+ 903 00f0 03F1FF33 		add	r3, r3, #-1
+ 904 00f4 3B60     		str	r3, [r7, #0]
+ 905              	.L32:
+ 820:C:/StellarisWare/driverlib\udma.c ****         }
+ 821:C:/StellarisWare/driverlib\udma.c ****     }
+ 822:C:/StellarisWare/driverlib\udma.c **** 
+ 823:C:/StellarisWare/driverlib\udma.c ****     //
+ 824:C:/StellarisWare/driverlib\udma.c ****     // Load the destination ending address into the control block.
+ 825:C:/StellarisWare/driverlib\udma.c ****     //
+ 826:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelStructIndex].pvDstEndAddr = pvDstAddr;
+ 906              		.loc 1 826 0
+ 907 00f6 FB68     		ldr	r3, [r7, #12]
+ 908 00f8 4FEA0313 		lsl	r3, r3, #4
+ 909 00fc FA69     		ldr	r2, [r7, #28]
+ 910 00fe D318     		adds	r3, r2, r3
+ 911 0100 3A68     		ldr	r2, [r7, #0]
+ 912 0102 5A60     		str	r2, [r3, #4]
+ 827:C:/StellarisWare/driverlib\udma.c **** 
+ 828:C:/StellarisWare/driverlib\udma.c ****     //
+ 829:C:/StellarisWare/driverlib\udma.c ****     // Write the new control word value.
+ 830:C:/StellarisWare/driverlib\udma.c ****     //
+ 831:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelStructIndex].ulControl = ulControl;
+ 913              		.loc 1 831 0
+ 914 0104 FB68     		ldr	r3, [r7, #12]
+ 915 0106 4FEA0313 		lsl	r3, r3, #4
+ 916 010a FA69     		ldr	r2, [r7, #28]
+ 917 010c D318     		adds	r3, r2, r3
+ 918 010e BA69     		ldr	r2, [r7, #24]
+ 919 0110 9A60     		str	r2, [r3, #8]
+ 832:C:/StellarisWare/driverlib\udma.c **** }
+ 920              		.loc 1 832 0
+ 921 0112 07F12407 		add	r7, r7, #36
+ 922 0116 BD46     		mov	sp, r7
+ 923 0118 80BC     		pop	{r7}
+ 924 011a 7047     		bx	lr
+ 925              		.cfi_endproc
+ 926              	.LFE15:
+ 928              		.section	.text.uDMAChannelScatterGatherSet,"ax",%progbits
+ 929              		.align	2
+ 930              		.global	uDMAChannelScatterGatherSet
+ 931              		.thumb
+ 932              		.thumb_func
+ 934              	uDMAChannelScatterGatherSet:
+ 935              	.LFB16:
+ 833:C:/StellarisWare/driverlib\udma.c **** 
+ 834:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 835:C:/StellarisWare/driverlib\udma.c **** //
+ 836:C:/StellarisWare/driverlib\udma.c **** //! Configures a uDMA channel for scatter-gather mode.
+ 837:C:/StellarisWare/driverlib\udma.c **** //!
+ 838:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelNum is the uDMA channel number.
+ 839:C:/StellarisWare/driverlib\udma.c **** //! \param ulTaskCount is the number of scatter-gather tasks to execute.
+ 840:C:/StellarisWare/driverlib\udma.c **** //! \param pvTaskList is a pointer to the beginning of the scatter-gather
+ 841:C:/StellarisWare/driverlib\udma.c **** //! task list.
+ 842:C:/StellarisWare/driverlib\udma.c **** //! \param ulIsPeriphSG is a flag to indicate it is a peripheral scatter-gather
+ 843:C:/StellarisWare/driverlib\udma.c **** //! transfer (else it is memory scatter-gather transfer)
+ 844:C:/StellarisWare/driverlib\udma.c **** //!
+ 845:C:/StellarisWare/driverlib\udma.c **** //! This function is used to configure a channel for scatter-gather mode.
+ 846:C:/StellarisWare/driverlib\udma.c **** //! The caller must have already set up a task list and must pass a pointer to
+ 847:C:/StellarisWare/driverlib\udma.c **** //! the start of the task list as the \e pvTaskList parameter.  The
+ 848:C:/StellarisWare/driverlib\udma.c **** //! \e ulTaskCount parameter is the count of tasks in the task list, not the
+ 849:C:/StellarisWare/driverlib\udma.c **** //! size of the task list.  The flag \e bIsPeriphSG should be used to indicate
+ 850:C:/StellarisWare/driverlib\udma.c **** //! if scatter-gather should be configured for peripheral or memory
+ 851:C:/StellarisWare/driverlib\udma.c **** //! operation.
+ 852:C:/StellarisWare/driverlib\udma.c **** //!
+ 853:C:/StellarisWare/driverlib\udma.c **** //! \sa uDMATaskStructEntry
+ 854:C:/StellarisWare/driverlib\udma.c **** //!
+ 855:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+ 856:C:/StellarisWare/driverlib\udma.c **** //
+ 857:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 858:C:/StellarisWare/driverlib\udma.c **** void
+ 859:C:/StellarisWare/driverlib\udma.c **** uDMAChannelScatterGatherSet(unsigned long ulChannelNum, unsigned ulTaskCount,
+ 860:C:/StellarisWare/driverlib\udma.c ****                             void *pvTaskList, unsigned long ulIsPeriphSG)
+ 861:C:/StellarisWare/driverlib\udma.c **** {
+ 936              		.loc 1 861 0
+ 937              		.cfi_startproc
+ 938              		@ args = 0, pretend = 0, frame = 24
+ 939              		@ frame_needed = 1, uses_anonymous_args = 0
+ 940              		@ link register save eliminated.
+ 941 0000 80B4     		push	{r7}
+ 942              	.LCFI42:
+ 943              		.cfi_def_cfa_offset 4
+ 944              		.cfi_offset 7, -4
+ 945 0002 87B0     		sub	sp, sp, #28
+ 946              	.LCFI43:
+ 947              		.cfi_def_cfa_offset 32
+ 948 0004 00AF     		add	r7, sp, #0
+ 949              	.LCFI44:
+ 950              		.cfi_def_cfa_register 7
+ 951 0006 F860     		str	r0, [r7, #12]
+ 952 0008 B960     		str	r1, [r7, #8]
+ 953 000a 7A60     		str	r2, [r7, #4]
+ 954 000c 3B60     		str	r3, [r7, #0]
+ 862:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pControlTable;
+ 863:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pTaskTable;
+ 864:C:/StellarisWare/driverlib\udma.c **** 
+ 865:C:/StellarisWare/driverlib\udma.c ****     //
+ 866:C:/StellarisWare/driverlib\udma.c ****     // Check the parameters
+ 867:C:/StellarisWare/driverlib\udma.c ****     //
+ 868:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelNum & 0xffff) < 32);
+ 869:C:/StellarisWare/driverlib\udma.c ****     ASSERT(HWREG(UDMA_CTLBASE) != 0);
+ 870:C:/StellarisWare/driverlib\udma.c ****     ASSERT(pvTaskList != 0);
+ 871:C:/StellarisWare/driverlib\udma.c ****     ASSERT(ulTaskCount <= 1024);
+ 872:C:/StellarisWare/driverlib\udma.c ****     ASSERT(ulTaskCount != 0);
+ 873:C:/StellarisWare/driverlib\udma.c **** 
+ 874:C:/StellarisWare/driverlib\udma.c ****     //
+ 875:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 876:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelNum parameter, extract just the channel number
+ 877:C:/StellarisWare/driverlib\udma.c ****     // from this parameter.
+ 878:C:/StellarisWare/driverlib\udma.c ****     //
+ 879:C:/StellarisWare/driverlib\udma.c ****     ulChannelNum &= 0x1f;
+ 955              		.loc 1 879 0
+ 956 000e FB68     		ldr	r3, [r7, #12]
+ 957 0010 03F01F03 		and	r3, r3, #31
+ 958 0014 FB60     		str	r3, [r7, #12]
+ 880:C:/StellarisWare/driverlib\udma.c **** 
+ 881:C:/StellarisWare/driverlib\udma.c ****     //
+ 882:C:/StellarisWare/driverlib\udma.c ****     // Get the base address of the control table.
+ 883:C:/StellarisWare/driverlib\udma.c ****     //
+ 884:C:/StellarisWare/driverlib\udma.c ****     pControlTable = (tDMAControlTable *)HWREG(UDMA_CTLBASE);
+ 959              		.loc 1 884 0
+ 960 0016 4FF20803 		movw	r3, #61448
+ 961 001a C4F20F03 		movt	r3, 16399
+ 962 001e 1B68     		ldr	r3, [r3, #0]
+ 963 0020 7B61     		str	r3, [r7, #20]
+ 885:C:/StellarisWare/driverlib\udma.c **** 
+ 886:C:/StellarisWare/driverlib\udma.c ****     //
+ 887:C:/StellarisWare/driverlib\udma.c ****     // Get a handy pointer to the task list
+ 888:C:/StellarisWare/driverlib\udma.c ****     //
+ 889:C:/StellarisWare/driverlib\udma.c ****     pTaskTable = (tDMAControlTable *)pvTaskList;
+ 964              		.loc 1 889 0
+ 965 0022 7B68     		ldr	r3, [r7, #4]
+ 966 0024 3B61     		str	r3, [r7, #16]
+ 890:C:/StellarisWare/driverlib\udma.c **** 
+ 891:C:/StellarisWare/driverlib\udma.c ****     //
+ 892:C:/StellarisWare/driverlib\udma.c ****     // Compute the ending address for the source pointer.  This address is the
+ 893:C:/StellarisWare/driverlib\udma.c ****     // last element of the last task in the task table
+ 894:C:/StellarisWare/driverlib\udma.c ****     //
+ 895:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].pvSrcEndAddr =
+ 967              		.loc 1 895 0
+ 968 0026 FB68     		ldr	r3, [r7, #12]
+ 969 0028 4FEA0313 		lsl	r3, r3, #4
+ 970 002c 7A69     		ldr	r2, [r7, #20]
+ 971 002e D318     		adds	r3, r2, r3
+ 896:C:/StellarisWare/driverlib\udma.c ****         &pTaskTable[ulTaskCount - 1].ulSpare;
+ 972              		.loc 1 896 0
+ 973 0030 BA68     		ldr	r2, [r7, #8]
+ 974 0032 02F1FF32 		add	r2, r2, #-1
+ 975 0036 4FEA0212 		lsl	r2, r2, #4
+ 976 003a 3969     		ldr	r1, [r7, #16]
+ 977 003c 8A18     		adds	r2, r1, r2
+ 978 003e 02F10C02 		add	r2, r2, #12
+ 895:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].pvSrcEndAddr =
+ 979              		.loc 1 895 0
+ 980 0042 1A60     		str	r2, [r3, #0]
+ 897:C:/StellarisWare/driverlib\udma.c **** 
+ 898:C:/StellarisWare/driverlib\udma.c ****     //
+ 899:C:/StellarisWare/driverlib\udma.c ****     // Compute the ending address for the destination pointer.  This address
+ 900:C:/StellarisWare/driverlib\udma.c ****     // is the end of the alternate structure for this channel.
+ 901:C:/StellarisWare/driverlib\udma.c ****     //
+ 902:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].pvDstEndAddr =
+ 981              		.loc 1 902 0
+ 982 0044 FB68     		ldr	r3, [r7, #12]
+ 983 0046 4FEA0313 		lsl	r3, r3, #4
+ 984 004a 7A69     		ldr	r2, [r7, #20]
+ 985 004c D318     		adds	r3, r2, r3
+ 903:C:/StellarisWare/driverlib\udma.c ****         &pControlTable[ulChannelNum | UDMA_ALT_SELECT].ulSpare;
+ 986              		.loc 1 903 0
+ 987 004e FA68     		ldr	r2, [r7, #12]
+ 988 0050 42F02002 		orr	r2, r2, #32
+ 989 0054 4FEA0212 		lsl	r2, r2, #4
+ 990 0058 7969     		ldr	r1, [r7, #20]
+ 991 005a 8A18     		adds	r2, r1, r2
+ 992 005c 02F10C02 		add	r2, r2, #12
+ 902:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].pvDstEndAddr =
+ 993              		.loc 1 902 0
+ 994 0060 5A60     		str	r2, [r3, #4]
+ 904:C:/StellarisWare/driverlib\udma.c **** 
+ 905:C:/StellarisWare/driverlib\udma.c ****     //
+ 906:C:/StellarisWare/driverlib\udma.c ****     // Compute the control word.  Most configurable items are fixed for
+ 907:C:/StellarisWare/driverlib\udma.c ****     // scatter-gather.  Item and increment sizes are all 32-bit and arb
+ 908:C:/StellarisWare/driverlib\udma.c ****     // size must be 4.  The count is the number of items in the task list
+ 909:C:/StellarisWare/driverlib\udma.c ****     // times 4 (4 words per task).
+ 910:C:/StellarisWare/driverlib\udma.c ****     //
+ 911:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].ulControl =
+ 995              		.loc 1 911 0
+ 996 0062 FB68     		ldr	r3, [r7, #12]
+ 997 0064 4FEA0313 		lsl	r3, r3, #4
+ 998 0068 7A69     		ldr	r2, [r7, #20]
+ 999 006a D218     		adds	r2, r2, r3
+ 912:C:/StellarisWare/driverlib\udma.c ****         (UDMA_CHCTL_DSTINC_32 | UDMA_CHCTL_DSTSIZE_32 |
+ 913:C:/StellarisWare/driverlib\udma.c ****          UDMA_CHCTL_SRCINC_32 | UDMA_CHCTL_SRCSIZE_32 |
+ 914:C:/StellarisWare/driverlib\udma.c ****          UDMA_CHCTL_ARBSIZE_4 |
+ 915:C:/StellarisWare/driverlib\udma.c ****          (((ulTaskCount * 4) - 1) << UDMA_CHCTL_XFERSIZE_S) |
+ 1000              		.loc 1 915 0
+ 1001 006c BB68     		ldr	r3, [r7, #8]
+ 1002 006e 4FEA8303 		lsl	r3, r3, #2
+ 1003 0072 03F1FF33 		add	r3, r3, #-1
+ 1004 0076 4FEA0311 		lsl	r1, r3, #4
+ 1005 007a 3B68     		ldr	r3, [r7, #0]
+ 1006 007c 002B     		cmp	r3, #0
+ 1007 007e 02D0     		beq	.L36
+ 1008              		.loc 1 915 0 is_stmt 0 discriminator 1
+ 1009 0080 4FF00603 		mov	r3, #6
+ 1010 0084 01E0     		b	.L37
+ 1011              	.L36:
+ 1012              		.loc 1 915 0 discriminator 2
+ 1013 0086 4FF00403 		mov	r3, #4
+ 1014              	.L37:
+ 1015              		.loc 1 915 0 discriminator 3
+ 1016 008a 0B43     		orrs	r3, r3, r1
+ 1017 008c 43F02A43 		orr	r3, r3, #-1442840576
+ 1018 0090 43F40043 		orr	r3, r3, #32768
+ 911:C:/StellarisWare/driverlib\udma.c ****     pControlTable[ulChannelNum].ulControl =
+ 1019              		.loc 1 911 0 is_stmt 1 discriminator 3
+ 1020 0094 9360     		str	r3, [r2, #8]
+ 916:C:/StellarisWare/driverlib\udma.c ****          (ulIsPeriphSG ? UDMA_CHCTL_XFERMODE_PER_SG :
+ 917:C:/StellarisWare/driverlib\udma.c ****           UDMA_CHCTL_XFERMODE_MEM_SG));
+ 918:C:/StellarisWare/driverlib\udma.c **** }
+ 1021              		.loc 1 918 0 discriminator 3
+ 1022 0096 07F11C07 		add	r7, r7, #28
+ 1023 009a BD46     		mov	sp, r7
+ 1024 009c 80BC     		pop	{r7}
+ 1025 009e 7047     		bx	lr
+ 1026              		.cfi_endproc
+ 1027              	.LFE16:
+ 1029              		.section	.text.uDMAChannelSizeGet,"ax",%progbits
+ 1030              		.align	2
+ 1031              		.global	uDMAChannelSizeGet
+ 1032              		.thumb
+ 1033              		.thumb_func
+ 1035              	uDMAChannelSizeGet:
+ 1036              	.LFB17:
+ 919:C:/StellarisWare/driverlib\udma.c **** 
+ 920:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 921:C:/StellarisWare/driverlib\udma.c **** //
+ 922:C:/StellarisWare/driverlib\udma.c **** //! Gets the current transfer size for a uDMA channel control structure.
+ 923:C:/StellarisWare/driverlib\udma.c **** //!
+ 924:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelStructIndex is the logical OR of the uDMA channel number
+ 925:C:/StellarisWare/driverlib\udma.c **** //! with either \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT.
+ 926:C:/StellarisWare/driverlib\udma.c **** //!
+ 927:C:/StellarisWare/driverlib\udma.c **** //! This function is used to get the uDMA transfer size for a channel.  The
+ 928:C:/StellarisWare/driverlib\udma.c **** //! transfer size is the number of items to transfer, where the size of an item
+ 929:C:/StellarisWare/driverlib\udma.c **** //! might be 8, 16, or 32 bits.  If a partial transfer has already occurred,
+ 930:C:/StellarisWare/driverlib\udma.c **** //! then the number of remaining items is returned.  If the transfer is
+ 931:C:/StellarisWare/driverlib\udma.c **** //! complete, then 0 is returned.
+ 932:C:/StellarisWare/driverlib\udma.c **** //!
+ 933:C:/StellarisWare/driverlib\udma.c **** //! \return Returns the number of items remaining to transfer.
+ 934:C:/StellarisWare/driverlib\udma.c **** //
+ 935:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 936:C:/StellarisWare/driverlib\udma.c **** unsigned long
+ 937:C:/StellarisWare/driverlib\udma.c **** uDMAChannelSizeGet(unsigned long ulChannelStructIndex)
+ 938:C:/StellarisWare/driverlib\udma.c **** {
+ 1037              		.loc 1 938 0
+ 1038              		.cfi_startproc
+ 1039              		@ args = 0, pretend = 0, frame = 16
+ 1040              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1041              		@ link register save eliminated.
+ 1042 0000 80B4     		push	{r7}
+ 1043              	.LCFI45:
+ 1044              		.cfi_def_cfa_offset 4
+ 1045              		.cfi_offset 7, -4
+ 1046 0002 85B0     		sub	sp, sp, #20
+ 1047              	.LCFI46:
+ 1048              		.cfi_def_cfa_offset 24
+ 1049 0004 00AF     		add	r7, sp, #0
+ 1050              	.LCFI47:
+ 1051              		.cfi_def_cfa_register 7
+ 1052 0006 7860     		str	r0, [r7, #4]
+ 939:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pControlTable;
+ 940:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulControl;
+ 941:C:/StellarisWare/driverlib\udma.c **** 
+ 942:C:/StellarisWare/driverlib\udma.c ****     //
+ 943:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+ 944:C:/StellarisWare/driverlib\udma.c ****     //
+ 945:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelStructIndex & 0xffff) < 64);
+ 946:C:/StellarisWare/driverlib\udma.c ****     ASSERT(HWREG(UDMA_CTLBASE) != 0);
+ 947:C:/StellarisWare/driverlib\udma.c **** 
+ 948:C:/StellarisWare/driverlib\udma.c ****     //
+ 949:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+ 950:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelStructIndex parameter, extract just the channel
+ 951:C:/StellarisWare/driverlib\udma.c ****     // index from this parameter.
+ 952:C:/StellarisWare/driverlib\udma.c ****     //
+ 953:C:/StellarisWare/driverlib\udma.c ****     ulChannelStructIndex &= 0x3f;
+ 1053              		.loc 1 953 0
+ 1054 0008 7B68     		ldr	r3, [r7, #4]
+ 1055 000a 03F03F03 		and	r3, r3, #63
+ 1056 000e 7B60     		str	r3, [r7, #4]
+ 954:C:/StellarisWare/driverlib\udma.c **** 
+ 955:C:/StellarisWare/driverlib\udma.c ****     //
+ 956:C:/StellarisWare/driverlib\udma.c ****     // Get the base address of the control table.
+ 957:C:/StellarisWare/driverlib\udma.c ****     //
+ 958:C:/StellarisWare/driverlib\udma.c ****     pControlTable = (tDMAControlTable *)HWREG(UDMA_CTLBASE);
+ 1057              		.loc 1 958 0
+ 1058 0010 4FF20803 		movw	r3, #61448
+ 1059 0014 C4F20F03 		movt	r3, 16399
+ 1060 0018 1B68     		ldr	r3, [r3, #0]
+ 1061 001a FB60     		str	r3, [r7, #12]
+ 959:C:/StellarisWare/driverlib\udma.c **** 
+ 960:C:/StellarisWare/driverlib\udma.c ****     //
+ 961:C:/StellarisWare/driverlib\udma.c ****     // Get the current control word value and mask off all but the size field
+ 962:C:/StellarisWare/driverlib\udma.c ****     // and the mode field.
+ 963:C:/StellarisWare/driverlib\udma.c ****     //
+ 964:C:/StellarisWare/driverlib\udma.c ****     ulControl = (pControlTable[ulChannelStructIndex].ulControl &
+ 1062              		.loc 1 964 0
+ 1063 001c 7B68     		ldr	r3, [r7, #4]
+ 1064 001e 4FEA0313 		lsl	r3, r3, #4
+ 1065 0022 FA68     		ldr	r2, [r7, #12]
+ 1066 0024 D318     		adds	r3, r2, r3
+ 1067 0026 9A68     		ldr	r2, [r3, #8]
+ 1068 0028 43F6F773 		movw	r3, #16375
+ 1069 002c 1340     		ands	r3, r3, r2
+ 1070 002e BB60     		str	r3, [r7, #8]
+ 965:C:/StellarisWare/driverlib\udma.c ****                  (UDMA_CHCTL_XFERSIZE_M | UDMA_CHCTL_XFERMODE_M));
+ 966:C:/StellarisWare/driverlib\udma.c **** 
+ 967:C:/StellarisWare/driverlib\udma.c ****     //
+ 968:C:/StellarisWare/driverlib\udma.c ****     // If the size field and mode field are 0 then the transfer is finished
+ 969:C:/StellarisWare/driverlib\udma.c ****     // and there are no more items to transfer
+ 970:C:/StellarisWare/driverlib\udma.c ****     //
+ 971:C:/StellarisWare/driverlib\udma.c ****     if(ulControl == 0)
+ 1071              		.loc 1 971 0
+ 1072 0030 BB68     		ldr	r3, [r7, #8]
+ 1073 0032 002B     		cmp	r3, #0
+ 1074 0034 02D1     		bne	.L39
+ 972:C:/StellarisWare/driverlib\udma.c ****     {
+ 973:C:/StellarisWare/driverlib\udma.c ****         return(0);
+ 1075              		.loc 1 973 0
+ 1076 0036 4FF00003 		mov	r3, #0
+ 1077 003a 04E0     		b	.L40
+ 1078              	.L39:
+ 974:C:/StellarisWare/driverlib\udma.c ****     }
+ 975:C:/StellarisWare/driverlib\udma.c **** 
+ 976:C:/StellarisWare/driverlib\udma.c ****     //
+ 977:C:/StellarisWare/driverlib\udma.c ****     // Otherwise, if either the size field or more field is non-zero, then
+ 978:C:/StellarisWare/driverlib\udma.c ****     // not all the items have been transferred.
+ 979:C:/StellarisWare/driverlib\udma.c ****     //
+ 980:C:/StellarisWare/driverlib\udma.c ****     else
+ 981:C:/StellarisWare/driverlib\udma.c ****     {
+ 982:C:/StellarisWare/driverlib\udma.c ****         //
+ 983:C:/StellarisWare/driverlib\udma.c ****         // Shift the size field and add one, then return to user.
+ 984:C:/StellarisWare/driverlib\udma.c ****         //
+ 985:C:/StellarisWare/driverlib\udma.c ****         return((ulControl >> 4) + 1);
+ 1079              		.loc 1 985 0
+ 1080 003c BB68     		ldr	r3, [r7, #8]
+ 1081 003e 4FEA1313 		lsr	r3, r3, #4
+ 1082 0042 03F10103 		add	r3, r3, #1
+ 1083              	.L40:
+ 986:C:/StellarisWare/driverlib\udma.c ****     }
+ 987:C:/StellarisWare/driverlib\udma.c **** }
+ 1084              		.loc 1 987 0
+ 1085 0046 1846     		mov	r0, r3
+ 1086 0048 07F11407 		add	r7, r7, #20
+ 1087 004c BD46     		mov	sp, r7
+ 1088 004e 80BC     		pop	{r7}
+ 1089 0050 7047     		bx	lr
+ 1090              		.cfi_endproc
+ 1091              	.LFE17:
+ 1093 0052 00BF     		.section	.text.uDMAChannelModeGet,"ax",%progbits
+ 1094              		.align	2
+ 1095              		.global	uDMAChannelModeGet
+ 1096              		.thumb
+ 1097              		.thumb_func
+ 1099              	uDMAChannelModeGet:
+ 1100              	.LFB18:
+ 988:C:/StellarisWare/driverlib\udma.c **** 
+ 989:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+ 990:C:/StellarisWare/driverlib\udma.c **** //
+ 991:C:/StellarisWare/driverlib\udma.c **** //! Gets the transfer mode for a uDMA channel control structure.
+ 992:C:/StellarisWare/driverlib\udma.c **** //!
+ 993:C:/StellarisWare/driverlib\udma.c **** //! \param ulChannelStructIndex is the logical OR of the uDMA channel number
+ 994:C:/StellarisWare/driverlib\udma.c **** //! with either \b UDMA_PRI_SELECT or \b UDMA_ALT_SELECT.
+ 995:C:/StellarisWare/driverlib\udma.c **** //!
+ 996:C:/StellarisWare/driverlib\udma.c **** //! This function is used to get the transfer mode for the uDMA channel and
+ 997:C:/StellarisWare/driverlib\udma.c **** //! to query the status of a transfer on a channel.  When the transfer is
+ 998:C:/StellarisWare/driverlib\udma.c **** //! complete the mode is \b UDMA_MODE_STOP.
+ 999:C:/StellarisWare/driverlib\udma.c **** //!
+1000:C:/StellarisWare/driverlib\udma.c **** //! \return Returns the transfer mode of the specified channel and control
+1001:C:/StellarisWare/driverlib\udma.c **** //! structure, which is one of the following values: \b UDMA_MODE_STOP,
+1002:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_MODE_BASIC, \b UDMA_MODE_AUTO, \b UDMA_MODE_PINGPONG,
+1003:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_MODE_MEM_SCATTER_GATHER, or \b UDMA_MODE_PER_SCATTER_GATHER.
+1004:C:/StellarisWare/driverlib\udma.c **** //
+1005:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1006:C:/StellarisWare/driverlib\udma.c **** unsigned long
+1007:C:/StellarisWare/driverlib\udma.c **** uDMAChannelModeGet(unsigned long ulChannelStructIndex)
+1008:C:/StellarisWare/driverlib\udma.c **** {
+ 1101              		.loc 1 1008 0
+ 1102              		.cfi_startproc
+ 1103              		@ args = 0, pretend = 0, frame = 16
+ 1104              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1105              		@ link register save eliminated.
+ 1106 0000 80B4     		push	{r7}
+ 1107              	.LCFI48:
+ 1108              		.cfi_def_cfa_offset 4
+ 1109              		.cfi_offset 7, -4
+ 1110 0002 85B0     		sub	sp, sp, #20
+ 1111              	.LCFI49:
+ 1112              		.cfi_def_cfa_offset 24
+ 1113 0004 00AF     		add	r7, sp, #0
+ 1114              	.LCFI50:
+ 1115              		.cfi_def_cfa_register 7
+ 1116 0006 7860     		str	r0, [r7, #4]
+1009:C:/StellarisWare/driverlib\udma.c ****     tDMAControlTable *pControlTable;
+1010:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulControl;
+1011:C:/StellarisWare/driverlib\udma.c **** 
+1012:C:/StellarisWare/driverlib\udma.c ****     //
+1013:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+1014:C:/StellarisWare/driverlib\udma.c ****     //
+1015:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulChannelStructIndex & 0xffff) < 64);
+1016:C:/StellarisWare/driverlib\udma.c ****     ASSERT(HWREG(UDMA_CTLBASE) != 0);
+1017:C:/StellarisWare/driverlib\udma.c **** 
+1018:C:/StellarisWare/driverlib\udma.c ****     //
+1019:C:/StellarisWare/driverlib\udma.c ****     // In case a channel selector macro (like UDMA_CH0_USB0EP1RX) was
+1020:C:/StellarisWare/driverlib\udma.c ****     // passed as the ulChannelStructIndex parameter, extract just the channel
+1021:C:/StellarisWare/driverlib\udma.c ****     // index from this parameter.
+1022:C:/StellarisWare/driverlib\udma.c ****     //
+1023:C:/StellarisWare/driverlib\udma.c ****     ulChannelStructIndex &= 0x3f;
+ 1117              		.loc 1 1023 0
+ 1118 0008 7B68     		ldr	r3, [r7, #4]
+ 1119 000a 03F03F03 		and	r3, r3, #63
+ 1120 000e 7B60     		str	r3, [r7, #4]
+1024:C:/StellarisWare/driverlib\udma.c **** 
+1025:C:/StellarisWare/driverlib\udma.c ****     //
+1026:C:/StellarisWare/driverlib\udma.c ****     // Get the base address of the control table.
+1027:C:/StellarisWare/driverlib\udma.c ****     //
+1028:C:/StellarisWare/driverlib\udma.c ****     pControlTable = (tDMAControlTable *)HWREG(UDMA_CTLBASE);
+ 1121              		.loc 1 1028 0
+ 1122 0010 4FF20803 		movw	r3, #61448
+ 1123 0014 C4F20F03 		movt	r3, 16399
+ 1124 0018 1B68     		ldr	r3, [r3, #0]
+ 1125 001a BB60     		str	r3, [r7, #8]
+1029:C:/StellarisWare/driverlib\udma.c **** 
+1030:C:/StellarisWare/driverlib\udma.c ****     //
+1031:C:/StellarisWare/driverlib\udma.c ****     // Get the current control word value and mask off all but the mode field.
+1032:C:/StellarisWare/driverlib\udma.c ****     //
+1033:C:/StellarisWare/driverlib\udma.c ****     ulControl = (pControlTable[ulChannelStructIndex].ulControl &
+ 1126              		.loc 1 1033 0
+ 1127 001c 7B68     		ldr	r3, [r7, #4]
+ 1128 001e 4FEA0313 		lsl	r3, r3, #4
+ 1129 0022 BA68     		ldr	r2, [r7, #8]
+ 1130 0024 D318     		adds	r3, r2, r3
+ 1131 0026 9B68     		ldr	r3, [r3, #8]
+ 1132 0028 03F00703 		and	r3, r3, #7
+ 1133 002c FB60     		str	r3, [r7, #12]
+1034:C:/StellarisWare/driverlib\udma.c ****                  UDMA_CHCTL_XFERMODE_M);
+1035:C:/StellarisWare/driverlib\udma.c **** 
+1036:C:/StellarisWare/driverlib\udma.c ****     //
+1037:C:/StellarisWare/driverlib\udma.c ****     // Check if scatter/gather mode, and if so, mask off the alt bit.
+1038:C:/StellarisWare/driverlib\udma.c ****     //
+1039:C:/StellarisWare/driverlib\udma.c ****     if(((ulControl & ~UDMA_MODE_ALT_SELECT) == UDMA_MODE_MEM_SCATTER_GATHER) ||
+ 1134              		.loc 1 1039 0
+ 1135 002e FB68     		ldr	r3, [r7, #12]
+ 1136 0030 23F00103 		bic	r3, r3, #1
+ 1137 0034 042B     		cmp	r3, #4
+ 1138 0036 04D0     		beq	.L42
+1040:C:/StellarisWare/driverlib\udma.c ****        ((ulControl & ~UDMA_MODE_ALT_SELECT) == UDMA_MODE_PER_SCATTER_GATHER))
+ 1139              		.loc 1 1040 0 discriminator 1
+ 1140 0038 FB68     		ldr	r3, [r7, #12]
+ 1141 003a 23F00103 		bic	r3, r3, #1
+1039:C:/StellarisWare/driverlib\udma.c ****     if(((ulControl & ~UDMA_MODE_ALT_SELECT) == UDMA_MODE_MEM_SCATTER_GATHER) ||
+ 1142              		.loc 1 1039 0 discriminator 1
+ 1143 003e 062B     		cmp	r3, #6
+ 1144 0040 03D1     		bne	.L43
+ 1145              	.L42:
+1041:C:/StellarisWare/driverlib\udma.c ****     {
+1042:C:/StellarisWare/driverlib\udma.c ****         ulControl &= ~UDMA_MODE_ALT_SELECT;
+ 1146              		.loc 1 1042 0
+ 1147 0042 FB68     		ldr	r3, [r7, #12]
+ 1148 0044 23F00103 		bic	r3, r3, #1
+ 1149 0048 FB60     		str	r3, [r7, #12]
+ 1150              	.L43:
+1043:C:/StellarisWare/driverlib\udma.c ****     }
+1044:C:/StellarisWare/driverlib\udma.c **** 
+1045:C:/StellarisWare/driverlib\udma.c ****     //
+1046:C:/StellarisWare/driverlib\udma.c ****     // Return the mode to the caller.
+1047:C:/StellarisWare/driverlib\udma.c ****     //
+1048:C:/StellarisWare/driverlib\udma.c ****     return(ulControl);
+ 1151              		.loc 1 1048 0
+ 1152 004a FB68     		ldr	r3, [r7, #12]
+1049:C:/StellarisWare/driverlib\udma.c **** }
+ 1153              		.loc 1 1049 0
+ 1154 004c 1846     		mov	r0, r3
+ 1155 004e 07F11407 		add	r7, r7, #20
+ 1156 0052 BD46     		mov	sp, r7
+ 1157 0054 80BC     		pop	{r7}
+ 1158 0056 7047     		bx	lr
+ 1159              		.cfi_endproc
+ 1160              	.LFE18:
+ 1162              		.section	.text.uDMAChannelSelectSecondary,"ax",%progbits
+ 1163              		.align	2
+ 1164              		.global	uDMAChannelSelectSecondary
+ 1165              		.thumb
+ 1166              		.thumb_func
+ 1168              	uDMAChannelSelectSecondary:
+ 1169              	.LFB19:
+1050:C:/StellarisWare/driverlib\udma.c **** 
+1051:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1052:C:/StellarisWare/driverlib\udma.c **** //
+1053:C:/StellarisWare/driverlib\udma.c **** //! Selects the secondary peripheral for a set of uDMA channels.
+1054:C:/StellarisWare/driverlib\udma.c **** //!
+1055:C:/StellarisWare/driverlib\udma.c **** //! \param ulSecPeriphs is the logical OR of the uDMA channels for which to use
+1056:C:/StellarisWare/driverlib\udma.c **** //! the secondary peripheral, instead of the default peripheral.
+1057:C:/StellarisWare/driverlib\udma.c **** //!
+1058:C:/StellarisWare/driverlib\udma.c **** //! This function is used to select the secondary peripheral assignment for a
+1059:C:/StellarisWare/driverlib\udma.c **** //! set of uDMA channels.  By selecting the secondary peripheral assignment for
+1060:C:/StellarisWare/driverlib\udma.c **** //! a channel, the default peripheral assignment is no longer available for
+1061:C:/StellarisWare/driverlib\udma.c **** //! that channel.
+1062:C:/StellarisWare/driverlib\udma.c **** //!
+1063:C:/StellarisWare/driverlib\udma.c **** //! The parameter \e ulSecPeriphs can be the logical OR of any of the following
+1064:C:/StellarisWare/driverlib\udma.c **** //! macros.  If one of the macros below is in the list passed to this function,
+1065:C:/StellarisWare/driverlib\udma.c **** //! then the secondary peripheral (marked as \b _SEC_) is selected.
+1066:C:/StellarisWare/driverlib\udma.c **** //!
+1067:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP1RX_SEC_UART2RX
+1068:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP1TX_SEC_UART2TX
+1069:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP2RX_SEC_TMR3A
+1070:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP2TX_SEC_TMR3B
+1071:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP3RX_SEC_TMR2A
+1072:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP3TX_SEC_TMR2B
+1073:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ETH0RX_SEC_TMR2A
+1074:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ETH0TX_SEC_TMR2B
+1075:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART0RX_SEC_UART1RX
+1076:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART0TX_SEC_UART1TX
+1077:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI0RX_SEC_SSI1RX
+1078:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI0TX_SEC_SSI1TX
+1079:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_UART2RX
+1080:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_UART2TX
+1081:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC00_SEC_TMR2A
+1082:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC01_SEC_TMR2B
+1083:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC02_SEC_RESERVED
+1084:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC03_SEC_RESERVED
+1085:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR0A_SEC_TMR1A
+1086:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR0B_SEC_TMR1B
+1087:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR1A_SEC_EPI0RX
+1088:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR1B_SEC_EPI0TX
+1089:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART1RX_SEC_RESERVED
+1090:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART1TX_SEC_RESERVED
+1091:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI1RX_SEC_ADC10
+1092:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI1TX_SEC_ADC11
+1093:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_ADC12
+1094:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_ADC13
+1095:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_I2S0RX_SEC_RESERVED
+1096:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_I2S0TX_SEC_RESERVED
+1097:C:/StellarisWare/driverlib\udma.c **** //!
+1098:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1099:C:/StellarisWare/driverlib\udma.c **** //
+1100:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1101:C:/StellarisWare/driverlib\udma.c **** void
+1102:C:/StellarisWare/driverlib\udma.c **** uDMAChannelSelectSecondary(unsigned long ulSecPeriphs)
+1103:C:/StellarisWare/driverlib\udma.c **** {
+ 1170              		.loc 1 1103 0
+ 1171              		.cfi_startproc
+ 1172              		@ args = 0, pretend = 0, frame = 8
+ 1173              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1174              		@ link register save eliminated.
+ 1175 0000 80B4     		push	{r7}
+ 1176              	.LCFI51:
+ 1177              		.cfi_def_cfa_offset 4
+ 1178              		.cfi_offset 7, -4
+ 1179 0002 83B0     		sub	sp, sp, #12
+ 1180              	.LCFI52:
+ 1181              		.cfi_def_cfa_offset 16
+ 1182 0004 00AF     		add	r7, sp, #0
+ 1183              	.LCFI53:
+ 1184              		.cfi_def_cfa_register 7
+ 1185 0006 7860     		str	r0, [r7, #4]
+1104:C:/StellarisWare/driverlib\udma.c ****     //
+1105:C:/StellarisWare/driverlib\udma.c ****     // Select the secondary peripheral for the specified channels.
+1106:C:/StellarisWare/driverlib\udma.c ****     //
+1107:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CHASGN) |= ulSecPeriphs;
+ 1186              		.loc 1 1107 0
+ 1187 0008 4FF47543 		mov	r3, #62720
+ 1188 000c C4F20F03 		movt	r3, 16399
+ 1189 0010 4FF47542 		mov	r2, #62720
+ 1190 0014 C4F20F02 		movt	r2, 16399
+ 1191 0018 1168     		ldr	r1, [r2, #0]
+ 1192 001a 7A68     		ldr	r2, [r7, #4]
+ 1193 001c 0A43     		orrs	r2, r2, r1
+ 1194 001e 1A60     		str	r2, [r3, #0]
+1108:C:/StellarisWare/driverlib\udma.c **** }
+ 1195              		.loc 1 1108 0
+ 1196 0020 07F10C07 		add	r7, r7, #12
+ 1197 0024 BD46     		mov	sp, r7
+ 1198 0026 80BC     		pop	{r7}
+ 1199 0028 7047     		bx	lr
+ 1200              		.cfi_endproc
+ 1201              	.LFE19:
+ 1203 002a 00BF     		.section	.text.uDMAChannelSelectDefault,"ax",%progbits
+ 1204              		.align	2
+ 1205              		.global	uDMAChannelSelectDefault
+ 1206              		.thumb
+ 1207              		.thumb_func
+ 1209              	uDMAChannelSelectDefault:
+ 1210              	.LFB20:
+1109:C:/StellarisWare/driverlib\udma.c **** 
+1110:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1111:C:/StellarisWare/driverlib\udma.c **** //
+1112:C:/StellarisWare/driverlib\udma.c **** //! Selects the default peripheral for a set of uDMA channels.
+1113:C:/StellarisWare/driverlib\udma.c **** //!
+1114:C:/StellarisWare/driverlib\udma.c **** //! \param ulDefPeriphs is the logical OR of the uDMA channels for which to use
+1115:C:/StellarisWare/driverlib\udma.c **** //! the default peripheral, instead of the secondary peripheral.
+1116:C:/StellarisWare/driverlib\udma.c **** //!
+1117:C:/StellarisWare/driverlib\udma.c **** //! This function is used to select the default peripheral assignment for a set
+1118:C:/StellarisWare/driverlib\udma.c **** //! of uDMA channels.
+1119:C:/StellarisWare/driverlib\udma.c **** //!
+1120:C:/StellarisWare/driverlib\udma.c **** //! The parameter \e ulDefPeriphs can be the logical OR of any of the following
+1121:C:/StellarisWare/driverlib\udma.c **** //! macros.  If one of the macros below is in the list passed to this function,
+1122:C:/StellarisWare/driverlib\udma.c **** //! then the default peripheral (marked as \b _DEF_) is selected.
+1123:C:/StellarisWare/driverlib\udma.c **** //!
+1124:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP1RX_SEC_UART2RX
+1125:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP1TX_SEC_UART2TX
+1126:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP2RX_SEC_TMR3A
+1127:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP2TX_SEC_TMR3B
+1128:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP3RX_SEC_TMR2A
+1129:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_USBEP3TX_SEC_TMR2B
+1130:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ETH0RX_SEC_TMR2A
+1131:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ETH0TX_SEC_TMR2B
+1132:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART0RX_SEC_UART1RX
+1133:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART0TX_SEC_UART1TX
+1134:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI0RX_SEC_SSI1RX
+1135:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI0TX_SEC_SSI1TX
+1136:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_UART2RX
+1137:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_UART2TX
+1138:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC00_SEC_TMR2A
+1139:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC01_SEC_TMR2B
+1140:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC02_SEC_RESERVED
+1141:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_ADC03_SEC_RESERVED
+1142:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR0A_SEC_TMR1A
+1143:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR0B_SEC_TMR1B
+1144:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR1A_SEC_EPI0RX
+1145:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_TMR1B_SEC_EPI0TX
+1146:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART1RX_SEC_RESERVED
+1147:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_UART1TX_SEC_RESERVED
+1148:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI1RX_SEC_ADC10
+1149:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_SSI1TX_SEC_ADC11
+1150:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_ADC12
+1151:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_RESERVED_SEC_ADC13
+1152:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_I2S0RX_SEC_RESERVED
+1153:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_DEF_I2S0TX_SEC_RESERVED
+1154:C:/StellarisWare/driverlib\udma.c **** //!
+1155:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1156:C:/StellarisWare/driverlib\udma.c **** //
+1157:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1158:C:/StellarisWare/driverlib\udma.c **** void
+1159:C:/StellarisWare/driverlib\udma.c **** uDMAChannelSelectDefault(unsigned long ulDefPeriphs)
+1160:C:/StellarisWare/driverlib\udma.c **** {
+ 1211              		.loc 1 1160 0
+ 1212              		.cfi_startproc
+ 1213              		@ args = 0, pretend = 0, frame = 8
+ 1214              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1215              		@ link register save eliminated.
+ 1216 0000 80B4     		push	{r7}
+ 1217              	.LCFI54:
+ 1218              		.cfi_def_cfa_offset 4
+ 1219              		.cfi_offset 7, -4
+ 1220 0002 83B0     		sub	sp, sp, #12
+ 1221              	.LCFI55:
+ 1222              		.cfi_def_cfa_offset 16
+ 1223 0004 00AF     		add	r7, sp, #0
+ 1224              	.LCFI56:
+ 1225              		.cfi_def_cfa_register 7
+ 1226 0006 7860     		str	r0, [r7, #4]
+1161:C:/StellarisWare/driverlib\udma.c ****     //
+1162:C:/StellarisWare/driverlib\udma.c ****     // Select the default peripheral for the specified channels.
+1163:C:/StellarisWare/driverlib\udma.c ****     //
+1164:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CHASGN) &= ~ulDefPeriphs;
+ 1227              		.loc 1 1164 0
+ 1228 0008 4FF47543 		mov	r3, #62720
+ 1229 000c C4F20F03 		movt	r3, 16399
+ 1230 0010 4FF47542 		mov	r2, #62720
+ 1231 0014 C4F20F02 		movt	r2, 16399
+ 1232 0018 1168     		ldr	r1, [r2, #0]
+ 1233 001a 7A68     		ldr	r2, [r7, #4]
+ 1234 001c 6FEA0202 		mvn	r2, r2
+ 1235 0020 0A40     		ands	r2, r2, r1
+ 1236 0022 1A60     		str	r2, [r3, #0]
+1165:C:/StellarisWare/driverlib\udma.c **** }
+ 1237              		.loc 1 1165 0
+ 1238 0024 07F10C07 		add	r7, r7, #12
+ 1239 0028 BD46     		mov	sp, r7
+ 1240 002a 80BC     		pop	{r7}
+ 1241 002c 7047     		bx	lr
+ 1242              		.cfi_endproc
+ 1243              	.LFE20:
+ 1245 002e 00BF     		.section	.text.uDMAIntRegister,"ax",%progbits
+ 1246              		.align	2
+ 1247              		.global	uDMAIntRegister
+ 1248              		.thumb
+ 1249              		.thumb_func
+ 1251              	uDMAIntRegister:
+ 1252              	.LFB21:
+1166:C:/StellarisWare/driverlib\udma.c **** 
+1167:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1168:C:/StellarisWare/driverlib\udma.c **** //
+1169:C:/StellarisWare/driverlib\udma.c **** //! Registers an interrupt handler for the uDMA controller.
+1170:C:/StellarisWare/driverlib\udma.c **** //!
+1171:C:/StellarisWare/driverlib\udma.c **** //! \param ulIntChannel identifies which uDMA interrupt is to be registered.
+1172:C:/StellarisWare/driverlib\udma.c **** //! \param pfnHandler is a pointer to the function to be called when the
+1173:C:/StellarisWare/driverlib\udma.c **** //! interrupt is activated.
+1174:C:/StellarisWare/driverlib\udma.c **** //!
+1175:C:/StellarisWare/driverlib\udma.c **** //! This function registers and enables the handler to be called when the uDMA
+1176:C:/StellarisWare/driverlib\udma.c **** //! controller generates an interrupt.  The \e ulIntChannel parameter should be
+1177:C:/StellarisWare/driverlib\udma.c **** //! one of the following:
+1178:C:/StellarisWare/driverlib\udma.c **** //!
+1179:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_INT_SW to register an interrupt handler to process interrupts
+1180:C:/StellarisWare/driverlib\udma.c **** //!   from the uDMA software channel (UDMA_CHANNEL_SW)
+1181:C:/StellarisWare/driverlib\udma.c **** //! - \b UDMA_INT_ERR to register an interrupt handler to process uDMA error
+1182:C:/StellarisWare/driverlib\udma.c **** //!   interrupts
+1183:C:/StellarisWare/driverlib\udma.c **** //!
+1184:C:/StellarisWare/driverlib\udma.c **** //! \sa IntRegister() for important information about registering interrupt
+1185:C:/StellarisWare/driverlib\udma.c **** //! handlers.
+1186:C:/StellarisWare/driverlib\udma.c **** //!
+1187:C:/StellarisWare/driverlib\udma.c **** //! \note The interrupt handler for the uDMA is for transfer completion when
+1188:C:/StellarisWare/driverlib\udma.c **** //! the channel UDMA_CHANNEL_SW is used and for error interrupts.  The
+1189:C:/StellarisWare/driverlib\udma.c **** //! interrupts for each peripheral channel are handled through the individual
+1190:C:/StellarisWare/driverlib\udma.c **** //! peripheral interrupt handlers.
+1191:C:/StellarisWare/driverlib\udma.c **** //!
+1192:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1193:C:/StellarisWare/driverlib\udma.c **** //
+1194:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1195:C:/StellarisWare/driverlib\udma.c **** void
+1196:C:/StellarisWare/driverlib\udma.c **** uDMAIntRegister(unsigned long ulIntChannel, void (*pfnHandler)(void))
+1197:C:/StellarisWare/driverlib\udma.c **** {
+ 1253              		.loc 1 1197 0
+ 1254              		.cfi_startproc
+ 1255              		@ args = 0, pretend = 0, frame = 8
+ 1256              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1257 0000 80B5     		push	{r7, lr}
+ 1258              	.LCFI57:
+ 1259              		.cfi_def_cfa_offset 8
+ 1260              		.cfi_offset 14, -4
+ 1261              		.cfi_offset 7, -8
+ 1262 0002 82B0     		sub	sp, sp, #8
+ 1263              	.LCFI58:
+ 1264              		.cfi_def_cfa_offset 16
+ 1265 0004 00AF     		add	r7, sp, #0
+ 1266              	.LCFI59:
+ 1267              		.cfi_def_cfa_register 7
+ 1268 0006 7860     		str	r0, [r7, #4]
+ 1269 0008 3960     		str	r1, [r7, #0]
+1198:C:/StellarisWare/driverlib\udma.c ****     //
+1199:C:/StellarisWare/driverlib\udma.c ****     // Check the arguments.
+1200:C:/StellarisWare/driverlib\udma.c ****     //
+1201:C:/StellarisWare/driverlib\udma.c ****     ASSERT(pfnHandler);
+1202:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulIntChannel == UDMA_INT_SW) || (ulIntChannel == UDMA_INT_ERR));
+1203:C:/StellarisWare/driverlib\udma.c **** 
+1204:C:/StellarisWare/driverlib\udma.c ****     //
+1205:C:/StellarisWare/driverlib\udma.c ****     // Register the interrupt handler.
+1206:C:/StellarisWare/driverlib\udma.c ****     //
+1207:C:/StellarisWare/driverlib\udma.c ****     IntRegister(ulIntChannel, pfnHandler);
+ 1270              		.loc 1 1207 0
+ 1271 000a 7868     		ldr	r0, [r7, #4]
+ 1272 000c 3968     		ldr	r1, [r7, #0]
+ 1273 000e FFF7FEFF 		bl	IntRegister
+1208:C:/StellarisWare/driverlib\udma.c **** 
+1209:C:/StellarisWare/driverlib\udma.c ****     //
+1210:C:/StellarisWare/driverlib\udma.c ****     // Enable the memory management fault.
+1211:C:/StellarisWare/driverlib\udma.c ****     //
+1212:C:/StellarisWare/driverlib\udma.c ****     IntEnable(ulIntChannel);
+ 1274              		.loc 1 1212 0
+ 1275 0012 7868     		ldr	r0, [r7, #4]
+ 1276 0014 FFF7FEFF 		bl	IntEnable
+1213:C:/StellarisWare/driverlib\udma.c **** }
+ 1277              		.loc 1 1213 0
+ 1278 0018 07F10807 		add	r7, r7, #8
+ 1279 001c BD46     		mov	sp, r7
+ 1280 001e 80BD     		pop	{r7, pc}
+ 1281              		.cfi_endproc
+ 1282              	.LFE21:
+ 1284              		.section	.text.uDMAIntUnregister,"ax",%progbits
+ 1285              		.align	2
+ 1286              		.global	uDMAIntUnregister
+ 1287              		.thumb
+ 1288              		.thumb_func
+ 1290              	uDMAIntUnregister:
+ 1291              	.LFB22:
+1214:C:/StellarisWare/driverlib\udma.c **** 
+1215:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1216:C:/StellarisWare/driverlib\udma.c **** //
+1217:C:/StellarisWare/driverlib\udma.c **** //! Unregisters an interrupt handler for the uDMA controller.
+1218:C:/StellarisWare/driverlib\udma.c **** //!
+1219:C:/StellarisWare/driverlib\udma.c **** //! \param ulIntChannel identifies which uDMA interrupt to unregister.
+1220:C:/StellarisWare/driverlib\udma.c **** //!
+1221:C:/StellarisWare/driverlib\udma.c **** //! This function disables and unregisters the handler to be called for the
+1222:C:/StellarisWare/driverlib\udma.c **** //! specified uDMA interrupt.  The \e ulIntChannel parameter should be one of
+1223:C:/StellarisWare/driverlib\udma.c **** //! \b UDMA_INT_SW or \b UDMA_INT_ERR as documented for the function
+1224:C:/StellarisWare/driverlib\udma.c **** //! uDMAIntRegister().
+1225:C:/StellarisWare/driverlib\udma.c **** //!
+1226:C:/StellarisWare/driverlib\udma.c **** //! \sa IntRegister() for important information about registering interrupt
+1227:C:/StellarisWare/driverlib\udma.c **** //! handlers.
+1228:C:/StellarisWare/driverlib\udma.c **** //!
+1229:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1230:C:/StellarisWare/driverlib\udma.c **** //
+1231:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1232:C:/StellarisWare/driverlib\udma.c **** void
+1233:C:/StellarisWare/driverlib\udma.c **** uDMAIntUnregister(unsigned long ulIntChannel)
+1234:C:/StellarisWare/driverlib\udma.c **** {
+ 1292              		.loc 1 1234 0
+ 1293              		.cfi_startproc
+ 1294              		@ args = 0, pretend = 0, frame = 8
+ 1295              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1296 0000 80B5     		push	{r7, lr}
+ 1297              	.LCFI60:
+ 1298              		.cfi_def_cfa_offset 8
+ 1299              		.cfi_offset 14, -4
+ 1300              		.cfi_offset 7, -8
+ 1301 0002 82B0     		sub	sp, sp, #8
+ 1302              	.LCFI61:
+ 1303              		.cfi_def_cfa_offset 16
+ 1304 0004 00AF     		add	r7, sp, #0
+ 1305              	.LCFI62:
+ 1306              		.cfi_def_cfa_register 7
+ 1307 0006 7860     		str	r0, [r7, #4]
+1235:C:/StellarisWare/driverlib\udma.c ****     //
+1236:C:/StellarisWare/driverlib\udma.c ****     // Disable the interrupt.
+1237:C:/StellarisWare/driverlib\udma.c ****     //
+1238:C:/StellarisWare/driverlib\udma.c ****     IntDisable(ulIntChannel);
+ 1308              		.loc 1 1238 0
+ 1309 0008 7868     		ldr	r0, [r7, #4]
+ 1310 000a FFF7FEFF 		bl	IntDisable
+1239:C:/StellarisWare/driverlib\udma.c **** 
+1240:C:/StellarisWare/driverlib\udma.c ****     //
+1241:C:/StellarisWare/driverlib\udma.c ****     // Unregister the interrupt handler.
+1242:C:/StellarisWare/driverlib\udma.c ****     //
+1243:C:/StellarisWare/driverlib\udma.c ****     IntUnregister(ulIntChannel);
+ 1311              		.loc 1 1243 0
+ 1312 000e 7868     		ldr	r0, [r7, #4]
+ 1313 0010 FFF7FEFF 		bl	IntUnregister
+1244:C:/StellarisWare/driverlib\udma.c **** }
+ 1314              		.loc 1 1244 0
+ 1315 0014 07F10807 		add	r7, r7, #8
+ 1316 0018 BD46     		mov	sp, r7
+ 1317 001a 80BD     		pop	{r7, pc}
+ 1318              		.cfi_endproc
+ 1319              	.LFE22:
+ 1321              		.section	.text.uDMAIntStatus,"ax",%progbits
+ 1322              		.align	2
+ 1323              		.global	uDMAIntStatus
+ 1324              		.thumb
+ 1325              		.thumb_func
+ 1327              	uDMAIntStatus:
+ 1328              	.LFB23:
+1245:C:/StellarisWare/driverlib\udma.c **** 
+1246:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1247:C:/StellarisWare/driverlib\udma.c **** //
+1248:C:/StellarisWare/driverlib\udma.c **** //! Gets the uDMA controller channel interrupt status.
+1249:C:/StellarisWare/driverlib\udma.c **** //!
+1250:C:/StellarisWare/driverlib\udma.c **** //! This function is used to get the interrupt status of the uDMA controller.
+1251:C:/StellarisWare/driverlib\udma.c **** //! The returned value is a 32-bit bit mask that indicates which channels are
+1252:C:/StellarisWare/driverlib\udma.c **** //! requesting an interrupt.  This function can be used from within an
+1253:C:/StellarisWare/driverlib\udma.c **** //! interrupt handler to determine or confirm which uDMA channel has requested
+1254:C:/StellarisWare/driverlib\udma.c **** //! an interrupt.
+1255:C:/StellarisWare/driverlib\udma.c **** //!
+1256:C:/StellarisWare/driverlib\udma.c **** //! \note This function is only available on devices that have the DMA Channel
+1257:C:/StellarisWare/driverlib\udma.c **** //! Interrupt Status Register (DMACHIS).  Please consult the data sheet for
+1258:C:/StellarisWare/driverlib\udma.c **** //! your part.
+1259:C:/StellarisWare/driverlib\udma.c **** //!
+1260:C:/StellarisWare/driverlib\udma.c **** //! \return Returns a 32-bit mask which indicates requesting uDMA channels.
+1261:C:/StellarisWare/driverlib\udma.c **** //! There is a bit for each channel and a 1 indicates that the channel
+1262:C:/StellarisWare/driverlib\udma.c **** //! is requesting an interrupt.  Multiple bits can be set.
+1263:C:/StellarisWare/driverlib\udma.c **** //
+1264:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1265:C:/StellarisWare/driverlib\udma.c **** unsigned long
+1266:C:/StellarisWare/driverlib\udma.c **** uDMAIntStatus(void)
+1267:C:/StellarisWare/driverlib\udma.c **** {
+ 1329              		.loc 1 1267 0
+ 1330              		.cfi_startproc
+ 1331              		@ args = 0, pretend = 0, frame = 0
+ 1332              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1333              		@ link register save eliminated.
+ 1334 0000 80B4     		push	{r7}
+ 1335              	.LCFI63:
+ 1336              		.cfi_def_cfa_offset 4
+ 1337              		.cfi_offset 7, -4
+ 1338 0002 00AF     		add	r7, sp, #0
+ 1339              	.LCFI64:
+ 1340              		.cfi_def_cfa_register 7
+1268:C:/StellarisWare/driverlib\udma.c ****     //
+1269:C:/StellarisWare/driverlib\udma.c ****     // Check feature availability
+1270:C:/StellarisWare/driverlib\udma.c ****     //
+1271:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_SANDSTORM);
+1272:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_FURY);
+1273:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_DUSTDEVIL);
+1274:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_TEMPEST);
+1275:C:/StellarisWare/driverlib\udma.c **** 
+1276:C:/StellarisWare/driverlib\udma.c ****     //
+1277:C:/StellarisWare/driverlib\udma.c ****     // Return the value of the uDMA interrupt status register
+1278:C:/StellarisWare/driverlib\udma.c ****     //
+1279:C:/StellarisWare/driverlib\udma.c ****     return(HWREG(UDMA_CHIS));
+ 1341              		.loc 1 1279 0
+ 1342 0004 4FF20453 		movw	r3, #62724
+ 1343 0008 C4F20F03 		movt	r3, 16399
+ 1344 000c 1B68     		ldr	r3, [r3, #0]
+1280:C:/StellarisWare/driverlib\udma.c **** }
+ 1345              		.loc 1 1280 0
+ 1346 000e 1846     		mov	r0, r3
+ 1347 0010 BD46     		mov	sp, r7
+ 1348 0012 80BC     		pop	{r7}
+ 1349 0014 7047     		bx	lr
+ 1350              		.cfi_endproc
+ 1351              	.LFE23:
+ 1353 0016 00BF     		.section	.text.uDMAIntClear,"ax",%progbits
+ 1354              		.align	2
+ 1355              		.global	uDMAIntClear
+ 1356              		.thumb
+ 1357              		.thumb_func
+ 1359              	uDMAIntClear:
+ 1360              	.LFB24:
+1281:C:/StellarisWare/driverlib\udma.c **** 
+1282:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1283:C:/StellarisWare/driverlib\udma.c **** //
+1284:C:/StellarisWare/driverlib\udma.c **** //! Clears uDMA interrupt status.
+1285:C:/StellarisWare/driverlib\udma.c **** //!
+1286:C:/StellarisWare/driverlib\udma.c **** //! \param ulChanMask is a 32-bit mask with one bit for each uDMA channel.
+1287:C:/StellarisWare/driverlib\udma.c **** //!
+1288:C:/StellarisWare/driverlib\udma.c **** //! This function clears bits in the uDMA interrupt status register according
+1289:C:/StellarisWare/driverlib\udma.c **** //! to which bits are set in \e ulChanMask. There is one bit for each channel.
+1290:C:/StellarisWare/driverlib\udma.c **** //! If a a bit is set in \e ulChanMask, then that corresponding channel's
+1291:C:/StellarisWare/driverlib\udma.c **** //! interrupt status is cleared (if it was set).
+1292:C:/StellarisWare/driverlib\udma.c **** //!
+1293:C:/StellarisWare/driverlib\udma.c **** //! \note This function is only available on devices that have the DMA Channel
+1294:C:/StellarisWare/driverlib\udma.c **** //! Interrupt Status Register (DMACHIS).  Please consult the data sheet for
+1295:C:/StellarisWare/driverlib\udma.c **** //! your part.
+1296:C:/StellarisWare/driverlib\udma.c **** //!
+1297:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1298:C:/StellarisWare/driverlib\udma.c **** //
+1299:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1300:C:/StellarisWare/driverlib\udma.c **** void
+1301:C:/StellarisWare/driverlib\udma.c **** uDMAIntClear(unsigned long ulChanMask)
+1302:C:/StellarisWare/driverlib\udma.c **** {
+ 1361              		.loc 1 1302 0
+ 1362              		.cfi_startproc
+ 1363              		@ args = 0, pretend = 0, frame = 8
+ 1364              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1365              		@ link register save eliminated.
+ 1366 0000 80B4     		push	{r7}
+ 1367              	.LCFI65:
+ 1368              		.cfi_def_cfa_offset 4
+ 1369              		.cfi_offset 7, -4
+ 1370 0002 83B0     		sub	sp, sp, #12
+ 1371              	.LCFI66:
+ 1372              		.cfi_def_cfa_offset 16
+ 1373 0004 00AF     		add	r7, sp, #0
+ 1374              	.LCFI67:
+ 1375              		.cfi_def_cfa_register 7
+ 1376 0006 7860     		str	r0, [r7, #4]
+1303:C:/StellarisWare/driverlib\udma.c ****     //
+1304:C:/StellarisWare/driverlib\udma.c ****     // Check feature availability
+1305:C:/StellarisWare/driverlib\udma.c ****     //
+1306:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_SANDSTORM);
+1307:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_FURY);
+1308:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_DUSTDEVIL);
+1309:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_TEMPEST);
+1310:C:/StellarisWare/driverlib\udma.c **** 
+1311:C:/StellarisWare/driverlib\udma.c ****     //
+1312:C:/StellarisWare/driverlib\udma.c ****     // Clear the requested bits in the uDMA interrupt status register
+1313:C:/StellarisWare/driverlib\udma.c ****     //
+1314:C:/StellarisWare/driverlib\udma.c ****     HWREG(UDMA_CHIS) = ulChanMask;
+ 1377              		.loc 1 1314 0
+ 1378 0008 4FF20453 		movw	r3, #62724
+ 1379 000c C4F20F03 		movt	r3, 16399
+ 1380 0010 7A68     		ldr	r2, [r7, #4]
+ 1381 0012 1A60     		str	r2, [r3, #0]
+1315:C:/StellarisWare/driverlib\udma.c **** }
+ 1382              		.loc 1 1315 0
+ 1383 0014 07F10C07 		add	r7, r7, #12
+ 1384 0018 BD46     		mov	sp, r7
+ 1385 001a 80BC     		pop	{r7}
+ 1386 001c 7047     		bx	lr
+ 1387              		.cfi_endproc
+ 1388              	.LFE24:
+ 1390 001e 00BF     		.section	.text.uDMAChannelAssign,"ax",%progbits
+ 1391              		.align	2
+ 1392              		.global	uDMAChannelAssign
+ 1393              		.thumb
+ 1394              		.thumb_func
+ 1396              	uDMAChannelAssign:
+ 1397              	.LFB25:
+1316:C:/StellarisWare/driverlib\udma.c **** 
+1317:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1318:C:/StellarisWare/driverlib\udma.c **** //
+1319:C:/StellarisWare/driverlib\udma.c **** //! Assigns a peripheral mapping for a uDMA channel.
+1320:C:/StellarisWare/driverlib\udma.c **** //!
+1321:C:/StellarisWare/driverlib\udma.c **** //! \param ulMapping is a macro specifying the peripheral assignment for
+1322:C:/StellarisWare/driverlib\udma.c **** //! a channel.
+1323:C:/StellarisWare/driverlib\udma.c **** //!
+1324:C:/StellarisWare/driverlib\udma.c **** //! This function assigns a peripheral mapping to a uDMA channel.  It is
+1325:C:/StellarisWare/driverlib\udma.c **** //! used to select which peripheral is used for a uDMA channel.  The parameter
+1326:C:/StellarisWare/driverlib\udma.c **** //! \e ulMapping should be one of the macros named \b UDMA_CHn_tttt from the
+1327:C:/StellarisWare/driverlib\udma.c **** //! header file \e udma.h.  For example, to assign uDMA channel 0 to the
+1328:C:/StellarisWare/driverlib\udma.c **** //! UART2 RX channel, the parameter should be the macro \b UDMA_CH0_UART2RX.
+1329:C:/StellarisWare/driverlib\udma.c **** //!
+1330:C:/StellarisWare/driverlib\udma.c **** //! Please consult the Stellaris data sheet for a table showing all the
+1331:C:/StellarisWare/driverlib\udma.c **** //! possible peripheral assignments for the uDMA channels for a particular
+1332:C:/StellarisWare/driverlib\udma.c **** //! device.
+1333:C:/StellarisWare/driverlib\udma.c **** //!
+1334:C:/StellarisWare/driverlib\udma.c **** //! \note This function is only available on devices that have the DMA Channel
+1335:C:/StellarisWare/driverlib\udma.c **** //! Map Select registers (DMACHMAP0-3).  Please consult the data sheet for
+1336:C:/StellarisWare/driverlib\udma.c **** //! your part.
+1337:C:/StellarisWare/driverlib\udma.c **** //!
+1338:C:/StellarisWare/driverlib\udma.c **** //! \return None.
+1339:C:/StellarisWare/driverlib\udma.c **** //
+1340:C:/StellarisWare/driverlib\udma.c **** //*****************************************************************************
+1341:C:/StellarisWare/driverlib\udma.c **** void
+1342:C:/StellarisWare/driverlib\udma.c **** uDMAChannelAssign(unsigned long ulMapping)
+1343:C:/StellarisWare/driverlib\udma.c **** {
+ 1398              		.loc 1 1343 0
+ 1399              		.cfi_startproc
+ 1400              		@ args = 0, pretend = 0, frame = 24
+ 1401              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1402              		@ link register save eliminated.
+ 1403 0000 80B4     		push	{r7}
+ 1404              	.LCFI68:
+ 1405              		.cfi_def_cfa_offset 4
+ 1406              		.cfi_offset 7, -4
+ 1407 0002 87B0     		sub	sp, sp, #28
+ 1408              	.LCFI69:
+ 1409              		.cfi_def_cfa_offset 32
+ 1410 0004 00AF     		add	r7, sp, #0
+ 1411              	.LCFI70:
+ 1412              		.cfi_def_cfa_register 7
+ 1413 0006 7860     		str	r0, [r7, #4]
+1344:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulMapReg;
+1345:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulMapShift;
+1346:C:/StellarisWare/driverlib\udma.c ****     unsigned long ulChannelNum;
+1347:C:/StellarisWare/driverlib\udma.c **** 
+1348:C:/StellarisWare/driverlib\udma.c ****     //
+1349:C:/StellarisWare/driverlib\udma.c ****     // Check the parameters
+1350:C:/StellarisWare/driverlib\udma.c ****     //
+1351:C:/StellarisWare/driverlib\udma.c ****     ASSERT((ulMapping & 0xffffff00) < 0x00050000);
+1352:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_SANDSTORM);
+1353:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_FURY);
+1354:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_DUSTDEVIL);
+1355:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_TEMPEST);
+1356:C:/StellarisWare/driverlib\udma.c ****     ASSERT(!CLASS_IS_FIRESTORM);
+1357:C:/StellarisWare/driverlib\udma.c **** 
+1358:C:/StellarisWare/driverlib\udma.c ****     //
+1359:C:/StellarisWare/driverlib\udma.c ****     // Extract the channel number and map encoding value from the parameter.
+1360:C:/StellarisWare/driverlib\udma.c ****     //
+1361:C:/StellarisWare/driverlib\udma.c ****     ulChannelNum = ulMapping & 0xff;
+ 1414              		.loc 1 1361 0
+ 1415 0008 7B68     		ldr	r3, [r7, #4]
+ 1416 000a DBB2     		uxtb	r3, r3
+ 1417 000c 7B61     		str	r3, [r7, #20]
+1362:C:/StellarisWare/driverlib\udma.c ****     ulMapping = ulMapping >> 16;
+ 1418              		.loc 1 1362 0
+ 1419 000e 7B68     		ldr	r3, [r7, #4]
+ 1420 0010 4FEA1343 		lsr	r3, r3, #16
+ 1421 0014 7B60     		str	r3, [r7, #4]
+1363:C:/StellarisWare/driverlib\udma.c **** 
+1364:C:/StellarisWare/driverlib\udma.c ****     //
+1365:C:/StellarisWare/driverlib\udma.c ****     // Find the uDMA channel mapping register and shift value to use for this
+1366:C:/StellarisWare/driverlib\udma.c ****     // channel
+1367:C:/StellarisWare/driverlib\udma.c ****     //
+1368:C:/StellarisWare/driverlib\udma.c ****     ulMapReg = UDMA_CHMAP0 + ((ulChannelNum / 8) * 4);
+ 1422              		.loc 1 1368 0
+ 1423 0016 7B69     		ldr	r3, [r7, #20]
+ 1424 0018 4FEAD302 		lsr	r2, r3, #3
+ 1425 001c 4FF64453 		movw	r3, #64836
+ 1426 0020 C1F20303 		movt	r3, 4099
+ 1427 0024 D318     		adds	r3, r2, r3
+ 1428 0026 4FEA8303 		lsl	r3, r3, #2
+ 1429 002a 3B61     		str	r3, [r7, #16]
+1369:C:/StellarisWare/driverlib\udma.c ****     ulMapShift = (ulChannelNum % 8) * 4;
+ 1430              		.loc 1 1369 0
+ 1431 002c 7B69     		ldr	r3, [r7, #20]
+ 1432 002e 03F00703 		and	r3, r3, #7
+ 1433 0032 4FEA8303 		lsl	r3, r3, #2
+ 1434 0036 FB60     		str	r3, [r7, #12]
+1370:C:/StellarisWare/driverlib\udma.c **** 
+1371:C:/StellarisWare/driverlib\udma.c ****     //
+1372:C:/StellarisWare/driverlib\udma.c ****     // Set the channel map encoding for this channel
+1373:C:/StellarisWare/driverlib\udma.c ****     //
+1374:C:/StellarisWare/driverlib\udma.c ****     HWREG(ulMapReg) = (HWREG(ulMapReg) & ~(0xf << ulMapShift)) |
+ 1435              		.loc 1 1374 0
+ 1436 0038 3B69     		ldr	r3, [r7, #16]
+ 1437 003a 3A69     		ldr	r2, [r7, #16]
+ 1438 003c 1168     		ldr	r1, [r2, #0]
+ 1439 003e FA68     		ldr	r2, [r7, #12]
+ 1440 0040 4FF00F00 		mov	r0, #15
+ 1441 0044 00FA02F2 		lsl	r2, r0, r2
+ 1442 0048 6FEA0202 		mvn	r2, r2
+ 1443 004c 1140     		ands	r1, r1, r2
+1375:C:/StellarisWare/driverlib\udma.c ****                       ulMapping << ulMapShift;
+ 1444              		.loc 1 1375 0
+ 1445 004e FA68     		ldr	r2, [r7, #12]
+ 1446 0050 7868     		ldr	r0, [r7, #4]
+ 1447 0052 00FA02F2 		lsl	r2, r0, r2
+1374:C:/StellarisWare/driverlib\udma.c ****     HWREG(ulMapReg) = (HWREG(ulMapReg) & ~(0xf << ulMapShift)) |
+ 1448              		.loc 1 1374 0
+ 1449 0056 0A43     		orrs	r2, r2, r1
+ 1450 0058 1A60     		str	r2, [r3, #0]
+1376:C:/StellarisWare/driverlib\udma.c **** }
+ 1451              		.loc 1 1376 0
+ 1452 005a 07F11C07 		add	r7, r7, #28
+ 1453 005e BD46     		mov	sp, r7
+ 1454 0060 80BC     		pop	{r7}
+ 1455 0062 7047     		bx	lr
+ 1456              		.cfi_endproc
+ 1457              	.LFE25:
+ 1459              		.text
+ 1460              	.Letext0:
+ 1461              		.file 2 "C:\\StellarisWare/driverlib/udma.h"
+ 1462              		.file 3 "C:\\StellarisWare/inc/hw_types.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 udma.c
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:19     .text.uDMAEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:24     .text.uDMAEnable:00000000 uDMAEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:52     .text.uDMADisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:57     .text.uDMADisable:00000000 uDMADisable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:84     .text.uDMAErrorStatusGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:89     .text.uDMAErrorStatusGet:00000000 uDMAErrorStatusGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:116    .text.uDMAErrorStatusClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:121    .text.uDMAErrorStatusClear:00000000 uDMAErrorStatusClear
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:148    .text.uDMAChannelEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:153    .text.uDMAChannelEnable:00000000 uDMAChannelEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:188    .text.uDMAChannelDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:193    .text.uDMAChannelDisable:00000000 uDMAChannelDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:228    .text.uDMAChannelIsEnabled:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:233    .text.uDMAChannelIsEnabled:00000000 uDMAChannelIsEnabled
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:275    .text.uDMAControlBaseSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:280    .text.uDMAControlBaseSet:00000000 uDMAControlBaseSet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:312    .text.uDMAControlBaseGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:317    .text.uDMAControlBaseGet:00000000 uDMAControlBaseGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:344    .text.uDMAControlAlternateBaseGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:349    .text.uDMAControlAlternateBaseGet:00000000 uDMAControlAlternateBaseGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:376    .text.uDMAChannelRequest:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:381    .text.uDMAChannelRequest:00000000 uDMAChannelRequest
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:416    .text.uDMAChannelAttributeEnable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:421    .text.uDMAChannelAttributeEnable:00000000 uDMAChannelAttributeEnable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:506    .text.uDMAChannelAttributeDisable:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:511    .text.uDMAChannelAttributeDisable:00000000 uDMAChannelAttributeDisable
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:596    .text.uDMAChannelAttributeGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:601    .text.uDMAChannelAttributeGet:00000000 uDMAChannelAttributeGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:698    .text.uDMAChannelControlSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:703    .text.uDMAChannelControlSet:00000000 uDMAChannelControlSet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:759    .text.uDMAChannelTransferSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:764    .text.uDMAChannelTransferSet:00000000 uDMAChannelTransferSet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:929    .text.uDMAChannelScatterGatherSet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:934    .text.uDMAChannelScatterGatherSet:00000000 uDMAChannelScatterGatherSet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1030   .text.uDMAChannelSizeGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1035   .text.uDMAChannelSizeGet:00000000 uDMAChannelSizeGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1094   .text.uDMAChannelModeGet:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1099   .text.uDMAChannelModeGet:00000000 uDMAChannelModeGet
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1163   .text.uDMAChannelSelectSecondary:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1168   .text.uDMAChannelSelectSecondary:00000000 uDMAChannelSelectSecondary
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1204   .text.uDMAChannelSelectDefault:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1209   .text.uDMAChannelSelectDefault:00000000 uDMAChannelSelectDefault
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1246   .text.uDMAIntRegister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1251   .text.uDMAIntRegister:00000000 uDMAIntRegister
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1285   .text.uDMAIntUnregister:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1290   .text.uDMAIntUnregister:00000000 uDMAIntUnregister
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1322   .text.uDMAIntStatus:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1327   .text.uDMAIntStatus:00000000 uDMAIntStatus
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1354   .text.uDMAIntClear:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1359   .text.uDMAIntClear:00000000 uDMAIntClear
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1391   .text.uDMAChannelAssign:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\ccJzEBcD.s:1396   .text.uDMAChannelAssign:00000000 uDMAChannelAssign
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+IntRegister
+IntEnable
+IntDisable
+IntUnregister

@@ -1,0 +1,457 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"startup_gcc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.bss
+  19              		.align	2
+  20              	pulStack:
+  21 0000 00000000 		.space	256
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  22              		.global	g_pfnVectors
+  23              		.section	.isr_vector,"a",%progbits
+  24              		.align	2
+  27              	g_pfnVectors:
+  28 0000 00010000 		.word	pulStack+256
+  29 0004 00000000 		.word	ResetISR
+  30 0008 00000000 		.word	NmiSR
+  31 000c 00000000 		.word	FaultISR
+  32 0010 00000000 		.word	IntDefaultHandler
+  33 0014 00000000 		.word	IntDefaultHandler
+  34 0018 00000000 		.word	IntDefaultHandler
+  35 001c 00000000 		.word	0
+  36 0020 00000000 		.word	0
+  37 0024 00000000 		.word	0
+  38 0028 00000000 		.word	0
+  39 002c 00000000 		.word	IntDefaultHandler
+  40 0030 00000000 		.word	IntDefaultHandler
+  41 0034 00000000 		.word	0
+  42 0038 00000000 		.word	IntDefaultHandler
+  43 003c 00000000 		.word	IntDefaultHandler
+  44 0040 00000000 		.word	IntDefaultHandler
+  45 0044 00000000 		.word	IntDefaultHandler
+  46 0048 00000000 		.word	IntDefaultHandler
+  47 004c 00000000 		.word	IntDefaultHandler
+  48 0050 00000000 		.word	IntDefaultHandler
+  49 0054 00000000 		.word	IntDefaultHandler
+  50 0058 00000000 		.word	IntDefaultHandler
+  51 005c 00000000 		.word	IntDefaultHandler
+  52 0060 00000000 		.word	IntDefaultHandler
+  53 0064 00000000 		.word	IntDefaultHandler
+  54 0068 00000000 		.word	IntDefaultHandler
+  55 006c 00000000 		.word	IntDefaultHandler
+  56 0070 00000000 		.word	IntDefaultHandler
+  57 0074 00000000 		.word	IntDefaultHandler
+  58 0078 00000000 		.word	IntDefaultHandler
+  59 007c 00000000 		.word	IntDefaultHandler
+  60 0080 00000000 		.word	IntDefaultHandler
+  61 0084 00000000 		.word	IntDefaultHandler
+  62 0088 00000000 		.word	IntDefaultHandler
+  63 008c 00000000 		.word	IntDefaultHandler
+  64 0090 00000000 		.word	IntDefaultHandler
+  65 0094 00000000 		.word	IntDefaultHandler
+  66 0098 00000000 		.word	IntDefaultHandler
+  67 009c 00000000 		.word	IntDefaultHandler
+  68 00a0 00000000 		.word	IntDefaultHandler
+  69 00a4 00000000 		.word	IntDefaultHandler
+  70 00a8 00000000 		.word	IntDefaultHandler
+  71 00ac 00000000 		.word	IntDefaultHandler
+  72 00b0 00000000 		.word	IntDefaultHandler
+  73 00b4 00000000 		.word	IntDefaultHandler
+  74              		.section	.text.ResetISR,"ax",%progbits
+  75              		.align	2
+  76              		.global	ResetISR
+  77              		.thumb
+  78              		.thumb_func
+  80              	ResetISR:
+  81              	.LFB0:
+  82              		.file 1 "../startup_gcc.c"
+   1:../startup_gcc.c **** //*****************************************************************************
+   2:../startup_gcc.c **** //
+   3:../startup_gcc.c **** // startup_gcc.c - Startup code for use with GNU tools.
+   4:../startup_gcc.c **** //
+   5:../startup_gcc.c **** // Copyright (c) 2007-2011 Texas Instruments Incorporated.  All rights reserved.
+   6:../startup_gcc.c **** // Software License Agreement
+   7:../startup_gcc.c **** // 
+   8:../startup_gcc.c **** // Texas Instruments (TI) is supplying this software for use solely and
+   9:../startup_gcc.c **** // exclusively on TI's microcontroller products. The software is owned by
+  10:../startup_gcc.c **** // TI and/or its suppliers, and is protected under applicable copyright
+  11:../startup_gcc.c **** // laws. You may not combine this software with "viral" open-source
+  12:../startup_gcc.c **** // software in order to form a larger program.
+  13:../startup_gcc.c **** // 
+  14:../startup_gcc.c **** // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+  15:../startup_gcc.c **** // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+  16:../startup_gcc.c **** // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  17:../startup_gcc.c **** // A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
+  18:../startup_gcc.c **** // CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  19:../startup_gcc.c **** // DAMAGES, FOR ANY REASON WHATSOEVER.
+  20:../startup_gcc.c **** // 
+  21:../startup_gcc.c **** //
+  22:../startup_gcc.c **** //*****************************************************************************
+  23:../startup_gcc.c **** 
+  24:../startup_gcc.c **** //*****************************************************************************
+  25:../startup_gcc.c **** //
+  26:../startup_gcc.c **** // Forward declaration of the default fault handlers.
+  27:../startup_gcc.c **** //
+  28:../startup_gcc.c **** //*****************************************************************************
+  29:../startup_gcc.c **** void ResetISR(void);
+  30:../startup_gcc.c **** static void NmiSR(void);
+  31:../startup_gcc.c **** static void FaultISR(void);
+  32:../startup_gcc.c **** static void IntDefaultHandler(void);
+  33:../startup_gcc.c **** 
+  34:../startup_gcc.c **** //*****************************************************************************
+  35:../startup_gcc.c **** //
+  36:../startup_gcc.c **** // The entry point for the application.
+  37:../startup_gcc.c **** //
+  38:../startup_gcc.c **** //*****************************************************************************
+  39:../startup_gcc.c **** extern int main(void);
+  40:../startup_gcc.c **** 
+  41:../startup_gcc.c **** //*****************************************************************************
+  42:../startup_gcc.c **** //
+  43:../startup_gcc.c **** // Reserve space for the system stack.
+  44:../startup_gcc.c **** //
+  45:../startup_gcc.c **** //*****************************************************************************
+  46:../startup_gcc.c **** static unsigned long pulStack[64];
+  47:../startup_gcc.c **** 
+  48:../startup_gcc.c **** //*****************************************************************************
+  49:../startup_gcc.c **** //
+  50:../startup_gcc.c **** // The vector table.  Note that the proper constructs must be placed on this to
+  51:../startup_gcc.c **** // ensure that it ends up at physical address 0x0000.0000.
+  52:../startup_gcc.c **** //
+  53:../startup_gcc.c **** //*****************************************************************************
+  54:../startup_gcc.c **** __attribute__ ((section(".isr_vector")))
+  55:../startup_gcc.c **** void (* const g_pfnVectors[])(void) =
+  56:../startup_gcc.c **** {
+  57:../startup_gcc.c ****     (void (*)(void))((unsigned long)pulStack + sizeof(pulStack)),
+  58:../startup_gcc.c ****                                             // The initial stack pointer
+  59:../startup_gcc.c ****     ResetISR,                               // The reset handler
+  60:../startup_gcc.c ****     NmiSR,                                  // The NMI handler
+  61:../startup_gcc.c ****     FaultISR,                               // The hard fault handler
+  62:../startup_gcc.c ****     IntDefaultHandler,                      // The MPU fault handler
+  63:../startup_gcc.c ****     IntDefaultHandler,                      // The bus fault handler
+  64:../startup_gcc.c ****     IntDefaultHandler,                      // The usage fault handler
+  65:../startup_gcc.c ****     0,                                      // Reserved
+  66:../startup_gcc.c ****     0,                                      // Reserved
+  67:../startup_gcc.c ****     0,                                      // Reserved
+  68:../startup_gcc.c ****     0,                                      // Reserved
+  69:../startup_gcc.c ****     IntDefaultHandler,                      // SVCall handler
+  70:../startup_gcc.c ****     IntDefaultHandler,                      // Debug monitor handler
+  71:../startup_gcc.c ****     0,                                      // Reserved
+  72:../startup_gcc.c ****     IntDefaultHandler,                      // The PendSV handler
+  73:../startup_gcc.c ****     IntDefaultHandler,                      // The SysTick handler
+  74:../startup_gcc.c ****     IntDefaultHandler,                      // GPIO Port A
+  75:../startup_gcc.c ****     IntDefaultHandler,                      // GPIO Port B
+  76:../startup_gcc.c ****     IntDefaultHandler,                      // GPIO Port C
+  77:../startup_gcc.c ****     IntDefaultHandler,                      // GPIO Port D
+  78:../startup_gcc.c ****     IntDefaultHandler,                      // GPIO Port E
+  79:../startup_gcc.c ****     IntDefaultHandler,                      // UART0 Rx and Tx
+  80:../startup_gcc.c ****     IntDefaultHandler,                      // UART1 Rx and Tx
+  81:../startup_gcc.c ****     IntDefaultHandler,                      // SSI0 Rx and Tx
+  82:../startup_gcc.c ****     IntDefaultHandler,                      // I2C0 Master and Slave
+  83:../startup_gcc.c ****     IntDefaultHandler,                      // PWM Fault
+  84:../startup_gcc.c ****     IntDefaultHandler,                      // PWM Generator 0
+  85:../startup_gcc.c ****     IntDefaultHandler,                      // PWM Generator 1
+  86:../startup_gcc.c ****     IntDefaultHandler,                      // PWM Generator 2
+  87:../startup_gcc.c ****     IntDefaultHandler,                      // Quadrature Encoder 0
+  88:../startup_gcc.c ****     IntDefaultHandler,                      // ADC Sequence 0
+  89:../startup_gcc.c ****     IntDefaultHandler,                      // ADC Sequence 1
+  90:../startup_gcc.c ****     IntDefaultHandler,                      // ADC Sequence 2
+  91:../startup_gcc.c ****     IntDefaultHandler,                      // ADC Sequence 3
+  92:../startup_gcc.c ****     IntDefaultHandler,                      // Watchdog timer
+  93:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 0 subtimer A
+  94:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 0 subtimer B
+  95:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 1 subtimer A
+  96:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 1 subtimer B
+  97:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 2 subtimer A
+  98:../startup_gcc.c ****     IntDefaultHandler,                      // Timer 2 subtimer B
+  99:../startup_gcc.c ****     IntDefaultHandler,                      // Analog Comparator 0
+ 100:../startup_gcc.c ****     IntDefaultHandler,                      // Analog Comparator 1
+ 101:../startup_gcc.c ****     IntDefaultHandler,                      // Analog Comparator 2
+ 102:../startup_gcc.c ****     IntDefaultHandler,                      // System Control (PLL, OSC, BO)
+ 103:../startup_gcc.c ****     IntDefaultHandler                       // FLASH Control
+ 104:../startup_gcc.c **** };
+ 105:../startup_gcc.c **** 
+ 106:../startup_gcc.c **** //*****************************************************************************
+ 107:../startup_gcc.c **** //
+ 108:../startup_gcc.c **** // The following are constructs created by the linker, indicating where the
+ 109:../startup_gcc.c **** // the "data" and "bss" segments reside in memory.  The initializers for the
+ 110:../startup_gcc.c **** // for the "data" segment resides immediately following the "text" segment.
+ 111:../startup_gcc.c **** //
+ 112:../startup_gcc.c **** //*****************************************************************************
+ 113:../startup_gcc.c **** extern unsigned long _etext;
+ 114:../startup_gcc.c **** extern unsigned long _data;
+ 115:../startup_gcc.c **** extern unsigned long _edata;
+ 116:../startup_gcc.c **** extern unsigned long _bss;
+ 117:../startup_gcc.c **** extern unsigned long _ebss;
+ 118:../startup_gcc.c **** 
+ 119:../startup_gcc.c **** //*****************************************************************************
+ 120:../startup_gcc.c **** //
+ 121:../startup_gcc.c **** // This is the code that gets called when the processor first starts execution
+ 122:../startup_gcc.c **** // following a reset event.  Only the absolutely necessary set is performed,
+ 123:../startup_gcc.c **** // after which the application supplied entry() routine is called.  Any fancy
+ 124:../startup_gcc.c **** // actions (such as making decisions based on the reset cause register, and
+ 125:../startup_gcc.c **** // resetting the bits in that register) are left solely in the hands of the
+ 126:../startup_gcc.c **** // application.
+ 127:../startup_gcc.c **** //
+ 128:../startup_gcc.c **** //*****************************************************************************
+ 129:../startup_gcc.c **** void
+ 130:../startup_gcc.c **** ResetISR(void)
+ 131:../startup_gcc.c **** {
+  83              		.loc 1 131 0
+  84              		.cfi_startproc
+  85              		@ args = 0, pretend = 0, frame = 8
+  86              		@ frame_needed = 1, uses_anonymous_args = 0
+  87 0000 80B5     		push	{r7, lr}
+  88              	.LCFI0:
+  89              		.cfi_def_cfa_offset 8
+  90              		.cfi_offset 14, -4
+  91              		.cfi_offset 7, -8
+  92 0002 82B0     		sub	sp, sp, #8
+  93              	.LCFI1:
+  94              		.cfi_def_cfa_offset 16
+  95 0004 00AF     		add	r7, sp, #0
+  96              	.LCFI2:
+  97              		.cfi_def_cfa_register 7
+ 132:../startup_gcc.c ****     unsigned long *pulSrc, *pulDest;
+ 133:../startup_gcc.c **** 
+ 134:../startup_gcc.c ****     //
+ 135:../startup_gcc.c ****     // Copy the data segment initializers from flash to SRAM.
+ 136:../startup_gcc.c ****     //
+ 137:../startup_gcc.c ****     pulSrc = &_etext;
+  98              		.loc 1 137 0
+  99 0006 40F20003 		movw	r3, #:lower16:_etext
+ 100 000a C0F20003 		movt	r3, #:upper16:_etext
+ 101 000e 7B60     		str	r3, [r7, #4]
+ 138:../startup_gcc.c ****     for(pulDest = &_data; pulDest < &_edata; )
+ 102              		.loc 1 138 0
+ 103 0010 40F20003 		movw	r3, #:lower16:_data
+ 104 0014 C0F20003 		movt	r3, #:upper16:_data
+ 105 0018 3B60     		str	r3, [r7, #0]
+ 106 001a 0BE0     		b	.L2
+ 107              	.L3:
+ 139:../startup_gcc.c ****     {
+ 140:../startup_gcc.c ****         *pulDest++ = *pulSrc++;
+ 108              		.loc 1 140 0
+ 109 001c 7B68     		ldr	r3, [r7, #4]
+ 110 001e 1A68     		ldr	r2, [r3, #0]
+ 111 0020 3B68     		ldr	r3, [r7, #0]
+ 112 0022 1A60     		str	r2, [r3, #0]
+ 113 0024 3B68     		ldr	r3, [r7, #0]
+ 114 0026 03F10403 		add	r3, r3, #4
+ 115 002a 3B60     		str	r3, [r7, #0]
+ 116 002c 7B68     		ldr	r3, [r7, #4]
+ 117 002e 03F10403 		add	r3, r3, #4
+ 118 0032 7B60     		str	r3, [r7, #4]
+ 119              	.L2:
+ 138:../startup_gcc.c ****     for(pulDest = &_data; pulDest < &_edata; )
+ 120              		.loc 1 138 0 discriminator 1
+ 121 0034 3A68     		ldr	r2, [r7, #0]
+ 122 0036 40F20003 		movw	r3, #:lower16:_edata
+ 123 003a C0F20003 		movt	r3, #:upper16:_edata
+ 124 003e 9A42     		cmp	r2, r3
+ 125 0040 ECD3     		bcc	.L3
+ 141:../startup_gcc.c ****     }
+ 142:../startup_gcc.c **** 
+ 143:../startup_gcc.c ****     //
+ 144:../startup_gcc.c ****     // Zero fill the bss segment.
+ 145:../startup_gcc.c ****     //
+ 146:../startup_gcc.c ****     __asm("    ldr     r0, =_bss\n"
+ 126              		.loc 1 146 0
+ 127              	@ 146 "../startup_gcc.c" 1
+ 128 0042 0848     		    ldr     r0, =_bss
+ 129 0044 0849     	    ldr     r1, =_ebss
+ 130 0046 4FF00002 	    mov     r2, #0
+ 131              	    .thumb_func
+ 132              	zero_loop:
+ 133 004a 8842     	        cmp     r0, r1
+ 134 004c B8BF     	        it      lt
+ 135 004e 40F8042B 	        strlt   r2, [r0], #4
+ 136 0052 FFF6FAAF 	        blt     zero_loop
+ 137              	@ 0 "" 2
+ 147:../startup_gcc.c ****           "    ldr     r1, =_ebss\n"
+ 148:../startup_gcc.c ****           "    mov     r2, #0\n"
+ 149:../startup_gcc.c ****           "    .thumb_func\n"
+ 150:../startup_gcc.c ****           "zero_loop:\n"
+ 151:../startup_gcc.c ****           "        cmp     r0, r1\n"
+ 152:../startup_gcc.c ****           "        it      lt\n"
+ 153:../startup_gcc.c ****           "        strlt   r2, [r0], #4\n"
+ 154:../startup_gcc.c ****           "        blt     zero_loop");
+ 155:../startup_gcc.c **** 
+ 156:../startup_gcc.c ****     //
+ 157:../startup_gcc.c ****     // Call the application's entry point.
+ 158:../startup_gcc.c ****     //
+ 159:../startup_gcc.c ****     main();
+ 138              		.loc 1 159 0
+ 139              		.thumb
+ 140 0056 FFF7FEFF 		bl	main
+ 160:../startup_gcc.c **** }
+ 141              		.loc 1 160 0
+ 142 005a 07F10807 		add	r7, r7, #8
+ 143 005e BD46     		mov	sp, r7
+ 144 0060 80BD     		pop	{r7, pc}
+ 145              		.cfi_endproc
+ 146              	.LFE0:
+ 148 0062 0000     		.section	.text.NmiSR,"ax",%progbits
+ 149              		.align	2
+ 150              		.thumb
+ 151              		.thumb_func
+ 153              	NmiSR:
+ 154              	.LFB1:
+ 161:../startup_gcc.c **** 
+ 162:../startup_gcc.c **** //*****************************************************************************
+ 163:../startup_gcc.c **** //
+ 164:../startup_gcc.c **** // This is the code that gets called when the processor receives a NMI.  This
+ 165:../startup_gcc.c **** // simply enters an infinite loop, preserving the system state for examination
+ 166:../startup_gcc.c **** // by a debugger.
+ 167:../startup_gcc.c **** //
+ 168:../startup_gcc.c **** //*****************************************************************************
+ 169:../startup_gcc.c **** static void
+ 170:../startup_gcc.c **** NmiSR(void)
+ 171:../startup_gcc.c **** {
+ 155              		.loc 1 171 0
+ 156              		.cfi_startproc
+ 157              		@ args = 0, pretend = 0, frame = 0
+ 158              		@ frame_needed = 1, uses_anonymous_args = 0
+ 159              		@ link register save eliminated.
+ 160 0000 80B4     		push	{r7}
+ 161              	.LCFI3:
+ 162              		.cfi_def_cfa_offset 4
+ 163              		.cfi_offset 7, -4
+ 164 0002 00AF     		add	r7, sp, #0
+ 165              	.LCFI4:
+ 166              		.cfi_def_cfa_register 7
+ 167              	.L5:
+ 172:../startup_gcc.c ****     //
+ 173:../startup_gcc.c ****     // Enter an infinite loop.
+ 174:../startup_gcc.c ****     //
+ 175:../startup_gcc.c ****     while(1)
+ 176:../startup_gcc.c ****     {
+ 177:../startup_gcc.c ****     }
+ 168              		.loc 1 177 0 discriminator 1
+ 169 0004 FEE7     		b	.L5
+ 170              		.cfi_endproc
+ 171              	.LFE1:
+ 173              		.section	.text.FaultISR,"ax",%progbits
+ 174              		.align	2
+ 175              		.thumb
+ 176              		.thumb_func
+ 178              	FaultISR:
+ 179              	.LFB2:
+ 178:../startup_gcc.c **** }
+ 179:../startup_gcc.c **** 
+ 180:../startup_gcc.c **** //*****************************************************************************
+ 181:../startup_gcc.c **** //
+ 182:../startup_gcc.c **** // This is the code that gets called when the processor receives a fault
+ 183:../startup_gcc.c **** // interrupt.  This simply enters an infinite loop, preserving the system state
+ 184:../startup_gcc.c **** // for examination by a debugger.
+ 185:../startup_gcc.c **** //
+ 186:../startup_gcc.c **** //*****************************************************************************
+ 187:../startup_gcc.c **** static void
+ 188:../startup_gcc.c **** FaultISR(void)
+ 189:../startup_gcc.c **** {
+ 180              		.loc 1 189 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 1, uses_anonymous_args = 0
+ 184              		@ link register save eliminated.
+ 185 0000 80B4     		push	{r7}
+ 186              	.LCFI5:
+ 187              		.cfi_def_cfa_offset 4
+ 188              		.cfi_offset 7, -4
+ 189 0002 00AF     		add	r7, sp, #0
+ 190              	.LCFI6:
+ 191              		.cfi_def_cfa_register 7
+ 192              	.L7:
+ 190:../startup_gcc.c ****     //
+ 191:../startup_gcc.c ****     // Enter an infinite loop.
+ 192:../startup_gcc.c ****     //
+ 193:../startup_gcc.c ****     while(1)
+ 194:../startup_gcc.c ****     {
+ 195:../startup_gcc.c ****     }
+ 193              		.loc 1 195 0 discriminator 1
+ 194 0004 FEE7     		b	.L7
+ 195              		.cfi_endproc
+ 196              	.LFE2:
+ 198              		.section	.text.IntDefaultHandler,"ax",%progbits
+ 199              		.align	2
+ 200              		.thumb
+ 201              		.thumb_func
+ 203              	IntDefaultHandler:
+ 204              	.LFB3:
+ 196:../startup_gcc.c **** }
+ 197:../startup_gcc.c **** 
+ 198:../startup_gcc.c **** //*****************************************************************************
+ 199:../startup_gcc.c **** //
+ 200:../startup_gcc.c **** // This is the code that gets called when the processor receives an unexpected
+ 201:../startup_gcc.c **** // interrupt.  This simply enters an infinite loop, preserving the system state
+ 202:../startup_gcc.c **** // for examination by a debugger.
+ 203:../startup_gcc.c **** //
+ 204:../startup_gcc.c **** //*****************************************************************************
+ 205:../startup_gcc.c **** static void
+ 206:../startup_gcc.c **** IntDefaultHandler(void)
+ 207:../startup_gcc.c **** {
+ 205              		.loc 1 207 0
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 1, uses_anonymous_args = 0
+ 209              		@ link register save eliminated.
+ 210 0000 80B4     		push	{r7}
+ 211              	.LCFI7:
+ 212              		.cfi_def_cfa_offset 4
+ 213              		.cfi_offset 7, -4
+ 214 0002 00AF     		add	r7, sp, #0
+ 215              	.LCFI8:
+ 216              		.cfi_def_cfa_register 7
+ 217              	.L9:
+ 208:../startup_gcc.c ****     //
+ 209:../startup_gcc.c ****     // Go into an infinite loop.
+ 210:../startup_gcc.c ****     //
+ 211:../startup_gcc.c ****     while(1)
+ 212:../startup_gcc.c ****     {
+ 213:../startup_gcc.c ****     }
+ 218              		.loc 1 213 0 discriminator 1
+ 219 0004 FEE7     		b	.L9
+ 220              		.cfi_endproc
+ 221              	.LFE3:
+ 223              		.text
+ 224              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 startup_gcc.c
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:19     .bss:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:20     .bss:00000000 pulStack
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:27     .isr_vector:00000000 g_pfnVectors
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:24     .isr_vector:00000000 $d
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:80     .text.ResetISR:00000000 ResetISR
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:153    .text.NmiSR:00000000 NmiSR
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:178    .text.FaultISR:00000000 FaultISR
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:203    .text.IntDefaultHandler:00000000 IntDefaultHandler
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:75     .text.ResetISR:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:132    .text.ResetISR:0000004a zero_loop
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:149    .text.NmiSR:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:174    .text.FaultISR:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:199    .text.IntDefaultHandler:00000000 $t
+C:\Users\Sarthak\AppData\Local\Temp\cc3qJKEA.s:148    .text.ResetISR:00000062 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+_etext
+_data
+_edata
+_bss
+_ebss
+main
